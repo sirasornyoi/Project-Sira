@@ -44,6 +44,8 @@ export interface PMScheduleItem {
   duration: number; // TTM in minutes
   actualDuration?: number; // actual time spent on PM tasks in minutes
   overtimeReason?: string; // สาเหตุที่ใช้เวลาเกินเกณฑ์มาตรฐาน (Overtime / Delay Reason)
+  destination?: string; // สถานที่ / ปลายทางที่กลุ่มนี้ไป (เช่น ไลน์ A ชั้น 2, แท่นเครื่อง RIM01)
+  peopleCount?: number; // จำนวนคนในกลุ่ม
   usedParts?: { partId: string; quantity: number; pricePerUnit: number; totalCost: number }[];
   otherCost?: number;
   rescheduledFromDate?: string; // วันที่ตามแผนเดิมก่อนเลื่อน
@@ -82,12 +84,32 @@ export interface RepairLog {
   why4: string;
   why5: string;
   correctiveAction: string; // มาตรการแก้ไข
+  destination?: string; // สถานที่ / พิกัดที่ไปซ่อม (เช่น หน้างานไลน์บรรจุ PACKING)
+  peopleCount?: number; // จำนวนคนในกลุ่ม
   photo?: string; // base64
   duration: number; // MTTR in minutes (repairDoneTime - breakdownTime)
   status?: 'กำลังซ่อม' | 'ปิดงาน'; // สถานะใบงานซ่อม
   usedParts?: { partId: string; quantity: number; pricePerUnit: number; totalCost: number }[];
   otherCost?: number;
   excelFile?: { name: string; content: string }; // ไฟล์ Excel แนบประกอบใบซ่อม (Base64)
+}
+
+export interface ContactOtherTask {
+  id: string;
+  type: 'Other' | 'Contact';
+  title: string; // ชื่องาน เช่น ติดต่อร้านอะไหล่, ประสานงานผู้รับเหมา, นำชิ้นส่วนไปโรงกลึง, งานประชุม
+  category?: 'งานติดต่อ' | 'งานจัดซื้อ/ซัพพลายเออร์' | 'งานโรงกลึง/ภายนอก' | 'งานประชุม/อบรม' | 'งานสนับสนุน' | 'งานอื่นๆ';
+  date: string; // YYYY-MM-DD
+  destination: string; // สถานที่ / ปลายทางที่กลุ่มนี้ไป (กลุ่มนี้ไปไหน)
+  peopleCount: number; // จำนวนคนในกลุ่ม
+  technicians: string[]; // รายชื่อช่างหรือชื่อคนในกลุ่ม
+  technicianNamesText?: string; // รายชื่อคนแบบข้อความเพิ่มเติม
+  startTime?: string; // HH:MM
+  endTime?: string; // HH:MM
+  duration?: number; // in minutes
+  status: 'รอดำเนินการ' | 'กำลังทำ' | 'เสร็จสิ้น';
+  notes?: string;
+  createdAt?: string;
 }
 
 export interface ImprovementWorkLog {
@@ -113,7 +135,7 @@ export interface ImprovementProject {
   photoAfter?: string; // base64
 }
 
-export type ScheduleItem = PMScheduleItem | OperationScheduleItem;
+export type ScheduleItem = PMScheduleItem | OperationScheduleItem | ContactOtherTask;
 
 export interface SystemSettings {
   workingHoursPerDay: number; // working hours per day, defaults to 8 (480 mins)
@@ -246,5 +268,28 @@ export interface CD5Project {
   usageHistory?: CD5UsageHistoryItem[];
 }
 
+export interface TimeBreakHistoryRecord {
+  id: string;
+  replacedDate: string; // วันที่เปลี่ยนจริง YYYY-MM-DD
+  cycleNumber: number; // รอบที่เปลี่ยน เช่น รอบที่ 1, 2, 3...
+  technician: string; // ช่างผู้เปลี่ยน
+  note?: string; // รายละเอียดการเปลี่ยน/สภาพอะไหล่เดิม
+}
 
-
+export interface TimeBreakPartItem {
+  id: string;
+  machineId: string; // รหัสเครื่องจักร เช่น RIM01, VAC01
+  partName: string; // ชื่ออะไหล่ เช่น สายพานไทม์มิ่ง HTD 8M, ตลับลูกปืน 6205, ซีลลูกสูบ
+  partCode?: string; // รหัสอะไหล่ เช่น SP-01, BRG-6205
+  componentLocation: string; // ส่วนไหนที่ต้องเปลี่ยน เช่น ชุดขับแกน X, มอเตอร์ส่งกำลัง, กระบอกลมตัด
+  startDate: string; // วันเริ่มเปลี่ยน / วันที่เริ่มนับรอบล่าสุด (YYYY-MM-DD)
+  intervalValue: number; // จำนวนรอบความถี่ (ตัวเลข) เช่น 1, 3, 6, 30
+  intervalUnit: 'วัน' | 'เดือน' | 'ปี' | 'สัปดาห์' | 'รอบ'; // หน่วยความถี่ (ครั้ง/เวลา)
+  cycleCount: number; // จำนวนรอบการเปลี่ยนที่ผ่านมา (เช่น 1, 2, 3)
+  nextDueDate: string; // วันครบเวลาเปลี่ยนอะไหล่ (คำนวณอัตโนมัติ)
+  lastReplacedDate?: string; // วันที่เปลี่ยนครั้งล่าสุด (YYYY-MM-DD)
+  notes?: string; // หมายเหตุเพิ่มเติม
+  costPerUnit?: number; // ราคาต่อหน่วย
+  assignedTechnician?: string; // ช่างผู้รับผิดชอบ
+  history?: TimeBreakHistoryRecord[]; // ประวัติรอบการเปลี่ยนที่ผ่านมา
+}

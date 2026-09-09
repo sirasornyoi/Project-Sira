@@ -2,12 +2,12 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { 
   Machine, PMPlan, PMScheduleItem, OperationScheduleItem, 
   RepairLog, ImprovementProject, SystemSettings, ScheduleItem, SetupLog, Employee,
-  TechnicianLeave, SparePart, CD5Project
+  TechnicianLeave, SparePart, CD5Project, TimeBreakPartItem
 } from '../types';
 import { 
   PRELOADED_MACHINES, PRELOADED_TECHNICIANS, PRELOADED_PM_PLANS, 
   PRELOADED_REPAIRS, PRELOADED_IMPROVEMENTS, PRELOADED_SCHEDULES, PRELOADED_SETUPS,
-  PRELOADED_SPARE_PARTS, PRELOADED_CD5_PROJECTS
+  PRELOADED_SPARE_PARTS, PRELOADED_CD5_PROJECTS, PRELOADED_TIME_BREAK_PARTS
 } from '../data/preloaded';
 
 interface AppContextType {
@@ -35,6 +35,8 @@ interface AppContextType {
   setSpareParts: React.Dispatch<React.SetStateAction<SparePart[]>>;
   cd5Projects: CD5Project[];
   setCd5Projects: React.Dispatch<React.SetStateAction<CD5Project[]>>;
+  timeBreakParts: TimeBreakPartItem[];
+  setTimeBreakParts: React.Dispatch<React.SetStateAction<TimeBreakPartItem[]>>;
   resetToDefaults: () => void;
   exportData: () => string;
   importData: (jsonStr: string) => boolean;
@@ -54,6 +56,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [leaves, setLeaves] = useState<TechnicianLeave[]>([]);
   const [spareParts, setSpareParts] = useState<SparePart[]>([]);
   const [cd5Projects, setCd5Projects] = useState<CD5Project[]>([]);
+  const [timeBreakParts, setTimeBreakParts] = useState<TimeBreakPartItem[]>([]);
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
   
   const [settings, setSettings] = useState<SystemSettings>({
@@ -101,6 +104,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             setSpareParts(serverData.spareParts || PRELOADED_SPARE_PARTS);
             setLeaves(serverData.leaves || []);
             setCd5Projects(serverData.cd5Projects || PRELOADED_CD5_PROJECTS);
+            setTimeBreakParts(serverData.timeBreakParts || PRELOADED_TIME_BREAK_PARTS);
             if (serverData.settings) {
               setSettings(serverData.settings);
             }
@@ -126,6 +130,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const storedSpareParts = localStorage.getItem('maint_spare_parts');
         const storedLeaves = localStorage.getItem('maint_leaves');
         const storedCd5 = localStorage.getItem('maint_cd5_projects');
+        const storedTimeBreakParts = localStorage.getItem('maint_time_break_parts');
 
         if (storedMachines) setMachines(JSON.parse(storedMachines));
         else setMachines(PRELOADED_MACHINES);
@@ -164,6 +169,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
         if (storedCd5) setCd5Projects(JSON.parse(storedCd5));
         else setCd5Projects(PRELOADED_CD5_PROJECTS);
+
+        if (storedTimeBreakParts) setTimeBreakParts(JSON.parse(storedTimeBreakParts));
+        else setTimeBreakParts(PRELOADED_TIME_BREAK_PARTS);
 
         if (storedLeaves) setLeaves(JSON.parse(storedLeaves));
         else {
@@ -205,6 +213,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       localStorage.setItem('maint_leaves', JSON.stringify(leaves));
       localStorage.setItem('maint_spare_parts', JSON.stringify(spareParts));
       localStorage.setItem('maint_cd5_projects', JSON.stringify(cd5Projects));
+      localStorage.setItem('maint_time_break_parts', JSON.stringify(timeBreakParts));
       localStorage.setItem('maint_settings', JSON.stringify(settings));
     } catch (e) {
       console.warn("LocalStorage quota warning:", e);
@@ -222,6 +231,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       leaves,
       spareParts,
       cd5Projects,
+      timeBreakParts,
       settings
     };
 
@@ -243,7 +253,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return () => clearTimeout(timerId);
   }, [
     machines, technicians, employees, pmPlans, schedules,
-    repairs, improvements, setupLogs, leaves, spareParts, cd5Projects, settings, isLoaded
+    repairs, improvements, setupLogs, leaves, spareParts, cd5Projects, timeBreakParts, settings, isLoaded
   ]);
 
   // Polling for updates from other LAN clients
@@ -278,6 +288,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             checkAndSet(leaves, serverData.leaves, setLeaves);
             checkAndSet(spareParts, serverData.spareParts, setSpareParts);
             checkAndSet(cd5Projects, serverData.cd5Projects, setCd5Projects);
+            checkAndSet(timeBreakParts, serverData.timeBreakParts, setTimeBreakParts);
             checkAndSet(settings, serverData.settings, setSettings);
           }
         }
@@ -292,7 +303,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [
     isLoaded,
     machines, technicians, employees, pmPlans, schedules,
-    repairs, improvements, setupLogs, leaves, spareParts, cd5Projects, settings
+    repairs, improvements, setupLogs, leaves, spareParts, cd5Projects, timeBreakParts, settings
   ]);
 
   const resetToDefaults = () => {
@@ -311,6 +322,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setImprovements(PRELOADED_IMPROVEMENTS);
     setSetupLogs(PRELOADED_SETUPS);
     setCd5Projects(PRELOADED_CD5_PROJECTS);
+    setTimeBreakParts(PRELOADED_TIME_BREAK_PARTS);
     const preloadingLeaves = [
       { id: 'lv-001', technician: 'ช่าง 1', date: '2026-06-08', type: 'ลากิจ' as const, note: 'ติดต่อราชการครอบครัว' },
       { id: 'lv-002', technician: 'ช่าง 2', date: '2026-06-11', type: 'ลาป่วย' as const, note: 'ปวดศีรษะ เป็นไข้หวัด' },
@@ -355,6 +367,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setSpareParts(PRELOADED_SPARE_PARTS);
     localStorage.setItem('maint_spare_parts', JSON.stringify(PRELOADED_SPARE_PARTS));
     localStorage.setItem('maint_cd5_projects', JSON.stringify(PRELOADED_CD5_PROJECTS));
+    localStorage.setItem('maint_time_break_parts', JSON.stringify(PRELOADED_TIME_BREAK_PARTS));
     localStorage.removeItem('maint_settings');
   };
 
@@ -371,6 +384,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       leaves,
       spareParts,
       cd5Projects,
+      timeBreakParts,
       settings
     };
     return JSON.stringify(dataObj, null, 2);
@@ -390,6 +404,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (dataObj.leaves) setLeaves(dataObj.leaves);
       if (dataObj.spareParts) setSpareParts(dataObj.spareParts);
       if (dataObj.cd5Projects) setCd5Projects(dataObj.cd5Projects);
+      if (dataObj.timeBreakParts) setTimeBreakParts(dataObj.timeBreakParts);
       if (dataObj.settings) setSettings(dataObj.settings);
       
       return true;
@@ -413,6 +428,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       settings, setSettings,
       spareParts, setSpareParts,
       cd5Projects, setCd5Projects,
+      timeBreakParts, setTimeBreakParts,
       resetToDefaults,
       exportData,
       importData

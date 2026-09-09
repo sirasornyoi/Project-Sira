@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import * as XLSX from 'xlsx';
 import { useApp } from '../context/AppContext';
 import { PMPlan, PMFrequency, PMStep } from '../types';
 import { 
@@ -249,6 +250,53 @@ export const PMPlanPage: React.FC = () => {
     alert(`นำเข้าเรียบร้อย! นำแผน PM จำนวน ${databaseFormedImports.length} รายการเข้าสู่พิกัดเครื่องจักรสำเร็จแล้ว`);
   };
 
+  // Export PM Plans to Excel (.xlsx)
+  const handleExportPMPlansExcel = () => {
+    try {
+      const plansToExport = selectedMachineId 
+        ? pmPlans.filter(p => p.machineId === selectedMachineId)
+        : pmPlans;
+
+      if (plansToExport.length === 0) {
+        alert('ไม่พบแผนงาน PM สำหรับส่งออก');
+        return;
+      }
+
+      const rows = plansToExport.map((plan, idx) => {
+        const m = machines.find(item => item.id === plan.machineId);
+        const stepsText = (plan.steps || []).map((s, si) => `${si + 1}. ${s.title}${s.duration ? ` (${s.duration} นาที)` : ''}`).join('\n');
+        return {
+          'ลำดับ': idx + 1,
+          'รหัสเครื่องจักร': plan.machineId,
+          'ชื่อเครื่องจักร': m?.name || plan.machineId,
+          'ไลน์ผลิต': m?.lineGroup || '-',
+          'ชื่องาน PM': plan.title,
+          'ความถี่ PM': plan.frequency,
+          'อะไหล่ที่ต้องใช้': plan.spareParts || '-',
+          'เวลาทำงานรวม TTM (นาที)': plan.ttm || 0,
+          'จำนวนขั้นตอน': (plan.steps || []).length,
+          'ขั้นตอนการปฏิบัติงาน': stepsText || '-'
+        };
+      });
+
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(rows);
+      ws['!cols'] = [
+        { wch: 8 }, { wch: 16 }, { wch: 25 }, { wch: 14 },
+        { wch: 35 }, { wch: 16 }, { wch: 30 }, { wch: 22 },
+        { wch: 16 }, { wch: 50 }
+      ];
+      XLSX.utils.book_append_sheet(wb, ws, "PM_Plans");
+
+      const currMach = machines.find(m => m.id === selectedMachineId);
+      const machineName = currMach ? `_${currMach.id}` : '';
+      const fileName = `PM_Plans${machineName}_${new Date().toISOString().split('T')[0]}.xlsx`;
+      XLSX.writeFile(wb, fileName);
+    } catch (err: any) {
+      alert(`เกิดข้อผิดพลาดในการส่งออก Excel: ${err.message || err}`);
+    }
+  };
+
   // Add/Edit Plan Form States
   const [showFormModal, setShowFormModal] = useState(false);
   const [editingPlanId, setEditingPlanId] = useState<string | null>(null);
@@ -471,6 +519,16 @@ export const PMPlanPage: React.FC = () => {
                 >
                   <Upload size={13} className="text-emerald-400" />
                   <span>นำเข้า Excel / วางแปะ</span>
+                </button>
+
+                <button
+                  id="btn-export-pm-excel"
+                  onClick={handleExportPMPlansExcel}
+                  className="flex items-center gap-1.5 px-3 py-2 bg-slate-900 border border-slate-755 text-cyan-300 hover:bg-slate-755 hover:border-slate-600 rounded-xl text-[11px] font-bold transition cursor-pointer"
+                  title="ส่งออกแผน PM ของเครื่องนี้เป็นไฟล์ Excel (.xlsx)"
+                >
+                  <Download size={13} className="text-cyan-400" />
+                  <span>ส่งออก Excel</span>
                 </button>
 
                 <button

@@ -1,4 +1,4 @@
-import { Machine, CD5Project } from '../types';
+import { Machine, CD5Project, TimeBreakPartItem } from '../types';
 
 export const PRELOADED_MACHINES: Machine[] = [
   {id:"RIM01", name:"RICE MIXER", lineGroup:"LINE X"}, 
@@ -785,6 +785,182 @@ export const PRELOADED_CD5_PROJECTS: CD5Project[] = [
         technician: "ช่างกิตติศักดิ์",
         notes: "ทดลองใช้งานเกิน 70 วันแล้ว เทียบกับของเดิมที่ต้องแปะเทปใหม่ทุก 3-14 วัน ประหยัดเวลาช่างและค่าเทปได้มหาศาล"
       }
+    ]
+  }
+];
+
+export const PRELOADED_TIME_BREAK_PARTS: TimeBreakPartItem[] = [
+  {
+    id: "tb-001",
+    machineId: "RIM01",
+    partName: "สายพานส่งกำลังไทม์มิ่ง (Timing Belt HTD-8M-1200)",
+    partCode: "SP-05",
+    componentLocation: "ชุดขับเคลื่อนสายพานขับมอเตอร์หลัก",
+    startDate: "2026-06-10",
+    intervalValue: 3,
+    intervalUnit: "เดือน",
+    cycleCount: 2,
+    nextDueDate: "2026-09-10",
+    lastReplacedDate: "2026-06-10",
+    notes: "เปลี่ยนตามรอบ Time-Break ไตรมาส ตรวจเช็คความตึงและรอยแตกลายงา",
+    costPerUnit: 1250,
+    assignedTechnician: "ช่าง 1",
+    history: [
+      { id: "h-01", replacedDate: "2026-03-10", cycleNumber: 1, technician: "ช่าง 1", note: "เริ่มติดตั้งรอบแรก" },
+      { id: "h-02", replacedDate: "2026-06-10", cycleNumber: 2, technician: "ช่าง 1", note: "เปลี่ยนรอบที่ 2 สภาพฟันสึกหรอปานกลาง" }
+    ]
+  },
+  {
+    id: "tb-002",
+    machineId: "RIM01",
+    partName: "ตลับลูกปืนสแตนเลส (Stainless Bearing 6205-2RS Food Grade)",
+    partCode: "SP-01",
+    componentLocation: "แกนเพลาใบกวนผสมข้าวห้องคลุก",
+    startDate: "2026-08-15",
+    intervalValue: 1,
+    intervalUnit: "เดือน",
+    cycleCount: 3,
+    nextDueDate: "2026-09-15",
+    lastReplacedDate: "2026-08-15",
+    notes: "ตลับลูกปืนสัมผัสไอน้ำร้อนสูง ต้องเปลี่ยนทุกเดือนเพื่อป้องกันการติดขัด",
+    costPerUnit: 480,
+    assignedTechnician: "ช่าง 2",
+    history: [
+      { id: "h-03", replacedDate: "2026-07-15", cycleNumber: 2, technician: "ช่าง 2", note: "เปลี่ยนประจำเดือน 7" },
+      { id: "h-04", replacedDate: "2026-08-15", cycleNumber: 3, technician: "ช่าง 2", note: "เปลี่ยนตามรอบเดือน 8 จาระบีเริ่มเสื่อม" }
+    ]
+  },
+  {
+    id: "tb-003",
+    machineId: "TOC01",
+    partName: "สายพานลำเลียง PU สีขาว Food Grade (Cleated Belt)",
+    partCode: "SP-02",
+    componentLocation: "ชุดสายพานลำเลียงข้าวเข้าสู่ไลน์แพ็ค",
+    startDate: "2026-03-20",
+    intervalValue: 6,
+    intervalUnit: "เดือน",
+    cycleCount: 1,
+    nextDueDate: "2026-09-20",
+    lastReplacedDate: "2026-03-20",
+    notes: "ครบกำหนดรอบ 6 เดือน ตรวจสอบรอยต่อและบั้งกั้น",
+    costPerUnit: 3500,
+    assignedTechnician: "ช่าง 3",
+    history: [
+      { id: "h-05", replacedDate: "2026-03-20", cycleNumber: 1, technician: "ช่าง 3", note: "ติดตั้งรอบแรกของปี 2026" }
+    ]
+  },
+  {
+    id: "tb-004",
+    machineId: "TOC02",
+    partName: "ซีลยางกันฝุ่น Viton O-Ring & Dust Seal",
+    partCode: "SP-08",
+    componentLocation: "ตลับลูกปืนดรัมขับหัวสายพาน",
+    startDate: "2026-08-05",
+    intervalValue: 1,
+    intervalUnit: "เดือน",
+    cycleCount: 4,
+    nextDueDate: "2026-09-05",
+    lastReplacedDate: "2026-08-05",
+    notes: "เลยกำหนดรอบเดือน 9 มาเล็กน้อย ต้องรีบดำเนินการเปลี่ยน",
+    costPerUnit: 180,
+    assignedTechnician: "ช่าง 4",
+    history: [
+      { id: "h-06", replacedDate: "2026-08-05", cycleNumber: 4, technician: "ช่าง 4", note: "เปลี่ยนตามรอบปกติ" }
+    ]
+  },
+  {
+    id: "tb-005",
+    machineId: "VAC01",
+    partName: "ชุดไส้กรองสุญญากาศและซีลฝาถัง (Vacuum Filter & Lid Gasket)",
+    partCode: "SP-03",
+    componentLocation: "ห้องสุญญากาศหลักและชุดวาล์วระบายแรงดัน",
+    startDate: "2026-08-12",
+    intervalValue: 1,
+    intervalUnit: "เดือน",
+    cycleCount: 5,
+    nextDueDate: "2026-09-12",
+    lastReplacedDate: "2026-08-12",
+    notes: "ไส้กรองดักละอองน้ำมันและไอน้ำ ทำความสะอาดและเปลี่ยนใหม่ทุกเดือน",
+    costPerUnit: 890,
+    assignedTechnician: "ช่าง 5",
+    history: [
+      { id: "h-07", replacedDate: "2026-08-12", cycleNumber: 5, technician: "ช่าง 5", note: "เปลี่ยนไส้กรองชุดใหม่ สุญญากาศทำงานเต็มประสิทธิภาพ" }
+    ]
+  },
+  {
+    id: "tb-006",
+    machineId: "FFS01",
+    partName: "ใบมีดตัดฟิล์มสแตนเลสฟันปลา (Rotary Zigzag Knife)",
+    partCode: "SP-04",
+    componentLocation: "ชุดลูกกลิ้งตัดฟิล์มแนวขวางด้านท้าย (End Sealer & Cutter)",
+    startDate: "2026-08-25",
+    intervalValue: 30,
+    intervalUnit: "วัน",
+    cycleCount: 6,
+    nextDueDate: "2026-09-24",
+    lastReplacedDate: "2026-08-25",
+    notes: "ใบมีดตัดซองฟิล์มพลาสติก ครบอายุใช้งานทุก 30 วัน",
+    costPerUnit: 2200,
+    assignedTechnician: "ช่าง 1",
+    history: [
+      { id: "h-08", replacedDate: "2026-08-25", cycleNumber: 6, technician: "ช่าง 1", note: "เปลี่ยนใบมีดและตั้งค่าระยะห่าง Gap ใหม่" }
+    ]
+  },
+  {
+    id: "tb-007",
+    machineId: "ATS01",
+    partName: "ลวดความร้อนฮีตเตอร์และแผ่นเทฟลอนซีลปากถาด (Nichrome Wire & Teflon Bar)",
+    partCode: "SP-06",
+    componentLocation: "หัวกดซีลถาดบรรจุภัณฑ์ด้านบน",
+    startDate: "2026-09-02",
+    intervalValue: 15,
+    intervalUnit: "วัน",
+    cycleCount: 8,
+    nextDueDate: "2026-09-17",
+    lastReplacedDate: "2026-09-02",
+    notes: "เปลี่ยนแผ่นเทฟลอนและขดลวดฮีตเตอร์ทุก 15 วันเพื่อรอยซีลสนิท 100%",
+    costPerUnit: 350,
+    assignedTechnician: "ช่าง 2",
+    history: [
+      { id: "h-09", replacedDate: "2026-09-02", cycleNumber: 8, technician: "ช่าง 2", note: "เปลี่ยนรอบที่ 8 รอยซีลเรียบสนิท" }
+    ]
+  },
+  {
+    id: "tb-008",
+    machineId: "BAN01",
+    partName: "ใบมีดตัดสายรัดและสปริงดัน (Strap Cutter Blade & Tension Spring)",
+    partCode: "SP-07",
+    componentLocation: "ชุดหัวยิงสายรัดและใบมีดตัดกล่อง",
+    startDate: "2026-07-28",
+    intervalValue: 2,
+    intervalUnit: "เดือน",
+    cycleCount: 3,
+    nextDueDate: "2026-09-28",
+    lastReplacedDate: "2026-07-28",
+    notes: "รอบเปลี่ยนทุก 2 เดือน",
+    costPerUnit: 650,
+    assignedTechnician: "ช่าง 3",
+    history: [
+      { id: "h-10", replacedDate: "2026-07-28", cycleNumber: 3, technician: "ช่าง 3", note: "เปลี่ยนใบมีดและสปริงใหม่" }
+    ]
+  },
+  {
+    id: "tb-009",
+    machineId: "BCF01",
+    partName: "ซีลยางขอบประตูและพัดลมระบายความเย็น (Silicone Door Gasket)",
+    partCode: "SP-09",
+    componentLocation: "โครงสร้างบานประตูห้องแช่เยือกแข็ง -40°C",
+    startDate: "2026-06-15",
+    intervalValue: 3,
+    intervalUnit: "เดือน",
+    cycleCount: 2,
+    nextDueDate: "2026-09-15",
+    lastReplacedDate: "2026-06-15",
+    notes: "ซีลซิลิโคนทนความเย็นจัด ตรวจสอบการแข็งตัวและแตกร้าว",
+    costPerUnit: 1850,
+    assignedTechnician: "ช่าง 4",
+    history: [
+      { id: "h-11", replacedDate: "2026-06-15", cycleNumber: 2, technician: "ช่าง 4", note: "เปลี่ยนยางขอบประตู ป้องกันลมรั่วซึม" }
     ]
   }
 ];

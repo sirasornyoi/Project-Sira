@@ -12,6 +12,7 @@ import { PresentationPage } from './components/PresentationPage';
 import { SettingsModal } from './components/SettingsModal';
 import { InventoryPage } from './components/InventoryPage';
 import { PMHistoryPage } from './components/PMHistoryPage';
+import { TimeBreakPage } from './components/TimeBreakPage';
 import { TechnicianPortfolioPage } from './components/TechnicianPortfolioPage';
 import { CostDown5Page } from './components/CostDown5Page';
 import { PMOverdueAlertModal } from './components/PMOverdueAlertModal';
@@ -92,7 +93,7 @@ function AppContent() {
       case 2: return <PMPlanPage />;
       case 3: return <SchedulePage />;
       case 4: return <RepairPage />;
-      case 11: return <PMHistoryPage />;
+      case 11: return <TimeBreakPage />;
       case 5: return <ImprovementPage />;
       case 13: return <CostDown5Page />;
       case 8: return <SetupPage />;
@@ -107,11 +108,11 @@ function AppContent() {
 
   // List of sidebar navigation buttons
   const navigationItems = [
-    { id: 3, label: "📅 ตารางงานช่าง", icon: CalendarDays, desc: "มาสเตอร์พิกัดกะ" },
+    { id: 3, label: "📅 ตารางงาน", icon: CalendarDays, desc: "ปฏิทินงานประจำเดือน" },
     { id: 1, label: "🏭 เครื่องจักร", icon: Activity, desc: "ทะเบียนระบบ/สถานะ" },
     { id: 2, label: "⏱ แผน PM", icon: ClipboardList, desc: "ความถี่อิ่มกาก/กระบวน" },
-    { id: 4, label: "🔧 งานบันทึกประวัติซ่อม", icon: Wrench, desc: "วิเคราะห์ Why-Why" },
-    { id: 11, label: "📋 งานบันทึกประวัติ PM", icon: ClipboardCheck, desc: "เทียบเวลามาตรฐาน/จริง" },
+    { id: 4, label: "🔧 BD และ ประวัติการซ่อม", icon: Wrench, desc: "วิเคราะห์ Why-Why" },
+    { id: 11, label: "⏱ เปลี่ยนอะไหล่ Time-Break", icon: Clock, desc: "ระบุเครื่อง/รอบเปลี่ยนอะไหล่" },
     { id: 5, label: "🔨 งานพัฒนา Kaizen", icon: PenTool, desc: "บอร์ดสเตตัสงาน" },
     { id: 13, label: "💰 Cost Down 5 (CD5)", icon: TrendingDown, desc: "ยืดอายุอะไหล่/สั่งทำเอง" },
     { id: 8, label: "⏱ งาน Setup เครื่อง", icon: Clock, desc: "เตรียมเครื่องก่อนและระหว่างวัน" },
