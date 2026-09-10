@@ -16,8 +16,17 @@ export interface Machine {
 export type PMFrequency = 'รายวัน' | 'รายสัปดาห์' | 'รายเดือน' | 'รายปี';
 
 export interface PMStep {
-  title: string;
+  id?: string;
+  itemNo?: number | string; // ลำดับ (เช่น 1, 2, 3...)
+  title: string; // หัวข้อ PM
+  method?: string; // วิธีการ (ดูด้วยสายตา, เครื่องมือวัด, มือ สายตา, ประสาทสัมผัส)
+  standard?: string; // มาตรฐาน (เกณฑ์ที่ยอมรับได้ เช่น โครงสร้างสมบูรณ์, แรงดัน 200-240V)
+  frequency?: string; // ความถี่ (เช่น 1 เดือน/ครั้ง, 1 สัปดาห์/ครั้ง)
   stdTime: number; // in minutes
+  result?: 'ปกติ' | 'ไม่ปกติ' | 'ยังไม่ตรวจ'; // ผลการ PM
+  abnormalDetail?: string; // รายละเอียดสิ่งที่ผิดปกติ หรือ ค่าที่วัดได้
+  remark?: string; // หมายเหตุ (เช่น เบอร์ลูกปืน, ข้อควรระวัง)
+  done?: boolean; // ติ๊กสิ่งที่ทำแล้ว (Checklist Completed)
 }
 
 export interface PMPlan {
@@ -27,7 +36,12 @@ export interface PMPlan {
   frequency: PMFrequency;
   steps: PMStep[];
   spareParts?: string;
+  sparePartsQty?: string; // จำนวนอะไหล่
   ttm: number; // in minutes (sum of stdTime of all steps)
+  inspectorTech?: string; // ผู้ทำการ PM (ทีมช่าง)
+  acknowledgingDept?: string; // ผู้รับทราบทำการ PM (ฝ่ายผลิต)
+  supervisorName?: string; // ผู้ตรวจสอบทำการ PM (หัวหน้าหน่วย PM)
+  lastCheckedDate?: string; // วันที่ทำ PM ล่าสุด (YYYY-MM-DD)
 }
 
 export interface PMRescheduleHistoryItem {

@@ -129,6 +129,7 @@ export const PRELOADED_MACHINES: Machine[] = [
   {id:"FDJ01", name:"เครื่องซักรองเท้า", lineGroup:"UTILITY"},
   {id:"FMC01", name:"FORMING CONVEYOR", lineGroup:"CONVEYOR"}, 
   {id:"FMC02", name:"FORMING CONVEYOR", lineGroup:"CONVEYOR"},
+  {id:"SLI01", name:"เครื่องหั่นผัก (Food Slicer)", lineGroup:"CUTTER", model:"FS-3000", powerVoltage:"200-240V 3Phase", installDate:"2024-01-10", vendor:"Food Slicer Industry", locationZone:"โซนเตรียมวัตถุดิบ", locationRoom:"ห้องหั่นผักและสไลซ์", serialNumber:"SLI-2024-01", notes:"มอเตอร์ขับสายพาน 0.2kW, มอเตอร์ขับใบมีด 1.75kW"},
 ];
 
 export const PRELOADED_TECHNICIANS: string[] = [
