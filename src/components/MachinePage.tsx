@@ -1,11 +1,16 @@
 import React, { useState, useMemo } from 'react';
+import * as XLSX from 'xlsx';
 import { useApp } from '../context/AppContext';
 import { Machine, PMPlan } from '../types';
 import { 
   Plus, Search, ChevronDown, ChevronUp, FileSpreadsheet, Settings, 
   Trash2, Edit3, AlertTriangle, Layers, ListFilter, Eye, CheckCircle2,
-  FolderOpen, Folder
+  FolderOpen, Folder, Download, Upload, Info, Check, X, Building, 
+  Zap, MapPin, Calendar, Hash, FileText, Briefcase, Activity
 } from 'lucide-react';
+import { MachineImportModal } from './MachineImportModal';
+import { ZoneRoomManagerModal } from './ZoneRoomManagerModal';
+import { ZoneRoomFieldGroup } from './ZoneRoomFieldGroup';
 
 interface MachineGroup {
   name: string;
@@ -17,9 +22,10 @@ interface MachineGroup {
 }
 
 export const MachinePage: React.FC = () => {
-  const { machines, setMachines, pmPlans, repairs } = useApp();
+  const { machines, setMachines, pmPlans, repairs, zones, addZone, addRoomToZone } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedMachineId, setExpandedMachineId] = useState<string | null>(null);
+  const [showZoneManagerModal, setShowZoneManagerModal] = useState(false);
   
   // View mode: 'grouped' (machines with same name grouped together) or 'flat'
   const [viewMode, setViewMode] = useState<'grouped' | 'flat'>('grouped');
@@ -31,6 +37,14 @@ export const MachinePage: React.FC = () => {
   const [newId, setNewId] = useState('');
   const [newName, setNewName] = useState('');
   const [newLineGroup, setNewLineGroup] = useState('');
+  const [newModel, setNewModel] = useState('');
+  const [newPowerVoltage, setNewPowerVoltage] = useState('');
+  const [newInstallDate, setNewInstallDate] = useState('');
+  const [newVendor, setNewVendor] = useState('');
+  const [newLocationZone, setNewLocationZone] = useState('');
+  const [newLocationRoom, setNewLocationRoom] = useState('');
+  const [newSerialNumber, setNewSerialNumber] = useState('');
+  const [newNotes, setNewNotes] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
   // Modal states for editing a machine
@@ -39,7 +53,19 @@ export const MachinePage: React.FC = () => {
   const [editName, setEditName] = useState('');
   const [editLineGroup, setEditLineGroup] = useState('');
   const [editStatus, setEditStatus] = useState<'ปกติ' | 'เสีย/ซ่อม'>('ปกติ');
+  const [editModel, setEditModel] = useState('');
+  const [editPowerVoltage, setEditPowerVoltage] = useState('');
+  const [editInstallDate, setEditInstallDate] = useState('');
+  const [editVendor, setEditVendor] = useState('');
+  const [editLocationZone, setEditLocationZone] = useState('');
+  const [editLocationRoom, setEditLocationRoom] = useState('');
+  const [editSerialNumber, setEditSerialNumber] = useState('');
+  const [editNotes, setEditNotes] = useState('');
   const [editErrorMsg, setEditErrorMsg] = useState('');
+
+  // Excel Import / Export modal & feedback states
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [feedbackMessage, setFeedbackMessage] = useState<{ type: 'success' | 'error' | 'info'; text: string } | null>(null);
 
   // Confirmation state for deleting a machine
   const [machineToDelete, setMachineToDelete] = useState<Machine | null>(null);
@@ -67,11 +93,273 @@ export const MachinePage: React.FC = () => {
     };
   };
 
-  const filteredMachines = machines.filter(m => 
-    m.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    m.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    m.lineGroup.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Filter & Display states for Zone and Room
+  const [selectedZone, setSelectedZone] = useState<string>('');
+  const [selectedRoom, setSelectedRoom] = useState<string>('');
+  const [showZoneColumn, setShowZoneColumn] = useState<boolean>(true);
+  const [showRoomColumn, setShowRoomColumn] = useState<boolean>(true);
+
+  // Available unique zones with counts (including structured zones)
+  const availableZones = useMemo(() => {
+    const map = new Map<string, number>();
+    // Pre-populate with defined zones
+    zones.forEach(z => {
+      if (z.name) map.set(z.name, 0);
+    });
+    // Add machine counts
+    machines.forEach(m => {
+      const z = (m.locationZone || '').trim();
+      if (z) {
+        map.set(z, (map.get(z) || 0) + 1);
+      }
+    });
+    return Array.from(map.entries()).sort((a, b) => a[0].localeCompare(b[0], 'th'));
+  }, [machines, zones]);
+
+  // Available unique rooms with counts (filtered by selectedZone if chosen)
+  const availableRooms = useMemo(() => {
+    const map = new Map<string, number>();
+    if (selectedZone) {
+      const zObj = zones.find(
+        z => z.name.toLowerCase().trim() === selectedZone.toLowerCase().trim()
+      );
+      (zObj?.rooms || []).forEach(r => {
+        if (r) map.set(r, 0);
+      });
+    } else {
+      zones.flatMap(z => z.rooms || []).forEach(r => {
+        if (r) map.set(r, 0);
+      });
+    }
+
+    machines.forEach(m => {
+      const z = (m.locationZone || '').trim();
+      if (selectedZone && z.toLowerCase() !== selectedZone.toLowerCase()) return;
+      const r = (m.locationRoom || '').trim();
+      if (r) {
+        map.set(r, (map.get(r) || 0) + 1);
+      }
+    });
+    return Array.from(map.entries()).sort((a, b) => a[0].localeCompare(b[0], 'th'));
+  }, [machines, zones, selectedZone]);
+
+  const filteredMachines = useMemo(() => {
+    return machines.filter(m => {
+      const zoneVal = (m.locationZone || '').trim();
+      if (selectedZone && zoneVal !== selectedZone) {
+        return false;
+      }
+      const roomVal = (m.locationRoom || '').trim();
+      if (selectedRoom && roomVal !== selectedRoom) {
+        return false;
+      }
+      if (!searchTerm) return true;
+      const term = searchTerm.toLowerCase();
+      return (
+        m.id.toLowerCase().includes(term) ||
+        m.name.toLowerCase().includes(term) ||
+        m.lineGroup.toLowerCase().includes(term) ||
+        (m.model && m.model.toLowerCase().includes(term)) ||
+        (m.vendor && m.vendor.toLowerCase().includes(term)) ||
+        (m.locationZone && m.locationZone.toLowerCase().includes(term)) ||
+        (m.locationRoom && m.locationRoom.toLowerCase().includes(term)) ||
+        (m.serialNumber && m.serialNumber.toLowerCase().includes(term))
+      );
+    });
+  }, [machines, selectedZone, selectedRoom, searchTerm]);
+
+  // Export machines to Excel matching columns A-K
+  const handleExportMachinesExcel = () => {
+    try {
+      const dataToExport = filteredMachines.length > 0 ? filteredMachines : machines;
+      const rows = [
+        [
+          'ลำดับ',
+          'รหัสอุปกรณ์',
+          'รายชื่อเครื่องจักร',
+          'Model(รุ่น)',
+          'แรงดัน/กำลังไฟ',
+          'วันที่ติดตั้ง',
+          'บริษัทผู้ขาย',
+          'โซน',
+          'ตำแหน่งที่ติดตั้ง (ห้อง)',
+          'Serial Number',
+          'หมายเหตุ'
+        ],
+        ...dataToExport.map((m, idx) => [
+          idx + 1,
+          m.id,
+          m.name,
+          m.model || '-',
+          m.powerVoltage || '-',
+          m.installDate || '-',
+          m.vendor || '-',
+          m.locationZone || (m.lineGroup ? `โซน ${m.lineGroup}` : '-'),
+          m.locationRoom || '-',
+          m.serialNumber || '-',
+          m.notes || '-'
+        ])
+      ];
+
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet(rows);
+      ws['!cols'] = [
+        { wch: 8 },  // ลำดับ
+        { wch: 16 }, // รหัสอุปกรณ์
+        { wch: 28 }, // รายชื่อเครื่องจักร
+        { wch: 18 }, // Model(รุ่น)
+        { wch: 18 }, // แรงดัน/กำลังไฟ
+        { wch: 15 }, // วันที่ติดตั้ง
+        { wch: 26 }, // บริษัทผู้ขาย
+        { wch: 32 }, //  โซน
+        { wch: 32 }, // ตำแหน่งที่ติดตั้ง (ห้อง)
+        { wch: 20 }, // Serial Number
+        { wch: 32 }  // หมายเหตุ
+      ];
+      XLSX.utils.book_append_sheet(wb, ws, 'ทะเบียนเครื่องจักร');
+
+      const fileName = `ทะเบียนเครื่องจักร_Machines_${new Date().toISOString().split('T')[0]}.xlsx`;
+      XLSX.writeFile(wb, fileName);
+      setFeedbackMessage({ 
+        type: 'success', 
+        text: `ส่งออกข้อมูลเครื่องจักร ${dataToExport.length} เครื่อง เป็นไฟล์ Excel เรียบร้อยแล้ว (${fileName})` 
+      });
+    } catch (err: any) {
+      setFeedbackMessage({ 
+        type: 'error', 
+        text: `เกิดข้อผิดพลาดในการส่งออก Excel: ${err?.message || err}` 
+      });
+    }
+  };
+
+  // Download template with realistic examples matching columns A-K
+  const handleDownloadTemplateExcel = () => {
+    try {
+      const sampleRows = [
+        [
+          'ลำดับ',
+          'รหัสอุปกรณ์',
+          'รายชื่อเครื่องจักร',
+          'Model(รุ่น)',
+          'แรงดัน/กำลังไฟ',
+          'วันที่ติดตั้ง',
+          'บริษัทผู้ขาย',
+          'โซน',
+          'ตำแหน่งที่ติดตั้ง (ห้อง)',
+          'Serial Number',
+          'หมายเหตุ'
+        ],
+        [
+          1,
+          'RIM01',
+          'RICE MIXER',
+          'RM-500X',
+          '380V 3P 7.5kW',
+          '2024-01-15',
+          'Kanto Machinery Co., Ltd.',
+          'โซนเตรียมข้าว',
+          'ห้องผสมข้าว 1 (Rice Mixing 1)',
+          'SN-RM-2024-001',
+          'ตรวจเช็กระดับน้ำมันหล่อลื่นเกียร์และสายพาน'
+        ],
+        [
+          2,
+          'VAC01',
+          'VACUUM COOLER',
+          'VC-120-Pro',
+          '380V 3P 15kW',
+          '2023-11-20',
+          'CoolTech System Co., Ltd.',
+          'โซนทำให้เย็น',
+          'ห้องสุญญากาศลดอุณหภูมิ A',
+          'SN-VC-2023-098',
+          'ล้างทำความสะอาดคอนเดนเซอร์ประจำสัปดาห์'
+        ],
+        [
+          3,
+          'FFS01',
+          'HORIZONTAL FORM FILL SEAL',
+          'HFFS-3000',
+          '220V 1P 3.5kW',
+          '2024-03-01',
+          'PackMaster International',
+          'โซนบรรจุภัณฑ์',
+          'ห้องบรรจุปลอดเชื้อ (Clean Room)',
+          'SN-FFS-883',
+          'ใช้ฟิล์มเกรดฟู้ดบรรจุภัณฑ์'
+        ]
+      ];
+
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet(sampleRows);
+      ws['!cols'] = [
+        { wch: 8 },
+        { wch: 16 },
+        { wch: 28 },
+        { wch: 18 },
+        { wch: 18 },
+        { wch: 15 },
+        { wch: 26 },
+        { wch: 32 },
+        { wch: 32 },
+        { wch: 20 },
+        { wch: 35 }
+      ];
+      XLSX.utils.book_append_sheet(wb, ws, 'Machine_Template');
+      XLSX.writeFile(wb, 'เทมเพลตนำเข้าทะเบียนเครื่องจักร.xlsx');
+    } catch (err: any) {
+      setFeedbackMessage({ 
+        type: 'error', 
+        text: `เกิดข้อผิดพลาดในการดาวน์โหลดเทมเพลต: ${err?.message || err}` 
+      });
+    }
+  };
+
+  // Import success callback
+  const handleImportSuccess = (imported: Machine[], mode: 'append' | 'replace') => {
+    if (mode === 'replace') {
+      setMachines(imported);
+      setFeedbackMessage({
+        type: 'success',
+        text: `นำเข้าข้อมูลและแทนที่ทะเบียนเครื่องจักรทั้งหมดแล้ว (${imported.length} เครื่อง)`
+      });
+    } else {
+      setMachines(prev => {
+        const map = new Map<string, Machine>();
+        // Existing machines
+        for (const m of prev) {
+          map.set(m.id, m);
+        }
+        // Merge or append imported
+        for (const imp of imported) {
+          const existing = map.get(imp.id);
+          if (existing) {
+            map.set(imp.id, {
+              ...existing,
+              name: imp.name || existing.name,
+              lineGroup: imp.lineGroup || existing.lineGroup,
+              model: imp.model || existing.model,
+              powerVoltage: imp.powerVoltage || existing.powerVoltage,
+              installDate: imp.installDate || existing.installDate,
+              vendor: imp.vendor || existing.vendor,
+              locationZone: imp.locationZone || existing.locationZone,
+              locationRoom: imp.locationRoom || existing.locationRoom,
+              serialNumber: imp.serialNumber || existing.serialNumber,
+              notes: imp.notes || existing.notes
+            });
+          } else {
+            map.set(imp.id, imp);
+          }
+        }
+        return Array.from(map.values());
+      });
+
+      setFeedbackMessage({
+        type: 'success',
+        text: `นำเข้าข้อมูลและผสานทะเบียนเครื่องจักรเรียบร้อยแล้ว (${imported.length} เครื่อง)`
+      });
+    }
+  };
 
   // Group machines with identical names together
   const machineGroups: MachineGroup[] = useMemo(() => {
@@ -147,7 +435,7 @@ export const MachinePage: React.FC = () => {
   const handleAddMachine = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newId || !newName) {
-      setErrorMsg('กรุณากรอกข้อมูลให้ครบถ้วน');
+      setErrorMsg('กรุณากรอกข้อมูลให้ครบถ้วน (รหัสและชื่อเครื่องจักร)');
       return;
     }
 
@@ -157,11 +445,38 @@ export const MachinePage: React.FC = () => {
       return;
     }
 
+    // Default line group if not specified
+    let lineGroup = newLineGroup.trim();
+    if (!lineGroup && newLocationZone) {
+      const parts = newLocationZone.split('>');
+      lineGroup = parts[parts.length - 1].trim();
+    }
+    if (!lineGroup) lineGroup = 'ทั่วไป';
+
+    const trimmedZone = newLocationZone.trim();
+    const trimmedRoom = newLocationRoom.trim();
+
+    // Ensure new zone/room are registered in system zones state
+    if (trimmedZone) {
+      addZone(trimmedZone);
+      if (trimmedRoom) {
+        addRoomToZone(trimmedZone, trimmedRoom);
+      }
+    }
+
     const newMachine: Machine = {
       id: trimmedId,
       name: newName.trim().toUpperCase(),
-      lineGroup: newLineGroup.trim() || 'ทั่วไป',
-      status: 'ปกติ'
+      lineGroup,
+      status: 'ปกติ',
+      model: newModel.trim() || undefined,
+      powerVoltage: newPowerVoltage.trim() || undefined,
+      installDate: newInstallDate.trim() || undefined,
+      vendor: newVendor.trim() || undefined,
+      locationZone: trimmedZone || undefined,
+      locationRoom: trimmedRoom || undefined,
+      serialNumber: newSerialNumber.trim() || undefined,
+      notes: newNotes.trim() || undefined
     };
 
     setMachines(prev => [newMachine, ...prev]);
@@ -174,7 +489,19 @@ export const MachinePage: React.FC = () => {
     setNewId('');
     setNewName('');
     setNewLineGroup('');
+    setNewModel('');
+    setNewPowerVoltage('');
+    setNewInstallDate('');
+    setNewVendor('');
+    setNewLocationZone('');
+    setNewLocationRoom('');
+    setNewSerialNumber('');
+    setNewNotes('');
     setErrorMsg('');
+    setFeedbackMessage({
+      type: 'success',
+      text: `เพิ่มเครื่องจักร ${newMachine.id} (${newMachine.name}) เรียบร้อยแล้ว`
+    });
   };
 
   const handleEditClick = (m: Machine) => {
@@ -182,6 +509,14 @@ export const MachinePage: React.FC = () => {
     setEditName(m.name);
     setEditLineGroup(m.lineGroup);
     setEditStatus(m.status || 'ปกติ');
+    setEditModel(m.model || '');
+    setEditPowerVoltage(m.powerVoltage || '');
+    setEditInstallDate(m.installDate || '');
+    setEditVendor(m.vendor || '');
+    setEditLocationZone(m.locationZone || '');
+    setEditLocationRoom(m.locationRoom || '');
+    setEditSerialNumber(m.serialNumber || '');
+    setEditNotes(m.notes || '');
     setEditErrorMsg('');
     setShowEditModal(true);
   };
@@ -194,13 +529,38 @@ export const MachinePage: React.FC = () => {
       return;
     }
 
+    let lineGroup = editLineGroup.trim();
+    if (!lineGroup && editLocationZone) {
+      const parts = editLocationZone.split('>');
+      lineGroup = parts[parts.length - 1].trim();
+    }
+    if (!lineGroup) lineGroup = 'ทั่วไป';
+
+    const trimmedZone = editLocationZone.trim();
+    const trimmedRoom = editLocationRoom.trim();
+
+    if (trimmedZone) {
+      addZone(trimmedZone);
+      if (trimmedRoom) {
+        addRoomToZone(trimmedZone, trimmedRoom);
+      }
+    }
+
     setMachines(prev => prev.map(m => {
       if (m.id === editingMachine.id) {
         return {
           ...m,
           name: editName.trim().toUpperCase(),
-          lineGroup: editLineGroup.trim() || 'ทั่วไป',
-          status: editStatus
+          lineGroup,
+          status: editStatus,
+          model: editModel.trim() || undefined,
+          powerVoltage: editPowerVoltage.trim() || undefined,
+          installDate: editInstallDate.trim() || undefined,
+          vendor: editVendor.trim() || undefined,
+          locationZone: trimmedZone || undefined,
+          locationRoom: trimmedRoom || undefined,
+          serialNumber: editSerialNumber.trim() || undefined,
+          notes: editNotes.trim() || undefined
         };
       }
       return m;
@@ -208,6 +568,10 @@ export const MachinePage: React.FC = () => {
 
     setShowEditModal(false);
     setEditingMachine(null);
+    setFeedbackMessage({
+      type: 'success',
+      text: `บันทึกการแก้ไขเครื่องจักร ${editingMachine.id} เรียบร้อยแล้ว`
+    });
   };
 
   const handleDeleteClick = (m: Machine) => {
@@ -226,18 +590,125 @@ export const MachinePage: React.FC = () => {
     setExpandedMachineId(expandedMachineId === mId ? null : mId);
   };
 
-  // Helper to render machine deep detail (PM plans & MTTR stats)
+  // Helper to render machine deep detail (PM plans & MTTR stats & Specifications)
   const renderMachineDetails = (m: Machine, stats: ReturnType<typeof getMachineStats>, unitLabel?: string) => {
+    const fullLocation = [m.locationZone, m.locationRoom].filter(Boolean).join(' > ') || '-';
+
     return (
       <div className="border-l-4 border-cyan-500 bg-slate-900/90 p-4 sm:p-5 space-y-4 rounded-r-xl">
-        <div className="flex items-center justify-between border-b border-slate-700/60 pb-2">
-          <h4 className="text-xs font-bold text-cyan-400 flex items-center gap-2">
-            <Settings size={14} />
-            รายละเอียด {unitLabel ? `${unitLabel}: ` : ''}{m.id} - {m.name} ({m.lineGroup})
-          </h4>
-          <span className="text-[11px] text-slate-400">
-            สถานะ: {stats.status === 'ปกติ' ? 'ปกติ / Normal' : 'เสีย-ซ่อม / Breakdown'}
-          </span>
+        <div className="flex items-center justify-between border-b border-slate-700/60 pb-3 flex-wrap gap-2.5">
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <h4 className="text-sm font-bold text-slate-100 flex items-center gap-2">
+              <Settings size={16} className="text-cyan-400" />
+              <span>รายละเอียด {unitLabel ? `${unitLabel}: ` : ''}</span>
+              <span className="text-cyan-400 font-mono">{m.id}</span>
+              <span className="text-slate-200">- {m.name}</span>
+            </h4>
+            {/* Prominent Duty Badge in Header */}
+            <span 
+              id={`detail-duty-badge-${m.id}`}
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold bg-amber-500/20 border border-amber-500/50 text-amber-300 shadow-sm"
+              title={`หน้าที่การทำงาน / Line Group: ${m.lineGroup || 'ทั่วไป'}`}
+            >
+              <Briefcase size={13} className="text-amber-400 shrink-0" />
+              <span className="text-[11px] text-amber-400/80 font-normal">หน้าที่:</span>
+              <span className="tracking-wide font-extrabold">{m.lineGroup || 'ทั่วไป'}</span>
+            </span>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${
+              stats.status === 'ปกติ' 
+                ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400' 
+                : 'bg-rose-500/15 border-rose-500/30 text-rose-400'
+            }`}>
+              <span className={`w-2 h-2 rounded-full ${stats.status === 'ปกติ' ? 'bg-emerald-400 animate-pulse' : 'bg-rose-400 animate-pulse'}`}></span>
+              สถานะ: {stats.status === 'ปกติ' ? 'ปกติ / Normal' : 'เสีย-ซ่อม / Breakdown'}
+            </span>
+          </div>
+        </div>
+
+        {/* Primary Attribute Cards: Highlight Duty (หน้าที่), Zone (โซน), and Room (ห้อง) */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {/* 1. หน้าที่ (Duty / Line Group) - Very Prominent and Conspicuous */}
+          <div 
+            id={`detail-duty-card-${m.id}`}
+            className="bg-gradient-to-r from-amber-950/60 via-slate-900 to-slate-900 border-2 border-amber-500/60 rounded-xl p-3 shadow-md flex items-center gap-3"
+          >
+            <div className="w-10 h-10 rounded-lg bg-amber-500/25 border border-amber-500/50 flex items-center justify-center text-amber-400 shrink-0 shadow-inner">
+              <Briefcase size={19} />
+            </div>
+            <div className="min-w-0">
+              <div className="text-[10px] uppercase font-bold text-amber-400 tracking-wider flex items-center gap-1.5">
+                <span>หน้าที่ (Duty / Line Group)</span>
+              </div>
+              <div className="text-base font-extrabold text-amber-100 tracking-wide truncate mt-0.5" title={m.lineGroup}>
+                {m.lineGroup || 'ทั่วไป'}
+              </div>
+            </div>
+          </div>
+
+          {/* 2. โซน (Location Zone) */}
+          <div className="bg-slate-950/70 border border-cyan-500/40 rounded-xl p-3 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shrink-0">
+              <MapPin size={19} />
+            </div>
+            <div className="min-w-0">
+              <div className="text-[10px] uppercase font-bold text-cyan-400 tracking-wider">
+                โซน (Zone)
+              </div>
+              <div className="text-sm font-bold text-cyan-100 truncate mt-0.5" title={m.locationZone}>
+                {m.locationZone || '-'}
+              </div>
+            </div>
+          </div>
+
+          {/* 3. ห้องที่ติดตั้ง (Room) */}
+          <div className="bg-slate-950/70 border border-emerald-500/40 rounded-xl p-3 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
+              <Layers size={19} />
+            </div>
+            <div className="min-w-0">
+              <div className="text-[10px] uppercase font-bold text-emerald-400 tracking-wider">
+                ห้องที่ติดตั้ง (Room)
+              </div>
+              <div className="text-sm font-bold text-emerald-100 truncate mt-0.5" title={m.locationRoom}>
+                {m.locationRoom || '-'}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Technical Specs Details Card */}
+        <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-3.5 space-y-2.5">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+            <div>
+              <span className="text-[10px] uppercase font-bold text-slate-400 block">Model (รุ่น)</span>
+              <span className="text-slate-200 font-medium">{m.model || '-'}</span>
+            </div>
+            <div>
+              <span className="text-[10px] uppercase font-bold text-slate-400 block">แรงดัน/กำลังไฟ</span>
+              <span className="text-amber-400 font-mono font-medium">{m.powerVoltage ? `⚡ ${m.powerVoltage}` : '-'}</span>
+            </div>
+            <div>
+              <span className="text-[10px] uppercase font-bold text-slate-400 block">Serial Number (S/N)</span>
+              <span className="text-cyan-300 font-mono text-[11px]">{m.serialNumber || '-'}</span>
+            </div>
+            <div>
+              <span className="text-[10px] uppercase font-bold text-slate-400 block">วันที่ติดตั้ง / ผู้ขาย</span>
+              <span className="text-slate-300">{m.installDate || '-'} {m.vendor ? `(${m.vendor})` : ''}</span>
+            </div>
+          </div>
+
+          {m.notes && (
+            <div className="pt-2 border-t border-slate-800/80 text-xs text-slate-300 flex items-start gap-2 bg-slate-900/40 p-2 rounded-lg">
+              <FileText size={14} className="text-slate-400 mt-0.5 shrink-0" />
+              <div>
+                <span className="font-semibold text-slate-400 text-[11px]">หมายเหตุ: </span>
+                <span className="text-slate-300 italic">{m.notes}</span>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -314,91 +785,375 @@ export const MachinePage: React.FC = () => {
   return (
     <div className="space-y-6" id="mach-page-root">
       {/* Top action row */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-2xl font-semibold text-cyan-400 tracking-tight flex items-center gap-2">
-            🏭 ข้อมูลทะเบียนเครื่องจักร
+            🏭 ข้อมูลทะเบียนเครื่องจักร (Machine Registry)
           </h1>
           <p className="text-slate-400 text-sm mt-1">
-            เครื่องจักรชื่อเดียวกันจัดกลุ่มรวมกัน คลิกเพื่อคลี่ดูแยกตามลำดับเครื่องที่ 1, 2, 3...
+            ทะเบียนเครื่องจักรและพิกัดติดตั้ง <span className="text-cyan-300 font-medium">โซน &gt; ห้อง</span> รองรับการ Export/Import Excel (A-K)
           </p>
         </div>
-        <button
-          id="btn-add-machine"
-          onClick={() => setShowAddModal(true)}
-          className="flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-900 font-semibold px-4 py-2.5 rounded-lg transition-all shadow-md focus:ring-2 focus:ring-cyan-400 focus:outline-none text-sm cursor-pointer"
-        >
-          <Plus size={18} />
-          เพิ่มเครื่องจักรใหม่
-        </button>
+
+        <div className="flex flex-wrap items-center gap-2.5">
+          {/* Export Excel button */}
+          <button
+            id="btn-export-machines-excel"
+            onClick={handleExportMachinesExcel}
+            className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-3.5 py-2 rounded-lg transition-all shadow-md text-xs cursor-pointer border border-emerald-500/40"
+            title="ส่งออกข้อมูลเครื่องจักรเป็นไฟล์ Excel ตามมาตรฐานคอลัมน์ A-K"
+          >
+            <Download size={15} />
+            <span>Export Excel</span>
+          </button>
+
+          {/* Import Excel button */}
+          <button
+            id="btn-import-machines-excel"
+            onClick={() => setShowImportModal(true)}
+            className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-cyan-300 font-semibold px-3.5 py-2 rounded-lg transition-all shadow-md text-xs cursor-pointer border border-cyan-500/40 hover:border-cyan-400"
+            title="นำเข้าไฟล์ Excel เข้าสู่ทะเบียนเครื่องจักร"
+          >
+            <Upload size={15} />
+            <span>Import Excel</span>
+          </button>
+
+          {/* Manage Zones & Rooms button */}
+          <button
+            id="btn-manage-zones-rooms"
+            onClick={() => setShowZoneManagerModal(true)}
+            className="flex items-center gap-2 bg-indigo-950/80 hover:bg-indigo-900/80 text-indigo-300 font-semibold px-3.5 py-2 rounded-lg transition-all shadow-md text-xs cursor-pointer border border-indigo-500/50 hover:border-indigo-400"
+            title="จัดการโครงสร้างโซนและห้อง (เพิ่มโซน/ห้อง เปลี่ยนชื่อ หรือลบ)"
+          >
+            <Layers size={15} className="text-indigo-400" />
+            <span>จัดการโซน/ห้อง</span>
+          </button>
+
+          {/* Add machine button */}
+          <button
+            id="btn-add-machine"
+            onClick={() => setShowAddModal(true)}
+            className="flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-900 font-bold px-4 py-2 rounded-lg transition-all shadow-md focus:ring-2 focus:ring-cyan-400 focus:outline-none text-xs cursor-pointer"
+          >
+            <Plus size={16} />
+            <span>เพิ่มเครื่องจักรใหม่</span>
+          </button>
+        </div>
       </div>
 
-      {/* Filter and search block */}
-      <div className="bg-slate-800 border border-slate-700/80 rounded-xl p-4 flex flex-col lg:flex-row gap-4 items-center justify-between">
-        <div className="relative w-full lg:w-96">
-          <Search className="absolute left-3 top-3 text-slate-400" size={18} />
-          <input
-            id="machine-search-input"
-            type="text"
-            placeholder="ค้นหาด้วย รหัส ID หรือ ชื่อเครื่องจักร..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-slate-900/90 border border-slate-700 rounded-lg pl-10 pr-4 py-2 text-slate-200 placeholder-slate-500 font-sans focus:outline-none focus:border-cyan-500 text-sm"
-          />
+      {/* Dismissable Feedback Notification */}
+      {feedbackMessage && (
+        <div 
+          className={`p-3 rounded-xl border flex items-center justify-between gap-3 text-xs animate-in fade-in duration-200 ${
+            feedbackMessage.type === 'success'
+              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
+              : feedbackMessage.type === 'error'
+                ? 'bg-rose-500/10 border-rose-500/30 text-rose-300'
+                : 'bg-cyan-500/10 border-cyan-500/30 text-cyan-300'
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            {feedbackMessage.type === 'success' ? (
+              <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />
+            ) : (
+              <AlertTriangle size={16} className="text-rose-400 shrink-0" />
+            )}
+            <span>{feedbackMessage.text}</span>
+          </div>
+          <button 
+            onClick={() => setFeedbackMessage(null)}
+            className="text-slate-400 hover:text-slate-200 p-1 cursor-pointer"
+            title="ปิดการแจ้งเตือน"
+          >
+            <X size={14} />
+          </button>
         </div>
+      )}
 
-        {/* View mode & expand controls */}
-        <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto justify-between lg:justify-end">
-          {/* Mode Switcher */}
-          <div className="flex items-center bg-slate-900/90 border border-slate-700 rounded-lg p-1 text-xs">
-            <button
-              onClick={() => setViewMode('grouped')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-semibold transition cursor-pointer ${
-                viewMode === 'grouped'
-                  ? 'bg-cyan-500 text-slate-950 shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <Layers size={14} />
-              <span>จัดกลุ่มตามชื่อ ({machineGroups.length} กลุ่ม)</span>
-            </button>
-            <button
-              onClick={() => setViewMode('flat')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-semibold transition cursor-pointer ${
-                viewMode === 'flat'
-                  ? 'bg-cyan-500 text-slate-950 shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <ListFilter size={14} />
-              <span>แสดงเรียงทุกเครื่อง ({filteredMachines.length})</span>
-            </button>
+      {/* Filter and search block */}
+      <div className="bg-slate-800 border border-slate-700/80 rounded-xl p-4 space-y-3.5 shadow-md">
+        {/* Row 1: Search + Zone Filter + Room Filter + Clear Filters */}
+        <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center">
+          {/* Search Input */}
+          <div className="relative flex-1 min-w-[220px]">
+            <Search className="absolute left-3 top-3 text-slate-400" size={18} />
+            <input
+              id="machine-search-input"
+              type="text"
+              placeholder="ค้นหาด้วย รหัส ID, ชื่อเครื่องจักร, Model, S/N..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full bg-slate-900/90 border border-slate-700 rounded-lg pl-10 pr-8 py-2 text-slate-200 placeholder-slate-500 font-sans focus:outline-none focus:border-cyan-500 text-sm"
+            />
+            {searchTerm && (
+              <button
+                onClick={() => setSearchTerm('')}
+                className="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-200 p-0.5 cursor-pointer"
+                title="ล้างคำค้นหา"
+              >
+                <X size={15} />
+              </button>
+            )}
           </div>
 
-          {/* Expand/Collapse All buttons (shown in grouped mode) */}
-          {viewMode === 'grouped' && (
-            <div className="flex items-center gap-1.5">
-              <button
-                onClick={expandAllGroups}
-                className="text-xs bg-slate-900 hover:bg-slate-700 border border-slate-700 text-slate-300 px-2.5 py-1.5 rounded-lg transition cursor-pointer flex items-center gap-1"
-                title="ขยายทุกกลุ่มเครื่องจักร"
+          {/* Zone Filter Dropdown */}
+          <div className="flex items-center gap-2 bg-slate-900/90 border border-slate-700 rounded-lg px-3 py-1.5 min-w-[190px]">
+            <Building size={15} className="text-cyan-400 shrink-0" />
+            <div className="flex-1">
+              <label htmlFor="filter-zone-select" className="block text-[10px] text-slate-400 font-medium leading-tight">
+                กรองโซน (Zone):
+              </label>
+              <select
+                id="filter-zone-select"
+                value={selectedZone}
+                onChange={(e) => {
+                  setSelectedZone(e.target.value);
+                  setSelectedRoom(''); // Reset room when zone changes
+                }}
+                className="w-full bg-transparent text-slate-200 text-xs font-semibold focus:outline-none cursor-pointer"
               >
-                <ChevronDown size={13} />
-                <span>ขยายทั้งหมด</span>
+                <option value="" className="bg-slate-900 text-slate-300">
+                  ทุกโซน ({machines.length} เครื่อง)
+                </option>
+                {availableZones.map(([zone, count]) => (
+                  <option key={zone} value={zone} className="bg-slate-900 text-slate-200">
+                    {zone} ({count} เครื่อง)
+                  </option>
+                ))}
+              </select>
+            </div>
+            {selectedZone && (
+              <button
+                onClick={() => {
+                  setSelectedZone('');
+                  setSelectedRoom('');
+                }}
+                className="text-slate-400 hover:text-rose-400 p-0.5 cursor-pointer"
+                title="ล้างการเลือกโซน"
+              >
+                <X size={13} />
+              </button>
+            )}
+          </div>
+
+          {/* Room Filter Dropdown */}
+          <div className="flex items-center gap-2 bg-slate-900/90 border border-slate-700 rounded-lg px-3 py-1.5 min-w-[190px]">
+            <MapPin size={15} className="text-cyan-400 shrink-0" />
+            <div className="flex-1">
+              <label htmlFor="filter-room-select" className="block text-[10px] text-slate-400 font-medium leading-tight">
+                กรองห้อง (Room):
+              </label>
+              <select
+                id="filter-room-select"
+                value={selectedRoom}
+                onChange={(e) => setSelectedRoom(e.target.value)}
+                className="w-full bg-transparent text-slate-200 text-xs font-semibold focus:outline-none cursor-pointer"
+              >
+                <option value="" className="bg-slate-900 text-slate-300">
+                  ทุกห้อง ({availableRooms.reduce((acc, [, c]) => acc + c, 0)} เครื่อง)
+                </option>
+                {availableRooms.map(([room, count]) => (
+                  <option key={room} value={room} className="bg-slate-900 text-slate-200">
+                    {room} ({count} เครื่อง)
+                  </option>
+                ))}
+              </select>
+            </div>
+            {selectedRoom && (
+              <button
+                onClick={() => setSelectedRoom('')}
+                className="text-slate-400 hover:text-rose-400 p-0.5 cursor-pointer"
+                title="ล้างการเลือกห้อง"
+              >
+                <X size={13} />
+              </button>
+            )}
+          </div>
+
+          {/* Manage zones shortcut button */}
+          <button
+            type="button"
+            id="btn-filter-manage-zones"
+            onClick={() => setShowZoneManagerModal(true)}
+            className="text-xs text-indigo-300 hover:text-indigo-200 bg-indigo-950/60 hover:bg-indigo-900/60 border border-indigo-700/50 px-3 py-2 rounded-lg transition shrink-0 flex items-center gap-1.5 cursor-pointer font-medium"
+            title="เปิดตัวจัดการโซน/ห้อง (เพิ่ม/ลบ/แก้ไข)"
+          >
+            <Settings size={13} className="text-indigo-400" />
+            <span>จัดการโครงสร้างโซน/ห้อง</span>
+          </button>
+
+          {/* Reset Filters button */}
+          {(selectedZone || selectedRoom || searchTerm) && (
+            <button
+              id="btn-clear-all-filters"
+              onClick={() => {
+                setSelectedZone('');
+                setSelectedRoom('');
+                setSearchTerm('');
+              }}
+              className="text-xs text-rose-300 hover:text-rose-200 bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 px-3 py-2 rounded-lg transition shrink-0 flex items-center gap-1.5 cursor-pointer font-semibold shadow-sm"
+              title="ล้างตัวกรองและคำค้นหาทั้งหมด"
+            >
+              <X size={14} />
+              <span>ล้างตัวกรอง</span>
+            </button>
+          )}
+        </div>
+
+        {/* Row 2: Display Checkboxes (Show Zone, Show Room, or Both) + View Mode switcher */}
+        <div className="flex flex-col lg:flex-row gap-3 items-start lg:items-center justify-between pt-2.5 border-t border-slate-700/60">
+          {/* Checkboxes to toggle Zone / Room columns visibility */}
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs">
+            <span className="text-slate-400 font-medium flex items-center gap-1.5 mr-1">
+              <Eye size={14} className="text-cyan-400" />
+              <span>แสดงคอลัมน์:</span>
+            </span>
+
+            {/* Checkbox: Zone */}
+            <label 
+              htmlFor="checkbox-show-zone"
+              className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg border cursor-pointer transition select-none ${
+                showZoneColumn
+                  ? 'bg-cyan-950/60 border-cyan-500/60 text-cyan-300 font-semibold shadow-sm'
+                  : 'bg-slate-900/60 border-slate-700 text-slate-400 hover:border-slate-600'
+              }`}
+            >
+              <input
+                id="checkbox-show-zone"
+                type="checkbox"
+                checked={showZoneColumn}
+                onChange={(e) => setShowZoneColumn(e.target.checked)}
+                className="w-4 h-4 rounded border-slate-600 text-cyan-500 focus:ring-cyan-400 focus:ring-offset-slate-900 bg-slate-800 cursor-pointer"
+              />
+              <span>โซน (Zone)</span>
+            </label>
+
+            {/* Checkbox: Room */}
+            <label 
+              htmlFor="checkbox-show-room"
+              className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg border cursor-pointer transition select-none ${
+                showRoomColumn
+                  ? 'bg-cyan-950/60 border-cyan-500/60 text-cyan-300 font-semibold shadow-sm'
+                  : 'bg-slate-900/60 border-slate-700 text-slate-400 hover:border-slate-600'
+              }`}
+            >
+              <input
+                id="checkbox-show-room"
+                type="checkbox"
+                checked={showRoomColumn}
+                onChange={(e) => setShowRoomColumn(e.target.checked)}
+                className="w-4 h-4 rounded border-slate-600 text-cyan-500 focus:ring-cyan-400 focus:ring-offset-slate-900 bg-slate-800 cursor-pointer"
+              />
+              <span>ห้อง (Room)</span>
+            </label>
+
+            {/* Quick Presets: Both, Zone only, Room only */}
+            <div className="flex items-center gap-1 pl-1 sm:pl-2 sm:border-l sm:border-slate-700">
+              <span className="text-[11px] text-slate-500 mr-1 hidden sm:inline">เลือกด่วน:</span>
+              <button
+                type="button"
+                id="btn-show-both-columns"
+                onClick={() => {
+                  setShowZoneColumn(true);
+                  setShowRoomColumn(true);
+                }}
+                className={`text-[11px] px-2.5 py-1 rounded-md transition cursor-pointer font-medium ${
+                  showZoneColumn && showRoomColumn
+                    ? 'bg-cyan-500/25 text-cyan-300 font-bold border border-cyan-500/50 shadow-sm'
+                    : 'text-slate-400 hover:text-slate-200 bg-slate-900/80 border border-slate-800'
+                }`}
+                title="แสดงทั้งคอลัมน์โซนและห้อง"
+              >
+                ทั้งสอง
               </button>
               <button
-                onClick={collapseAllGroups}
-                className="text-xs bg-slate-900 hover:bg-slate-700 border border-slate-700 text-slate-300 px-2.5 py-1.5 rounded-lg transition cursor-pointer flex items-center gap-1"
-                title="ยุบทุกกลุ่มเครื่องจักร"
+                type="button"
+                id="btn-show-zone-only"
+                onClick={() => {
+                  setShowZoneColumn(true);
+                  setShowRoomColumn(false);
+                }}
+                className={`text-[11px] px-2.5 py-1 rounded-md transition cursor-pointer font-medium ${
+                  showZoneColumn && !showRoomColumn
+                    ? 'bg-cyan-500/25 text-cyan-300 font-bold border border-cyan-500/50 shadow-sm'
+                    : 'text-slate-400 hover:text-slate-200 bg-slate-900/80 border border-slate-800'
+                }`}
+                title="แสดงเฉพาะคอลัมน์โซน"
               >
-                <ChevronUp size={13} />
-                <span>ยุบทั้งหมด</span>
+                เฉพาะโซน
+              </button>
+              <button
+                type="button"
+                id="btn-show-room-only"
+                onClick={() => {
+                  setShowZoneColumn(false);
+                  setShowRoomColumn(true);
+                }}
+                className={`text-[11px] px-2.5 py-1 rounded-md transition cursor-pointer font-medium ${
+                  !showZoneColumn && showRoomColumn
+                    ? 'bg-cyan-500/25 text-cyan-300 font-bold border border-cyan-500/50 shadow-sm'
+                    : 'text-slate-400 hover:text-slate-200 bg-slate-900/80 border border-slate-800'
+                }`}
+                title="แสดงเฉพาะคอลัมน์ห้อง"
+              >
+                เฉพาะห้อง
               </button>
             </div>
-          )}
+          </div>
 
-          <div className="text-xs text-slate-400 font-mono flex items-center pl-2">
-            เครื่องจักรทั้งหมด: <span className="text-cyan-400 font-bold ml-1 text-sm">{filteredMachines.length}</span> / {machines.length} เครื่อง
+          {/* View mode & expand controls */}
+          <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto justify-between lg:justify-end">
+            {/* Mode Switcher */}
+            <div className="flex items-center bg-slate-900/90 border border-slate-700 rounded-lg p-1 text-xs">
+              <button
+                onClick={() => setViewMode('grouped')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-semibold transition cursor-pointer ${
+                  viewMode === 'grouped'
+                    ? 'bg-cyan-500 text-slate-950 shadow-sm'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <Layers size={14} />
+                <span>จัดกลุ่มตามชื่อ ({machineGroups.length} กลุ่ม)</span>
+              </button>
+              <button
+                onClick={() => setViewMode('flat')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-semibold transition cursor-pointer ${
+                  viewMode === 'flat'
+                    ? 'bg-cyan-500 text-slate-950 shadow-sm'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <ListFilter size={14} />
+                <span>แสดงเรียงทุกเครื่อง ({filteredMachines.length})</span>
+              </button>
+            </div>
+
+            {/* Expand/Collapse All buttons (shown in grouped mode) */}
+            {viewMode === 'grouped' && (
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={expandAllGroups}
+                  className="text-xs bg-slate-900 hover:bg-slate-700 border border-slate-700 text-slate-300 px-2.5 py-1.5 rounded-lg transition cursor-pointer flex items-center gap-1"
+                  title="ขยายทุกกลุ่มเครื่องจักร"
+                >
+                  <ChevronDown size={13} />
+                  <span>ขยายทั้งหมด</span>
+                </button>
+                <button
+                  onClick={collapseAllGroups}
+                  className="text-xs bg-slate-900 hover:bg-slate-700 border border-slate-700 text-slate-300 px-2.5 py-1.5 rounded-lg transition cursor-pointer flex items-center gap-1"
+                  title="ยุบทุกกลุ่มเครื่องจักร"
+                >
+                  <ChevronUp size={13} />
+                  <span>ยุบทั้งหมด</span>
+                </button>
+              </div>
+            )}
+
+            <div className="text-xs text-slate-400 font-mono flex items-center pl-2">
+              เครื่องจักร: <span className="text-cyan-400 font-bold ml-1 text-sm">{filteredMachines.length}</span> / {machines.length} เครื่อง
+            </div>
           </div>
         </div>
       </div>
@@ -412,21 +1167,25 @@ export const MachinePage: React.FC = () => {
                 <th className="py-4 px-4 w-14 text-center font-medium">ลำดับ</th>
                 <th className="py-4 px-4 font-medium">ชื่อเครื่องจักร</th>
                 <th className="py-4 px-4 font-mono font-medium">รหัสเครื่องจักร (ID)</th>
-                <th className="py-4 px-4 font-medium">ไลน์ / กลุ่มการผลิต</th>
+                {showZoneColumn && <th className="py-4 px-4 font-medium">โซน</th>}
+                {showRoomColumn && <th className="py-4 px-4 font-medium">ห้อง</th>}
                 <th className="py-4 px-4 text-center font-medium">แผน PM</th>
                 <th className="py-4 px-4 text-center font-medium">BD เดือนนี้</th>
                 <th className="py-4 px-4 text-center font-medium">สถานะ</th>
-                <th className="py-4 px-4 text-center w-40">
-                  {viewMode === 'grouped' ? 'คลิกดูแยกเครื่อง' : 'การจัดการ'}
-                </th>
+                {viewMode === 'flat' && (
+                  <th className="py-4 px-4 text-center w-36 font-medium">การจัดการ</th>
+                )}
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-700/50">
               {filteredMachines.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-slate-500 bg-slate-900/20">
+                  <td 
+                    colSpan={(viewMode === 'grouped' ? 6 : 7) + (showZoneColumn ? 1 : 0) + (showRoomColumn ? 1 : 0)} 
+                    className="py-12 text-center text-slate-500 bg-slate-900/20"
+                  >
                     <p className="text-base font-medium">ไม่พบข้อมูลเครื่องจักร</p>
-                    <p className="text-xs mt-1 text-slate-400">ลองค้นด้วยรหัสอื่นหรือกดเพิ่มเครื่องจักรใหม่ด้านบน</p>
+                    <p className="text-xs mt-1 text-slate-400">ลองเปลี่ยนเงื่อนไขค้นหา หรือล้างตัวกรองโซน/ห้อง</p>
                   </td>
                 </tr>
               ) : viewMode === 'grouped' ? (
@@ -435,36 +1194,49 @@ export const MachinePage: React.FC = () => {
                    ------------------------------------------------------------- */
                 machineGroups.map((group, gIndex) => {
                   const isExpanded = isGroupExpanded(group.name);
-                  const isSingle = group.machines.length === 1;
 
                   return (
                     <React.Fragment key={group.name}>
-                      {/* Group Header Row */}
+                      {/* Group Header Row (Click to expand/collapse, no right column button needed) */}
                       <tr 
                         id={`group-row-${group.name}`}
                         onClick={() => toggleGroup(group.name)}
                         className={`hover:bg-slate-700/40 transition-colors cursor-pointer select-none ${
                           isExpanded ? 'bg-slate-700/30 border-l-4 border-cyan-400' : ''
                         }`}
-                        title="คลิกเพื่อคลี่ดูแยกตามเครื่องที่ 1, 2, 3..."
+                        title={isExpanded ? 'คลิกเพื่อย่อกลุ่มเครื่องจักร' : 'คลิกเพื่อคลี่ดูแยกตามลำดับเครื่องที่ 1, 2, 3...'}
                       >
                         <td className="py-4 px-4 text-center text-slate-400 text-xs font-mono">
                           {gIndex + 1}
                         </td>
                         
-                        {/* Machine Name & Unit Count Badge */}
+                        {/* Machine Name & Unit Count Badge with indicator chevron */}
                         <td className="py-4 px-4">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="font-extrabold text-slate-100 text-sm tracking-wide">
-                              {group.name}
-                            </span>
-                            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold border ${
-                              group.machines.length > 1
-                                ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40'
-                                : 'bg-slate-700/60 text-slate-300 border-slate-600'
+                          <div className="flex items-center gap-2.5">
+                            <div className={`p-1.5 rounded-lg border transition shrink-0 ${
+                              isExpanded 
+                                ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40' 
+                                : 'bg-slate-900 text-slate-400 border-slate-700 hover:text-cyan-300'
                             }`}>
-                              {group.machines.length} เครื่อง (เครื่องที่ 1 - {group.machines.length})
-                            </span>
+                              {isExpanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-extrabold text-slate-100 text-sm tracking-wide">
+                                  {group.name}
+                                </span>
+                                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold border ${
+                                  group.machines.length > 1
+                                    ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40'
+                                    : 'bg-slate-700/60 text-slate-300 border-slate-600'
+                                }`}>
+                                  {group.machines.length} เครื่อง
+                                </span>
+                              </div>
+                              <span className="text-[11px] text-slate-400">
+                                {isExpanded ? 'คลิกเพื่อย่อรายการ' : 'คลิกเพื่อคลี่ดูเครื่องที่ 1, 2, 3...'}
+                              </span>
+                            </div>
                           </div>
                         </td>
 
@@ -475,27 +1247,53 @@ export const MachinePage: React.FC = () => {
                               <span 
                                 key={m.id}
                                 className="font-mono text-xs px-2 py-0.5 bg-slate-900/90 border border-slate-700 text-cyan-400 font-semibold rounded"
-                                title={`เครื่องที่ ${mIdx + 1}: ${m.id}`}
+                                title={`เครื่องที่ ${mIdx + 1}: ${m.id} | Model: ${m.model || '-'} | ห้อง: ${m.locationRoom || '-'}`}
                               >
                                 #{mIdx + 1}: {m.id}
                               </span>
                             ))}
                           </div>
                         </td>
+                      
+                        {/* Zone */}
+                        {showZoneColumn && (
+                          <td className="py-4 px-4">
+                            <div className="flex flex-wrap gap-1">
+                              {Array.from(new Set(group.machines.map(m => m.locationZone || m.lineGroup).filter(Boolean))).length > 0 ? (
+                                Array.from(new Set(group.machines.map(m => m.locationZone || m.lineGroup).filter(Boolean))).map((zone, zIdx) => (
+                                  <span 
+                                    key={zIdx}
+                                    className="bg-slate-900/70 text-slate-300 text-[11px] px-2.5 py-1 rounded-full border border-slate-700"
+                                  >
+                                    {zone}
+                                  </span>
+                                ))
+                              ) : (
+                                <span className="text-slate-500 text-xs">-</span>
+                              )}
+                            </div>
+                          </td>
+                        )}
 
-                        {/* Line groups */}
-                        <td className="py-4 px-4">
-                          <div className="flex flex-wrap gap-1">
-                            {group.lineGroups.map(line => (
-                              <span 
-                                key={line}
-                                className="bg-slate-900/70 text-slate-300 text-[11px] px-2.5 py-1 rounded-full border border-slate-700"
-                              >
-                                {line}
-                              </span>
-                            ))}
-                          </div>
-                        </td>
+                        {/* Room */}
+                        {showRoomColumn && (
+                          <td className="py-4 px-4">
+                            <div className="flex flex-wrap gap-1">
+                              {Array.from(new Set(group.machines.map(m => m.locationRoom).filter(Boolean))).length > 0 ? (
+                                Array.from(new Set(group.machines.map(m => m.locationRoom).filter(Boolean))).map((room, rIdx) => (
+                                  <span 
+                                    key={rIdx}
+                                    className="bg-slate-900/70 text-cyan-200 text-[11px] px-2.5 py-1 rounded-md border border-slate-700"
+                                  >
+                                    {room}
+                                  </span>
+                                ))
+                              ) : (
+                                <span className="text-slate-500 text-xs">-</span>
+                              )}
+                            </div>
+                          </td>
+                        )}
 
                         {/* Total PM Plans */}
                         <td className="py-4 px-4 text-center font-bold text-cyan-300 font-mono text-sm">
@@ -527,28 +1325,12 @@ export const MachinePage: React.FC = () => {
                             </span>
                           )}
                         </td>
-
-                        {/* Expand Button */}
-                        <td className="py-4 px-4 text-center" onClick={(e) => e.stopPropagation()}>
-                          <button
-                            id={`btn-expand-group-${group.name.replace(/\s+/g, '-')}`}
-                            onClick={() => toggleGroup(group.name)}
-                            className={`w-full flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer border ${
-                              isExpanded
-                                ? 'bg-cyan-500 text-slate-950 font-bold border-cyan-400 shadow-sm'
-                                : 'bg-slate-900 hover:bg-slate-700 text-cyan-300 border-slate-700 hover:border-cyan-500/40'
-                            }`}
-                          >
-                            {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                            <span>{isExpanded ? 'ยุบรายการ' : `ดูแยกเครื่อง (${group.machines.length})`}</span>
-                          </button>
-                        </td>
                       </tr>
 
-                      {/* Expanded Section showing each individual machine unit */}
+                      {/* Expanded Section showing each individual machine unit with specifications */}
                       {isExpanded && (
                         <tr className="bg-slate-900/60">
-                          <td colSpan={8} className="p-0">
+                          <td colSpan={6 + (showZoneColumn ? 1 : 0) + (showRoomColumn ? 1 : 0)} className="p-0">
                             <div className="border-l-4 border-cyan-500 bg-gradient-to-r from-slate-900 via-slate-900/90 to-slate-900/70 p-4 sm:p-5 space-y-4">
                               {/* Sub-header */}
                               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-800 pb-3">
@@ -575,14 +1357,16 @@ export const MachinePage: React.FC = () => {
                                 <table className="w-full text-left text-xs border-collapse">
                                   <thead>
                                     <tr className="bg-slate-900/90 text-slate-400 border-b border-slate-800 uppercase tracking-wider font-semibold">
-                                      <th className="py-3 px-4 w-28 text-center">ลำดับเครื่อง</th>
-                                      <th className="py-3 px-4 w-32 font-mono font-medium">รหัสเครื่อง (ID)</th>
-                                      <th className="py-3 px-4 font-medium">ชื่อเต็มและลำดับ</th>
-                                      <th className="py-3 px-4 font-medium">ไลน์ / กลุ่ม</th>
-                                      <th className="py-3 px-4 text-center font-medium">แผน PM</th>
-                                      <th className="py-3 px-4 text-center font-medium">BD เดือนนี้</th>
-                                      <th className="py-3 px-4 text-center font-medium">สถานะ</th>
-                                      <th className="py-3 px-4 text-center w-36">การจัดการ</th>
+                                      <th className="py-3 px-3 w-24 text-center">ลำดับเครื่อง</th>
+                                      <th className="py-3 px-3 w-28 font-mono font-medium">รหัส (ID)</th>
+                                      <th className="py-3 px-3 font-medium">Model </th>
+                                      <th className="py-3 px-3 font-medium">กำลังไฟ </th>
+                                      {showZoneColumn && <th className="py-3 px-3 font-medium"> โซน </th>}
+                                      {showRoomColumn && <th className="py-3 px-3 font-medium"> ห้อง </th>}
+                                      <th className="py-3 px-3 text-center font-medium">แผน PM</th>
+                                      <th className="py-3 px-3 text-center font-medium">BD เดือนนี้</th>
+                                      <th className="py-3 px-3 text-center font-medium">สถานะ</th>
+                                      <th className="py-3 px-3 text-center w-36">การจัดการ</th>
                                     </tr>
                                   </thead>
                                   <tbody className="divide-y divide-slate-800/80">
@@ -590,6 +1374,7 @@ export const MachinePage: React.FC = () => {
                                       const stats = getMachineStats(m.id);
                                       const isDetailExpanded = expandedMachineId === m.id;
                                       const unitNumber = mIndex + 1;
+                                      const unitLocation = [m.locationZone, m.locationRoom].filter(Boolean).join(' > ') || m.lineGroup;
 
                                       return (
                                         <React.Fragment key={m.id}>
@@ -600,36 +1385,73 @@ export const MachinePage: React.FC = () => {
                                             }`}
                                           >
                                             {/* Machine Unit Number Badge */}
-                                            <td className="py-3 px-4 text-center">
-                                              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-extrabold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
+                                            <td className="py-3 px-3 text-center">
+                                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-extrabold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
                                                 เครื่องที่ {unitNumber}
                                               </span>
                                             </td>
 
                                             {/* ID */}
-                                            <td className="py-3 px-4 font-mono font-bold text-cyan-400 text-sm">
+                                            <td className="py-3 px-3 font-mono font-bold text-cyan-400 text-sm">
                                               {m.id}
                                             </td>
 
-                                            {/* Name with Unit number */}
-                                            <td className="py-3 px-4 font-medium text-slate-200">
-                                              {m.name} <span className="text-cyan-400 font-semibold">(เครื่องที่ {unitNumber})</span>
+                                            {/* Model & Duty */}
+                                            <td className="py-3 px-3">
+                                              <div className="font-medium text-slate-200">
+                                                {m.model || '-'}
+                                              </div>
+                                              {m.lineGroup && (
+                                                <div className="text-[10px] text-amber-400 font-semibold mt-0.5 flex items-center gap-1">
+                                                  <Briefcase size={10} className="text-amber-400 shrink-0" />
+                                                  <span>หน้าที่: {m.lineGroup}</span>
+                                                </div>
+                                              )}
+                                            </td>  
+                                             {/* Power */}
+                                            <td className="py-3 px-3">
+                                              {m.powerVoltage ? (
+                                                <div className="text-[11px] text-amber-400 font-mono">
+                                                  ⚡ {m.powerVoltage}
+                                                </div>
+                                              ) : (
+                                                <span className="text-slate-500">-</span>
+                                              )}
                                             </td>
 
-                                            {/* Line */}
-                                            <td className="py-3 px-4">
-                                              <span className="bg-slate-900 text-slate-300 text-[11px] px-2.5 py-1 rounded-full border border-slate-800">
-                                                {m.lineGroup}
-                                              </span>
-                                            </td>
+                                            {/* Location: Zone */}
+                                            {showZoneColumn && (
+                                              <td className="py-3 px-3">
+                                                <span className="font-medium text-slate-300">
+                                                  {m.locationZone || '-'}
+                                                </span>
+                                              </td>
+                                            )}
 
+                                            {/* Location: Room */}
+                                            {showRoomColumn && (
+                                              <td className="py-3 px-3">
+                                                <div className="flex items-center gap-1.5 text-cyan-200">
+                                                  <MapPin size={12} className="text-cyan-400 shrink-0" />
+                                                  <span className="font-medium truncate max-w-xs">
+                                                    {m.locationRoom || '-'}
+                                                  </span>
+                                                </div>
+                                                {m.serialNumber && (
+                                                  <div className="text-[10px] text-slate-400 font-mono mt-0.5">
+                                                    S/N: {m.serialNumber}
+                                                  </div>
+                                                )}
+                                              </td>
+                                            )}  
+                                            
                                             {/* PM Count */}
-                                            <td className="py-3 px-4 text-center font-bold text-cyan-300 font-mono">
+                                            <td className="py-3 px-3 text-center font-bold text-cyan-300 font-mono">
                                               {stats.pmCount} งาน
                                             </td>
 
                                             {/* BD Count */}
-                                            <td className="py-3 px-4 text-center font-mono font-bold">
+                                            <td className="py-3 px-3 text-center font-mono font-bold">
                                               {stats.monthlyBdCount > 0 ? (
                                                 <span className="text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded border border-rose-500/20">
                                                   {stats.monthlyBdCount} ครั้ง
@@ -640,22 +1462,22 @@ export const MachinePage: React.FC = () => {
                                             </td>
 
                                             {/* Status */}
-                                            <td className="py-3 px-4 text-center">
+                                            <td className="py-3 px-3 text-center">
                                               {stats.status === 'ปกติ' ? (
-                                                <span className="inline-flex items-center gap-1.5 bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs px-2 py-0.5 rounded-full font-medium">
+                                                <span className="inline-flex items-center gap-1 bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[11px] px-2 py-0.5 rounded-full font-medium">
                                                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                                                  ปกติ / Normal
+                                                  ปกติ
                                                 </span>
                                               ) : (
-                                                <span className="inline-flex items-center gap-1.5 bg-rose-500/15 border border-rose-500/30 text-rose-400 text-xs px-2 py-0.5 rounded-full font-medium">
+                                                <span className="inline-flex items-center gap-1 bg-rose-500/15 border border-rose-500/30 text-rose-400 text-[11px] px-2 py-0.5 rounded-full font-medium">
                                                   <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse"></span>
-                                                  เสีย-ซ่อม / Breakdown
+                                                  เสีย-ซ่อม
                                                 </span>
                                               )}
                                             </td>
 
                                             {/* Action Buttons for this specific machine unit */}
-                                            <td className="py-3 px-4 text-center">
+                                            <td className="py-3 px-3 text-center">
                                               <div className="flex items-center justify-center gap-1.5">
                                                 <button
                                                   id={`btn-edit-${m.id}`}
@@ -681,19 +1503,19 @@ export const MachinePage: React.FC = () => {
                                                       ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40'
                                                       : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border-slate-700 hover:text-cyan-400'
                                                   }`}
-                                                  title={`ดูรายละเอียดแผน PM และสถิติของเครื่องที่ ${unitNumber}`}
+                                                  title={`ดูรายละเอียดสเปก แผน PM และสถิติของเครื่องที่ ${unitNumber}`}
                                                 >
                                                   {isDetailExpanded ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
-                                                  <span>{isDetailExpanded ? 'ปิด' : 'แผน PM'}</span>
+                                                  <span>{isDetailExpanded ? 'ปิด' : 'ข้อมูล'}</span>
                                                 </button>
                                               </div>
                                             </td>
                                           </tr>
 
-                                          {/* Deep Detail Section (PM plans & MTTR) for this exact machine */}
+                                          {/* Deep Detail Section (Specs, PM plans & MTTR) for this exact machine */}
                                           {isDetailExpanded && (
                                             <tr className="bg-slate-900/90">
-                                              <td colSpan={8} className="p-3">
+                                              <td colSpan={8 + (showZoneColumn ? 1 : 0) + (showRoomColumn ? 1 : 0)} className="p-3">
                                                 {renderMachineDetails(m, stats, `เครื่องที่ ${unitNumber}`)}
                                               </td>
                                             </tr>
@@ -718,6 +1540,7 @@ export const MachinePage: React.FC = () => {
                 filteredMachines.map((m, index) => {
                   const stats = getMachineStats(m.id);
                   const isExpanded = expandedMachineId === m.id;
+                  const fullLocation = [m.locationZone, m.locationRoom].filter(Boolean).join(' > ') || m.lineGroup;
 
                   return (
                     <React.Fragment key={m.id}>
@@ -728,17 +1551,46 @@ export const MachinePage: React.FC = () => {
                         <td className="py-4 px-4 text-center text-slate-400 text-xs font-mono">
                           {index + 1}
                         </td>
-                        <td className="py-4 px-4 font-medium text-slate-200">
-                          {m.name}
+                        <td className="py-4 px-4">
+                          <div className="font-medium text-slate-200">{m.name}</div>
+                          <div className="flex items-center gap-2 flex-wrap mt-1">
+                            {m.model && (
+                              <span className="text-xs text-slate-400">Model: {m.model}</span>
+                            )}
+                            {m.lineGroup && (
+                              <span className="text-[11px] text-amber-300 bg-amber-950/60 border border-amber-500/40 px-2 py-0.5 rounded font-semibold inline-flex items-center gap-1">
+                                <Briefcase size={10} className="text-amber-400 shrink-0" />
+                                <span>หน้าที่: {m.lineGroup}</span>
+                              </span>
+                            )}
+                          </div>
                         </td>
                         <td className="py-4 px-4 font-mono font-bold text-cyan-400 text-sm">
                           {m.id}
                         </td>
-                        <td className="py-4 px-4">
-                          <span className="bg-slate-900/60 text-slate-300 text-[11px] px-2.5 py-1 rounded-full border border-slate-700">
-                            {m.lineGroup}
-                          </span>
-                        </td>
+                        {/* Zone */}
+                        {showZoneColumn && (
+                          <td className="py-4 px-4">
+                            <span className="text-xs text-slate-200 font-medium">
+                              {m.locationZone || '-'}
+                            </span>
+                          </td>
+                        )}
+
+                        {/* Room */}
+                        {showRoomColumn && (
+                          <td className="py-4 px-4">
+                            <div className="flex items-center gap-1.5 text-xs text-cyan-200">
+                              <MapPin size={12} className="text-cyan-400 shrink-0" />
+                              <span>{m.locationRoom || '-'}</span>
+                            </div>
+                            {m.powerVoltage && (
+                              <div className="text-[11px] text-amber-400 font-mono mt-0.5">
+                                ⚡ {m.powerVoltage}
+                              </div>
+                            )}
+                          </td>
+                        )}
                         <td className="py-4 px-4 text-center font-bold text-cyan-300 font-mono">
                           {stats.pmCount} งาน
                         </td>
@@ -786,7 +1638,7 @@ export const MachinePage: React.FC = () => {
                               id={`btn-expand-${m.id}`}
                               onClick={() => toggleExpandRow(m.id)}
                               className="bg-slate-900 hover:bg-slate-950 p-1.5 rounded-lg border border-slate-700/60 text-slate-300 hover:text-cyan-400 hover:border-cyan-500/40 transition cursor-pointer"
-                              title="ดูรายละเอียดเชิงลึก"
+                              title="ดูรายละเอียดเชิงลึกและสเปก"
                             >
                               {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                             </button>
@@ -797,7 +1649,7 @@ export const MachinePage: React.FC = () => {
                       {/* Expanded Section */}
                       {isExpanded && (
                         <tr className="bg-slate-900/40">
-                          <td colSpan={8} className="p-3">
+                          <td colSpan={7 + (showZoneColumn ? 1 : 0) + (showRoomColumn ? 1 : 0)} className="p-3">
                             {renderMachineDetails(m, stats)}
                           </td>
                         </tr>
@@ -814,8 +1666,8 @@ export const MachinePage: React.FC = () => {
       {/* Add Machine Modal */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4" id="machine-add-modal-overlay">
-          <div className="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-155" id="machine-add-modal">
-            <div className="bg-gradient-to-r from-slate-800 to-slate-900 border-b border-slate-700/80 p-5 flex justify-between items-center">
+          <div className="bg-slate-800 border border-slate-700 rounded-2xl max-w-2xl w-full overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-155 max-h-[90vh] flex flex-col" id="machine-add-modal">
+            <div className="bg-gradient-to-r from-slate-800 to-slate-900 border-b border-slate-700/80 p-5 flex justify-between items-center shrink-0">
               <h3 className="text-base font-semibold text-cyan-400 flex items-center gap-2">
                 ➕ เพิ่มข้อมูลทะเบียนเครื่องจักรใหม่
               </h3>
@@ -827,7 +1679,7 @@ export const MachinePage: React.FC = () => {
               </button>
             </div>
             
-            <form onSubmit={handleAddMachine} className="p-6 space-y-4">
+            <form onSubmit={handleAddMachine} className="p-6 space-y-4 overflow-y-auto flex-1">
               {errorMsg && (
                 <div className="bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs p-3 rounded-lg flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-rose-400"></span>
@@ -835,45 +1687,143 @@ export const MachinePage: React.FC = () => {
                 </div>
               )}
 
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Column B: รหัสอุปกรณ์ */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-300">รหัสอุปกรณ์ (Machine ID)*</label>
+                  <input
+                    id="modal-machine-id"
+                    type="text"
+                    required
+                    placeholder="ตัวอย่างเช่น RIM01, FFS04, BCF07"
+                    value={newId}
+                    onChange={(e) => setNewId(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-slate-200 uppercase placeholder-slate-500 font-mono text-sm focus:outline-none focus:border-cyan-500"
+                  />
+                </div>
+
+                {/* Column C: รายชื่อเครื่องจักร */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-300">รายชื่อเครื่องจักร (Machine Name)*</label>
+                  <input
+                    id="modal-machine-name"
+                    type="text"
+                    required
+                    placeholder="ตัวอย่างเช่น RICE MIXER, BANDING, INK JET"
+                    value={newName}
+                    onChange={(e) => setNewName(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-slate-200 uppercase placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-500"
+                  />
+                </div>
+
+                {/* หน้าที่ (Duty / Line Group) - Prominent and easy to find */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-amber-300 flex items-center gap-1.5">
+                    <Briefcase size={13} className="text-amber-400" />
+                    <span>หน้าที่ (Duty / Line Group)*</span>
+                  </label>
+                  <input
+                    id="modal-machine-line"
+                    type="text"
+                    placeholder="ตัวอย่างเช่น LINE A, PACKING, UTILITY, SEALER"
+                    value={newLineGroup}
+                    onChange={(e) => setNewLineGroup(e.target.value)}
+                    className="w-full bg-slate-900 border border-amber-500/50 rounded-lg px-3.5 py-2 text-amber-200 placeholder-slate-500 text-sm focus:outline-none focus:border-amber-400"
+                  />
+                </div>
+
+                {/* Column D: Model (รุ่น) */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-300">Model (รุ่น)</label>
+                  <input
+                    id="modal-machine-model"
+                    type="text"
+                    placeholder="ตัวอย่างเช่น RM-500X, VC-120-Pro"
+                    value={newModel}
+                    onChange={(e) => setNewModel(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-slate-200 placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-500"
+                  />
+                </div>
+
+                {/* Column E: แรงดัน/กำลังไฟ */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-300">แรงดัน / กำลังไฟ</label>
+                  <input
+                    id="modal-machine-voltage"
+                    type="text"
+                    placeholder="ตัวอย่างเช่น 380V 3P 7.5kW, 220V 1P 1.5kW"
+                    value={newPowerVoltage}
+                    onChange={(e) => setNewPowerVoltage(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-slate-200 placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-500"
+                  />
+                </div>
+
+                {/* Column F: วันที่ติดตั้ง */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-300">วันที่ติดตั้ง</label>
+                  <input
+                    id="modal-machine-install-date"
+                    type="date"
+                    value={newInstallDate}
+                    onChange={(e) => setNewInstallDate(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-slate-200 placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-500"
+                  />
+                </div>
+
+                {/* Column G: บริษัทผู้ขาย */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-300">บริษัทผู้ขาย (Vendor)</label>
+                  <input
+                    id="modal-machine-vendor"
+                    type="text"
+                    placeholder="ตัวอย่างเช่น Kanto Machinery Co., Ltd."
+                    value={newVendor}
+                    onChange={(e) => setNewVendor(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-slate-200 placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-500"
+                  />
+                </div>
+
+                {/* Column H & I: โซน และ ห้อง (เลือกจากโครงสร้าง หรือเพิ่มโซน/ห้องใหม่ได้) */}
+                <ZoneRoomFieldGroup
+                  zone={newLocationZone}
+                  room={newLocationRoom}
+                  onZoneChange={(z) => {
+                    setNewLocationZone(z);
+                    if (!newLineGroup) setNewLineGroup(z);
+                  }}
+                  onRoomChange={setNewLocationRoom}
+                  onOpenManager={() => setShowZoneManagerModal(true)}
+                  idPrefix="modal-add"
+                />
+
+                {/* Column J: Serial Number */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-300">Serial Number</label>
+                  <input
+                    id="modal-machine-serial"
+                    type="text"
+                    placeholder="ตัวอย่างเช่น SN-RM-2024-001"
+                    value={newSerialNumber}
+                    onChange={(e) => setNewSerialNumber(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-slate-200 placeholder-slate-500 font-mono text-sm focus:outline-none focus:border-cyan-500"
+                  />
+                </div>
+              </div>
+
+              {/* Column K: หมายเหตุ */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300">รหัสเครื่องจักร (Machine ID)*</label>
-                <input
-                  id="modal-machine-id"
-                  type="text"
-                  required
-                  placeholder="ตัวอย่างเช่น RIM01, FFS04, BCF07"
-                  value={newId}
-                  onChange={(e) => setNewId(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-slate-200 uppercase placeholder-slate-500 font-mono text-sm focus:outline-none focus:border-cyan-500"
+                <label className="text-xs font-semibold text-slate-300">หมายเหตุ</label>
+                <textarea
+                  id="modal-machine-notes"
+                  rows={2}
+                  placeholder="หมายเหตุเพิ่มเติม ข้อควรระวัง หรือประวัติการซ่อมบำรุง"
+                  value={newNotes}
+                  onChange={(e) => setNewNotes(e.target.value)}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-slate-200 placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-500 resize-none"
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300">ชื่อเครื่องจักร (Machine Name)*</label>
-                <input
-                  id="modal-machine-name"
-                  type="text"
-                  required
-                  placeholder="ตัวอย่างเช่น RICE MIXER, BANDING, INK JET"
-                  value={newName}
-                  onChange={(e) => setNewName(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-slate-200 uppercase placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-500"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300">ไลน์ผลิต / กลุ่มการจัดหมวดหมู่</label>
-                <input
-                  id="modal-machine-line"
-                  type="text"
-                  placeholder="ตัวอย่างเช่น LINE A, PACKING, ROBOT, UTILITY"
-                  value={newLineGroup}
-                  onChange={(e) => setNewLineGroup(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-slate-200 placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-500"
-                />
-              </div>
-
-              <div className="pt-4 border-t border-slate-700/60 flex items-center justify-end gap-3">
+              <div className="pt-4 border-t border-slate-700/60 flex items-center justify-end gap-3 shrink-0">
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
@@ -897,8 +1847,8 @@ export const MachinePage: React.FC = () => {
       {/* Edit Machine Modal */}
       {showEditModal && editingMachine && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4" id="machine-edit-modal-overlay">
-          <div className="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-155" id="machine-edit-modal">
-            <div className="bg-gradient-to-r from-slate-800 to-slate-900 border-b border-slate-700/80 p-5 flex justify-between items-center">
+          <div className="bg-slate-800 border border-slate-700 rounded-2xl max-w-2xl w-full overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-155 max-h-[90vh] flex flex-col" id="machine-edit-modal">
+            <div className="bg-gradient-to-r from-slate-800 to-slate-900 border-b border-slate-700/80 p-5 flex justify-between items-center shrink-0">
               <h3 className="text-base font-semibold text-amber-400 flex items-center gap-2">
                 ✏️ แก้ไขข้อมูลทะเบียนเครื่องจักร
               </h3>
@@ -913,7 +1863,7 @@ export const MachinePage: React.FC = () => {
               </button>
             </div>
             
-            <form onSubmit={handleEditMachine} className="p-6 space-y-4">
+            <form onSubmit={handleEditMachine} className="p-6 space-y-4 overflow-y-auto flex-1">
               {editErrorMsg && (
                 <div className="bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs p-3 rounded-lg flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-rose-400"></span>
@@ -921,54 +1871,150 @@ export const MachinePage: React.FC = () => {
                 </div>
               )}
 
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-400">รหัสเครื่องจักร (Machine ID)</label>
-                <div className="bg-slate-900 border border-slate-700/50 rounded-lg px-3.5 py-2 font-mono text-sm text-slate-400 select-none">
-                  {editingMachine.id}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Column B: Machine ID */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-400">รหัสอุปกรณ์ (Machine ID)</label>
+                  <div className="bg-slate-900 border border-slate-700/50 rounded-lg px-3.5 py-2 font-mono text-sm text-cyan-400 font-bold select-none">
+                    {editingMachine.id}
+                  </div>
+                  <p className="text-[10px] text-slate-500">
+                    * ไม่สามารถเปลี่ยนรหัสอ้างอิงที่เชื่อมกับแผนงาน PM และสถิติได้
+                  </p>
                 </div>
-                <p className="text-[10px] text-slate-500 mt-1">
-                  * ไม่สามารถแก้ไขรหัส ID ที่ใช้เชื่อมโยงกับแผนงานและสถิติอื่นๆ ได้
-                </p>
+
+                {/* Column C: Machine Name */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-300">รายชื่อเครื่องจักร (Machine Name)*</label>
+                  <input
+                    id="modal-edit-machine-name"
+                    type="text"
+                    required
+                    placeholder="ตัวอย่างเช่น RICE MIXER, BANDING, INK JET"
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-slate-200 uppercase placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-500"
+                  />
+                </div>
+
+                {/* หน้าที่ (Duty / Line Group) - Prominent and easy to find */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-amber-300 flex items-center gap-1.5">
+                    <Briefcase size={13} className="text-amber-400" />
+                    <span>หน้าที่ (Duty / Line Group)*</span>
+                  </label>
+                  <input
+                    id="modal-edit-machine-line"
+                    type="text"
+                    placeholder="ตัวอย่างเช่น LINE A, PACKING, ROBOT, UTILITY"
+                    value={editLineGroup}
+                    onChange={(e) => setEditLineGroup(e.target.value)}
+                    className="w-full bg-slate-900 border border-amber-500/50 rounded-lg px-3.5 py-2 text-amber-200 placeholder-slate-500 text-sm focus:outline-none focus:border-amber-400"
+                  />
+                </div>
+
+                {/* Column D: Model */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-300">Model (รุ่น)</label>
+                  <input
+                    id="modal-edit-machine-model"
+                    type="text"
+                    placeholder="ตัวอย่างเช่น RM-500X, VC-120-Pro"
+                    value={editModel}
+                    onChange={(e) => setEditModel(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-slate-200 placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-500"
+                  />
+                </div>
+
+                {/* Column E: แรงดัน/กำลังไฟ */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-300">แรงดัน / กำลังไฟ</label>
+                  <input
+                    id="modal-edit-machine-voltage"
+                    type="text"
+                    placeholder="ตัวอย่างเช่น 380V 3P 7.5kW"
+                    value={editPowerVoltage}
+                    onChange={(e) => setEditPowerVoltage(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-slate-200 placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-500"
+                  />
+                </div>
+
+                {/* Column F: วันที่ติดตั้ง */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-300">วันที่ติดตั้ง</label>
+                  <input
+                    id="modal-edit-machine-install-date"
+                    type="date"
+                    value={editInstallDate}
+                    onChange={(e) => setEditInstallDate(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-slate-200 placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-500"
+                  />
+                </div>
+
+                {/* Column G: บริษัทผู้ขาย */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-300">บริษัทผู้ขาย (Vendor)</label>
+                  <input
+                    id="modal-edit-machine-vendor"
+                    type="text"
+                    placeholder="ตัวอย่างเช่น Kanto Machinery Co., Ltd."
+                    value={editVendor}
+                    onChange={(e) => setEditVendor(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-slate-200 placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-500"
+                  />
+                </div>
+
+                {/* Column H & I: โซน และ ห้อง (เลือกจากโครงสร้าง หรือเพิ่มโซน/ห้องใหม่ได้) */}
+                <ZoneRoomFieldGroup
+                  zone={editLocationZone}
+                  room={editLocationRoom}
+                  onZoneChange={setEditLocationZone}
+                  onRoomChange={setEditLocationRoom}
+                  onOpenManager={() => setShowZoneManagerModal(true)}
+                  idPrefix="modal-edit"
+                />
+
+                {/* Column J: Serial Number */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-300">Serial Number</label>
+                  <input
+                    id="modal-edit-machine-serial"
+                    type="text"
+                    placeholder="ตัวอย่างเช่น SN-RM-2024-001"
+                    value={editSerialNumber}
+                    onChange={(e) => setEditSerialNumber(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-slate-200 placeholder-slate-500 font-mono text-sm focus:outline-none focus:border-cyan-500"
+                  />
+                </div>
+
+                {/* Line Group and Status */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-300">สถานะของเครื่องจักร</label>
+                  <select
+                    value={editStatus}
+                    onChange={(e) => setEditStatus(e.target.value as 'ปกติ' | 'เสีย/ซ่อม')}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-slate-200 text-sm focus:outline-none focus:border-cyan-500"
+                  >
+                    <option value="ปกติ">ปกติ (Normal)</option>
+                    <option value="เสีย/ซ่อม">เสีย / ซ่อม (Breakdown)</option>
+                  </select>
+                </div>
               </div>
 
+              {/* Column K: หมายเหตุ */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300">ชื่อเครื่องจักร (Machine Name)*</label>
-                <input
-                  id="modal-edit-machine-name"
-                  type="text"
-                  required
-                  placeholder="ตัวอย่างเช่น RICE MIXER, BANDING, INK JET"
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-slate-200 uppercase placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-500"
+                <label className="text-xs font-semibold text-slate-300">หมายเหตุ</label>
+                <textarea
+                  id="modal-edit-machine-notes"
+                  rows={2}
+                  placeholder="หมายเหตุเพิ่มเติม ข้อควรระวัง หรือประวัติการซ่อมบำรุง"
+                  value={editNotes}
+                  onChange={(e) => setEditNotes(e.target.value)}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-slate-200 placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-500 resize-none"
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300">ไลน์ผลิต / กลุ่มการจัดหมวดหมู่</label>
-                <input
-                  id="modal-edit-machine-line"
-                  type="text"
-                  placeholder="ตัวอย่างเช่น LINE A, PACKING, ROBOT, UTILITY"
-                  value={editLineGroup}
-                  onChange={(e) => setEditLineGroup(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-slate-200 placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-500"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300">สถานะของเครื่องจักร</label>
-                <select
-                  value={editStatus}
-                  onChange={(e) => setEditStatus(e.target.value as 'ปกติ' | 'เสีย/ซ่อม')}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-slate-200 text-sm focus:outline-none focus:border-cyan-500"
-                >
-                  <option value="ปกติ">ปกติ (Normal)</option>
-                  <option value="เสีย/ซ่อม">เสีย / ซ่อม (Breakdown)</option>
-                </select>
-              </div>
-
-              <div className="pt-4 border-t border-slate-700/60 flex items-center justify-end gap-3">
+              <div className="pt-4 border-t border-slate-700/60 flex items-center justify-end gap-3 shrink-0">
                 <button
                   type="button"
                   onClick={() => {
@@ -1038,6 +2084,26 @@ export const MachinePage: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Machine Excel Import Modal */}
+      <MachineImportModal
+        isOpen={showImportModal}
+        onClose={() => setShowImportModal(false)}
+        onImportSuccess={handleImportSuccess}
+        existingMachines={machines}
+        onDownloadTemplate={handleDownloadTemplateExcel}
+      />
+
+      {/* Zone & Room Hierarchy Structure Manager Modal */}
+      <ZoneRoomManagerModal
+        isOpen={showZoneManagerModal}
+        onClose={() => setShowZoneManagerModal(false)}
+        onSelectZoneRoom={(zone, room) => {
+          setSelectedZone(zone);
+          setSelectedRoom(room);
+          setShowZoneManagerModal(false);
+        }}
+      />
     </div>
   );
 };

@@ -1,8 +1,16 @@
 export interface Machine {
-  id: string; // ID e.g. "RIM01"
-  name: string; // Name e.g. "RICE MIXER"
+  id: string; // ID e.g. "RIM01" (รหัสอุปกรณ์)
+  name: string; // Name e.g. "RICE MIXER" (รายชื่อเครื่องจักร)
   lineGroup: string; // Line/Group, e.g. "LINE A"
   status?: 'ปกติ' | 'เสีย/ซ่อม'; // Status
+  model?: string; // Model (รุ่น)
+  powerVoltage?: string; // แรงดัน/กำลังไฟ (เช่น 380V 3Phase, 220V 5kW)
+  installDate?: string; // วันที่ติดตั้ง (YYYY-MM-DD)
+  vendor?: string; // บริษัทผู้ขาย / ผู้ผลิต
+  locationZone?: string; // ตำแหน่งที่ติดตั้ง (โรงงาน > โซนที่ผลิต)
+  locationRoom?: string; // ตำแหน่งที่ติดตั้ง (ห้องที่ผลิต / ห้องที่เครื่องจักรอยู่)
+  serialNumber?: string; // Serial Number (S/N)
+  notes?: string; // หมายเหตุ
 }
 
 export type PMFrequency = 'รายวัน' | 'รายสัปดาห์' | 'รายเดือน' | 'รายปี';
@@ -292,4 +300,11 @@ export interface TimeBreakPartItem {
   costPerUnit?: number; // ราคาต่อหน่วย
   assignedTechnician?: string; // ช่างผู้รับผิดชอบ
   history?: TimeBreakHistoryRecord[]; // ประวัติรอบการเปลี่ยนที่ผ่านมา
+}
+
+export interface ZoneStructure {
+  id: string; // ชื่อโซน หรือ รหัสโซน
+  name: string; // ชื่อโซน เช่น โซนเตรียมข้าว, โซนบรรจุภัณฑ์
+  rooms: string[]; // รายชื่อห้องภายในโซนนี้
+  description?: string; // รายละเอียดเพิ่มเติม
 }

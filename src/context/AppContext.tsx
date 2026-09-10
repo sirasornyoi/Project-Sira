@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { 
   Machine, PMPlan, PMScheduleItem, OperationScheduleItem, 
   RepairLog, ImprovementProject, SystemSettings, ScheduleItem, SetupLog, Employee,
-  TechnicianLeave, SparePart, CD5Project, TimeBreakPartItem
+  TechnicianLeave, SparePart, CD5Project, TimeBreakPartItem, ZoneStructure
 } from '../types';
 import { 
   PRELOADED_MACHINES, PRELOADED_TECHNICIANS, PRELOADED_PM_PLANS, 
@@ -37,12 +37,82 @@ interface AppContextType {
   setCd5Projects: React.Dispatch<React.SetStateAction<CD5Project[]>>;
   timeBreakParts: TimeBreakPartItem[];
   setTimeBreakParts: React.Dispatch<React.SetStateAction<TimeBreakPartItem[]>>;
+  zones: ZoneStructure[];
+  setZones: React.Dispatch<React.SetStateAction<ZoneStructure[]>>;
+  addZone: (zoneName: string) => boolean;
+  addRoomToZone: (zoneName: string, roomName: string) => boolean;
+  removeZone: (zoneName: string) => void;
+  removeRoomFromZone: (zoneName: string, roomName: string) => void;
+  renameZone: (oldName: string, newName: string) => void;
+  renameRoom: (zoneName: string, oldRoom: string, newRoom: string) => void;
   resetToDefaults: () => void;
   exportData: () => string;
   importData: (jsonStr: string) => boolean;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
+
+export const extractDefaultZones = (machinesList: Machine[]): ZoneStructure[] => {
+  const zoneMap = new Map<string, Set<string>>();
+  machinesList.forEach(m => {
+    const z = (m.locationZone || m.lineGroup || '').trim();
+    if (!z) return;
+    if (!zoneMap.has(z)) {
+      zoneMap.set(z, new Set<string>());
+    }
+    const r = (m.locationRoom || '').trim();
+    if (r) {
+      zoneMap.get(z)!.add(r);
+    }
+  });
+
+  return Array.from(zoneMap.entries())
+    .map(([name, roomsSet]) => ({
+      id: name,
+      name,
+      rooms: Array.from(roomsSet).sort((a, b) => a.localeCompare(b, 'th'))
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name, 'th'));
+};
+
+export const mergeZonesWithMachines = (baseZones: ZoneStructure[], machinesList: Machine[]): ZoneStructure[] => {
+  const zoneMap = new Map<string, ZoneStructure>();
+  
+  // 1. Existing base zones
+  (baseZones || []).forEach(z => {
+    if (!z || !z.name) return;
+    zoneMap.set(z.name.toLowerCase().trim(), {
+      id: z.id || z.name,
+      name: z.name.trim(),
+      rooms: Array.isArray(z.rooms) ? [...z.rooms] : [],
+      description: z.description
+    });
+  });
+
+  // 2. Add any zones and rooms from machines
+  machinesList.forEach(m => {
+    const zName = (m.locationZone || '').trim();
+    if (!zName) return;
+    const key = zName.toLowerCase();
+    if (!zoneMap.has(key)) {
+      zoneMap.set(key, {
+        id: zName,
+        name: zName,
+        rooms: []
+      });
+    }
+    const rName = (m.locationRoom || '').trim();
+    if (rName) {
+      const z = zoneMap.get(key)!;
+      if (!z.rooms.some(r => r.toLowerCase().trim() === rName.toLowerCase())) {
+        z.rooms.push(rName);
+        z.rooms.sort((a, b) => a.localeCompare(b, 'th'));
+      }
+    }
+  });
+
+  return Array.from(zoneMap.values()).sort((a, b) => a.name.localeCompare(b.name, 'th'));
+};
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [machines, setMachines] = useState<Machine[]>([]);
@@ -57,6 +127,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [spareParts, setSpareParts] = useState<SparePart[]>([]);
   const [cd5Projects, setCd5Projects] = useState<CD5Project[]>([]);
   const [timeBreakParts, setTimeBreakParts] = useState<TimeBreakPartItem[]>([]);
+  const [zones, setZones] = useState<ZoneStructure[]>([]);
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
   
   const [settings, setSettings] = useState<SystemSettings>({
@@ -92,8 +163,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (response.ok) {
           const serverData = await response.json();
           if (serverData && serverData.machines) {
-            // Server has data! Load it.
-            setMachines(serverData.machines);
+            // Server has data! Load it, enriching with defaults if missing
+            const cleanZone = (z?: string) => z ? z.replace(/^โรงงาน\s*\d*\s*>\s*/i, '').trim() : z;
+            const enriched = serverData.machines.map((m: Machine) => {
+              const pre = PRELOADED_MACHINES.find(p => p.id === m.id);
+              if (!pre) return { ...m, locationZone: cleanZone(m.locationZone) };
+              return {
+                ...m,
+                model: m.model || pre.model,
+                powerVoltage: m.powerVoltage || pre.powerVoltage,
+                installDate: m.installDate || pre.installDate,
+                vendor: m.vendor || pre.vendor,
+                locationZone: cleanZone(m.locationZone || pre.locationZone),
+                locationRoom: m.locationRoom || pre.locationRoom,
+                serialNumber: m.serialNumber || pre.serialNumber,
+                notes: m.notes || pre.notes
+              };
+            });
+            setMachines(enriched);
             setTechnicians(serverData.technicians || PRELOADED_TECHNICIANS);
             setEmployees(serverData.employees || []);
             setPmPlans(serverData.pmPlans || PRELOADED_PM_PLANS);
@@ -105,6 +192,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             setLeaves(serverData.leaves || []);
             setCd5Projects(serverData.cd5Projects || PRELOADED_CD5_PROJECTS);
             setTimeBreakParts(serverData.timeBreakParts || PRELOADED_TIME_BREAK_PARTS);
+            if (serverData.zones && Array.isArray(serverData.zones)) {
+              setZones(mergeZonesWithMachines(serverData.zones, enriched));
+            } else {
+              setZones(extractDefaultZones(enriched));
+            }
             if (serverData.settings) {
               setSettings(serverData.settings);
             }
@@ -131,9 +223,30 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const storedLeaves = localStorage.getItem('maint_leaves');
         const storedCd5 = localStorage.getItem('maint_cd5_projects');
         const storedTimeBreakParts = localStorage.getItem('maint_time_break_parts');
+        const storedZones = localStorage.getItem('maint_zones');
 
-        if (storedMachines) setMachines(JSON.parse(storedMachines));
-        else setMachines(PRELOADED_MACHINES);
+        let currentLoadedMachines: Machine[] = PRELOADED_MACHINES;
+
+        if (storedMachines) {
+          const parsed = JSON.parse(storedMachines);
+          const cleanZone = (z?: string) => z ? z.replace(/^โรงงาน\s*\d*\s*>\s*/i, '').trim() : z;
+          currentLoadedMachines = parsed.map((m: Machine) => {
+            const pre = PRELOADED_MACHINES.find(p => p.id === m.id);
+            if (!pre) return { ...m, locationZone: cleanZone(m.locationZone) };
+            return {
+              ...m,
+              model: m.model || pre.model,
+              powerVoltage: m.powerVoltage || pre.powerVoltage,
+              installDate: m.installDate || pre.installDate,
+              vendor: m.vendor || pre.vendor,
+              locationZone: cleanZone(m.locationZone || pre.locationZone),
+              locationRoom: m.locationRoom || pre.locationRoom,
+              serialNumber: m.serialNumber || pre.serialNumber,
+              notes: m.notes || pre.notes
+            };
+          });
+          setMachines(currentLoadedMachines);
+        } else setMachines(PRELOADED_MACHINES);
 
         if (storedTechs) setTechnicians(JSON.parse(storedTechs));
         else setTechnicians(PRELOADED_TECHNICIANS);
@@ -186,6 +299,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
         if (storedSettings) setSettings(JSON.parse(storedSettings));
 
+        if (storedZones) {
+          try {
+            const parsedZones = JSON.parse(storedZones);
+            setZones(Array.isArray(parsedZones) ? parsedZones : extractDefaultZones(currentLoadedMachines));
+          } catch {
+            setZones(extractDefaultZones(currentLoadedMachines));
+          }
+        } else {
+          setZones(extractDefaultZones(currentLoadedMachines));
+        }
+
         setIsLoaded(true);
       } catch (e) {
         console.error("Error reading localStorage values. Resetting to defaults.", e);
@@ -215,6 +339,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       localStorage.setItem('maint_cd5_projects', JSON.stringify(cd5Projects));
       localStorage.setItem('maint_time_break_parts', JSON.stringify(timeBreakParts));
       localStorage.setItem('maint_settings', JSON.stringify(settings));
+      localStorage.setItem('maint_zones', JSON.stringify(zones));
     } catch (e) {
       console.warn("LocalStorage quota warning:", e);
     }
@@ -232,7 +357,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       spareParts,
       cd5Projects,
       timeBreakParts,
-      settings
+      settings,
+      zones
     };
 
     const saveToServer = async () => {
@@ -253,7 +379,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return () => clearTimeout(timerId);
   }, [
     machines, technicians, employees, pmPlans, schedules,
-    repairs, improvements, setupLogs, leaves, spareParts, cd5Projects, timeBreakParts, settings, isLoaded
+    repairs, improvements, setupLogs, leaves, spareParts, cd5Projects, timeBreakParts, settings, zones, isLoaded
   ]);
 
   // Polling for updates from other LAN clients
@@ -290,6 +416,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             checkAndSet(cd5Projects, serverData.cd5Projects, setCd5Projects);
             checkAndSet(timeBreakParts, serverData.timeBreakParts, setTimeBreakParts);
             checkAndSet(settings, serverData.settings, setSettings);
+            if (serverData.zones) {
+              checkAndSet(zones, serverData.zones, setZones);
+            }
           }
         }
       } catch (err) {
@@ -303,8 +432,137 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [
     isLoaded,
     machines, technicians, employees, pmPlans, schedules,
-    repairs, improvements, setupLogs, leaves, spareParts, cd5Projects, timeBreakParts, settings
+    repairs, improvements, setupLogs, leaves, spareParts, cd5Projects, timeBreakParts, settings, zones
   ]);
+
+  const addZone = (zoneName: string): boolean => {
+    const trimmed = zoneName.trim();
+    if (!trimmed) return false;
+    let added = false;
+    setZones(prev => {
+      if (prev.some(z => z.name.toLowerCase() === trimmed.toLowerCase())) {
+        return prev;
+      }
+      added = true;
+      return [...prev, { id: trimmed, name: trimmed, rooms: [] }].sort((a, b) => a.name.localeCompare(b.name, 'th'));
+    });
+    return added;
+  };
+
+  const addRoomToZone = (zoneName: string, roomName: string): boolean => {
+    const trimmedZ = zoneName.trim();
+    const trimmedR = roomName.trim();
+    if (!trimmedZ || !trimmedR) return false;
+    let added = false;
+    setZones(prev => {
+      const existing = prev.find(z => z.name.toLowerCase() === trimmedZ.toLowerCase());
+      if (existing) {
+        if (existing.rooms.some(r => r.toLowerCase() === trimmedR.toLowerCase())) {
+          return prev;
+        }
+        added = true;
+        return prev.map(z => {
+          if (z.name.toLowerCase() === trimmedZ.toLowerCase()) {
+            return {
+              ...z,
+              rooms: [...z.rooms, trimmedR].sort((a, b) => a.localeCompare(b, 'th'))
+            };
+          }
+          return z;
+        });
+      } else {
+        added = true;
+        return [...prev, { id: trimmedZ, name: trimmedZ, rooms: [trimmedR] }].sort((a, b) => a.name.localeCompare(b.name, 'th'));
+      }
+    });
+    return added;
+  };
+
+  const removeZone = (zoneName: string) => {
+    const trimmed = zoneName.trim().toLowerCase();
+    setZones(prev => prev.filter(z => z.name.trim().toLowerCase() !== trimmed));
+    // Clear zone and room from any machines that had this zone assigned
+    setMachines(prev => prev.map(m => {
+      const mZone = (m.locationZone || '').trim().toLowerCase();
+      if (mZone === trimmed) {
+        return {
+          ...m,
+          locationZone: undefined,
+          locationRoom: undefined
+        };
+      }
+      return m;
+    }));
+  };
+
+  const removeRoomFromZone = (zoneName: string, roomName: string) => {
+    const trimmedZ = zoneName.trim().toLowerCase();
+    const trimmedR = roomName.trim().toLowerCase();
+    setZones(prev => prev.map(z => {
+      if (z.name.trim().toLowerCase() === trimmedZ) {
+        return {
+          ...z,
+          rooms: z.rooms.filter(r => r.trim().toLowerCase() !== trimmedR)
+        };
+      }
+      return z;
+    }));
+    // Clear room from any machines in this zone that had this room assigned
+    setMachines(prev => prev.map(m => {
+      const mZone = (m.locationZone || '').trim().toLowerCase();
+      const mRoom = (m.locationRoom || '').trim().toLowerCase();
+      if (mZone === trimmedZ && mRoom === trimmedR) {
+        return {
+          ...m,
+          locationRoom: undefined
+        };
+      }
+      return m;
+    }));
+  };
+
+  const renameZone = (oldName: string, newName: string) => {
+    const trimmedNew = newName.trim();
+    const trimmedOld = oldName.trim();
+    if (!trimmedNew || trimmedOld.toLowerCase() === trimmedNew.toLowerCase()) return;
+    setZones(prev => prev.map(z => {
+      if (z.name.trim().toLowerCase() === trimmedOld.toLowerCase()) {
+        return { ...z, name: trimmedNew, id: trimmedNew };
+      }
+      return z;
+    }));
+    // Update machines in that zone
+    setMachines(prev => prev.map(m => {
+      if ((m.locationZone || '').trim().toLowerCase() === trimmedOld.toLowerCase()) {
+        return { ...m, locationZone: trimmedNew };
+      }
+      return m;
+    }));
+  };
+
+  const renameRoom = (zoneName: string, oldRoom: string, newRoom: string) => {
+    const trimmedZ = zoneName.trim().toLowerCase();
+    const trimmedOld = oldRoom.trim().toLowerCase();
+    const trimmedNew = newRoom.trim();
+    if (!trimmedNew || trimmedOld === trimmedNew.toLowerCase()) return;
+    setZones(prev => prev.map(z => {
+      if (z.name.trim().toLowerCase() === trimmedZ) {
+        return {
+          ...z,
+          rooms: z.rooms.map(r => r.trim().toLowerCase() === trimmedOld ? trimmedNew : r)
+        };
+      }
+      return z;
+    }));
+    // Update machines in that zone & room
+    setMachines(prev => prev.map(m => {
+      const mZone = (m.locationZone || m.lineGroup || '').trim().toLowerCase();
+      if (mZone === trimmedZ && (m.locationRoom || '').trim().toLowerCase() === trimmedOld) {
+        return { ...m, locationRoom: trimmedNew };
+      }
+      return m;
+    }));
+  };
 
   const resetToDefaults = () => {
     setMachines(PRELOADED_MACHINES);
@@ -323,6 +581,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setSetupLogs(PRELOADED_SETUPS);
     setCd5Projects(PRELOADED_CD5_PROJECTS);
     setTimeBreakParts(PRELOADED_TIME_BREAK_PARTS);
+    const defZones = extractDefaultZones(PRELOADED_MACHINES);
+    setZones(defZones);
     const preloadingLeaves = [
       { id: 'lv-001', technician: 'ช่าง 1', date: '2026-06-08', type: 'ลากิจ' as const, note: 'ติดต่อราชการครอบครัว' },
       { id: 'lv-002', technician: 'ช่าง 2', date: '2026-06-11', type: 'ลาป่วย' as const, note: 'ปวดศีรษะ เป็นไข้หวัด' },
@@ -368,6 +628,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.setItem('maint_spare_parts', JSON.stringify(PRELOADED_SPARE_PARTS));
     localStorage.setItem('maint_cd5_projects', JSON.stringify(PRELOADED_CD5_PROJECTS));
     localStorage.setItem('maint_time_break_parts', JSON.stringify(PRELOADED_TIME_BREAK_PARTS));
+    localStorage.setItem('maint_zones', JSON.stringify(defZones));
     localStorage.removeItem('maint_settings');
   };
 
@@ -385,7 +646,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       spareParts,
       cd5Projects,
       timeBreakParts,
-      settings
+      settings,
+      zones
     };
     return JSON.stringify(dataObj, null, 2);
   };
@@ -406,6 +668,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (dataObj.cd5Projects) setCd5Projects(dataObj.cd5Projects);
       if (dataObj.timeBreakParts) setTimeBreakParts(dataObj.timeBreakParts);
       if (dataObj.settings) setSettings(dataObj.settings);
+      if (dataObj.zones) setZones(dataObj.zones);
       
       return true;
     } catch (e) {
@@ -429,6 +692,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       spareParts, setSpareParts,
       cd5Projects, setCd5Projects,
       timeBreakParts, setTimeBreakParts,
+      zones, setZones,
+      addZone, addRoomToZone,
+      removeZone, removeRoomFromZone,
+      renameZone, renameRoom,
       resetToDefaults,
       exportData,
       importData
