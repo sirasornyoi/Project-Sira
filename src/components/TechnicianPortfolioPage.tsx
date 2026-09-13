@@ -1202,7 +1202,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
       </div>
 
       {/* 3. Filter & Search Control Bar */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-900 border border-slate-800 p-3.5 rounded-xl shadow-md">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-surface dark:bg-slate-900 border border-border dark:border-slate-800 p-3.5 rounded-xl shadow-sm">
         
         {/* Category Tabs */}
         <div className="flex items-center gap-1.5 w-full sm:w-auto overflow-x-auto">
@@ -1211,8 +1211,8 @@ export const TechnicianPortfolioPage: React.FC = () => {
             onClick={() => setActiveTab('all')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shrink-0 ${
               activeTab === 'all' 
-                ? 'bg-cyan-500 text-slate-950 font-bold' 
-                : 'bg-slate-950 text-slate-400 hover:text-fg'
+                ? 'bg-cyan-600 dark:bg-cyan-500 text-white dark:text-slate-950 font-bold shadow-sm' 
+                : 'bg-slate-100 dark:bg-slate-950 text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-fg border border-slate-200 dark:border-slate-800'
             }`}
           >
             <Layers size={14} />
@@ -1224,8 +1224,8 @@ export const TechnicianPortfolioPage: React.FC = () => {
             onClick={() => setActiveTab('kaizen')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shrink-0 ${
               activeTab === 'kaizen' 
-                ? 'bg-amber-500 text-slate-950 font-bold' 
-                : 'bg-slate-950 text-slate-400 hover:text-fg'
+                ? 'bg-amber-600 dark:bg-amber-500 text-white dark:text-slate-950 font-bold shadow-sm' 
+                : 'bg-slate-100 dark:bg-slate-950 text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-fg border border-slate-200 dark:border-slate-800'
             }`}
           >
             <PenTool size={14} />
@@ -1237,8 +1237,8 @@ export const TechnicianPortfolioPage: React.FC = () => {
             onClick={() => setActiveTab('repairs')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shrink-0 ${
               activeTab === 'repairs' 
-                ? 'bg-emerald-500 text-slate-950 font-bold' 
-                : 'bg-slate-950 text-slate-400 hover:text-fg'
+                ? 'bg-emerald-600 dark:bg-emerald-500 text-white dark:text-slate-950 font-bold shadow-sm' 
+                : 'bg-slate-100 dark:bg-slate-950 text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-fg border border-slate-200 dark:border-slate-800'
             }`}
           >
             <Wrench size={14} />
@@ -1250,8 +1250,8 @@ export const TechnicianPortfolioPage: React.FC = () => {
             onClick={() => setActiveTab('pm_setup')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shrink-0 ${
               activeTab === 'pm_setup' 
-                ? 'bg-purple-500 text-slate-950 font-bold' 
-                : 'bg-slate-950 text-slate-400 hover:text-fg'
+                ? 'bg-purple-600 dark:bg-purple-500 text-white dark:text-slate-950 font-bold shadow-sm' 
+                : 'bg-slate-100 dark:bg-slate-950 text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-fg border border-slate-200 dark:border-slate-800'
             }`}
           >
             <ClipboardCheck size={14} />

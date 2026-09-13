@@ -806,10 +806,10 @@ export const PMPlanPage: React.FC = () => {
                       </div>
 
                       {/* Checklist Table */}
-                      <div className="overflow-x-auto rounded-xl border border-slate-700/80 bg-slate-900/50">
+                      <div className="overflow-x-auto rounded-xl border border-border dark:border-slate-700/80 bg-surface dark:bg-slate-900/50">
                         <table className="w-full text-left text-xs border-collapse">
                           <thead>
-                            <tr className="bg-slate-900 text-slate-400 border-b border-slate-700/80 text-[11px] uppercase tracking-wider font-semibold">
+                            <tr className="bg-slate-100 dark:bg-slate-900 text-fg-muted dark:text-slate-400 border-b border-border dark:border-slate-700/80 text-[11px] uppercase tracking-wider font-semibold">
                               <th className="py-2.5 px-3 text-center w-12">ลำดับ</th>
                               <th className="py-2.5 px-3 text-center w-24">ติ๊กทำแล้ว</th>
                               <th className="py-2.5 px-3 min-w-[180px]">หัวข้อ PM</th>
@@ -821,7 +821,7 @@ export const PMPlanPage: React.FC = () => {
                               <th className="py-2.5 px-2 text-center w-16">จัดการ</th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y divide-slate-800 text-slate-300">
+                          <tbody className="divide-y divide-border dark:divide-slate-800 text-fg dark:text-slate-300">
                             {plan.steps.map((step, idx) => {
                               const isDone = !!step.done;
                               const isNormal = step.result === 'ปกติ';
@@ -831,13 +831,13 @@ export const PMPlanPage: React.FC = () => {
                                 <tr 
                                   key={step.id || idx}
                                   className={`transition-colors ${
-                                    isAbnormal ? 'bg-rose-950/20 hover:bg-rose-950/30' :
-                                    isDone ? 'bg-slate-900/30 hover:bg-slate-900/60' :
-                                    'hover:bg-slate-800/40'
+                                    isAbnormal ? 'bg-rose-50 dark:bg-rose-950/20 hover:bg-rose-100 dark:hover:bg-rose-950/30' :
+                                    isDone ? 'bg-slate-50 dark:bg-slate-900/30 hover:bg-slate-100 dark:hover:bg-slate-900/60' :
+                                    'hover:bg-slate-100 dark:hover:bg-slate-800/40'
                                   }`}
                                 >
                                   {/* 1. Item No */}
-                                  <td className="py-2.5 px-3 text-center font-mono text-slate-400 font-bold">
+                                  <td className="py-2.5 px-3 text-center font-mono text-fg-muted dark:text-slate-400 font-bold">
                                     {step.itemNo !== undefined ? step.itemNo : (idx + 1)}
                                   </td>
 
@@ -848,8 +848,8 @@ export const PMPlanPage: React.FC = () => {
                                       onClick={() => handleToggleStepDone(plan.id, idx)}
                                       className={`inline-flex items-center justify-center p-1 rounded-lg transition ${
                                         isDone 
-                                          ? 'bg-emerald-500 text-slate-950 hover:bg-emerald-400 shadow-sm' 
-                                          : 'border border-slate-600 hover:border-cyan-400 text-slate-500 hover:text-cyan-400'
+                                          ? 'bg-emerald-600 dark:bg-emerald-500 text-white shadow-sm' 
+                                          : 'border border-border dark:border-slate-600 hover:border-cyan-500 text-fg-muted dark:text-slate-500 hover:text-cyan-600 dark:hover:text-cyan-400'
                                       }`}
                                       title={isDone ? 'ทำแล้ว (คลิกเพื่อยกเลิก)' : 'คลิกเพื่อติ๊กว่าทำแล้ว'}
                                     >
@@ -859,38 +859,38 @@ export const PMPlanPage: React.FC = () => {
 
                                   {/* 3. Title */}
                                   <td className="py-2.5 px-3">
-                                    <span className={`font-medium ${isDone && !isAbnormal ? 'text-slate-200' : 'text-slate-100'}`}>
+                                    <span className={`font-medium ${isDone && !isAbnormal ? 'text-fg-muted dark:text-slate-200' : 'text-fg dark:text-slate-100'}`}>
                                       {step.title}
                                     </span>
                                     {step.stdTime && (
-                                      <span className="block text-[10px] text-cyan-400 font-mono mt-0.5">
+                                      <span className="block text-[10px] text-cyan-600 dark:text-cyan-400 font-mono mt-0.5">
                                         ⏱ {step.stdTime} นาที
                                       </span>
                                     )}
                                   </td>
 
                                   {/* 4. Method */}
-                                  <td className="py-2.5 px-3 text-slate-300">
-                                    <span className="text-[11px] bg-slate-800/90 border border-slate-700/60 px-2 py-0.5 rounded text-slate-300">
+                                  <td className="py-2.5 px-3 text-fg dark:text-slate-300">
+                                    <span className="text-[11px] bg-slate-100 dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700/60 px-2 py-0.5 rounded text-slate-800 dark:text-slate-300 font-medium">
                                       {step.method || 'ดูด้วยสายตา'}
                                     </span>
                                   </td>
 
                                   {/* 5. Standard */}
-                                  <td className="py-2.5 px-3 text-slate-300 text-xs">
+                                  <td className="py-2.5 px-3 text-fg dark:text-slate-300 text-xs">
                                     {step.standard || '-'}
                                   </td>
 
                                   {/* 6. PM Result Toggles */}
                                   <td className="py-2.5 px-3 text-center">
-                                    <div className="inline-flex items-center gap-1 bg-slate-950 p-1 rounded-lg border border-slate-800">
+                                    <div className="inline-flex items-center gap-1 bg-slate-100 dark:bg-slate-950 p-1 rounded-lg border border-border dark:border-slate-800">
                                       <button
                                         type="button"
                                         onClick={() => handleSetStepResult(plan.id, idx, 'ปกติ')}
                                         className={`px-2 py-0.5 rounded text-[10.5px] font-bold transition ${
                                           isNormal 
-                                            ? 'bg-emerald-500 text-slate-950 shadow-sm' 
-                                            : 'text-slate-400 hover:text-emerald-300'
+                                            ? 'bg-emerald-600 dark:bg-emerald-500 text-white shadow-sm' 
+                                            : 'text-fg-muted dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-300'
                                         }`}
                                       >
                                         ปกติ
@@ -900,8 +900,8 @@ export const PMPlanPage: React.FC = () => {
                                         onClick={() => handleSetStepResult(plan.id, idx, 'ไม่ปกติ')}
                                         className={`px-2 py-0.5 rounded text-[10.5px] font-bold transition ${
                                           isAbnormal 
-                                            ? 'bg-rose-500 text-fg shadow-sm' 
-                                            : 'text-slate-400 hover:text-rose-300'
+                                            ? 'bg-rose-600 dark:bg-rose-500 text-white shadow-sm' 
+                                            : 'text-fg-muted dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-300'
                                         }`}
                                       >
                                         ไม่ปกติ
@@ -911,8 +911,8 @@ export const PMPlanPage: React.FC = () => {
                                         onClick={() => handleSetStepResult(plan.id, idx, 'ยังไม่ตรวจ')}
                                         className={`px-1.5 py-0.5 rounded text-[10px] transition ${
                                           step.result === 'ยังไม่ตรวจ' 
-                                            ? 'bg-slate-800 text-slate-300' 
-                                            : 'text-slate-600 hover:text-slate-400'
+                                            ? 'bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-300 font-medium' 
+                                            : 'text-slate-400 dark:text-slate-600 hover:text-slate-600 dark:hover:text-slate-400'
                                         }`}
                                         title="ยังไม่ตรวจ"
                                       >
@@ -928,8 +928,8 @@ export const PMPlanPage: React.FC = () => {
                                       placeholder="บันทึกค่าที่วัดได้ หรือสิ่งผิดปกติ..."
                                       value={step.abnormalDetail || ''}
                                       onChange={(e) => handleUpdateStepField(plan.id, idx, 'abnormalDetail', e.target.value)}
-                                      className={`w-full bg-slate-950/80 border rounded-lg px-2.5 py-1 text-xs text-fg placeholder-slate-600 focus:outline-none focus:border-cyan-500 ${
-                                        isAbnormal ? 'border-rose-500/50 text-rose-200' : 'border-slate-700/80'
+                                      className={`w-full bg-surface dark:bg-slate-950/80 border rounded-lg px-2.5 py-1 text-xs text-fg placeholder:text-fg-muted/60 focus:outline-none focus:border-cyan-500 ${
+                                        isAbnormal ? 'border-rose-300 text-rose-700 dark:border-rose-500/50 dark:text-rose-200' : 'border-border dark:border-slate-700/80'
                                       }`}
                                     />
                                   </td>
@@ -941,7 +941,7 @@ export const PMPlanPage: React.FC = () => {
                                       placeholder="หมายเหตุ (เช่น เบอร์อะไหล่)..."
                                       value={step.remark || ''}
                                       onChange={(e) => handleUpdateStepField(plan.id, idx, 'remark', e.target.value)}
-                                      className="w-full bg-slate-950/80 border border-slate-700/80 rounded-lg px-2.5 py-1 text-xs text-fg placeholder-slate-600 focus:outline-none focus:border-cyan-500"
+                                      className="w-full bg-surface dark:bg-slate-950/80 border border-border dark:border-slate-700/80 rounded-lg px-2.5 py-1 text-xs text-fg placeholder:text-fg-muted/60 focus:outline-none focus:border-cyan-500"
                                     />
                                   </td>
 
@@ -951,7 +951,7 @@ export const PMPlanPage: React.FC = () => {
                                       <button
                                         type="button"
                                         onClick={() => handleOpenEditStepModal(plan.id, idx)}
-                                        className="p-1 text-slate-400 hover:text-cyan-300 hover:bg-slate-800 rounded transition"
+                                        className="p-1 text-fg-muted hover:text-cyan-600 dark:text-slate-400 dark:hover:text-cyan-300 hover:bg-slate-200 dark:hover:bg-slate-800 rounded transition"
                                         title="แก้ไขข้อความข้อนี้"
                                       >
                                         <Edit3 size={12} />

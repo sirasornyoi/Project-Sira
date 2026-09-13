@@ -965,7 +965,7 @@ export const MachinePage: React.FC = () => {
                 type="button"
                 id={`btn-export-pm-form-${m.id}`}
                 onClick={() => handleExportPM(m)}
-                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-fg transition border border-emerald-500/50 cursor-pointer shadow-sm"
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white transition border border-emerald-500/50 cursor-pointer shadow-sm"
                 title={`Export ฟอร์ม PM เครื่อง ${m.id} เป็นไฟล์ Excel (.xlsx)`}
               >
                 <Download size={13} />
@@ -1308,10 +1308,10 @@ export const MachinePage: React.FC = () => {
           <button
             id="btn-manage-zones-rooms"
             onClick={() => setShowZoneManagerModal(true)}
-            className="flex items-center gap-2 bg-indigo-950/80 hover:bg-indigo-900/80 text-indigo-300 font-semibold px-3.5 py-2 rounded-lg transition-all shadow-md text-xs cursor-pointer border border-indigo-500/50 hover:border-indigo-400"
+            className="flex items-center gap-2 bg-indigo-50 dark:bg-indigo-950/80 hover:bg-indigo-100 dark:hover:bg-indigo-900/80 text-indigo-700 dark:text-indigo-300 font-semibold px-3.5 py-2 rounded-lg transition-all shadow-sm text-xs cursor-pointer border border-indigo-200 dark:border-indigo-500/50 hover:border-indigo-300 dark:hover:border-indigo-400"
             title="จัดการโครงสร้างโซนและห้อง (เพิ่มโซน/ห้อง เปลี่ยนชื่อ หรือลบ)"
           >
-            <Layers size={15} className="text-indigo-400" />
+            <Layers size={15} className="text-indigo-600 dark:text-indigo-400" />
             <span>จัดการโซน/ห้อง</span>
           </button>
 
@@ -1383,10 +1383,10 @@ export const MachinePage: React.FC = () => {
           </div>
 
           {/* Zone Filter Dropdown */}
-          <div className="flex items-center gap-2 bg-slate-900/90 border border-slate-700 rounded-lg px-3 py-1.5 min-w-[190px]">
-            <Building size={15} className="text-cyan-400 shrink-0" />
+          <div id="filter-zone-select-container" className="flex items-center gap-2 bg-surface dark:bg-slate-900/90 border border-border dark:border-slate-700 rounded-lg px-3 py-1.5 min-w-[190px]">
+            <Building size={15} className="text-cyan-600 dark:text-cyan-400 shrink-0" />
             <div className="flex-1">
-              <label htmlFor="filter-zone-select" className="block text-[10px] text-slate-400 font-medium leading-tight">
+              <label htmlFor="filter-zone-select" className="block text-[10px] text-fg-muted dark:text-slate-400 font-medium leading-tight">
                 กรองโซน (Zone):
               </label>
               <select
@@ -1396,13 +1396,13 @@ export const MachinePage: React.FC = () => {
                   setSelectedZone(e.target.value);
                   setSelectedRoom(''); // Reset room when zone changes
                 }}
-                className="w-full bg-transparent text-slate-200 text-xs font-semibold focus:outline-none cursor-pointer"
+                className="w-full bg-transparent text-fg dark:text-slate-200 text-xs font-semibold focus:outline-none cursor-pointer"
               >
-                <option value="" className="bg-slate-900 text-slate-300">
+                <option value="" className="bg-surface dark:bg-slate-900 text-fg dark:text-slate-300">
                   ทุกโซน ({machines.length} เครื่อง)
                 </option>
                 {availableZones.map(([zone, count]) => (
-                  <option key={zone} value={zone} className="bg-slate-900 text-slate-200">
+                  <option key={zone} value={zone} className="bg-surface dark:bg-slate-900 text-fg dark:text-slate-200">
                     {zone} ({count} เครื่อง)
                   </option>
                 ))}
@@ -1423,23 +1423,23 @@ export const MachinePage: React.FC = () => {
           </div>
 
           {/* Room Filter Dropdown */}
-          <div className="flex items-center gap-2 bg-slate-900/90 border border-slate-700 rounded-lg px-3 py-1.5 min-w-[190px]">
-            <MapPin size={15} className="text-cyan-400 shrink-0" />
+          <div id="filter-room-select-container" className="flex items-center gap-2 bg-surface dark:bg-slate-900/90 border border-border dark:border-slate-700 rounded-lg px-3 py-1.5 min-w-[190px]">
+            <MapPin size={15} className="text-cyan-600 dark:text-cyan-400 shrink-0" />
             <div className="flex-1">
-              <label htmlFor="filter-room-select" className="block text-[10px] text-slate-400 font-medium leading-tight">
+              <label htmlFor="filter-room-select" className="block text-[10px] text-fg-muted dark:text-slate-400 font-medium leading-tight">
                 กรองห้อง (Room):
               </label>
               <select
                 id="filter-room-select"
                 value={selectedRoom}
                 onChange={(e) => setSelectedRoom(e.target.value)}
-                className="w-full bg-transparent text-slate-200 text-xs font-semibold focus:outline-none cursor-pointer"
+                className="w-full bg-transparent text-fg dark:text-slate-200 text-xs font-semibold focus:outline-none cursor-pointer"
               >
-                <option value="" className="bg-slate-900 text-slate-300">
+                <option value="" className="bg-surface dark:bg-slate-900 text-fg dark:text-slate-300">
                   ทุกห้อง ({availableRooms.reduce((acc, [, c]) => acc + c, 0)} เครื่อง)
                 </option>
                 {availableRooms.map(([room, count]) => (
-                  <option key={room} value={room} className="bg-slate-900 text-slate-200">
+                  <option key={room} value={room} className="bg-surface dark:bg-slate-900 text-fg dark:text-slate-200">
                     {room} ({count} เครื่อง)
                   </option>
                 ))}
@@ -1461,10 +1461,10 @@ export const MachinePage: React.FC = () => {
             type="button"
             id="btn-filter-manage-zones"
             onClick={() => setShowZoneManagerModal(true)}
-            className="text-xs text-indigo-300 hover:text-indigo-200 bg-indigo-950/60 hover:bg-indigo-900/60 border border-indigo-700/50 px-3 py-2 rounded-lg transition shrink-0 flex items-center gap-1.5 cursor-pointer font-medium"
+            className="text-xs text-indigo-700 dark:text-indigo-300 hover:text-indigo-800 dark:hover:text-indigo-200 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 border border-indigo-200 dark:border-indigo-700/50 px-3 py-2 rounded-lg transition shrink-0 flex items-center gap-1.5 cursor-pointer font-medium"
             title="เปิดตัวจัดการโซน/ห้อง (เพิ่ม/ลบ/แก้ไข)"
           >
-            <Settings size={13} className="text-indigo-400" />
+            <Settings size={13} className="text-indigo-600 dark:text-indigo-400" />
             <span>จัดการโครงสร้างโซน/ห้อง</span>
           </button>
 

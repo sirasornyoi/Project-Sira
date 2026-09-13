@@ -10,6 +10,8 @@
 
   /* Accessibility Semantic Color Tokens (WCAG 2.1 AA compliant >= 4.5:1) */
   --fg-on-accent: #ffffff;
+  --fg-on-dark: #f8fafc;
+  --fg-muted-on-dark: #cbd5e1;
   --card-title: #f1f5f9;
   --card-title-accent: #38bdf8;
 
@@ -32,6 +34,15 @@
   --job-pm-desc: #cbd5e1;
   --job-pm-tag-bg: rgba(0, 0, 0, 0.45);
   --job-pm-tag-fg: #f1f5f9;
+
+  /* Sidebar Semantic Tokens (Dark mode default) */
+  --sidebar-bg: #1a1f2e;
+  --sidebar-fg: #e8e8e8;
+  --sidebar-fg-muted: #a0a0a0;
+  --sidebar-border: #2a3449;
+  --sidebar-hover-bg: #242c3f;
+  --sidebar-active-bg: #0e7490;
+  --sidebar-active-fg: #ffffff;
 }
 
 body.light-theme,
@@ -46,6 +57,8 @@ html.light-theme {
 
   /* Accessibility Semantic Color Tokens (Light Theme) */
   --fg-on-accent: #ffffff;
+  --fg-on-dark: #f8fafc;
+  --fg-muted-on-dark: #cbd5e1;
   --card-title: #0f172a;
   --card-title-accent: #0369a1;
 
@@ -68,6 +81,15 @@ html.light-theme {
   --job-pm-desc: #334155;
   --job-pm-tag-bg: #dbeafe;
   --job-pm-tag-fg: #1e3a8a;
+
+  /* Sidebar Semantic Tokens (Light Theme) */
+  --sidebar-bg: #f7f7f7;
+  --sidebar-fg: #1a1a1a;
+  --sidebar-fg-muted: #5c5c5c;
+  --sidebar-border: #e2e8f0;
+  --sidebar-hover-bg: #ebebeb;
+  --sidebar-active-bg: #e0f2fe;
+  --sidebar-active-fg: #0369a1;
 }
 
 body:not(.light-theme),
@@ -82,6 +104,8 @@ html.dark {
 
   /* Accessibility Semantic Color Tokens (Dark Theme) */
   --fg-on-accent: #ffffff;
+  --fg-on-dark: #f8fafc;
+  --fg-muted-on-dark: #cbd5e1;
   --card-title: #f1f5f9;
   --card-title-accent: #38bdf8;
 
@@ -101,6 +125,15 @@ html.dark {
   --job-pm-desc: #cbd5e1;
   --job-pm-tag-bg: rgba(0, 0, 0, 0.45);
   --job-pm-tag-fg: #f1f5f9;
+
+  /* Sidebar Semantic Tokens (Dark Theme) */
+  --sidebar-bg: #1a1f2e;
+  --sidebar-fg: #e8e8e8;
+  --sidebar-fg-muted: #a0a0a0;
+  --sidebar-border: #2a3449;
+  --sidebar-hover-bg: #242c3f;
+  --sidebar-active-bg: #0e7490;
+  --sidebar-active-fg: #ffffff;
 }
 
 .text-fg {
@@ -122,6 +155,68 @@ html.dark {
 /* Accessibility Semantic Classes */
 .text-fg-on-accent {
   color: var(--fg-on-accent) !important;
+}
+
+.text-fg-on-dark {
+  color: var(--fg-on-dark) !important;
+}
+
+.text-fg-muted-on-dark {
+  color: var(--fg-muted-on-dark) !important;
+}
+
+/* Sidebar Semantic Utility Classes */
+.bg-sidebar {
+  background-color: var(--sidebar-bg) !important;
+}
+
+.text-sidebar-fg {
+  color: var(--sidebar-fg) !important;
+}
+
+.text-sidebar-muted {
+  color: var(--sidebar-fg-muted) !important;
+}
+
+.border-sidebar {
+  border-color: var(--sidebar-border) !important;
+}
+
+.bg-sidebar-active {
+  background-color: var(--sidebar-active-bg) !important;
+}
+
+.text-sidebar-active {
+  color: var(--sidebar-active-fg) !important;
+}
+
+body:not(.light-theme) #time-break-main-view,
+.dark #time-break-main-view,
+[data-theme="dark"] #time-break-main-view {
+  --fg: var(--fg-on-dark);
+  --fg-muted: var(--fg-muted-on-dark);
+}
+
+.light-theme #time-break-main-view,
+[data-theme="light"] #time-break-main-view {
+  --fg: #1a1a1a !important;
+  --fg-muted: #5c5c5c !important;
+}
+
+.light-theme #time-break-banner h1 {
+  color: #0f172a !important;
+}
+
+.light-theme #time-break-banner p {
+  color: #334155 !important;
+}
+
+.light-theme #time-break-banner span.bg-cyan-100,
+.light-theme #time-break-banner span.bg-sky-100 {
+  background-color: #e0f2fe !important;
+  color: #075985 !important;
+  border-color: #7dd3fc !important;
+  font-weight: 700 !important;
 }
 
 .text-card-title {
@@ -199,6 +294,77 @@ body {
   font-family: var(--font-sans);
 }
 
+/* SIDEBAR UNIVERSAL STYLES (binds to --sidebar-* tokens) */
+#app-sidebar-fixed {
+  background-color: var(--sidebar-bg);
+  border-color: var(--sidebar-border);
+  color: var(--sidebar-fg);
+}
+
+#app-sidebar-fixed .border-sidebar,
+#app-sidebar-fixed .border-b,
+#app-sidebar-fixed .border-t {
+  border-color: var(--sidebar-border);
+}
+
+#app-sidebar-fixed #btn-close-sidebar {
+  color: var(--sidebar-fg-muted);
+}
+
+#app-sidebar-fixed #btn-close-sidebar:hover {
+  background-color: var(--sidebar-hover-bg);
+  color: var(--sidebar-fg);
+}
+
+#app-sidebar-nav button:not(.sidebar-active) {
+  color: var(--sidebar-fg);
+}
+
+#app-sidebar-nav button:not(.sidebar-active) svg {
+  color: var(--sidebar-fg-muted);
+}
+
+#app-sidebar-nav button:not(.sidebar-active):hover {
+  background-color: var(--sidebar-hover-bg);
+  color: var(--sidebar-fg);
+}
+
+#app-sidebar-nav button:not(.sidebar-active):hover svg {
+  color: var(--sidebar-fg);
+}
+
+#app-sidebar-nav button:not(.sidebar-active) p {
+  color: var(--sidebar-fg);
+}
+
+#app-sidebar-nav button:not(.sidebar-active) p.sidebar-desc,
+#app-sidebar-nav button:not(.sidebar-active) .text-\[9px\] {
+  color: var(--sidebar-fg-muted);
+}
+
+#app-sidebar-nav button.sidebar-active {
+  background-color: var(--sidebar-active-bg) !important;
+  color: var(--sidebar-active-fg) !important;
+}
+
+#app-sidebar-nav button.sidebar-active svg {
+  color: var(--sidebar-active-fg) !important;
+}
+
+#app-sidebar-nav button.sidebar-active p {
+  color: var(--sidebar-active-fg) !important;
+}
+
+#app-sidebar-nav button.sidebar-active p.sidebar-desc,
+#app-sidebar-nav button.sidebar-active .text-\[9px\] {
+  color: var(--sidebar-active-fg) !important;
+}
+
+#app-sidebar-fixed .sidebar-footer-text,
+#app-sidebar-fixed .text-sidebar-muted {
+  color: var(--sidebar-fg-muted);
+}
+
 /* LIGHT MODE STYLES */
 .light-theme {
   background-color: var(--bg) !important;
@@ -210,93 +376,103 @@ body {
   background-color: #f8fafc !important;
 }
 
+/* SIDEBAR THEMED STYLES (Light mode) */
 .light-theme #app-sidebar-fixed {
-  background-color: var(--surface) !important;
-  border-color: #e2e8f0 !important;
-  box-shadow: 1px 0 3px 0 rgba(0, 0, 0, 0.04) !important;
+  background-color: var(--sidebar-bg) !important;
+  border-color: var(--sidebar-border) !important;
+  box-shadow: 1px 0 3px 0 rgba(0, 0, 0, 0.05) !important;
+  color: var(--sidebar-fg) !important;
 }
 
 .light-theme #app-sidebar-fixed .border-b,
 .light-theme #app-sidebar-fixed .border-t,
 .light-theme #app-sidebar-fixed .border-slate-800,
 .light-theme #app-sidebar-fixed .border-slate-800\/80 {
-  border-color: #e2e8f0 !important;
+  border-color: var(--sidebar-border) !important;
 }
 
 .light-theme #app-sidebar-fixed #btn-close-sidebar {
-  color: #64748b !important;
+  color: var(--sidebar-fg-muted) !important;
 }
 
 .light-theme #app-sidebar-fixed #btn-close-sidebar:hover {
-  background-color: #f1f5f9 !important;
-  color: #0f172a !important;
+  background-color: var(--sidebar-hover-bg) !important;
+  color: var(--sidebar-fg) !important;
 }
 
 .light-theme #app-sidebar-fixed .bg-gradient-to-r {
   background-image: linear-gradient(to right, #0284c7, #2563eb) !important;
 }
 
-/* Sidebar Nav items */
-.light-theme #app-sidebar-nav button {
-  color: #334155 !important;
+/* Sidebar Nav items in light mode */
+.light-theme #app-sidebar-nav button:not(.sidebar-active) {
+  color: var(--sidebar-fg) !important;
 }
 
-.light-theme #app-sidebar-nav button svg {
-  color: #64748b !important;
+.light-theme #app-sidebar-nav button:not(.sidebar-active) svg {
+  color: var(--sidebar-fg-muted) !important;
 }
 
-.light-theme #app-sidebar-nav button:hover {
-  background-color: #f1f5f9 !important;
-  color: #0284c7 !important;
+.light-theme #app-sidebar-nav button:not(.sidebar-active):hover {
+  background-color: var(--sidebar-hover-bg) !important;
+  color: var(--sidebar-fg) !important;
 }
 
-.light-theme #app-sidebar-nav button:hover svg {
-  color: #0284c7 !important;
+.light-theme #app-sidebar-nav button:not(.sidebar-active):hover svg {
+  color: var(--sidebar-fg) !important;
 }
 
-.light-theme #app-sidebar-nav button:hover p {
-  color: #0f172a !important;
+.light-theme #app-sidebar-nav button:not(.sidebar-active):hover p {
+  color: var(--sidebar-fg) !important;
 }
 
-.light-theme #app-sidebar-nav button p {
-  color: #334155 !important;
+.light-theme #app-sidebar-nav button:not(.sidebar-active) p {
+  color: var(--sidebar-fg) !important;
 }
 
-.light-theme #app-sidebar-nav button p.text-slate-500,
-.light-theme #app-sidebar-nav button .text-\[9px\] {
-  color: #64748b !important;
+.light-theme #app-sidebar-nav button:not(.sidebar-active) p.sidebar-desc,
+.light-theme #app-sidebar-nav button:not(.sidebar-active) p.text-slate-500,
+.light-theme #app-sidebar-nav button:not(.sidebar-active) .text-fg-muted-on-dark,
+.light-theme #app-sidebar-nav button:not(.sidebar-active) .text-\[9px\] {
+  color: var(--sidebar-fg-muted) !important;
 }
 
-/* Active / Selected item in sidebar */
+/* Active / Selected item in sidebar (Light mode) */
+.light-theme #app-sidebar-nav button.sidebar-active,
 .light-theme #app-sidebar-nav button.bg-cyan-500 {
-  background-color: #0284c7 !important;
-  color: var(--fg) !important;
-  box-shadow: 0 4px 12px -2px rgba(2, 132, 199, 0.35) !important;
+  background-color: var(--sidebar-active-bg) !important;
+  color: var(--sidebar-active-fg) !important;
+  box-shadow: 0 4px 12px -2px rgba(3, 105, 161, 0.15) !important;
 }
 
+.light-theme #app-sidebar-nav button.sidebar-active svg,
 .light-theme #app-sidebar-nav button.bg-cyan-500 svg {
-  color: var(--fg) !important;
+  color: var(--sidebar-active-fg) !important;
 }
 
+.light-theme #app-sidebar-nav button.sidebar-active p,
 .light-theme #app-sidebar-nav button.bg-cyan-500 p {
-  color: var(--fg) !important;
+  color: var(--sidebar-active-fg) !important;
 }
 
+.light-theme #app-sidebar-nav button.sidebar-active p.sidebar-desc,
+.light-theme #app-sidebar-nav button.sidebar-active .text-\[9px\],
 .light-theme #app-sidebar-nav button.bg-cyan-500 p.text-slate-800,
+.light-theme #app-sidebar-nav button.bg-cyan-500 p.text-slate-900,
 .light-theme #app-sidebar-nav button.bg-cyan-500 .text-\[9px\] {
-  color: #e0f2fe !important;
+  color: var(--sidebar-active-fg) !important;
 }
 
 /* Sidebar Footer */
-.light-theme #app-sidebar-fixed .text-slate-500 {
-  color: #64748b !important;
+.light-theme #app-sidebar-fixed .text-slate-500,
+.light-theme #app-sidebar-fixed .text-slate-600,
+.light-theme #app-sidebar-fixed .text-fg-muted-on-dark,
+.light-theme #app-sidebar-fixed .text-sidebar-muted {
+  color: var(--sidebar-fg-muted) !important;
 }
 
-.light-theme #app-sidebar-fixed .text-slate-600 {
-  color: #94a3b8 !important;
-}
-
-.light-theme #app-sidebar-fixed .text-emerald-400 {
+.light-theme #app-sidebar-fixed .text-emerald-400,
+.light-theme #app-sidebar-fixed .text-emerald-500 {
   color: #059669 !important;
 }
 
@@ -870,7 +1046,7 @@ body {
 
 .light-theme #schedule-view-mode-tabs button.bg-cyan-500 {
   background-color: #0284c7 !important;
-  color: var(--fg) !important;
+  color: #ffffff !important;
 }
 
 /* --- SchedulePage Monthly Calendar Grid Light Theme Overrides --- */
@@ -1138,7 +1314,7 @@ body {
 
 .light-theme #monthly-sub-tabs button.bg-cyan-500 {
   background-color: #0284c7 !important;
-  color: var(--fg) !important;
+  color: #ffffff !important;
 }
 
 /* PM Calendar Instructions & Days of Week */
@@ -2020,7 +2196,7 @@ body {
 
 .light-theme #repair-form-modal form div[class*="bg-slate-900/40"] button:hover {
   background-color: #0284c7 !important;
-  color: var(--fg) !important;
+  color: #ffffff !important;
 }
 
 .light-theme #repair-form-modal #why-cascading-inputs span.text-red-400 {
@@ -2218,7 +2394,7 @@ body {
 
 .light-theme #repair-detail-modal div.bg-slate-900\/80 button.border-rose-500\/30:hover {
   background-color: #dc2626 !important;
-  color: var(--fg) !important;
+  color: #ffffff !important;
 }
 
 .light-theme #repair-detail-modal div.bg-slate-900\/80 button[class*="border-slate-700"] {
@@ -2296,7 +2472,7 @@ body {
 
 .light-theme #pm-overdue-alert-banner span[class*="bg-rose-500"] {
   background-color: #e11d48 !important;
-  color: var(--fg) !important;
+  color: #ffffff !important;
   font-weight: 900 !important;
 }
 
@@ -2314,13 +2490,13 @@ body {
 
 .light-theme #btn-filter-overdue-pm[class*="bg-rose-500"] {
   background-color: #e11d48 !important;
-  color: var(--fg) !important;
+  color: #ffffff !important;
   border-color: #e11d48 !important;
 }
 
 .light-theme #btn-quick-reschedule-first-overdue {
   background: linear-gradient(to right, #d97706, #ea580c) !important;
-  color: var(--fg) !important;
+  color: #ffffff !important;
   box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3) !important;
   font-weight: 800 !important;
 }
@@ -3247,7 +3423,7 @@ body {
 .light-theme #btn-create-improvement {
   background-color: #0284c7 !important;
   background-image: none !important;
-  color: var(--fg) !important;
+  color: #ffffff !important;
 }
 
 .light-theme #btn-create-improvement:hover {
@@ -3457,7 +3633,7 @@ body {
 
 .light-theme #frm-btn-save-imp {
   background-color: #0284c7 !important;
-  color: var(--fg) !important;
+  color: #ffffff !important;
 }
 
 .light-theme #frm-btn-save-imp:hover {
@@ -3636,7 +3812,7 @@ body {
 
 .light-theme #btn-add-worklog-row {
   background-color: #0284c7 !important;
-  color: var(--fg) !important;
+  color: #ffffff !important;
 }
 
 .light-theme #btn-add-worklog-row:hover {
@@ -5365,7 +5541,7 @@ body {
 .light-theme #setup-form-section button.bg-cyan-500.border-cyan-400 {
   background-color: #0284c7 !important;
   border-color: #0284c7 !important;
-  color: var(--fg) !important;
+  color: #ffffff !important;
 }
 
 .light-theme #setup-form-section span.text-slate-200 {
@@ -5414,7 +5590,7 @@ body {
 
 .light-theme #setup-form-section div.bg-slate-950\/70 button.bg-cyan-500 {
   background-color: #0284c7 !important;
-  color: var(--fg) !important;
+  color: #ffffff !important;
 }
 
 .light-theme #setup-form-section div.bg-slate-950\/70 button.bg-cyan-500:hover {
@@ -5448,7 +5624,7 @@ body {
 
 .light-theme #setup-form-section button.bg-cyan-500.text-slate-950 {
   background-color: #0284c7 !important;
-  color: var(--fg) !important;
+  color: #ffffff !important;
 }
 
 .light-theme #setup-form-section button.bg-cyan-500.text-slate-950:hover {
@@ -5917,7 +6093,7 @@ body {
 
 .light-theme #executive-presentation-dashboard button.bg-cyan-500 {
   background-color: #0284c7 !important;
-  color: var(--fg) !important;
+  color: #ffffff !important;
 }
 
 /* 2. Statistical KPI Cards */
@@ -6370,7 +6546,7 @@ body {
 .light-theme .preset-btn:hover {
   background-color: #2563eb !important;
   border-color: #1d4ed8 !important;
-  color: var(--fg) !important;
+  color: #ffffff !important;
   transform: translateY(-1px) !important;
   box-shadow: 0 4px 6px rgba(37, 99, 235, 0.15) !important;
 }
@@ -6737,7 +6913,7 @@ body {
 
 .light-theme #settings-modal div.w-48 button[class*="bg-cyan-500"] {
   background-color: #0284c7 !important;
-  color: var(--fg) !important;
+  color: #ffffff !important;
 }
 
 .light-theme #settings-modal h4 {
@@ -6768,7 +6944,7 @@ body {
 
 .light-theme #settings-modal button[class*="bg-cyan-500"]:not([class*="bg-cyan-500/10"]) {
   background-color: #0284c7 !important;
-  color: var(--fg) !important;
+  color: #ffffff !important;
 }
 
 .light-theme #settings-modal button[class*="bg-cyan-500"]:not([class*="bg-cyan-500/10"]):hover {
@@ -6851,7 +7027,7 @@ body {
 
 .light-theme #settings-modal button[class*="bg-emerald-500"] {
   background-color: #16a34a !important;
-  color: var(--fg) !important;
+  color: #ffffff !important;
 }
 
 .light-theme #settings-modal button[class*="bg-emerald-500"]:hover {
@@ -7372,7 +7548,7 @@ body {
 /* Add Machine Button */
 .light-theme #mach-page-root #btn-add-machine {
   background: linear-gradient(to right, #0284c7, #2563eb) !important;
-  color: var(--fg) !important;
+  color: #ffffff !important;
 }
 
 .light-theme #mach-page-root #btn-add-machine:hover {
@@ -7468,6 +7644,18 @@ body {
 
 .light-theme #machine-data-table tbody td span.text-amber-400 {
   color: #d97706 !important;
+}
+
+.light-theme #machine-data-table tbody td span.font-mono {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #0369a1 !important;
+}
+
+.light-theme #filter-zone-select-container label,
+.light-theme #filter-room-select-container label {
+  color: #1a1a1a !important;
+  font-weight: 600 !important;
 }
 
 /* Action buttons */
@@ -7619,7 +7807,7 @@ body {
 
 .light-theme #machine-add-modal button[type="submit"] {
   background-color: #16a34a !important;
-  color: var(--fg) !important;
+  color: #ffffff !important;
 }
 
 .light-theme #machine-add-modal button[type="submit"]:hover {
@@ -7628,7 +7816,7 @@ body {
 
 .light-theme #machine-edit-modal button[type="submit"] {
   background-color: #0284c7 !important;
-  color: var(--fg) !important;
+  color: #ffffff !important;
 }
 
 .light-theme #machine-edit-modal button[type="submit"]:hover {
@@ -7678,7 +7866,7 @@ body {
 
 .light-theme #machine-delete-modal button.bg-rose-600 {
   background-color: #dc2626 !important;
-  color: var(--fg) !important;
+  color: #ffffff !important;
 }
 
 .light-theme #machine-delete-modal button.bg-rose-600:hover {
@@ -7879,7 +8067,7 @@ body {
 .light-theme #cell-click-add-task-modal-container form div.border-t button[type="submit"],
 .light-theme #quick-pm-mng-modal-container form div.border-t button[type="submit"] {
   background-color: #0284c7 !important;
-  color: var(--fg) !important;
+  color: #ffffff !important;
 }
 
 .light-theme #cell-click-add-task-modal-container form div.border-t button[type="submit"]:hover,
@@ -8241,7 +8429,7 @@ body {
 
 .light-theme #technician-portfolio-page #btn-export-portfolio-pdf {
   background-color: #e11d48 !important;
-  color: var(--fg) !important;
+  color: #ffffff !important;
 }
 
 .light-theme #technician-portfolio-page #btn-preview-portfolio-pdf {
@@ -8281,12 +8469,12 @@ body {
 
 .light-theme #modal-btn-download-pdf {
   background-color: #e11d48 !important;
-  color: var(--fg) !important;
+  color: #ffffff !important;
 }
 
 .light-theme #modal-btn-export-excel {
   background-color: #059669 !important;
-  color: var(--fg) !important;
+  color: #ffffff !important;
 }
 
 .light-theme #modal-btn-close-pdf {
@@ -8436,7 +8624,7 @@ body {
 .light-theme #technician-portfolio-page button[id^="tech-select-btn-"].bg-cyan-500 {
   background-color: #0284c7 !important;
   border-color: #0284c7 !important;
-  color: var(--fg) !important;
+  color: #ffffff !important;
   box-shadow: 0 4px 6px -1px rgba(2, 132, 199, 0.25) !important;
 }
 
@@ -8446,12 +8634,12 @@ body {
 }
 
 .light-theme #technician-portfolio-page button[id^="tech-select-btn-"].bg-cyan-500 p {
-  color: var(--fg) !important;
+  color: #ffffff !important;
 }
 
 .light-theme #technician-portfolio-page button[id^="tech-select-btn-"].bg-cyan-500 span {
   background-color: #0369a1 !important;
-  color: var(--fg) !important;
+  color: #ffffff !important;
 }
 
 /* Scrollbar styling for Light Mode */
@@ -8516,24 +8704,28 @@ body {
   color: #0f172a !important;
 }
 
-.light-theme #tab-btn-all.bg-cyan-500 {
+.light-theme #tab-btn-all.bg-cyan-500,
+.light-theme #tab-btn-all.bg-cyan-600 {
   background-color: #0284c7 !important;
-  color: var(--fg) !important;
+  color: #ffffff !important;
 }
 
-.light-theme #tab-btn-kaizen.bg-amber-500 {
+.light-theme #tab-btn-kaizen.bg-amber-500,
+.light-theme #tab-btn-kaizen.bg-amber-600 {
   background-color: #d97706 !important;
-  color: var(--fg) !important;
+  color: #ffffff !important;
 }
 
-.light-theme #tab-btn-repairs.bg-emerald-500 {
+.light-theme #tab-btn-repairs.bg-emerald-500,
+.light-theme #tab-btn-repairs.bg-emerald-600 {
   background-color: #059669 !important;
-  color: var(--fg) !important;
+  color: #ffffff !important;
 }
 
-.light-theme #tab-btn-pm-setup.bg-purple-500 {
+.light-theme #tab-btn-pm-setup.bg-purple-500,
+.light-theme #tab-btn-pm-setup.bg-purple-600 {
   background-color: #7c3aed !important;
-  color: var(--fg) !important;
+  color: #ffffff !important;
 }
 
 .light-theme #kaizen-status-filter,
@@ -8627,13 +8819,13 @@ body {
 
 .light-theme .fixed a.bg-slate-800 {
   background-color: #0284c7 !important;
-  color: var(--fg) !important;
+  color: #ffffff !important;
   border: 1px solid #0284c7 !important;
 }
 
 .light-theme .fixed a.bg-slate-800:hover {
   background-color: #0369a1 !important;
-  color: var(--fg) !important;
+  color: #ffffff !important;
 }
 
 .light-theme .fixed .border-slate-800 {
@@ -9361,6 +9553,221 @@ body {
 .light-theme textarea.bg-slate-900:focus {
   border-color: #e11d48 !important;
   box-shadow: 0 0 0 2px rgba(225, 29, 72, 0.15) !important;
+}
+
+/* --- Zone & Room Manager Modal Light Theme Overrides --- */
+.light-theme #zone-room-manager-container {
+  background-color: var(--surface) !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+}
+
+.light-theme #zone-room-manager-container .bg-slate-950\/90,
+.light-theme #zone-room-manager-container .bg-slate-950\/40,
+.light-theme #zone-room-manager-container .bg-slate-900\/60,
+.light-theme #zone-room-manager-container .bg-slate-900\/90,
+.light-theme #zone-room-manager-container .bg-slate-950\/60 {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+
+.light-theme #zone-room-manager-container h2,
+.light-theme #zone-room-manager-container h3 {
+  color: #0f172a !important;
+}
+
+.light-theme #zone-room-manager-container p.text-slate-400,
+.light-theme #zone-room-manager-container span.text-slate-400,
+.light-theme #zone-room-manager-container div.text-slate-400 {
+  color: #64748b !important;
+}
+
+.light-theme #zone-room-manager-container .text-slate-100,
+.light-theme #zone-room-manager-container .text-slate-200,
+.light-theme #zone-room-manager-container .text-slate-300 {
+  color: #1e293b !important;
+}
+
+.light-theme #zone-room-manager-container input {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+.light-theme #zone-room-manager-container input::placeholder {
+  color: #94a3b8 !important;
+}
+
+.light-theme #zone-room-manager-container .border-slate-800,
+.light-theme #zone-room-manager-container .border-slate-700 {
+  border-color: #e2e8f0 !important;
+}
+
+.light-theme #zone-room-manager-container div[id^="zone-item-"] {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+.light-theme #zone-room-manager-container div[id^="zone-item-"]:hover {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+}
+
+.light-theme #zone-room-manager-container div[id^="zone-item-"].bg-cyan-950\/40 {
+  background-color: #f0f9ff !important;
+  border-color: #0284c7 !important;
+}
+
+.light-theme #zone-room-manager-container div[id^="zone-item-"].bg-cyan-950\/40 span {
+  color: #0369a1 !important;
+}
+
+.light-theme #zone-room-manager-container div[id^="room-item-"] {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+.light-theme #zone-room-manager-container div[id^="room-item-"]:hover {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+
+.light-theme #zone-room-manager-container #save-new-zone-btn,
+.light-theme #zone-room-manager-container #save-new-room-btn,
+.light-theme #zone-room-manager-container #add-room-open-btn {
+  background-color: #0284c7 !important;
+  color: #ffffff !important;
+}
+
+.light-theme #zone-room-manager-container #done-zone-room-manager-btn {
+  background-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+.light-theme #zone-room-manager-container #done-zone-room-manager-btn:hover {
+  background-color: #cbd5e1 !important;
+}
+
+.light-theme #zone-room-manager-container .bg-slate-900.border.border-slate-700 {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+.light-theme #zone-room-manager-container #btn-confirm-delete-zone,
+.light-theme #zone-room-manager-container #btn-confirm-delete-room {
+  background-color: #dc2626 !important;
+  color: #ffffff !important;
+}
+
+/* --- Machine Import Modal Light Theme Overrides --- */
+.light-theme #machine-import-modal {
+  background-color: var(--surface) !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+}
+
+.light-theme #machine-import-modal .bg-gradient-to-r,
+.light-theme #machine-import-modal .bg-slate-900\/90 {
+  background: #f8fafc !important;
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+
+.light-theme #machine-import-modal h3,
+.light-theme #machine-import-modal h4 {
+  color: #0f172a !important;
+}
+
+.light-theme #machine-import-modal .text-slate-100,
+.light-theme #machine-import-modal .text-slate-200,
+.light-theme #machine-import-modal .text-slate-300 {
+  color: #1e293b !important;
+}
+
+.light-theme #machine-import-modal .text-slate-400 {
+  color: #64748b !important;
+}
+
+.light-theme #machine-import-modal .bg-slate-900\/80 {
+  background-color: #f0f9ff !important;
+  border-color: #bae6fd !important;
+}
+
+.light-theme #machine-import-modal .bg-slate-900\/80 p {
+  color: #334155 !important;
+}
+
+.light-theme #machine-import-modal #btn-download-sample-template {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0284c7 !important;
+}
+
+.light-theme #machine-import-modal #btn-download-sample-template:hover {
+  background-color: #f1f5f9 !important;
+  border-color: #0284c7 !important;
+}
+
+.light-theme #machine-import-modal .border-2.border-dashed {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+
+.light-theme #machine-import-modal .border-2.border-dashed:hover {
+  background-color: #f1f5f9 !important;
+  border-color: #0284c7 !important;
+}
+
+.light-theme #machine-import-modal .border-2.border-dashed .bg-slate-800 {
+  background-color: #e2e8f0 !important;
+  color: #475569 !important;
+}
+
+.light-theme #machine-import-modal table thead {
+  background-color: #f1f5f9 !important;
+  color: #1e293b !important;
+}
+
+.light-theme #machine-import-modal table thead tr {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+}
+
+.light-theme #machine-import-modal table tbody tr {
+  border-color: #e2e8f0 !important;
+}
+
+.light-theme #machine-import-modal table tbody tr:hover {
+  background-color: #f8fafc !important;
+}
+
+.light-theme #machine-import-modal table tbody td {
+  color: #334155 !important;
+}
+
+.light-theme #machine-import-modal table tbody td.text-slate-200 {
+  color: #0f172a !important;
+  font-weight: 600 !important;
+}
+
+.light-theme #machine-import-modal table tbody td.text-cyan-400 {
+  color: #0284c7 !important;
+}
+
+.light-theme #machine-import-modal table tbody td.text-cyan-300 {
+  color: #0369a1 !important;
+}
+
+.light-theme #machine-import-modal table tbody td.text-amber-400 {
+  color: #b45309 !important;
+}
+
+.light-theme #machine-import-modal #btn-confirm-import-excel {
+  background: linear-gradient(to right, #059669, #0d9488) !important;
+  color: #ffffff !important;
 }
 
 

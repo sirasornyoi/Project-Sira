@@ -135,27 +135,27 @@ function AppContent() {
       {/* 1. LEFT COLLAPSIBLE FIXED SIDEBAR (Standard width: 220px) */}
       <div 
         id="app-sidebar-fixed"
-        className={`bg-[#0b1222] border-r border-slate-800 flex flex-col justify-between shrink-0 h-full transition-all duration-300 relative z-40 select-none ${
+        className={`bg-sidebar border-r border-sidebar text-sidebar-fg flex flex-col justify-between shrink-0 h-full transition-all duration-300 relative z-40 select-none ${
           sidebarOpen ? 'w-64' : 'w-16'
         }`}
       >
         <div>
           {/* Logo Brand portion */}
-          <div className="p-4 border-b border-slate-800/80 flex items-center justify-between gap-2.5">
+          <div className="p-4 border-b border-sidebar flex items-center justify-between gap-2.5">
             {sidebarOpen ? (
               <div className="flex items-center gap-2">
-                <div className="p-1.5 bg-cyan-500/10 rounded-lg border border-cyan-500/20 text-cyan-400">
+                <div className="p-1.5 bg-cyan-500/10 rounded-lg border border-cyan-500/20 text-cyan-600 dark:text-cyan-400">
                   <Wrench size={18} className="animate-pulse" />
                 </div>
                 <div>
-                  <h1 className="text-[13px] font-extrabold tracking-wider bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent uppercase">
+                  <h1 className="text-[13px] font-extrabold tracking-wider bg-gradient-to-r from-cyan-500 to-blue-600 dark:from-cyan-400 dark:to-blue-500 bg-clip-text text-transparent uppercase">
                     Thai Food Maint
                   </h1>
-                  <p className="text-[9px] text-slate-500 font-medium">ระบบบำรุงโรงงานอาหาร</p>
+                  <p className="text-[9px] text-sidebar-muted font-medium">ระบบบำรุงโรงงานอาหาร</p>
                 </div>
               </div>
             ) : (
-              <div className="mx-auto p-1 text-cyan-400">
+              <div className="mx-auto p-1 text-cyan-600 dark:text-cyan-400">
                 <Wrench size={18} />
               </div>
             )}
@@ -165,7 +165,7 @@ function AppContent() {
               <button
                 id="btn-close-sidebar"
                 onClick={() => setSidebarOpen(false)}
-                className="hidden lg:block text-slate-500 hover:text-slate-350 hover:bg-slate-900 p-1 rounded-md transition"
+                className="hidden lg:block text-sidebar-muted hover:text-sidebar-fg hover:bg-[var(--sidebar-hover-bg)] p-1 rounded-md transition"
               >
                 <ChevronLeft size={16} />
               </button>
@@ -187,17 +187,17 @@ function AppContent() {
                   title={item.label}
                   className={`w-full flex items-center justify-between rounded-xl p-2.5 transition-all text-xs font-semibold ${
                     isSelected
-                      ? 'bg-cyan-500 text-slate-950 font-bold shadow-lg shadow-cyan-500/5'
-                      : 'text-slate-400 hover:text-slate-100 hover:bg-slate-900/60'
+                      ? 'sidebar-active bg-sidebar-active text-sidebar-active font-bold shadow-md'
+                      : 'text-sidebar-fg hover:text-sidebar-fg hover:bg-[var(--sidebar-hover-bg)]'
                   }`}
                 >
                   <div className="flex items-center">
-                    <IconComp size={16} className={`${isSelected ? 'text-slate-950' : 'text-slate-400'} shrink-0`} />
+                    <IconComp size={16} className={`${isSelected ? 'text-sidebar-active' : 'text-sidebar-muted'} shrink-0`} />
                     
                     {sidebarOpen && (
                       <div className="ml-3 text-left">
-                        <p className="leading-none text-xs">{item.label}</p>
-                        <p className={`text-[9px] mt-0.5 leading-none ${isSelected ? 'text-slate-800' : 'text-slate-500'}`}>{item.desc}</p>
+                        <p className={`leading-none text-xs ${isSelected ? 'text-sidebar-active font-bold' : 'text-sidebar-fg'}`}>{item.label}</p>
+                        <p className={`sidebar-desc text-[9px] mt-0.5 leading-none ${isSelected ? 'text-sidebar-active opacity-90' : 'text-sidebar-muted'}`}>{item.desc}</p>
                       </div>
                     )}
                   </div>
@@ -207,8 +207,8 @@ function AppContent() {
                     <span 
                       className={`px-1.5 py-0.2 rounded-full text-[9px] font-mono font-bold shrink-0 ${
                         isSelected 
-                          ? 'bg-slate-950 text-rose-400' 
-                          : 'bg-rose-500 text-slate-950 animate-pulse'
+                          ? 'bg-rose-950 text-rose-200 border border-rose-500/30' 
+                          : 'bg-rose-500 text-white animate-pulse'
                       }`}
                       title={`${totalOverdueCount} งาน PM เลยกำหนด`}
                     >
@@ -222,19 +222,19 @@ function AppContent() {
         </div>
 
         {/* Sidebar Footer info */}
-        <div className="p-4 border-t border-slate-800/80 shrink-0">
+        <div className="p-4 border-t border-sidebar shrink-0">
           {sidebarOpen ? (
             <div className="text-[10px] space-y-1">
-              <div className="flex items-center gap-1.5 text-slate-500">
-                <ShieldCheck size={12} className="text-emerald-400" />
+              <div className="flex items-center gap-1.5 text-sidebar-muted">
+                <ShieldCheck size={12} className="text-emerald-500 dark:text-emerald-400" />
                 <span>โรงงานอาหารผ่านการรับรอง GMP</span>
               </div>
-              <p className="text-slate-600 font-mono text-[9px] mt-1">v.1.1.0 (Offline Mode)</p>
+              <p className="text-sidebar-muted font-mono text-[9px] mt-1">v.1.1.0 (Offline Mode)</p>
             </div>
           ) : (
             <button
               onClick={() => setSidebarOpen(true)}
-              className="mx-auto block text-slate-500 hover:text-cyan-400 transition"
+              className="mx-auto block text-sidebar-muted hover:text-sidebar-fg transition"
             >
               <ChevronRight size={16} />
             </button>
