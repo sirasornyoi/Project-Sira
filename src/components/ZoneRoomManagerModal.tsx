@@ -249,7 +249,7 @@ export const ZoneRoomManagerModal: React.FC<ZoneRoomManagerModalProps> = ({
                     value={newZoneInput}
                     onChange={e => setNewZoneInput(e.target.value)}
                     placeholder="เช่น โซนเตรียมข้าว, โซนบรรจุ..."
-                    className="w-full text-sm px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white font-semibold placeholder:text-slate-400 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400"
+                    className="w-full text-sm px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-fg font-semibold placeholder:text-slate-400 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400"
                     autoFocus
                   />
                   <div className="flex items-center justify-end gap-2 pt-1">
@@ -280,7 +280,7 @@ export const ZoneRoomManagerModal: React.FC<ZoneRoomManagerModalProps> = ({
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
                   placeholder="ค้นหาโซน หรือ ห้อง..."
-                  className="w-full text-xs pl-8 pr-3 py-2 bg-slate-950 border border-slate-700/80 rounded-lg text-white placeholder:text-slate-400 font-medium focus:outline-none focus:border-cyan-400"
+                  className="w-full text-xs pl-8 pr-3 py-2 bg-slate-950 border border-slate-700/80 rounded-lg text-fg placeholder:text-slate-400 font-medium focus:outline-none focus:border-cyan-400"
                 />
               </div>
             </div>
@@ -314,7 +314,7 @@ export const ZoneRoomManagerModal: React.FC<ZoneRoomManagerModalProps> = ({
                             type="text"
                             value={editZoneVal}
                             onChange={e => setEditZoneVal(e.target.value)}
-                            className="flex-1 text-sm px-2.5 py-1.5 bg-slate-950 border border-cyan-400 text-white font-semibold rounded-lg focus:outline-none"
+                            className="flex-1 text-sm px-2.5 py-1.5 bg-slate-950 border border-cyan-400 text-fg font-semibold rounded-lg focus:outline-none"
                             autoFocus
                             onKeyDown={e => {
                               if (e.key === 'Enter') handleSaveRenameZone(zone.name);
@@ -439,7 +439,7 @@ export const ZoneRoomManagerModal: React.FC<ZoneRoomManagerModalProps> = ({
                           value={newRoomInput}
                           onChange={e => setNewRoomInput(e.target.value)}
                           placeholder="เช่น ห้องล้างผัก, ห้องผสม, คลังสินค้า..."
-                          className="flex-1 text-sm px-3 py-2 bg-slate-950 border border-cyan-400 rounded-lg text-white font-semibold placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-cyan-300"
+                          className="flex-1 text-sm px-3 py-2 bg-slate-950 border border-cyan-400 rounded-lg text-fg font-semibold placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-cyan-300"
                           autoFocus
                         />
                         <button
@@ -489,7 +489,7 @@ export const ZoneRoomManagerModal: React.FC<ZoneRoomManagerModalProps> = ({
                                 type="text"
                                 value={editRoomVal}
                                 onChange={e => setEditRoomVal(e.target.value)}
-                                className="flex-1 text-sm px-3 py-1.5 bg-slate-950 border border-cyan-400 rounded-lg text-white font-semibold focus:outline-none"
+                                className="flex-1 text-sm px-3 py-1.5 bg-slate-950 border border-cyan-400 rounded-lg text-fg font-semibold focus:outline-none"
                                 autoFocus
                                 onKeyDown={e => {
                                   if (e.key === 'Enter') handleSaveRenameRoom(activeZone.name, roomName);
@@ -618,7 +618,7 @@ export const ZoneRoomManagerModal: React.FC<ZoneRoomManagerModalProps> = ({
           <button
             id="done-zone-room-manager-btn"
             onClick={onClose}
-            className="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg font-medium transition-colors cursor-pointer"
+            className="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-fg rounded-lg font-medium transition-colors cursor-pointer"
           >
             เสร็จสิ้น
           </button>
@@ -634,7 +634,7 @@ export const ZoneRoomManagerModal: React.FC<ZoneRoomManagerModalProps> = ({
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-slate-100">ยืนยันการลบโซน</h3>
-                  <p className="text-xs text-slate-400">โซน: <span className="text-white font-bold">{zoneToDelete}</span></p>
+                  <p className="text-xs text-slate-400">โซน: <span className="text-fg font-bold">{zoneToDelete}</span></p>
                 </div>
               </div>
 
@@ -664,7 +664,7 @@ export const ZoneRoomManagerModal: React.FC<ZoneRoomManagerModalProps> = ({
                   id="btn-confirm-delete-zone"
                   type="button"
                   onClick={confirmDeleteZone}
-                  className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold rounded-lg transition cursor-pointer shadow-sm"
+                  className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-fg text-xs font-bold rounded-lg transition cursor-pointer shadow-sm"
                 >
                   ยืนยันลบโซน
                 </button>
@@ -683,7 +683,7 @@ export const ZoneRoomManagerModal: React.FC<ZoneRoomManagerModalProps> = ({
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-slate-100">ยืนยันการลบห้อง</h3>
-                  <p className="text-xs text-slate-400">ห้อง: <span className="text-white font-bold">{roomToDelete.roomName}</span> (ในโซน {roomToDelete.zoneName})</p>
+                  <p className="text-xs text-slate-400">ห้อง: <span className="text-fg font-bold">{roomToDelete.roomName}</span> (ในโซน {roomToDelete.zoneName})</p>
                 </div>
               </div>
 
@@ -713,7 +713,7 @@ export const ZoneRoomManagerModal: React.FC<ZoneRoomManagerModalProps> = ({
                   id="btn-confirm-delete-room"
                   type="button"
                   onClick={confirmDeleteRoom}
-                  className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold rounded-lg transition cursor-pointer shadow-sm"
+                  className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-fg text-xs font-bold rounded-lg transition cursor-pointer shadow-sm"
                 >
                   ยืนยันลบห้อง
                 </button>

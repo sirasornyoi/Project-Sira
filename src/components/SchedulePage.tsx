@@ -602,7 +602,7 @@ export const SchedulePage: React.FC = () => {
             {toast.type === 'success' ? '✓' : toast.type === 'error' ? '✕' : 'ℹ'}
           </span>
           <p className="text-xs font-semibold">{toast.text}</p>
-          <button onClick={() => setToast(null)} className="text-slate-400 hover:text-white text-xs ml-2">✕</button>
+          <button onClick={() => setToast(null)} className="text-slate-400 hover:text-fg text-xs ml-2">✕</button>
         </div>
       )}
 
@@ -698,7 +698,7 @@ export const SchedulePage: React.FC = () => {
             <button
               onClick={() => setTaskTypeFilter('PM')}
               className={`px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1 ${
-                taskTypeFilter === 'PM' ? 'bg-blue-500 text-white shadow' : 'text-slate-400 hover:text-blue-300'
+                taskTypeFilter === 'PM' ? 'bg-blue-500 text-fg shadow' : 'text-slate-400 hover:text-blue-300'
               }`}
             >
               <span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
@@ -707,7 +707,7 @@ export const SchedulePage: React.FC = () => {
             <button
               onClick={() => setTaskTypeFilter('REPAIR')}
               className={`px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1 ${
-                taskTypeFilter === 'REPAIR' ? 'bg-rose-500 text-white shadow' : 'text-slate-400 hover:text-rose-300'
+                taskTypeFilter === 'REPAIR' ? 'bg-rose-500 text-fg shadow' : 'text-slate-400 hover:text-rose-300'
               }`}
             >
               <span className="w-1.5 h-1.5 rounded-full bg-rose-400"></span>
@@ -728,7 +728,7 @@ export const SchedulePage: React.FC = () => {
           <div className="flex items-center gap-2 text-xs">
             <div className="bg-slate-900 border border-slate-750 px-3 py-1 rounded-xl flex items-center gap-2 text-slate-300">
               <Users size={14} className="text-cyan-400" />
-              <span>ออกปฏิบัติงานสะสม: <b className="text-white font-mono">{monthlyStats.totalPeopleDeployments} คน-ครั้ง</b></span>
+              <span>ออกปฏิบัติงานสะสม: <b className="text-fg font-mono">{monthlyStats.totalPeopleDeployments} คน-ครั้ง</b></span>
             </div>
             <div className="bg-slate-900 border border-slate-750 px-3 py-1 rounded-xl flex items-center gap-2 text-slate-300">
               <Clock size={14} className="text-amber-400" />
@@ -870,7 +870,7 @@ export const SchedulePage: React.FC = () => {
                             >
                               <div className="flex items-center justify-between font-bold">
                                 <span className="font-mono text-cyan-300">🔹 PM: {pm.machineId}</span>
-                                <span className="text-[8px] bg-black/40 px-1 rounded text-slate-300">{people} คน</span>
+                                <span className="text-[8px] bg-bg/40 px-1 rounded text-slate-300">{people} คน</span>
                               </div>
                               <p className="text-[8.5px] truncate opacity-90 text-slate-300">
                                 {pm.destination ? `📍 ${pm.destination}` : techName}
@@ -894,7 +894,7 @@ export const SchedulePage: React.FC = () => {
                             >
                               <div className="flex items-center justify-between font-bold">
                                 <span className="font-mono text-rose-300">🔴 ซ่อม: {rep.machineId}</span>
-                                <span className="text-[8px] bg-black/40 px-1 rounded text-slate-300">{people} คน</span>
+                                <span className="text-[8px] bg-bg/40 px-1 rounded text-slate-300">{people} คน</span>
                               </div>
                               <p className="text-[8.5px] truncate opacity-90 text-slate-300">
                                 {rep.destination ? `📍 ${rep.destination}` : rep.symptoms}
@@ -918,7 +918,7 @@ export const SchedulePage: React.FC = () => {
                             >
                               <div className="flex items-center justify-between font-bold">
                                 <span className="text-emerald-300 truncate max-w-[80%]">🟢 {oth.title}</span>
-                                <span className="text-[8px] bg-black/40 px-1 rounded text-slate-300">{people} คน</span>
+                                <span className="text-[8px] bg-bg/40 px-1 rounded text-slate-300">{people} คน</span>
                               </div>
                               <p className="text-[8.5px] truncate opacity-90 text-slate-300">
                                 {oth.destination ? `📍 ${oth.destination}` : `${people} คน`}
@@ -985,7 +985,7 @@ export const SchedulePage: React.FC = () => {
                         </h2>
                       </div>
                       <p className="text-xs text-slate-400 mt-1 font-mono">
-                        {activeDateStr} • มีทั้งหมด <b className="text-cyan-400">{activeDateTasks.totalTasksCount} งาน</b> (รวมกำลังคนออกปฏิบัติงาน <b className="text-white">{activeDateTasks.totalAssignedPeople} คน</b>)
+                        {activeDateStr} • มีทั้งหมด <b className="text-cyan-400">{activeDateTasks.totalTasksCount} งาน</b> (รวมกำลังคนออกปฏิบัติงาน <b className="text-fg">{activeDateTasks.totalAssignedPeople} คน</b>)
                       </p>
                     </>
                   );
@@ -1100,7 +1100,7 @@ export const SchedulePage: React.FC = () => {
                           <div className="bg-slate-950/60 rounded-lg p-2.5 flex flex-wrap items-center gap-4 text-xs border border-slate-800">
                             <div className="flex items-center gap-1.5 text-slate-300">
                               <MapPin size={14} className="text-rose-400 shrink-0" />
-                              <span>สถานที่/ปลายทาง: <b className="text-white">{pm.destination || `แท่นเครื่อง ${pm.machineId}`}</b></span>
+                              <span>สถานที่/ปลายทาง: <b className="text-fg">{pm.destination || `แท่นเครื่อง ${pm.machineId}`}</b></span>
                             </div>
 
                             <div className="flex items-center gap-1.5 text-slate-300">
@@ -1202,7 +1202,7 @@ export const SchedulePage: React.FC = () => {
                           <div className="bg-slate-950/60 rounded-lg p-2.5 flex flex-wrap items-center gap-4 text-xs border border-slate-800">
                             <div className="flex items-center gap-1.5 text-slate-300">
                               <MapPin size={14} className="text-rose-400 shrink-0" />
-                              <span>สถานที่/พิกัดที่ไปซ่อม: <b className="text-white">{rep.destination || `หน้างาน ${rep.machineId}`}</b></span>
+                              <span>สถานที่/พิกัดที่ไปซ่อม: <b className="text-fg">{rep.destination || `หน้างาน ${rep.machineId}`}</b></span>
                             </div>
 
                             <div className="flex items-center gap-1.5 text-slate-300">
@@ -1306,7 +1306,7 @@ export const SchedulePage: React.FC = () => {
                           <div className="bg-slate-950/60 rounded-lg p-2.5 flex flex-wrap items-center gap-4 text-xs border border-slate-800">
                             <div className="flex items-center gap-1.5 text-slate-300">
                               <Compass size={14} className="text-emerald-400 shrink-0" />
-                              <span>สถานที่/กลุ่มนี้ไปไหน: <b className="text-white">{oth.destination || 'ระบุจุดหมาย'}</b></span>
+                              <span>สถานที่/กลุ่มนี้ไปไหน: <b className="text-fg">{oth.destination || 'ระบุจุดหมาย'}</b></span>
                             </div>
 
                             <div className="flex items-center gap-1.5 text-slate-300">
@@ -1361,13 +1361,13 @@ export const SchedulePage: React.FC = () => {
                   {formMode === 'create' ? '➕ เพิ่มงานใหม่ในตารางงาน' : '✏️ แก้ไขข้อมูลตารางงาน'}
                 </h3>
                 <p className="text-xs text-slate-400 mt-0.5">
-                  วันที่: <span className="text-white font-mono">{formDate}</span>
+                  วันที่: <span className="text-fg font-mono">{formDate}</span>
                 </p>
               </div>
 
               <button 
                 onClick={() => setShowTaskForm(false)}
-                className="text-slate-400 hover:text-white text-xl leading-none"
+                className="text-slate-400 hover:text-fg text-xl leading-none"
               >
                 &times;
               </button>
@@ -1384,7 +1384,7 @@ export const SchedulePage: React.FC = () => {
                     onClick={() => setFormTaskType('PM')}
                     className={`py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 border ${
                       formTaskType === 'PM'
-                        ? 'bg-blue-500 text-white border-blue-400 shadow-md'
+                        ? 'bg-blue-500 text-fg border-blue-400 shadow-md'
                         : 'bg-slate-900 text-slate-400 border-slate-750 hover:text-slate-200'
                     }`}
                   >
@@ -1397,7 +1397,7 @@ export const SchedulePage: React.FC = () => {
                     onClick={() => setFormTaskType('Repair')}
                     className={`py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 border ${
                       formTaskType === 'Repair'
-                        ? 'bg-rose-500 text-white border-rose-400 shadow-md'
+                        ? 'bg-rose-500 text-fg border-rose-400 shadow-md'
                         : 'bg-slate-900 text-slate-400 border-slate-750 hover:text-slate-200'
                     }`}
                   >
@@ -1688,7 +1688,7 @@ export const SchedulePage: React.FC = () => {
                     onClick={() => setFormStatus('รอดำเนินการ')}
                     className={`py-1.5 px-3 rounded-xl text-xs font-bold transition border ${
                       formStatus === 'รอดำเนินการ'
-                        ? 'bg-slate-700 text-white border-slate-500'
+                        ? 'bg-slate-700 text-fg border-slate-500'
                         : 'bg-slate-900 text-slate-400 border-slate-750'
                     }`}
                   >

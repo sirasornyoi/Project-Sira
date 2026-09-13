@@ -48,9 +48,15 @@ function AppContent() {
     if (isDarkMode) {
       document.body.classList.remove('light-theme');
       if (root) root.classList.remove('light-theme');
+      document.documentElement.classList.remove('light-theme');
+      document.documentElement.classList.add('dark');
+      document.documentElement.setAttribute('data-theme', 'dark');
     } else {
       document.body.classList.add('light-theme');
       if (root) root.classList.add('light-theme');
+      document.documentElement.classList.add('light-theme');
+      document.documentElement.classList.remove('dark');
+      document.documentElement.setAttribute('data-theme', 'light');
     }
   }, [isDarkMode]);
 
@@ -124,7 +130,7 @@ function AppContent() {
   ];
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#0f172a] text-slate-100 font-sans" id="app-main-root">
+    <div className="flex h-screen overflow-hidden bg-bg text-fg font-sans" id="app-main-root">
       
       {/* 1. LEFT COLLAPSIBLE FIXED SIDEBAR (Standard width: 220px) */}
       <div 

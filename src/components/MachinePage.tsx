@@ -965,7 +965,7 @@ export const MachinePage: React.FC = () => {
                 type="button"
                 id={`btn-export-pm-form-${m.id}`}
                 onClick={() => handleExportPM(m)}
-                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white transition border border-emerald-500/50 cursor-pointer shadow-sm"
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-fg transition border border-emerald-500/50 cursor-pointer shadow-sm"
                 title={`Export ฟอร์ม PM เครื่อง ${m.id} เป็นไฟล์ Excel (.xlsx)`}
               >
                 <Download size={13} />
@@ -1169,12 +1169,12 @@ export const MachinePage: React.FC = () => {
                                       onClick={() => handleToggleStepResult(plan.id, sIdx, 'ปกติ')}
                                       className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold transition border cursor-pointer ${
                                         isNormal
-                                          ? 'bg-emerald-600 text-white border-emerald-400 shadow-sm ring-1 ring-emerald-400/40'
+                                          ? 'bg-emerald-600 text-fg border-emerald-400 shadow-sm ring-1 ring-emerald-400/40'
                                           : 'bg-slate-900 hover:bg-emerald-950/50 text-slate-400 hover:text-emerald-300 border-slate-700 hover:border-emerald-500/40'
                                       }`}
                                       title={isNormal ? 'คลิกซ้ำเพื่อยกเลิก (เปลี่ยนกลับเป็นยังไม่ตรวจ)' : 'เลือกผลการตรวจ: ปกติ'}
                                     >
-                                      <Check size={13} className={isNormal ? 'text-white' : 'text-emerald-400'} />
+                                      <Check size={13} className={isNormal ? 'text-fg' : 'text-emerald-400'} />
                                       <span>ปกติ</span>
                                     </button>
 
@@ -1185,12 +1185,12 @@ export const MachinePage: React.FC = () => {
                                       onClick={() => handleToggleStepResult(plan.id, sIdx, 'ไม่ปกติ')}
                                       className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold transition border cursor-pointer ${
                                         isAbnormal
-                                          ? 'bg-rose-600 text-white border-rose-400 shadow-sm ring-1 ring-rose-400/40'
+                                          ? 'bg-rose-600 text-fg border-rose-400 shadow-sm ring-1 ring-rose-400/40'
                                           : 'bg-slate-900 hover:bg-rose-950/50 text-slate-400 hover:text-rose-300 border-slate-700 hover:border-rose-500/40'
                                       }`}
                                       title={isAbnormal ? 'คลิกซ้ำเพื่อยกเลิก (เปลี่ยนกลับเป็นยังไม่ตรวจ)' : 'เลือกผลการตรวจ: ไม่ปกติ'}
                                     >
-                                      <X size={13} className={isAbnormal ? 'text-white' : 'text-rose-400'} />
+                                      <X size={13} className={isAbnormal ? 'text-fg' : 'text-rose-400'} />
                                       <span>ไม่ปกติ</span>
                                     </button>
 
@@ -1286,7 +1286,7 @@ export const MachinePage: React.FC = () => {
           <button
             id="btn-export-machines-excel"
             onClick={handleExportMachinesExcel}
-            className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-3.5 py-2 rounded-lg transition-all shadow-md text-xs cursor-pointer border border-emerald-500/40"
+            className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-fg font-semibold px-3.5 py-2 rounded-lg transition-all shadow-md text-xs cursor-pointer border border-emerald-500/40"
             title="ส่งออกข้อมูลเครื่องจักรเป็นไฟล์ Excel ตามมาตรฐานคอลัมน์ A-K"
           >
             <Download size={15} />
@@ -1749,7 +1749,7 @@ export const MachinePage: React.FC = () => {
                                 Array.from(new Set(group.machines.map(m => m.locationZone || m.lineGroup).filter(Boolean))).map((zone, zIdx) => (
                                   <span 
                                     key={zIdx}
-                                    className="bg-slate-900/70 text-slate-300 text-[11px] px-2.5 py-1 rounded-full border border-slate-700"
+                                    className="pill-zone text-[11px] px-2.5 py-1 rounded-full border"
                                   >
                                     {zone}
                                   </span>
@@ -1769,7 +1769,7 @@ export const MachinePage: React.FC = () => {
                                 Array.from(new Set(group.machines.map(m => m.locationRoom).filter(Boolean))).map((room, rIdx) => (
                                   <span 
                                     key={rIdx}
-                                    className="bg-slate-900/70 text-cyan-200 text-[11px] px-2.5 py-1 rounded-md border border-slate-700"
+                                    className="pill-room text-[11px] px-2.5 py-1 rounded-md border"
                                   >
                                     {room}
                                   </span>
@@ -1908,7 +1908,7 @@ export const MachinePage: React.FC = () => {
                                             {/* Location: Zone */}
                                             {showZoneColumn && (
                                               <td className="py-3 px-3">
-                                                <span className="font-medium text-slate-300">
+                                                <span className="pill-zone text-[11px] px-2 py-0.5 rounded-full border font-medium">
                                                   {m.locationZone || '-'}
                                                 </span>
                                               </td>
@@ -1917,9 +1917,8 @@ export const MachinePage: React.FC = () => {
                                             {/* Location: Room */}
                                             {showRoomColumn && (
                                               <td className="py-3 px-3">
-                                                <div className="flex items-center gap-1.5 text-cyan-200">
-                                                  <MapPin size={12} className="text-cyan-400 shrink-0" />
-                                                  <span className="font-medium truncate max-w-xs">
+                                                <div className="flex items-center gap-1.5">
+                                                  <span className="pill-room text-[11px] px-2 py-0.5 rounded-md border font-medium truncate max-w-xs">
                                                     {m.locationRoom || '-'}
                                                   </span>
                                                 </div>
@@ -2057,7 +2056,7 @@ export const MachinePage: React.FC = () => {
                         {/* Zone */}
                         {showZoneColumn && (
                           <td className="py-4 px-4">
-                            <span className="text-xs text-slate-200 font-medium">
+                            <span className="pill-zone text-xs px-2.5 py-0.5 rounded-full border font-medium">
                               {m.locationZone || '-'}
                             </span>
                           </td>
@@ -2066,9 +2065,10 @@ export const MachinePage: React.FC = () => {
                         {/* Room */}
                         {showRoomColumn && (
                           <td className="py-4 px-4">
-                            <div className="flex items-center gap-1.5 text-xs text-cyan-200">
-                              <MapPin size={12} className="text-cyan-400 shrink-0" />
-                              <span>{m.locationRoom || '-'}</span>
+                            <div className="flex items-center gap-1.5">
+                              <span className="pill-room text-xs px-2.5 py-0.5 rounded-md border font-medium">
+                                {m.locationRoom || '-'}
+                              </span>
                             </div>
                             {m.powerVoltage && (
                               <div className="text-[11px] text-amber-400 font-mono mt-0.5">
@@ -2543,7 +2543,7 @@ export const MachinePage: React.FC = () => {
               <div className="bg-[#10080a] border border-rose-500/15 p-4.5 rounded-xl space-y-2">
                 <span className="text-[10px] text-rose-400 font-black tracking-wider uppercase block">⚠️ คำเตือนผลกระทบ:</span>
                 <p className="text-slate-400 text-[11px] leading-relaxed font-sans">
-                  การลบทะเบียนนี้จะลบสัญลักษณ์ไอคอนและข้อมูลเครื่องพิกัดนี้ออก โดยเครื่องจักรดังกล่าวมีแผนบำรุงรักษา PM พ่วงอยู่จำนวน <b className="text-white font-mono">{pmPlans.filter(p => p.machineId === machineToDelete.id).length} แผนงาน</b>
+                  การลบทะเบียนนี้จะลบสัญลักษณ์ไอคอนและข้อมูลเครื่องพิกัดนี้ออก โดยเครื่องจักรดังกล่าวมีแผนบำรุงรักษา PM พ่วงอยู่จำนวน <b className="text-fg font-mono">{pmPlans.filter(p => p.machineId === machineToDelete.id).length} แผนงาน</b>
                 </p>
               </div>
               
@@ -2561,7 +2561,7 @@ export const MachinePage: React.FC = () => {
                 <button
                   id="modal-btn-delete-machine-confirm"
                   onClick={executeDeleteMachine}
-                  className="bg-rose-500 hover:bg-rose-600 text-white font-bold px-5 py-2 rounded-lg transition cursor-pointer"
+                  className="bg-rose-500 hover:bg-rose-600 text-fg font-bold px-5 py-2 rounded-lg transition cursor-pointer"
                 >
                   ยืนยันลบข้อมูล
                 </button>

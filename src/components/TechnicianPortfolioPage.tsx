@@ -506,7 +506,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
               ${imp.photoBefore ? `
                 <div style="flex:1; min-width:220px; border:1px solid #fcd34d; background:#fffbeb; padding:8px; border-radius:8px; text-align:center;">
                   <p style="margin:0 0 6px 0; font-size:10px; font-weight:bold; color:#92400e;">🔴 ภาพก่อนปรับปรุง (Before)</p>
-                  <div style="height:140px; background:#ffffff; border:1px solid #fde68a; border-radius:6px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+                  <div style="height:140px; background:var(--surface); border:1px solid #fde68a; border-radius:6px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
                     <img src="${imp.photoBefore}" alt="Before" style="max-height:140px; max-width:100%; object-fit:contain;" />
                   </div>
                 </div>
@@ -514,7 +514,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
               ${imp.photoAfter ? `
                 <div style="flex:1; min-width:220px; border:1px solid #86efac; background:#f0fdf4; padding:8px; border-radius:8px; text-align:center;">
                   <p style="margin:0 0 6px 0; font-size:10px; font-weight:bold; color:#166534;">🟢 ภาพหลังปรับปรุง (After)</p>
-                  <div style="height:140px; background:#ffffff; border:1px solid #bbf7d0; border-radius:6px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+                  <div style="height:140px; background:var(--surface); border:1px solid #bbf7d0; border-radius:6px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
                     <img src="${imp.photoAfter}" alt="After" style="max-height:140px; max-width:100%; object-fit:contain;" />
                   </div>
                 </div>
@@ -523,7 +523,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
           ` : '';
 
           return `
-            <div style="border:1px solid #cbd5e1; border-radius:8px; padding:14px; margin-bottom:14px; background:#ffffff; page-break-inside:avoid; break-inside:avoid;">
+            <div style="border:1px solid #cbd5e1; border-radius:8px; padding:14px; margin-bottom:14px; background:var(--surface); page-break-inside:avoid; break-inside:avoid;">
               <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1px solid #e2e8f0; padding-bottom:8px; margin-bottom:8px;">
                 <div>
                   <div style="display:flex; align-items:center; gap:8px;">
@@ -552,7 +552,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
               ${workLogsRows ? `
                 <div style="margin-top:10px; border-top:1px dashed #cbd5e1; padding-top:6px;">
                   <p style="margin:0 0 4px 0; font-size:10px; font-weight:bold; color:#475569;">บันทึกการลงเวลาทำงาน:</p>
-                  <table style="width:100%; border-collapse:collapse; background:#ffffff;">
+                  <table style="width:100%; border-collapse:collapse; background:var(--surface);">
                     <tbody>${workLogsRows}</tbody>
                   </table>
                 </div>
@@ -601,7 +601,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
     }).join('');
 
     return `
-      <div style="font-family:'Sarabun', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color:#0f172a; background:#ffffff; line-height:1.4;">
+      <div style="font-family:'Sarabun', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color:#0f172a; background:var(--surface); line-height:1.4;">
         
         <!-- HEADER -->
         <div style="border-bottom:2px solid #0f172a; padding-bottom:14px; margin-bottom:18px; display:flex; justify-content:space-between; align-items:flex-start;">
@@ -699,9 +699,9 @@ export const TechnicianPortfolioPage: React.FC = () => {
             <h3 style="margin:0 0 8px 0; font-size:12px; font-weight:900; color:#0f172a; text-transform:uppercase; letter-spacing:0.5px; border-bottom:1px solid #cbd5e1; padding-bottom:4px;">
               🔧 2. ประวัติการเข้าแก้ไขงานซ่อมบำรุงด่วน (Breakdown Maintenance Logs)
             </h3>
-            <table style="width:100%; border-collapse:collapse; border:1px solid #cbd5e1; background:#ffffff;">
+            <table style="width:100%; border-collapse:collapse; border:1px solid #cbd5e1; background:var(--surface);">
               <thead>
-                <tr style="background:#0f172a; color:#ffffff; font-size:10px; text-align:left;">
+                <tr style="background:#0f172a; color:var(--surface); font-size:10px; text-align:left;">
                   <th style="padding:6px 8px; width:28px; text-align:center;">#</th>
                   <th style="padding:6px 8px; width:70px;">วันที่</th>
                   <th style="padding:6px 8px; width:90px;">เครื่องจักร</th>
@@ -725,9 +725,9 @@ export const TechnicianPortfolioPage: React.FC = () => {
             <h3 style="margin:0 0 8px 0; font-size:12px; font-weight:900; color:#0f172a; text-transform:uppercase; letter-spacing:0.5px; border-bottom:1px solid #cbd5e1; padding-bottom:4px;">
               📋 3. ประวัติการปฏิบัติงานบำรุงรักษาเชิงป้องกัน (Preventive Maintenance Logs)
             </h3>
-            <table style="width:100%; border-collapse:collapse; border:1px solid #cbd5e1; background:#ffffff;">
+            <table style="width:100%; border-collapse:collapse; border:1px solid #cbd5e1; background:var(--surface);">
               <thead>
-                <tr style="background:#0f172a; color:#ffffff; font-size:10px; text-align:left;">
+                <tr style="background:#0f172a; color:var(--surface); font-size:10px; text-align:left;">
                   <th style="padding:6px 8px; width:28px; text-align:center;">#</th>
                   <th style="padding:6px 8px; width:70px;">วันที่</th>
                   <th style="padding:6px 8px; width:100px;">เครื่องจักร</th>
@@ -806,7 +806,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
               top: 0;
               z-index: 9999;
               background: #0f172a;
-              color: #ffffff;
+              color: var(--surface);
               padding: 12px 24px;
               display: flex;
               justify-content: space-between;
@@ -817,7 +817,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
 
             .btn-print {
               background: #e11d48;
-              color: #ffffff;
+              color: var(--surface);
               border: none;
               padding: 10px 24px;
               border-radius: 8px;
@@ -833,7 +833,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
             .sheet-container {
               max-width: 920px;
               margin: 24px auto;
-              background: #ffffff;
+              background: var(--surface);
               border-radius: 8px;
               padding: 36px 40px;
               box-shadow: 0 4px 24px rgba(0,0,0,0.08);
@@ -842,7 +842,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
 
             @media print {
               html, body {
-                background: #ffffff !important;
+                background: var(--surface) !important;
                 padding: 0 !important;
                 margin: 0 !important;
               }
@@ -913,7 +913,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
       offscreenWrapper.style.top = '0';
       offscreenWrapper.style.width = '820px';
       offscreenWrapper.style.padding = '32px';
-      offscreenWrapper.style.backgroundColor = '#ffffff';
+      offscreenWrapper.style.backgroundColor = '#f7f7f7';
       offscreenWrapper.style.color = '#0f172a';
       offscreenWrapper.style.zIndex = '-9999';
       offscreenWrapper.innerHTML = reportHTML;
@@ -937,7 +937,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
         allowTaint: false,
         imageTimeout: 4000,
         logging: false,
-        backgroundColor: '#ffffff',
+        backgroundColor: '#f7f7f7',
         windowWidth: 820
       });
 
@@ -1016,7 +1016,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
               </span>
             </div>
             
-            <h1 className="text-xl md:text-2xl font-black tracking-tight text-white flex items-center gap-2">
+            <h1 className="text-xl md:text-2xl font-black tracking-tight text-fg flex items-center gap-2">
               🏆 Portfolio & ผลงานพัฒนานวัตกรรมช่าง (Individual Portfolio)
             </h1>
             <p className="text-xs text-slate-300 max-w-3xl leading-relaxed">
@@ -1031,13 +1031,13 @@ export const TechnicianPortfolioPage: React.FC = () => {
               id="btn-export-portfolio-pdf"
               onClick={handleDownloadPDF}
               disabled={isGeneratingPDF}
-              className="bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 disabled:opacity-50 text-white font-bold text-xs py-2.5 px-4 rounded-xl transition flex items-center gap-1.5 shadow-lg"
+              className="bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 disabled:opacity-50 text-fg font-bold text-xs py-2.5 px-4 rounded-xl transition flex items-center gap-1.5 shadow-lg"
               title="สร้างและดาวน์โหลดไฟล์ PDF (.pdf) ทันที"
             >
               {isGeneratingPDF ? (
-                <Loader2 size={15} className="animate-spin text-white" />
+                <Loader2 size={15} className="animate-spin text-fg" />
               ) : (
-                <Download size={15} className="text-white" />
+                <Download size={15} className="text-fg" />
               )}
               <span>{isGeneratingPDF ? 'กำลังสร้าง PDF...' : 'ส่งออกเป็น PDF (.pdf)'}</span>
             </button>
@@ -1140,7 +1140,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
 
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <h2 className="text-lg font-black text-white">{selectedTech}</h2>
+                  <h2 className="text-lg font-black text-fg">{selectedTech}</h2>
                   {currentEmp?.id && (
                     <span className="px-2 py-0.5 bg-slate-800 text-slate-300 font-mono text-[10px] rounded border border-slate-700">
                       ID: {currentEmp.id}
@@ -1212,7 +1212,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shrink-0 ${
               activeTab === 'all' 
                 ? 'bg-cyan-500 text-slate-950 font-bold' 
-                : 'bg-slate-950 text-slate-400 hover:text-white'
+                : 'bg-slate-950 text-slate-400 hover:text-fg'
             }`}
           >
             <Layers size={14} />
@@ -1225,7 +1225,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shrink-0 ${
               activeTab === 'kaizen' 
                 ? 'bg-amber-500 text-slate-950 font-bold' 
-                : 'bg-slate-950 text-slate-400 hover:text-white'
+                : 'bg-slate-950 text-slate-400 hover:text-fg'
             }`}
           >
             <PenTool size={14} />
@@ -1238,7 +1238,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shrink-0 ${
               activeTab === 'repairs' 
                 ? 'bg-emerald-500 text-slate-950 font-bold' 
-                : 'bg-slate-950 text-slate-400 hover:text-white'
+                : 'bg-slate-950 text-slate-400 hover:text-fg'
             }`}
           >
             <Wrench size={14} />
@@ -1251,7 +1251,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shrink-0 ${
               activeTab === 'pm_setup' 
                 ? 'bg-purple-500 text-slate-950 font-bold' 
-                : 'bg-slate-950 text-slate-400 hover:text-white'
+                : 'bg-slate-950 text-slate-400 hover:text-fg'
             }`}
           >
             <ClipboardCheck size={14} />
@@ -1300,7 +1300,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
               <div className="p-1.5 bg-amber-500/10 text-amber-400 rounded-lg border border-amber-500/20">
                 <PenTool size={16} />
               </div>
-              <h3 className="text-sm font-black text-white uppercase tracking-wider">
+              <h3 className="text-sm font-black text-fg uppercase tracking-wider">
                  hammer ผลงานโครงการ Kaizen & ปรับปรุงเครื่องจักร ({techImprovements.length} รายการ)
               </h3>
             </div>
@@ -1343,7 +1343,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
                           <span className="px-2 py-0.5 bg-slate-950 border border-slate-800 rounded text-[10px] font-mono text-cyan-400 inline-block">
                             ⚙️ {getMachineName(imp.machineId)}
                           </span>
-                          <h4 className="text-sm font-bold text-white leading-snug">{imp.title}</h4>
+                          <h4 className="text-sm font-bold text-fg leading-snug">{imp.title}</h4>
                         </div>
 
                         <span className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold shrink-0 border ${
@@ -1464,7 +1464,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
                                     type: 'before',
                                     projId: imp.id
                                   })}
-                                  className="absolute inset-0 bg-slate-950/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-bold gap-1 cursor-pointer"
+                                  className="absolute inset-0 bg-slate-950/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-fg text-xs font-bold gap-1 cursor-pointer"
                                 >
                                   <ZoomIn size={16} /> ขยายรูปภาพ
                                 </div>
@@ -1474,7 +1474,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
                                     e.stopPropagation();
                                     handleRemoveImage(imp.id, 'before', imp.title);
                                   }}
-                                  className="absolute top-1.5 right-1.5 p-1 bg-rose-600/90 hover:bg-rose-500 text-white rounded-lg opacity-85 hover:opacity-100 transition shadow z-10"
+                                  className="absolute top-1.5 right-1.5 p-1 bg-rose-600/90 hover:bg-rose-500 text-fg rounded-lg opacity-85 hover:opacity-100 transition shadow z-10"
                                   title="ลบรูปภาพนี้ออก"
                                 >
                                   <Trash2 size={12} />
@@ -1574,7 +1574,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
                                     type: 'after',
                                     projId: imp.id
                                   })}
-                                  className="absolute inset-0 bg-slate-950/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-bold gap-1 cursor-pointer"
+                                  className="absolute inset-0 bg-slate-950/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-fg text-xs font-bold gap-1 cursor-pointer"
                                 >
                                   <ZoomIn size={16} /> ขยายรูปภาพ
                                 </div>
@@ -1584,7 +1584,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
                                     e.stopPropagation();
                                     handleRemoveImage(imp.id, 'after', imp.title);
                                   }}
-                                  className="absolute top-1.5 right-1.5 p-1 bg-rose-600/90 hover:bg-rose-500 text-white rounded-lg opacity-85 hover:opacity-100 transition shadow z-10"
+                                  className="absolute top-1.5 right-1.5 p-1 bg-rose-600/90 hover:bg-rose-500 text-fg rounded-lg opacity-85 hover:opacity-100 transition shadow z-10"
                                   title="ลบรูปภาพนี้ออก"
                                 >
                                   <Trash2 size={12} />
@@ -1665,7 +1665,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
               <div className="p-1.5 bg-emerald-500/10 text-emerald-400 rounded-lg border border-emerald-500/20">
                 <Wrench size={16} />
               </div>
-              <h3 className="text-sm font-black text-white uppercase tracking-wider">
+              <h3 className="text-sm font-black text-fg uppercase tracking-wider">
                 🔧 ผลงานแก้ปัญหาเครื่องจักรเสีย & การวิเคราะห์ Why-Why Analysis ({techRepairs.length} รายการ)
               </h3>
             </div>
@@ -1684,7 +1684,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
                       <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded font-mono text-[10px] font-bold">
                         {rep.machineId}
                       </span>
-                      <h4 className="text-xs font-bold text-white">{rep.symptoms}</h4>
+                      <h4 className="text-xs font-bold text-fg">{rep.symptoms}</h4>
                     </div>
 
                     <div className="flex items-center gap-3 text-[11px]">
@@ -1727,7 +1727,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
               <div className="p-1.5 bg-purple-500/10 text-purple-400 rounded-lg border border-purple-500/20">
                 <ClipboardCheck size={16} />
               </div>
-              <h3 className="text-sm font-black text-white uppercase tracking-wider">
+              <h3 className="text-sm font-black text-fg uppercase tracking-wider">
                 ⏱ ผลงานปฏิบัติการ PM & การปรับตั้งเครื่อง Setup ({techPMs.length + techSetups.length} รายการ)
               </h3>
             </div>
@@ -1749,7 +1749,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
                   {techPMs.map(pm => (
                     <div key={pm.id} className="bg-slate-950/80 border border-slate-850 rounded-lg p-2.5 text-xs flex items-center justify-between gap-2">
                       <div>
-                        <p className="font-bold text-white text-[11px]">{pm.machineId}</p>
+                        <p className="font-bold text-fg text-[11px]">{pm.machineId}</p>
                         <p className="text-[10px] text-slate-400">วันที่: {pm.date}</p>
                       </div>
                       <span className="px-2 py-0.5 bg-purple-500/10 text-purple-400 border border-purple-500/20 rounded font-mono font-bold text-[10px]">
@@ -1775,7 +1775,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
                   {techSetups.map(st => (
                     <div key={st.id} className="bg-slate-950/80 border border-slate-850 rounded-lg p-2.5 text-xs flex items-center justify-between gap-2">
                       <div>
-                        <p className="font-bold text-white text-[11px]">{st.machineId} ({st.type})</p>
+                        <p className="font-bold text-fg text-[11px]">{st.machineId} ({st.type})</p>
                         <p className="text-[10px] text-slate-400">วันที่: {st.date}</p>
                       </div>
                       <span className="px-2 py-0.5 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded font-mono font-bold text-[10px]">
@@ -1802,7 +1802,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
                   <PenTool size={18} />
                 </div>
                 <div>
-                  <h3 className="text-sm font-black text-white">บันทึกผลงาน Kaizen & การปรับปรุงใหม่</h3>
+                  <h3 className="text-sm font-black text-fg">บันทึกผลงาน Kaizen & การปรับปรุงใหม่</h3>
                   <p className="text-[10px] text-slate-400">ผู้รับผิดชอบหลัก: <strong className="text-cyan-400">{selectedTech}</strong></p>
                 </div>
               </div>
@@ -1810,7 +1810,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
               <button
                 id="btn-close-kaizen-modal"
                 onClick={() => setShowAddModal(false)}
-                className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition"
+                className="text-slate-400 hover:text-fg p-1 rounded-lg hover:bg-slate-800 transition"
               >
                 ✕
               </button>
@@ -1829,7 +1829,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
                   placeholder="เช่น ออกแบบชุดการ์ดป้องกันเศษแป้งตกใส่ชุดเกียร์"
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-fg placeholder-slate-500 focus:outline-none focus:border-cyan-500"
                 />
               </div>
 
@@ -1840,7 +1840,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
                     id="select-kaizen-machine"
                     value={newMachineId}
                     onChange={(e) => setNewMachineId(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-cyan-500"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-fg focus:outline-none focus:border-cyan-500"
                   >
                     <option value="">อุปกรณ์/ทั่วไปในโรงงาน</option>
                     {machines.map(m => (
@@ -1855,7 +1855,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
                     id="select-kaizen-status"
                     value={newStatus}
                     onChange={(e) => setNewStatus(e.target.value as any)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-cyan-500"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-fg focus:outline-none focus:border-cyan-500"
                   >
                     <option value="กำลังดำเนินการ">กำลังดำเนินการ</option>
                     <option value="เสร็จแล้ว">เสร็จแล้ว</option>
@@ -1875,7 +1875,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
                   placeholder="อธิบายสิ่งที่ได้ทำการปรับปรุง ประโยชน์ที่ได้รับ และการลดอัตราสูญเสียหรือเวลาทำงาน..."
                   value={newDesc}
                   onChange={(e) => setNewDesc(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 resize-none"
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-fg placeholder-slate-500 focus:outline-none focus:border-cyan-500 resize-none"
                 />
               </div>
 
@@ -1887,7 +1887,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
                     type="date"
                     value={newStartDate}
                     onChange={(e) => setNewStartDate(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-cyan-500"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-fg focus:outline-none focus:border-cyan-500"
                   />
                 </div>
 
@@ -1898,7 +1898,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
                     type="date"
                     value={newEndDate}
                     onChange={(e) => setNewEndDate(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-cyan-500"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-fg focus:outline-none focus:border-cyan-500"
                   />
                 </div>
               </div>
@@ -1914,7 +1914,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
                       placeholder="ชั่วโมง"
                       value={newWorkHours}
                       onChange={(e) => setNewWorkHours(Number(e.target.value))}
-                      className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-white text-xs"
+                      className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-fg text-xs"
                     />
                   </div>
                   <div className="sm:col-span-2">
@@ -1924,7 +1924,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
                       placeholder="เช่น ขึ้นรูปชิ้นงานและทดลองติดตั้งหน้างาน"
                       value={newWorkNote}
                       onChange={(e) => setNewWorkNote(e.target.value)}
-                      className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-white text-xs"
+                      className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-fg text-xs"
                     />
                   </div>
                 </div>
@@ -1954,7 +1954,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => setNewPhotoBefore('')}
-                          className="absolute top-1 right-1 bg-rose-600 text-white rounded-full p-1 text-[10px] font-bold shadow"
+                          className="absolute top-1 right-1 bg-rose-600 text-fg rounded-full p-1 text-[10px] font-bold shadow"
                         >
                           ✕
                         </button>
@@ -1978,7 +1978,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => setNewPhotoAfter('')}
-                          className="absolute top-1 right-1 bg-rose-600 text-white rounded-full p-1 text-[10px] font-bold shadow"
+                          className="absolute top-1 right-1 bg-rose-600 text-fg rounded-full p-1 text-[10px] font-bold shadow"
                         >
                           ✕
                         </button>
@@ -2028,7 +2028,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
                   <FileText size={18} />
                 </div>
                 <div>
-                  <h3 className="text-sm font-black text-white flex items-center gap-2">
+                  <h3 className="text-sm font-black text-fg flex items-center gap-2">
                     <span>เอกสาร Portfolio ช่างซ่อมบำรุง (Engineering Portfolio PDF)</span>
                     <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
                       {selectedTech}
@@ -2050,13 +2050,13 @@ export const TechnicianPortfolioPage: React.FC = () => {
                   id="modal-btn-download-pdf"
                   onClick={handleDownloadPDF}
                   disabled={isGeneratingPDF}
-                  className="bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 disabled:opacity-50 text-white px-4 py-2 rounded-xl text-xs font-black flex items-center gap-1.5 shadow-lg transition"
+                  className="bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 disabled:opacity-50 text-fg px-4 py-2 rounded-xl text-xs font-black flex items-center gap-1.5 shadow-lg transition"
                   title="สร้างและดาวน์โหลดไฟล์ PDF (.pdf) ทันที"
                 >
                   {isGeneratingPDF ? (
-                    <Loader2 size={15} className="animate-spin text-white" />
+                    <Loader2 size={15} className="animate-spin text-fg" />
                   ) : (
-                    <Download size={15} className="text-white" />
+                    <Download size={15} className="text-fg" />
                   )}
                   <span>{isGeneratingPDF ? 'กำลังสร้าง PDF...' : 'ดาวน์โหลดไฟล์ PDF (.pdf)'}</span>
                 </button>
@@ -2065,7 +2065,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
                 <button
                   id="modal-btn-print-pdf"
                   onClick={handleOpenPrintWindow}
-                  className="bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow transition"
+                  className="bg-slate-800 hover:bg-slate-700 text-fg border border-slate-700 px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow transition"
                   title="เปิดเอกสารในหน้าต่างใหม่เพื่อสั่งพิมพ์หรือเลือก Save as PDF ได้ 100%"
                 >
                   <Printer size={15} className="text-cyan-300" /> 
@@ -2076,7 +2076,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
                 <button
                   id="modal-btn-export-excel"
                   onClick={handleExportExcel}
-                  className="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow transition"
+                  className="bg-emerald-600 hover:bg-emerald-500 text-fg px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow transition"
                   title="ดาวน์โหลดเป็นไฟล์ Excel (.xlsx)"
                 >
                   <FileSpreadsheet size={15} /> 
@@ -2096,7 +2096,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
             </div>
 
             {/* Printable Document Area */}
-            <div className="p-4 sm:p-8 overflow-y-auto flex-1 bg-white text-slate-900 print:p-0 print:bg-white print:text-black scrollbar-thin" id="portfolio-printable-document">
+            <div className="p-4 sm:p-8 overflow-y-auto flex-1 bg-surface text-slate-900 print:p-0 print:bg-surface print:text-fg scrollbar-thin" id="portfolio-printable-document">
               
               {/* Document Header */}
               <div className="border-b-2 border-slate-900 pb-4 mb-6">
@@ -2221,7 +2221,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
                       return (
                         <div 
                           key={imp.id}
-                          className="border border-slate-200 rounded-xl p-4 bg-slate-50/70 print:bg-white print:border-slate-300 print:break-inside-avoid space-y-3"
+                          className="border border-slate-200 rounded-xl p-4 bg-slate-50/70 print:bg-surface print:border-slate-300 print:break-inside-avoid space-y-3"
                         >
                           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-2">
                             <div>
@@ -2251,7 +2251,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
 
                           <div className="text-xs text-slate-700 space-y-1">
                             <p className="font-bold text-slate-900 text-[11px]">รายละเอียดการปรับปรุงและผลลัพธ์:</p>
-                            <p className="leading-relaxed bg-white border border-slate-200 p-2.5 rounded-lg text-slate-800 text-[11px]">
+                            <p className="leading-relaxed bg-surface border border-slate-200 p-2.5 rounded-lg text-slate-800 text-[11px]">
                               {imp.description}
                             </p>
                           </div>
@@ -2262,7 +2262,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
                               {imp.photoBefore && (
                                 <div className="border border-amber-200 bg-amber-50/50 p-2 rounded-lg text-center">
                                   <p className="text-[10px] font-bold text-amber-800 mb-1">🔴 ภาพก่อนปรับปรุง (Before)</p>
-                                  <div className="h-36 w-full rounded overflow-hidden bg-white border border-amber-200 flex items-center justify-center">
+                                  <div className="h-36 w-full rounded overflow-hidden bg-surface border border-amber-200 flex items-center justify-center">
                                     <img 
                                       src={imp.photoBefore} 
                                       alt="Before Kaizen" 
@@ -2276,7 +2276,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
                               {imp.photoAfter && (
                                 <div className="border border-emerald-200 bg-emerald-50/50 p-2 rounded-lg text-center">
                                   <p className="text-[10px] font-bold text-emerald-800 mb-1">🟢 ภาพหลังปรับปรุง (After)</p>
-                                  <div className="h-36 w-full rounded overflow-hidden bg-white border border-emerald-200 flex items-center justify-center">
+                                  <div className="h-36 w-full rounded overflow-hidden bg-surface border border-emerald-200 flex items-center justify-center">
                                     <img 
                                       src={imp.photoAfter} 
                                       alt="After Kaizen" 
@@ -2295,7 +2295,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
                               <p className="font-bold text-slate-700 mb-1">บันทึกขั้นตอนการปฏิบัติงาน:</p>
                               <div className="space-y-0.5">
                                 {imp.workLogs.map((log) => (
-                                  <div key={log.id} className="flex items-center justify-between bg-white px-2 py-1 rounded border border-slate-200">
+                                  <div key={log.id} className="flex items-center justify-between bg-surface px-2 py-1 rounded border border-slate-200">
                                     <span>📅 {log.date}: {log.note}</span>
                                     <span className="font-bold font-mono text-slate-700">{log.hours} ชม.</span>
                                   </div>
@@ -2368,7 +2368,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
                     <p className="font-bold text-slate-800 mb-2">📋 งาน PM ที่ทำสำเร็จล่าสุด ({techPMs.length} รายการ):</p>
                     <div className="space-y-1.5 text-[11px]">
                       {techPMs.slice(0, 4).map((pm) => (
-                        <div key={pm.id} className="flex justify-between items-center bg-white p-2 rounded border border-slate-200">
+                        <div key={pm.id} className="flex justify-between items-center bg-surface p-2 rounded border border-slate-200">
                           <span>{pm.date} - {getMachineName(pm.machineId)}</span>
                           <span className="font-bold text-emerald-700 font-mono">สำเร็จ</span>
                         </div>
@@ -2381,7 +2381,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
                     <p className="font-bold text-slate-800 mb-2">⏱️ งาน Setup / ปรับตั้งเครื่องจักรล่าสุด ({techSetups.length} รายการ):</p>
                     <div className="space-y-1.5 text-[11px]">
                       {techSetups.slice(0, 4).map((set) => (
-                        <div key={set.id} className="flex justify-between items-center bg-white p-2 rounded border border-slate-200">
+                        <div key={set.id} className="flex justify-between items-center bg-surface p-2 rounded border border-slate-200">
                           <span>{set.date} - {getMachineName(set.machineId)} ({set.type})</span>
                           <span className="font-bold text-cyan-700 font-mono">{set.totalDuration} นาที</span>
                         </div>
@@ -2488,7 +2488,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
                 }`}>
                   {lightboxData.badge}
                 </span>
-                <h3 className="text-base font-black text-white">{lightboxData.title}</h3>
+                <h3 className="text-base font-black text-fg">{lightboxData.title}</h3>
                 <p className="text-xs text-slate-400">{lightboxData.subtitle}</p>
               </div>
 
@@ -2515,7 +2515,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => handleRemoveImage(lightboxData.projId!, lightboxData.type, lightboxData.title)}
-                    className="px-3 py-1.5 bg-rose-600/20 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-500/30 rounded-lg font-bold transition inline-flex items-center gap-1.5"
+                    className="px-3 py-1.5 bg-rose-600/20 hover:bg-rose-600 text-rose-400 hover:text-fg border border-rose-500/30 rounded-lg font-bold transition inline-flex items-center gap-1.5"
                     title="ลบรูปภาพนี้ออกจากโครงการ Kaizen"
                   >
                     <Trash2 size={13} />
@@ -2526,7 +2526,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
                   href={lightboxData.url} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg font-bold transition inline-flex items-center gap-1.5"
+                  className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-fg rounded-lg font-bold transition inline-flex items-center gap-1.5"
                 >
                   <ExternalLink size={14} />
                   <span>เปิดรูปภาพเต็มในแท็บใหม่</span>
@@ -2552,7 +2552,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
                 <Trash2 size={24} />
               </div>
               <div>
-                <h3 className="text-base font-bold text-white">ยืนยันการลบรูปภาพ Kaizen</h3>
+                <h3 className="text-base font-bold text-fg">ยืนยันการลบรูปภาพ Kaizen</h3>
                 <p className="text-xs text-rose-400 font-medium">
                   {deleteConfirmModal.type === 'before' ? '🔴 รูปภาพก่อนปรับปรุง (Before)' : '🟢 รูปภาพหลังปรับปรุง (After)'}
                 </p>
@@ -2561,7 +2561,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
 
             <p className="text-sm text-slate-300 leading-relaxed bg-slate-950/60 p-3.5 rounded-xl border border-slate-800">
               คุณแน่ใจหรือไม่ว่าต้องการลบรูปภาพนี้ออกจากโครงการ <br />
-              <b className="text-white font-semibold">"{deleteConfirmModal.projTitle}"</b>?
+              <b className="text-fg font-semibold">"{deleteConfirmModal.projTitle}"</b>?
             </p>
 
             <div className="flex items-center justify-end gap-3 pt-2">
@@ -2575,7 +2575,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
               <button
                 type="button"
                 onClick={handleConfirmDelete}
-                className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-rose-600/30 flex items-center gap-1.5"
+                className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-fg rounded-xl text-xs font-bold transition shadow-lg shadow-rose-600/30 flex items-center gap-1.5"
               >
                 <Trash2 size={14} />
                 <span>ยืนยันลบรูปภาพ</span>

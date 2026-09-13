@@ -1,9 +1,177 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Sarabun:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
+:root {
+  --bg: #121212;
+  --surface: #1e1e1e;
+  --fg: #e8e8e8;
+  --fg-muted: #a0a0a0;
+  --border: #3a3a3a;
+
+  /* Accessibility Semantic Color Tokens (WCAG 2.1 AA compliant >= 4.5:1) */
+  --fg-on-accent: #ffffff;
+  --card-title: #f1f5f9;
+  --card-title-accent: #38bdf8;
+
+  /* Zone Pill Tokens: Dark mode: dark slate bg (#1e293b), light text (#e2e8f0) -> 10.78:1 contrast */
+  --pill-zone-bg: #1e293b;
+  --pill-zone-fg: #e2e8f0;
+  --pill-zone-border: #334155;
+
+  /* Room Pill Tokens: Dark mode: deep cyan bg (#082f49), sky text (#38bdf8) -> 7.40:1 contrast */
+  --pill-room-bg: #082f49;
+  --pill-room-fg: #38bdf8;
+  --pill-room-border: #0369a1;
+
+  /* Job Card PM Tokens (Dark mode) */
+  --job-pm-bg: rgba(15, 30, 65, 0.65);
+  --job-pm-border: rgba(59, 130, 246, 0.4);
+  --job-pm-title: #ffffff;
+  --job-pm-badge: #38bdf8;
+  --job-pm-text: #e2e8f0;
+  --job-pm-desc: #cbd5e1;
+  --job-pm-tag-bg: rgba(0, 0, 0, 0.45);
+  --job-pm-tag-fg: #f1f5f9;
+}
+
+body.light-theme,
+.light-theme,
+[data-theme="light"],
+html.light-theme {
+  --bg: var(--surface);
+  --surface: #f7f7f7;
+  --fg: #1a1a1a;
+  --fg-muted: #5c5c5c;
+  --border: #d4d4d4;
+
+  /* Accessibility Semantic Color Tokens (Light Theme) */
+  --fg-on-accent: #ffffff;
+  --card-title: #0f172a;
+  --card-title-accent: #0369a1;
+
+  /* Zone Pill Tokens: Light mode: light bg (#e2e8f0), dark slate text (#334155) -> 8.40:1 contrast */
+  --pill-zone-bg: #e2e8f0;
+  --pill-zone-fg: #334155;
+  --pill-zone-border: #cbd5e1;
+
+  /* Room Pill Tokens: Light mode: soft sky bg (#e0f2fe), deep sky text (#075985) -> 6.63:1 contrast */
+  --pill-room-bg: #e0f2fe;
+  --pill-room-fg: #075985;
+  --pill-room-border: #bae6fd;
+
+  /* Job Card PM Tokens (Light Mode) */
+  --job-pm-bg: #eff6ff;
+  --job-pm-border: #bfdbfe;
+  --job-pm-title: #1e3a8a;
+  --job-pm-badge: #1d4ed8;
+  --job-pm-text: #1e293b;
+  --job-pm-desc: #334155;
+  --job-pm-tag-bg: #dbeafe;
+  --job-pm-tag-fg: #1e3a8a;
+}
+
+body:not(.light-theme),
+.dark,
+[data-theme="dark"],
+html.dark {
+  --bg: #121212;
+  --surface: #1e1e1e;
+  --fg: #e8e8e8;
+  --fg-muted: #a0a0a0;
+  --border: #3a3a3a;
+
+  /* Accessibility Semantic Color Tokens (Dark Theme) */
+  --fg-on-accent: #ffffff;
+  --card-title: #f1f5f9;
+  --card-title-accent: #38bdf8;
+
+  --pill-zone-bg: #1e293b;
+  --pill-zone-fg: #e2e8f0;
+  --pill-zone-border: #334155;
+
+  --pill-room-bg: #082f49;
+  --pill-room-fg: #38bdf8;
+  --pill-room-border: #0369a1;
+
+  --job-pm-bg: rgba(15, 30, 65, 0.65);
+  --job-pm-border: rgba(59, 130, 246, 0.4);
+  --job-pm-title: #ffffff;
+  --job-pm-badge: #38bdf8;
+  --job-pm-text: #e2e8f0;
+  --job-pm-desc: #cbd5e1;
+  --job-pm-tag-bg: rgba(0, 0, 0, 0.45);
+  --job-pm-tag-fg: #f1f5f9;
+}
+
+.text-fg {
+  color: var(--fg) !important;
+}
+.text-fg-muted {
+  color: var(--fg-muted) !important;
+}
+.bg-bg {
+  background-color: var(--bg) !important;
+}
+.bg-surface {
+  background-color: var(--surface) !important;
+}
+.border-border {
+  border-color: var(--border) !important;
+}
+
+/* Accessibility Semantic Classes */
+.text-fg-on-accent {
+  color: var(--fg-on-accent) !important;
+}
+
+.text-card-title {
+  color: var(--card-title) !important;
+}
+
+.text-card-title-accent {
+  color: var(--card-title-accent) !important;
+}
+
+.pill-zone {
+  background-color: var(--pill-zone-bg) !important;
+  color: var(--pill-zone-fg) !important;
+  border-color: var(--pill-zone-border) !important;
+}
+
+.pill-room {
+  background-color: var(--pill-room-bg) !important;
+  color: var(--pill-room-fg) !important;
+  border-color: var(--pill-room-border) !important;
+}
+
+.job-card-pm {
+  background-color: var(--job-pm-bg) !important;
+  border-color: var(--job-pm-border) !important;
+  color: var(--job-pm-text) !important;
+}
+
+.job-card-pm-badge {
+  color: var(--job-pm-badge) !important;
+}
+
+.job-card-pm-tag {
+  background-color: var(--job-pm-tag-bg) !important;
+  color: var(--job-pm-tag-fg) !important;
+}
+
+.job-card-pm-desc {
+  color: var(--job-pm-desc) !important;
+}
+
+
 @theme {
   --font-sans: "Inter", "Sarabun", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-border: var(--border);
 }
 
 /* Custom scrollbar to match dark industrial theme */
@@ -26,15 +194,15 @@
 }
 
 body {
-  background-color: #0f172a;
-  color: #f8fafc;
+  background-color: var(--bg);
+  color: var(--fg);
   font-family: var(--font-sans);
 }
 
 /* LIGHT MODE STYLES */
 .light-theme {
-  background-color: #f8fafc !important;
-  color: #0f172a !important;
+  background-color: var(--bg) !important;
+  color: var(--fg) !important;
 }
 
 /* Base resets inside the body container and modals */
@@ -43,7 +211,7 @@ body {
 }
 
 .light-theme #app-sidebar-fixed {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #e2e8f0 !important;
   box-shadow: 1px 0 3px 0 rgba(0, 0, 0, 0.04) !important;
 }
@@ -102,16 +270,16 @@ body {
 /* Active / Selected item in sidebar */
 .light-theme #app-sidebar-nav button.bg-cyan-500 {
   background-color: #0284c7 !important;
-  color: #ffffff !important;
+  color: var(--fg) !important;
   box-shadow: 0 4px 12px -2px rgba(2, 132, 199, 0.35) !important;
 }
 
 .light-theme #app-sidebar-nav button.bg-cyan-500 svg {
-  color: #ffffff !important;
+  color: var(--fg) !important;
 }
 
 .light-theme #app-sidebar-nav button.bg-cyan-500 p {
-  color: #ffffff !important;
+  color: var(--fg) !important;
 }
 
 .light-theme #app-sidebar-nav button.bg-cyan-500 p.text-slate-800,
@@ -141,7 +309,7 @@ body {
 }
 
 .light-theme header {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #e2e8f0 !important;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
 }
@@ -254,7 +422,7 @@ body {
 .light-theme #app-body-container .bg-slate-800\/80,
 .light-theme #app-body-container .bg-\[\#131e35\],
 .light-theme #app-body-container .bg-\[\#0d1527\] {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   color: #1e293b !important;
   border-color: #e2e8f0 !important;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05) !important;
@@ -264,7 +432,7 @@ body {
 .light-theme #app-body-container span.bg-slate-800,
 .light-theme #app-body-container span.bg-slate-900,
 .light-theme #app-body-container span.bg-slate-950,
-.light-theme #app-body-container span[class*="bg-black"],
+.light-theme #app-body-container span[class*="bg-surface"],
 .light-theme #app-body-container span.bg-slate-800\/40,
 .light-theme #app-body-container span.bg-slate-900\/60,
 .light-theme #app-body-container div.bg-slate-900\/60,
@@ -276,7 +444,7 @@ body {
 .light-theme #app-body-container div.bg-\[\#050a14\],
 .light-theme #app-body-container div.bg-\[\#080d1a\],
 .light-theme #app-body-container div.bg-\[\#0a0f1d\],
-.light-theme #app-body-container [class*="bg-black/"] {
+.light-theme #app-body-container [class*="bg-surface/"] {
   background-color: #f1f5f9 !important;
   color: #475569 !important;
   border-color: #cbd5e1 !important;
@@ -303,7 +471,7 @@ body {
 }
 
 /* Comprehensive text overrides for legibility */
-.light-theme #app-body-container .text-white,
+.light-theme #app-body-container .text-fg,
 .light-theme #app-body-container .text-slate-50,
 .light-theme #app-body-container .text-slate-100,
 .light-theme #app-body-container .text-slate-150,
@@ -427,7 +595,7 @@ body {
 
 /* Tables and grids styling */
 .light-theme #app-body-container table {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
 }
 
 .light-theme #app-body-container thead,
@@ -440,7 +608,7 @@ body {
 }
 
 .light-theme #app-body-container tbody {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
 }
 
 .light-theme #app-body-container td {
@@ -460,7 +628,7 @@ body {
 .light-theme #app-body-container select,
 .light-theme #app-body-container input,
 .light-theme #app-body-container textarea {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   color: #0f172a !important;
   border: 1px solid #cbd5e1 !important;
 }
@@ -478,7 +646,7 @@ body {
 }
 
 .light-theme option {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   color: #0f172a !important;
 }
 
@@ -488,7 +656,7 @@ body {
 .light-theme .fixed .bg-slate-950,
 .light-theme .fixed .bg-[#0b1222],
 .light-theme .fixed .bg-[#0e1626] {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   color: #1e293b !important;
   border: 1px solid #cbd5e1 !important;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
@@ -508,7 +676,7 @@ body {
   color: #1e293b !important;
 }
 
-.light-theme .fixed .text-white,
+.light-theme .fixed .text-fg,
 .light-theme .fixed .text-slate-100,
 .light-theme .fixed .text-slate-200,
 .light-theme .fixed .text-slate-300 {
@@ -540,7 +708,7 @@ body {
 .light-theme .fixed input,
 .light-theme .fixed select,
 .light-theme .fixed textarea {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   color: #0f172a !important;
   border: 1px solid #cbd5e1 !important;
 }
@@ -562,7 +730,7 @@ body {
 
 /* Weekly Matrix Container Overrides */
 .light-theme #weekly-matrix-container {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05) !important;
 }
@@ -614,7 +782,7 @@ body {
 
 /* Monthly Calendar Sub-tab Cell Overrides */
 .light-theme #pm-calendar-subtab-view .bg-\[\#0a0f1d\] {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   color: #0f172a !important;
   border-color: #cbd5e1 !important;
 }
@@ -686,7 +854,7 @@ body {
 
 /* --- Schedule View Mode Tabs Light Theme Polish --- */
 .light-theme #schedule-view-mode-tabs {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
 }
@@ -702,12 +870,83 @@ body {
 
 .light-theme #schedule-view-mode-tabs button.bg-cyan-500 {
   background-color: #0284c7 !important;
-  color: #ffffff !important;
+  color: var(--fg) !important;
+}
+
+/* --- SchedulePage Monthly Calendar Grid Light Theme Overrides --- */
+.light-theme #monthly-calendar-container {
+  background-color: var(--surface) !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03) !important;
+}
+
+.light-theme #monthly-calendar-container .grid.grid-cols-7 > div[class*="bg-slate-900"] {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+.light-theme #monthly-calendar-container [id^="calendar-day-"] {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+.light-theme #monthly-calendar-container [id^="calendar-day-"]:hover {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+
+.light-theme #monthly-calendar-container [id^="calendar-day-"] span[class*="text-slate-300"] {
+  color: #334155 !important;
+}
+
+.light-theme #monthly-calendar-container [id^="calendar-day-"] span[class*="bg-slate-800"] {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #475569 !important;
+}
+
+/* --- SchedulePage Active Date Details Modal Light Theme Overrides --- */
+.light-theme #active-date-modal {
+  background-color: var(--surface) !important;
+  border-color: #cbd5e1 !important;
+  color: #1e293b !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+}
+
+.light-theme #active-date-modal div[class*="from-slate-900"] {
+  background: #f8fafc !important;
+  border-bottom-color: #e2e8f0 !important;
+}
+
+.light-theme #active-date-modal div[class*="from-slate-900"] h2 {
+  color: #0f172a !important;
+}
+
+.light-theme #active-date-modal div[class*="from-slate-900"] p {
+  color: #475569 !important;
+}
+
+.light-theme #active-date-modal .bg-slate-900 {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05) !important;
+}
+
+.light-theme #active-date-modal .bg-slate-950\/60 {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  color: #334155 !important;
+}
+
+.light-theme #active-date-modal .border-slate-750 {
+  border-color: #e2e8f0 !important;
 }
 
 /* --- PM Safety Monitoring & Alert Center Light Theme Polish --- */
 .light-theme #pm-early-warning-control-board {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   color: #1e293b !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03) !important;
@@ -737,7 +976,7 @@ body {
 }
 
 .light-theme #pm-alert-overdue-box div.bg-red-500\/5 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #fee2e2 !important;
 }
 
@@ -764,7 +1003,7 @@ body {
 }
 
 .light-theme #pm-alert-pre-box div.bg-amber-500\/5 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #fef3c7 !important;
 }
 
@@ -792,7 +1031,7 @@ body {
 
 .light-theme #pm-alert-predictive-box div.bg-purple-550\/5,
 .light-theme #pm-alert-predictive-box div.bg-purple-500\/5 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #f3e8ff !important;
 }
 
@@ -817,7 +1056,7 @@ body {
 
 /* --- Week Navigation Bar Light Theme Polish --- */
 .light-theme #pm-week-nav-bar {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
 }
@@ -838,7 +1077,7 @@ body {
 }
 
 .light-theme #pm-week-nav-bar button.bg-slate-900 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #334155 !important;
 }
@@ -850,7 +1089,7 @@ body {
 }
 
 .light-theme #pm-week-nav-bar select {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #334155 !important;
 }
@@ -861,7 +1100,7 @@ body {
 
 /* --- Monthly Summary Portal Light Theme Polish --- */
 .light-theme #monthly-header-card {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05) !important;
 }
@@ -899,7 +1138,7 @@ body {
 
 .light-theme #monthly-sub-tabs button.bg-cyan-500 {
   background-color: #0284c7 !important;
-  color: #ffffff !important;
+  color: var(--fg) !important;
 }
 
 /* PM Calendar Instructions & Days of Week */
@@ -917,7 +1156,7 @@ body {
 }
 
 .light-theme #pm-calendar-ref-date-badge {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #475569 !important;
 }
@@ -943,7 +1182,7 @@ body {
 
 /* Accumulated Cumulative Hours tab cards */
 .light-theme #technician-hours-card-grid .bg-slate-900\/50 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03) !important;
 }
@@ -1043,7 +1282,7 @@ body {
 
 /* 1. KPI Cards Row styling */
 .light-theme #leave-statistics-panel .bg-slate-800 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03) !important;
 }
@@ -1076,7 +1315,7 @@ body {
 
 /* 2. Column 1: Leave Quick Form Card styling */
 .light-theme #leave-quick-form-card {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
 }
@@ -1099,7 +1338,7 @@ body {
 
 .light-theme #leave-quick-form-card select,
 .light-theme #leave-quick-form-card input {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
 }
@@ -1111,7 +1350,7 @@ body {
 
 /* 3. Column 2: Frequencies Table Card styling */
 .light-theme #leave-frequencies-table-card {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
 }
@@ -1160,7 +1399,7 @@ body {
 
 /* 4. Detailed Data Log Table Card styling */
 .light-theme #leave-data-log-table-card {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
 }
@@ -1218,7 +1457,7 @@ body {
 
 /* Left column - machine search & list */
 .light-theme #pm-left-machine-selector {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03) !important;
 }
@@ -1228,7 +1467,7 @@ body {
 }
 
 .light-theme #pm-machine-search {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
 }
@@ -1239,7 +1478,7 @@ body {
 
 /* Machine buttons inside left column list */
 .light-theme #pm-machine-list button {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #e2e8f0 !important;
   color: #334155 !important;
 }
@@ -1279,7 +1518,7 @@ body {
 
 /* Right column - header card */
 .light-theme #pm-right-machine-header {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
 }
@@ -1299,7 +1538,7 @@ body {
 }
 
 .light-theme #pm-right-machine-header #btn-copy-pm-plans {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #334155 !important;
 }
@@ -1310,7 +1549,7 @@ body {
 }
 
 .light-theme #pm-right-machine-header #btn-import-pm-excel {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #334155 !important;
 }
@@ -1327,14 +1566,14 @@ body {
 
 /* No plans placeholder container */
 .light-theme #pm-plan-container .p-12 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #475569 !important;
 }
 
 /* Plan Card elements */
 .light-theme #pm-plan-container [id^="pm-plan-card-"] {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
 }
@@ -1417,7 +1656,7 @@ body {
 .light-theme #pm-form-modal,
 .light-theme #pm-copy-modal,
 .light-theme #pm-import-modal {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #1e293b !important;
 }
@@ -1446,7 +1685,7 @@ body {
 .light-theme #pm-import-modal input,
 .light-theme #pm-import-modal select,
 .light-theme #pm-import-modal textarea {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
 }
@@ -1477,7 +1716,7 @@ body {
 
 /* Live standard calculated time block inside form header */
 .light-theme #pm-form-modal div.bg-slate-950 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
 }
 
@@ -1504,7 +1743,7 @@ body {
 
 .light-theme #pm-copy-modal [class*="bg-slate-955\/40"],
 .light-theme #pm-copy-modal [class*="bg-slate-950\/40"] {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
 }
 
@@ -1532,7 +1771,7 @@ body {
 }
 
 .light-theme #pm-import-modal .bg-slate-950 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
 }
 
@@ -1555,7 +1794,7 @@ body {
 
 /* 1. Filter section styling */
 .light-theme #repair-filter-container {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
 }
@@ -1570,7 +1809,7 @@ body {
 
 .light-theme #repair-filter-container input,
 .light-theme #repair-filter-container select {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
 }
@@ -1582,7 +1821,7 @@ body {
 
 /* 2. Table section styling */
 .light-theme #repair-table-container {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
 }
@@ -1597,7 +1836,7 @@ body {
 }
 
 .light-theme #repairs-history-table tbody {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
 }
 
 .light-theme #repairs-history-table tr {
@@ -1673,7 +1912,7 @@ body {
 
 /* 3. Add/Edit Repair Form Modal styling */
 .light-theme #repair-form-modal {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #1e293b !important;
 }
@@ -1694,7 +1933,7 @@ body {
 
 /* Live MTTR widget inside form header */
 .light-theme #repair-form-modal div.bg-slate-950 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
 }
 
@@ -1710,7 +1949,7 @@ body {
 .light-theme #repair-form-modal form select,
 .light-theme #repair-form-modal form input,
 .light-theme #repair-form-modal form textarea {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
 }
@@ -1740,13 +1979,13 @@ body {
 }
 
 .light-theme #repair-form-modal div.bg-slate-950 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
 }
 
 /* Technician option labels */
 .light-theme #repair-form-modal div.bg-slate-950 label.bg-slate-900\/50 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #475569 !important;
 }
@@ -1781,7 +2020,7 @@ body {
 
 .light-theme #repair-form-modal form div[class*="bg-slate-900/40"] button:hover {
   background-color: #0284c7 !important;
-  color: #ffffff !important;
+  color: var(--fg) !important;
 }
 
 .light-theme #repair-form-modal #why-cascading-inputs span.text-red-400 {
@@ -1808,7 +2047,7 @@ body {
 }
 
 .light-theme #repair-form-modal div.border-t button[class*="border-slate-700"] {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #475569 !important;
 }
@@ -1820,7 +2059,7 @@ body {
 
 /* 4. Repair Detail Modal (Double click log info) styling */
 .light-theme #repair-detail-modal {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #1e293b !important;
 }
@@ -1842,7 +2081,7 @@ body {
 }
 
 .light-theme #repair-detail-modal div.bg-gradient-to-r button {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #475569 !important;
 }
@@ -1919,7 +2158,7 @@ body {
 }
 
 .light-theme #repair-detail-modal div.bg-slate-900\/20 p.leading-relaxed {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   color: #0f172a !important;
 }
 
@@ -1956,7 +2195,7 @@ body {
 }
 
 .light-theme #repair-detail-modal div.bg-slate-900\/20 span.bg-slate-950 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #1e293b !important;
 }
@@ -1972,18 +2211,18 @@ body {
 }
 
 .light-theme #repair-detail-modal div.bg-slate-900\/80 button.border-rose-500\/30 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #fca5a5 !important;
   color: #dc2626 !important;
 }
 
 .light-theme #repair-detail-modal div.bg-slate-900\/80 button.border-rose-500\/30:hover {
   background-color: #dc2626 !important;
-  color: #ffffff !important;
+  color: var(--fg) !important;
 }
 
 .light-theme #repair-detail-modal div.bg-slate-900\/80 button[class*="border-slate-700"] {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #475569 !important;
 }
@@ -1995,7 +2234,7 @@ body {
 
 /* 5. Delete confirmation modal styling */
 .light-theme #repair-delete-modal {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #1e293b !important;
 }
@@ -2013,7 +2252,7 @@ body {
 }
 
 .light-theme #repair-delete-modal button[class*="border-slate-700"] {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #475569 !important;
 }
@@ -2057,12 +2296,12 @@ body {
 
 .light-theme #pm-overdue-alert-banner span[class*="bg-rose-500"] {
   background-color: #e11d48 !important;
-  color: #ffffff !important;
+  color: var(--fg) !important;
   font-weight: 900 !important;
 }
 
 .light-theme #btn-filter-overdue-pm {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border: 1.5px solid #fda4af !important;
   color: #be123c !important;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
@@ -2075,13 +2314,13 @@ body {
 
 .light-theme #btn-filter-overdue-pm[class*="bg-rose-500"] {
   background-color: #e11d48 !important;
-  color: #ffffff !important;
+  color: var(--fg) !important;
   border-color: #e11d48 !important;
 }
 
 .light-theme #btn-quick-reschedule-first-overdue {
   background: linear-gradient(to right, #d97706, #ea580c) !important;
-  color: #ffffff !important;
+  color: var(--fg) !important;
   box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3) !important;
   font-weight: 800 !important;
 }
@@ -2091,7 +2330,7 @@ body {
 }
 
 .light-theme #pm-history-header {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
 }
@@ -2111,7 +2350,7 @@ body {
 }
 
 .light-theme #btn-export-pm-excel {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #334155 !important;
 }
@@ -2123,7 +2362,7 @@ body {
 
 /* KPI Dashboards Row */
 .light-theme #pm-kpi-dashboard-row > div {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
 }
@@ -2148,7 +2387,7 @@ body {
 
 /* KPI Overdue Card */
 .light-theme #pm-kpi-overdue-tracker {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
 }
 
@@ -2215,7 +2454,7 @@ body {
 
 /* Filtering bar */
 .light-theme #pmhistory-filtering-bar {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
 }
@@ -2236,7 +2475,7 @@ body {
 .light-theme #pm-history-tech-select,
 .light-theme #pm-history-month-input,
 .light-theme #pm-history-variance-select {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
 }
@@ -2284,7 +2523,7 @@ body {
 
 .light-theme #pm-history-sort-tabs button[class*="text-cyan-400"],
 .light-theme #pm-history-sort-tabs button[class*="bg-[#0f172a]"] {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   color: #0284c7 !important;
   border: 1px solid #cbd5e1 !important;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.08) !important;
@@ -2305,7 +2544,7 @@ body {
 
 /* Table */
 .light-theme #pmhistory-table-container {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
 }
@@ -2368,8 +2607,8 @@ body {
 }
 
 /* Extra technician badge */
-.light-theme #pm-history-logs-table span[class*="bg-black/30"],
-.light-theme #pm-history-logs-table span[class*="bg-black"] {
+.light-theme #pm-history-logs-table span[class*="bg-surface/30"],
+.light-theme #pm-history-logs-table span[class*="bg-surface"] {
   background-color: #f1f5f9 !important;
   color: #475569 !important;
   border: 1px solid #cbd5e1 !important;
@@ -2458,7 +2697,7 @@ body {
 
 /* --- PM View Details Modal Light Theme Polish --- */
 .light-theme #pm-detail-info-dialog {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #1e293b !important;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
@@ -2475,7 +2714,7 @@ body {
 }
 
 .light-theme #pm-detail-info-dialog div.bg-\[\#080d1a\] button {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border: 1px solid #cbd5e1 !important;
   color: #475569 !important;
 }
@@ -2486,7 +2725,7 @@ body {
 }
 
 /* Body labels and headings */
-.light-theme #pm-detail-info-dialog h2.text-white {
+.light-theme #pm-detail-info-dialog h2.text-fg {
   color: #0f172a !important;
 }
 
@@ -2524,7 +2763,7 @@ body {
 }
 
 .light-theme #pm-detail-info-dialog div.bg-\[\#050a14\] div.bg-slate-900\/60 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
 }
 
@@ -2563,7 +2802,7 @@ body {
 
 /* Step checks standard steps list */
 .light-theme #pm-detail-info-dialog div.max-h-24 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
 }
 
@@ -2592,7 +2831,7 @@ body {
 
 /* --- PM Form Modal Light Theme Polish --- */
 .light-theme #pm-log-modal-container {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #1e293b !important;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
@@ -2608,7 +2847,7 @@ body {
 }
 
 .light-theme #pm-log-modal-container div.bg-\[\#0a0f1d\] button {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border: 1px solid #cbd5e1 !important;
   color: #475569 !important;
 }
@@ -2624,7 +2863,7 @@ body {
 
 .light-theme #pm-log-modal-container form select,
 .light-theme #pm-log-modal-container form input {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
 }
@@ -2649,12 +2888,12 @@ body {
 }
 
 .light-theme #pm-log-modal-container form div.bg-slate-950 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
 }
 
 .light-theme #pm-log-modal-container form div.bg-slate-950 label.bg-slate-900\/50 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #475569 !important;
 }
@@ -2675,7 +2914,7 @@ body {
 }
 
 .light-theme #pm-log-modal-container form div.border-t button[class*="border-slate-700"] {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #475569 !important;
 }
@@ -2691,7 +2930,7 @@ body {
 }
 
 .light-theme #pm-log-modal-container form div.bg-\[\#050a14\] input {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
 }
 
@@ -2726,7 +2965,7 @@ body {
 }
 
 .light-theme #pm-log-modal-container form div.bg-slate-900\/60 button {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #475569 !important;
 }
@@ -2744,7 +2983,7 @@ body {
 }
 
 .light-theme #pm-log-modal-container form div.border-t button.bg-slate-900 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #475569 !important;
 }
@@ -2757,7 +2996,7 @@ body {
 
 /* --- PM Overdue Alert Modal Light Theme Polish --- */
 .light-theme #pm-overdue-alert-modal-container {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #1e293b !important;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
@@ -2768,7 +3007,7 @@ body {
   border-bottom: 1px solid #cbd5e1 !important;
 }
 
-.light-theme #pm-overdue-alert-modal-container h2.text-white {
+.light-theme #pm-overdue-alert-modal-container h2.text-fg {
   color: #0f172a !important;
 }
 
@@ -2800,13 +3039,13 @@ body {
 }
 
 .light-theme #pm-overdue-alert-modal-container div.bg-slate-900\/40 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #e2e8f0 !important;
 }
 
 .light-theme #pm-overdue-alert-modal-container input,
 .light-theme #pm-overdue-alert-modal-container select {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
 }
@@ -2822,7 +3061,7 @@ body {
 }
 
 .light-theme #pm-overdue-alert-modal-container div.overflow-y-auto > div.rounded-xl {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #e2e8f0 !important;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
 }
@@ -2842,7 +3081,7 @@ body {
   border-color: #fde68a !important;
 }
 
-.light-theme #pm-overdue-alert-modal-container span.text-white {
+.light-theme #pm-overdue-alert-modal-container span.text-fg {
   color: #0f172a !important;
 }
 
@@ -2868,7 +3107,7 @@ body {
 }
 
 .light-theme #pm-overdue-alert-modal-container div.border-t button.bg-slate-800 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border: 1px solid #cbd5e1 !important;
   color: #475569 !important;
 }
@@ -2881,7 +3120,7 @@ body {
 
 /* --- PM Reschedule Modal Light Theme Polish --- */
 .light-theme #pm-reschedule-modal-container {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #1e293b !important;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
@@ -2892,7 +3131,7 @@ body {
   border-bottom: 1px solid #cbd5e1 !important;
 }
 
-.light-theme #pm-reschedule-modal-container h2.text-white {
+.light-theme #pm-reschedule-modal-container h2.text-fg {
   color: #0f172a !important;
 }
 
@@ -2913,7 +3152,7 @@ body {
   color: #475569 !important;
 }
 
-.light-theme #pm-reschedule-modal-container div.bg-rose-500\/10 b.text-white {
+.light-theme #pm-reschedule-modal-container div.bg-rose-500\/10 b.text-fg {
   color: #0f172a !important;
 }
 
@@ -2937,7 +3176,7 @@ body {
 .light-theme #pm-reschedule-modal-container input,
 .light-theme #pm-reschedule-modal-container select,
 .light-theme #pm-reschedule-modal-container textarea {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
 }
@@ -3008,7 +3247,7 @@ body {
 .light-theme #btn-create-improvement {
   background-color: #0284c7 !important;
   background-image: none !important;
-  color: #ffffff !important;
+  color: var(--fg) !important;
 }
 
 .light-theme #btn-create-improvement:hover {
@@ -3017,7 +3256,7 @@ body {
 
 /* Kanban Board Columns */
 .light-theme #kaizen-kanban-board > div {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
 }
@@ -3058,7 +3297,7 @@ body {
 
 /* Kanban Cards */
 .light-theme #kaizen-kanban-board div[id^="kaizen-card-"] {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.02) !important;
 }
@@ -3113,7 +3352,7 @@ body {
 
 /* --- Kaizen Create/Plan Project Modal --- */
 .light-theme #kaizen-create-modal {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #1e293b !important;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
@@ -3145,7 +3384,7 @@ body {
 .light-theme #kaizen-create-modal form input,
 .light-theme #kaizen-create-modal form textarea,
 .light-theme #kaizen-create-modal form select {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
 }
@@ -3172,7 +3411,7 @@ body {
 }
 
 .light-theme #kaizen-create-modal form div.bg-slate-900\/40 label {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #475569 !important;
 }
@@ -3207,7 +3446,7 @@ body {
 }
 
 .light-theme #kaizen-create-modal form div.border-t button[class*="border-slate-700"] {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #475569 !important;
 }
@@ -3218,7 +3457,7 @@ body {
 
 .light-theme #frm-btn-save-imp {
   background-color: #0284c7 !important;
-  color: #ffffff !important;
+  color: var(--fg) !important;
 }
 
 .light-theme #frm-btn-save-imp:hover {
@@ -3228,7 +3467,7 @@ body {
 
 /* --- Kaizen Project Details Modal --- */
 .light-theme #kaizen-detail-modal {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #1e293b !important;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
@@ -3269,7 +3508,7 @@ body {
 }
 
 .light-theme #kaizen-detail-modal div.grid-cols-2 select {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
 }
@@ -3334,7 +3573,7 @@ body {
 }
 
 .light-theme #kaizen-detail-modal div.bg-slate-900\/45 label.bg-slate-900 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #475569 !important;
 }
@@ -3356,7 +3595,7 @@ body {
 }
 
 .light-theme #kaizen-detail-modal div.bg-slate-900\/60 label.bg-cyan-500\/10 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #475569 !important;
 }
@@ -3386,7 +3625,7 @@ body {
 }
 
 .light-theme #kaizen-detail-modal form.bg-slate-900 input {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
 }
@@ -3397,7 +3636,7 @@ body {
 
 .light-theme #btn-add-worklog-row {
   background-color: #0284c7 !important;
-  color: #ffffff !important;
+  color: var(--fg) !important;
 }
 
 .light-theme #btn-add-worklog-row:hover {
@@ -3406,7 +3645,7 @@ body {
 
 /* Sub-logs table */
 .light-theme #kaizen-detail-modal div.bg-slate-950\/20 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
 }
 
@@ -3468,7 +3707,7 @@ body {
 }
 
 .light-theme #kaizen-detail-modal div.bg-slate-900 button[class*="bg-slate-800"] {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #475569 !important;
 }
@@ -3482,7 +3721,7 @@ body {
 /* --- Confirmation Delete Modals --- */
 .light-theme #kaizen-project-delete-modal,
 .light-theme #kaizen-log-delete-modal {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
 }
 
@@ -3498,7 +3737,7 @@ body {
 
 .light-theme #kaizen-project-delete-modal button[class*="bg-slate-805"],
 .light-theme #kaizen-log-delete-modal button[class*="bg-slate-805"] {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #475569 !important;
 }
@@ -3542,7 +3781,7 @@ body {
 }
 
 .light-theme #dashboard-page-root div.bg-slate-950 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
 }
 
@@ -3557,7 +3796,7 @@ body {
 
 /* Top 4 KPI Cards */
 .light-theme #stat-kpi-row-1 > div {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
 }
@@ -3584,7 +3823,7 @@ body {
 
 /* Quick Summary Box & Plant Health Overview */
 .light-theme #dashboard-quick-summary-box {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #bae6fd !important;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04) !important;
 }
@@ -3622,7 +3861,7 @@ body {
 }
 
 .light-theme #plant-health-overview div.bg-slate-900\/40 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
 }
 
@@ -3676,12 +3915,12 @@ body {
 
 /* Quick stats cards */
 .light-theme #dashboard-quick-summary-box div.bg-slate-900\/40.border-slate-750 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
 }
 
 .light-theme #dashboard-quick-summary-box div.bg-slate-900\/40.border-slate-755 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
 }
 
@@ -3710,7 +3949,7 @@ body {
 
 /* --- TAB 1: Live Tab Content --- */
 .light-theme #live-tab-container div.bg-slate-800 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
 }
@@ -3737,7 +3976,7 @@ body {
 }
 
 .light-theme #live-tab-container input[type="date"] {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
 }
@@ -3855,7 +4094,7 @@ body {
 
 /* --- Row B: Technician Workload & Leaderboard --- */
 .light-theme #live-technician input {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
 }
@@ -3874,7 +4113,7 @@ body {
 
 /* Individual workload card */
 .light-theme #live-technician div.bg-slate-900\/60 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.02) !important;
 }
@@ -3941,7 +4180,7 @@ body {
 }
 
 .light-theme #top-performer-leaderboard div.bg-slate-900\/30 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
 }
 
@@ -3964,7 +4203,7 @@ body {
 
 /* Top ranking custom item gradient */
 .light-theme #top-performer-leaderboard div[class*="from-cyan-950/25"] {
-  background-image: linear-gradient(to right, #f0f9ff, #ffffff) !important;
+  background-image: linear-gradient(to right, #f0f9ff, var(--surface)) !important;
   border-color: #bae6fd !important;
 }
 
@@ -4074,19 +4313,19 @@ body {
 }
 
 .light-theme #overall-tabs-container div.bg-slate-850 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
 }
 
 .light-theme #overall-tabs-container select {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
 }
 
 /* Charts card containers */
 .light-theme #overall-tabs-container div.bg-slate-800 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
 }
@@ -4122,7 +4361,7 @@ body {
 
 /* Recharts tooltip overrides for clean light theme */
 .light-theme .recharts-default-tooltip {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
@@ -4139,7 +4378,7 @@ body {
 
 /* Cumulative workload hour boxes */
 .light-theme #workload-cards div.bg-slate-900 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
 }
@@ -4197,7 +4436,7 @@ body {
 
 /* Machine reliability table */
 .light-theme #mach-kpi-detail-table {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
 }
 
@@ -4237,7 +4476,7 @@ body {
 }
 
 .light-theme #tech-profile-card-modal {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
 }
 
@@ -4247,7 +4486,7 @@ body {
   border-bottom: 1px solid #cbd5e1 !important;
 }
 
-.light-theme #tech-profile-card-modal h2.text-white {
+.light-theme #tech-profile-card-modal h2.text-fg {
   color: #0f172a !important;
 }
 
@@ -4264,7 +4503,7 @@ body {
 }
 
 .light-theme #tech-profile-card-modal button[class*="hover:bg-slate-800"] {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #475569 !important;
 }
@@ -4367,15 +4606,15 @@ body {
 
 /* Sub lists containers (Leave & Repairs case details) */
 .light-theme #tech-profile-card-modal div.bg-slate-950\/20 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
 }
 
-.light-theme #tech-profile-card-modal h4.text-white {
+.light-theme #tech-profile-card-modal h4.text-fg {
   color: #0f172a !important;
 }
 
-.light-theme #tech-profile-card-modal h4.text-white + p.text-slate-400 {
+.light-theme #tech-profile-card-modal h4.text-fg + p.text-slate-400 {
   color: #475569 !important;
 }
 
@@ -4384,7 +4623,7 @@ body {
   border-color: #cbd5e1 !important;
 }
 
-.light-theme #tech-profile-card-modal div.bg-slate-900\/60 span.text-white {
+.light-theme #tech-profile-card-modal div.bg-slate-900\/60 span.text-fg {
   color: #1e293b !important;
 }
 
@@ -4436,7 +4675,7 @@ body {
 }
 
 .light-theme #tech-profile-card-modal button.bg-slate-800 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #475569 !important;
 }
@@ -4487,7 +4726,7 @@ body {
 
 /* Date Selector */
 .light-theme #dispatch-page-container div.bg-slate-950 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
 }
 
@@ -4496,7 +4735,7 @@ body {
 }
 
 .light-theme #dispatch-page-container input[type="date"] {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
 }
@@ -4518,7 +4757,7 @@ body {
 .light-theme #dispatch-form-card,
 .light-theme #dispatch-load-card,
 .light-theme #dispatch-board-card {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03) !important;
 }
@@ -4549,7 +4788,7 @@ body {
 }
 
 .light-theme #dispatch-page-container button.bg-slate-900 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
 }
 
@@ -4576,7 +4815,7 @@ body {
 }
 
 .light-theme #dispatch-page-container div.bg-slate-950 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
 }
 
@@ -4614,7 +4853,7 @@ body {
 .light-theme #dispatch-inputs-layout input[type="time"],
 .light-theme #dispatch-inputs-layout select,
 .light-theme #dispatch-inputs-layout textarea {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
 }
@@ -4684,7 +4923,7 @@ body {
 }
 
 .light-theme #dispatch-load-card span.bg-slate-950 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #475569 !important;
 }
@@ -4727,7 +4966,7 @@ body {
 }
 
 .light-theme #dispatch-board-card button.bg-slate-950 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #475569 !important;
 }
@@ -4752,7 +4991,7 @@ body {
 
 /* 1. Edit Modal */
 .light-theme #dispatch-edit-modal {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
 }
 
@@ -4797,7 +5036,7 @@ body {
 .light-theme #dispatch-edit-modal input[type="number"],
 .light-theme #dispatch-edit-modal select,
 .light-theme #dispatch-edit-modal textarea {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
 }
@@ -4813,7 +5052,7 @@ body {
 }
 
 .light-theme #dispatch-edit-modal button.bg-slate-950 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #475569 !important;
 }
@@ -4825,7 +5064,7 @@ body {
 
 /* 2. PM Closure Modal */
 .light-theme #dispatch-pm-closure-modal {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
 }
 
@@ -4861,7 +5100,7 @@ body {
 }
 
 .light-theme #dispatch-pm-closure-modal input[type="number"] {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
 }
@@ -4889,7 +5128,7 @@ body {
 }
 
 .light-theme #dispatch-pm-closure-modal button.bg-slate-950 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #475569 !important;
 }
@@ -4903,7 +5142,7 @@ body {
 .light-theme #dispatch-sched-delete-modal,
 .light-theme #dispatch-repair-delete-modal,
 .light-theme #dispatch-imp-delete-modal {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
 }
 
@@ -4922,7 +5161,7 @@ body {
 .light-theme #dispatch-sched-delete-modal button.bg-slate-805,
 .light-theme #dispatch-repair-delete-modal button.bg-slate-805,
 .light-theme #dispatch-imp-delete-modal button.bg-slate-805 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #475569 !important;
 }
@@ -4984,7 +5223,7 @@ body {
 
 /* 2. Statistical KPI Cards */
 .light-theme #setup-workload-container div.grid-cols-1.sm:grid-cols-2.lg:grid-cols-4 > div.bg-slate-900 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
 }
@@ -5013,13 +5252,13 @@ body {
   color: #15803d !important;
 }
 
-.light-theme #setup-workload-container div.grid-cols-1.sm:grid-cols-2.lg:grid-cols-4 p.text-white {
+.light-theme #setup-workload-container div.grid-cols-1.sm:grid-cols-2.lg:grid-cols-4 p.text-fg {
   color: #0f172a !important;
 }
 
 /* 3. Form Container */
 .light-theme #setup-form-section div.bg-slate-900 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05) !important;
 }
@@ -5050,7 +5289,7 @@ body {
 .light-theme #setup-form-section input[type="date"],
 .light-theme #setup-form-section select,
 .light-theme #setup-form-section textarea {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
 }
@@ -5069,7 +5308,7 @@ body {
 }
 
 .light-theme #setup-form-section div.bg-slate-950\/45 div.bg-slate-950 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
 }
 
@@ -5095,7 +5334,7 @@ body {
   border-color: #cbd5e1 !important;
 }
 
-.light-theme #setup-form-section div.bg-slate-950\/20 label.text-white {
+.light-theme #setup-form-section div.bg-slate-950\/20 label.text-fg {
   color: #0f172a !important;
 }
 
@@ -5105,7 +5344,7 @@ body {
 
 /* Single Step row */
 .light-theme #setup-form-section div.bg-slate-900.border-slate-800 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
 }
 
@@ -5120,13 +5359,13 @@ body {
 
 .light-theme #setup-form-section button.border-slate-700.bg-slate-950 {
   border-color: #cbd5e1 !important;
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
 }
 
 .light-theme #setup-form-section button.bg-cyan-500.border-cyan-400 {
   background-color: #0284c7 !important;
   border-color: #0284c7 !important;
-  color: #ffffff !important;
+  color: var(--fg) !important;
 }
 
 .light-theme #setup-form-section span.text-slate-200 {
@@ -5134,7 +5373,7 @@ body {
 }
 
 .light-theme #setup-form-section input[type="number"] {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
 }
@@ -5164,7 +5403,7 @@ body {
 
 .light-theme #setup-form-section div.bg-slate-950\/70 input[type="text"],
 .light-theme #setup-form-section div.bg-slate-950\/70 input[type="number"] {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
 }
@@ -5175,7 +5414,7 @@ body {
 
 .light-theme #setup-form-section div.bg-slate-950\/70 button.bg-cyan-500 {
   background-color: #0284c7 !important;
-  color: #ffffff !important;
+  color: var(--fg) !important;
 }
 
 .light-theme #setup-form-section div.bg-slate-950\/70 button.bg-cyan-500:hover {
@@ -5191,13 +5430,13 @@ body {
   color: #475569 !important;
 }
 
-.light-theme #setup-form-section div.border-t.border-t-slate-800 span.text-white {
+.light-theme #setup-form-section div.border-t.border-t-slate-800 span.text-fg {
   color: #0f172a !important;
 }
 
 /* Form bottom button section */
 .light-theme #setup-form-section button.bg-slate-950 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #475569 !important;
 }
@@ -5209,7 +5448,7 @@ body {
 
 .light-theme #setup-form-section button.bg-cyan-500.text-slate-950 {
   background-color: #0284c7 !important;
-  color: #ffffff !important;
+  color: var(--fg) !important;
 }
 
 .light-theme #setup-form-section button.bg-cyan-500.text-slate-950:hover {
@@ -5219,12 +5458,12 @@ body {
 
 /* 4. Logs List & History Panel (Right Component) */
 .light-theme #setup-workload-container div.lg\:col-span-7 > div.bg-slate-900 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05) !important;
 }
 
-.light-theme #setup-workload-container div.lg\:col-span-7 h2.text-white {
+.light-theme #setup-workload-container div.lg\:col-span-7 h2.text-fg {
   color: #0f172a !important;
 }
 
@@ -5253,7 +5492,7 @@ body {
 
 .light-theme #setup-workload-container div.grid-cols-1.sm:grid-cols-3 select,
 .light-theme #setup-workload-container div.grid-cols-1.sm:grid-cols-3 input {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
 }
@@ -5277,7 +5516,7 @@ body {
   border-bottom-color: #e2e8f0 !important;
 }
 
-.light-theme #setup-workload-container div.bg-\[\#0b1222\] span.text-white {
+.light-theme #setup-workload-container div.bg-\[\#0b1222\] span.text-fg {
   color: #0f172a !important;
 }
 
@@ -5304,14 +5543,14 @@ body {
 }
 
 .light-theme #setup-workload-container div.bg-\[\#0b1222\] span.bg-slate-950 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #475569 !important;
 }
 
 /* Edit and delete icon buttons on log card */
 .light-theme #setup-workload-container div.bg-\[\#0b1222\] button.bg-slate-900 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #475569 !important;
 }
@@ -5330,7 +5569,7 @@ body {
 
 /* Dynamic Steps block inside log cards */
 .light-theme #setup-workload-container div.bg-\[\#0b1222\] div.bg-slate-950\/40 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #e2e8f0 !important;
 }
 
@@ -5407,7 +5646,7 @@ body {
 }
 
 .light-theme #setup-workload-container div.bg-\[\#0b1222\]\/50 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #e2e8f0 !important;
 }
 
@@ -5447,7 +5686,7 @@ body {
 }
 
 .light-theme #setup-log-detail-modal {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #1e293b !important;
 }
@@ -5505,13 +5744,13 @@ body {
   color: #0284c7 !important;
 }
 
-.light-theme #setup-log-detail-modal div.bg-slate-950\/40 span.text-white {
+.light-theme #setup-log-detail-modal div.bg-slate-950\/40 span.text-fg {
   color: #0f172a !important;
 }
 
 /* Steps Table */
 .light-theme #setup-log-detail-modal div.bg-slate-950\/30 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #e2e8f0 !important;
 }
 
@@ -5595,7 +5834,7 @@ body {
   color: #475569 !important;
 }
 
-.light-theme #setup-workload-container div.bg-slate-950\/45 span.text-white {
+.light-theme #setup-workload-container div.bg-slate-950\/45 span.text-fg {
   color: #0f172a !important;
 }
 
@@ -5634,7 +5873,7 @@ body {
 .light-theme #executive-presentation-dashboard h2,
 .light-theme #executive-presentation-dashboard h3,
 .light-theme #executive-presentation-dashboard h4,
-.light-theme #executive-presentation-dashboard .text-white,
+.light-theme #executive-presentation-dashboard .text-fg,
 .light-theme #executive-presentation-dashboard .font-bold,
 .light-theme #executive-presentation-dashboard .font-black {
   color: #0f172a !important;
@@ -5678,12 +5917,12 @@ body {
 
 .light-theme #executive-presentation-dashboard button.bg-cyan-500 {
   background-color: #0284c7 !important;
-  color: #ffffff !important;
+  color: var(--fg) !important;
 }
 
 /* 2. Statistical KPI Cards */
 .light-theme #executive-presentation-dashboard div.grid-cols-1.md:grid-cols-3 > div.bg-slate-900 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03) !important;
 }
@@ -5712,7 +5951,7 @@ body {
 
 /* 3. Quick Analysis Slide & Recommendations */
 .light-theme #executive-presentation-dashboard div.bg-\[\#0c1424\] {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
 }
@@ -5723,7 +5962,7 @@ body {
 }
 
 .light-theme #executive-presentation-dashboard div.bg-slate-900 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
 }
 
@@ -5739,7 +5978,7 @@ body {
 
 /* 4. PM & Repair Lists & Chart Containers */
 .light-theme #executive-presentation-dashboard div.bg-slate-900.border-slate-800 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
 }
 
@@ -5773,7 +6012,7 @@ body {
 }
 
 .light-theme #executive-presentation-dashboard div.bg-slate-950\/80 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
 }
@@ -5785,7 +6024,7 @@ body {
 
 .light-theme #executive-presentation-dashboard input[type="text"],
 .light-theme #executive-presentation-dashboard textarea {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
 }
@@ -5802,7 +6041,7 @@ body {
 
 /* 5. Setup Analysis Table and Forms */
 .light-theme #executive-presentation-dashboard div.bg-\[\#0a0e1a\] {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
 }
@@ -5823,12 +6062,12 @@ body {
   color: #334155 !important;
 }
 
-.light-theme #executive-presentation-dashboard td span.text-white {
+.light-theme #executive-presentation-dashboard td span.text-fg {
   color: #0f172a !important;
 }
 
 .light-theme #executive-presentation-dashboard div.bg-slate-950\/80 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
 }
 
@@ -5856,13 +6095,13 @@ body {
 }
 
 .light-theme #executive-presentation-dashboard div.bg-slate-950\/70 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
 }
 
 /* 7. Double-Click Repair History Modal */
 .light-theme #repair-history-modal {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
 }
@@ -5872,9 +6111,9 @@ body {
   border-bottom-color: #cbd5e1 !important;
 }
 
-.light-theme #repair-history-modal h2.text-white,
+.light-theme #repair-history-modal h2.text-fg,
 .light-theme #repair-history-modal h2,
-.light-theme #repair-history-modal h3.text-white,
+.light-theme #repair-history-modal h3.text-fg,
 .light-theme #repair-history-modal h3 {
   color: #0f172a !important;
 }
@@ -5915,12 +6154,12 @@ body {
   border-color: #cbd5e1 !important;
 }
 
-.light-theme #repair-history-modal div.bg-slate-950\/50 span.text-white {
+.light-theme #repair-history-modal div.bg-slate-950\/50 span.text-fg {
   color: #0f172a !important;
 }
 
 .light-theme #repair-history-modal div.bg-slate-950\/50 div.bg-slate-900\/30 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
 }
 
@@ -5929,7 +6168,7 @@ body {
 }
 
 .light-theme #repair-history-modal div.bg-slate-900 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
 }
 
@@ -5950,7 +6189,7 @@ body {
 .light-theme #offline-guide-container h2,
 .light-theme #offline-guide-container h3,
 .light-theme #offline-guide-container h4,
-.light-theme #offline-guide-container .text-white,
+.light-theme #offline-guide-container .text-fg,
 .light-theme #offline-guide-container .font-bold,
 .light-theme #offline-guide-container .font-black {
   color: #0f172a !important;
@@ -5977,14 +6216,14 @@ body {
 /* 1. Header Banner */
 .light-theme #offline-guide-container div.bg-gradient-to-r.from-slate-900.to-slate-950 {
   background-image: none !important;
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
 }
 
 /* 2. Safety & Security Highlights */
 .light-theme #offline-guide-container div.grid-cols-1.md:grid-cols-3 > div.bg-slate-900 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
 }
@@ -5997,7 +6236,7 @@ body {
 }
 
 .light-theme #offline-guide-container div.bg-slate-950\/80 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
 }
 
@@ -6008,7 +6247,7 @@ body {
 
 /* 4. Local Backup & Restore Control Panel */
 .light-theme #backup-restore-panel {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
 }
@@ -6024,7 +6263,7 @@ body {
 }
 
 .light-theme #backup-restore-panel .bg-slate-950\/80 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #e2e8f0 !important;
 }
 
@@ -6034,7 +6273,7 @@ body {
 }
 
 .light-theme #backup-restore-panel #import-json-backup-btn {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #334155 !important;
 }
@@ -6046,7 +6285,7 @@ body {
 
 /* 5. Main Guidelines & Steps */
 .light-theme #offline-guide-container div.lg-col-span-8 > div.bg-slate-900 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
 }
@@ -6071,7 +6310,7 @@ body {
 
 /* 6. Info & Data Management Sidebar */
 .light-theme #offline-guide-container div.lg-col-span-4 > div.bg-slate-900 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
 }
@@ -6114,7 +6353,7 @@ body {
 .preset-btn:hover {
   background-color: #06b6d4 !important;
   border-color: #06b6d4 !important;
-  color: #ffffff !important;
+  color: var(--fg) !important;
   transform: translateY(-1px) !important;
   box-shadow: 0 4px 6px rgba(6, 182, 212, 0.2) !important;
 }
@@ -6131,7 +6370,7 @@ body {
 .light-theme .preset-btn:hover {
   background-color: #2563eb !important;
   border-color: #1d4ed8 !important;
-  color: #ffffff !important;
+  color: var(--fg) !important;
   transform: translateY(-1px) !important;
   box-shadow: 0 4px 6px rgba(37, 99, 235, 0.15) !important;
 }
@@ -6189,7 +6428,7 @@ body {
 }
 
 .light-theme .duration-badge-box {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05) !important;
 }
@@ -6230,7 +6469,7 @@ body {
 /* Custom Light Theme overrides for Setup & Tuning Modals */
 .light-theme #setup-edit-modal,
 .light-theme #setup-delete-modal {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #1e293b !important;
 }
@@ -6299,7 +6538,7 @@ body {
 }
 
 .light-theme #offline-guide-container div.bg-gradient-to-r.from-slate-900.to-slate-950 {
-  background: linear-gradient(to right, #ffffff, #f1f5f9) !important;
+  background: linear-gradient(to right, var(--surface), #f1f5f9) !important;
   border-color: #cbd5e1 !important;
 }
 
@@ -6312,7 +6551,7 @@ body {
 }
 
 .light-theme #offline-guide-container div.bg-slate-900 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
 }
 
@@ -6332,7 +6571,7 @@ body {
 }
 
 .light-theme #offline-guide-container div.bg-gradient-to-r.from-cyan-950\/40 {
-  background: linear-gradient(to right, #f0f9ff, #ffffff, #f0f9ff) !important;
+  background: linear-gradient(to right, #f0f9ff, var(--surface), #f0f9ff) !important;
   border-color: #bae6fd !important;
 }
 
@@ -6354,7 +6593,7 @@ body {
 }
 
 .light-theme #offline-guide-container div.bg-slate-950\/80 div.bg-slate-900 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #16a34a !important;
 }
@@ -6365,7 +6604,7 @@ body {
   color: #475569 !important;
 }
 
-.light-theme #offline-guide-container div.bg-slate-950\/80.font-mono span.text-white {
+.light-theme #offline-guide-container div.bg-slate-950\/80.font-mono span.text-fg {
   color: #0f172a !important;
 }
 
@@ -6379,7 +6618,7 @@ body {
   color: #475569 !important;
 }
 
-.light-theme #offline-guide-container div.bg-slate-950\/40 span.text-white {
+.light-theme #offline-guide-container div.bg-slate-950\/40 span.text-fg {
   color: #0f172a !important;
 }
 
@@ -6423,7 +6662,7 @@ body {
   color: #475569 !important;
 }
 
-.light-theme #offline-guide-container div.bg-slate-950\/60 span.text-white {
+.light-theme #offline-guide-container div.bg-slate-950\/60 span.text-fg {
   color: #0f172a !important;
 }
 
@@ -6459,7 +6698,7 @@ body {
 }
 
 .light-theme #settings-modal {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #1e293b !important;
 }
@@ -6498,7 +6737,7 @@ body {
 
 .light-theme #settings-modal div.w-48 button[class*="bg-cyan-500"] {
   background-color: #0284c7 !important;
-  color: #ffffff !important;
+  color: var(--fg) !important;
 }
 
 .light-theme #settings-modal h4 {
@@ -6517,7 +6756,7 @@ body {
 .light-theme #settings-modal input[type="text"],
 .light-theme #settings-modal input[type="number"],
 .light-theme #settings-modal textarea {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
 }
@@ -6529,7 +6768,7 @@ body {
 
 .light-theme #settings-modal button[class*="bg-cyan-500"]:not([class*="bg-cyan-500/10"]) {
   background-color: #0284c7 !important;
-  color: #ffffff !important;
+  color: var(--fg) !important;
 }
 
 .light-theme #settings-modal button[class*="bg-cyan-500"]:not([class*="bg-cyan-500/10"]):hover {
@@ -6562,7 +6801,7 @@ body {
 }
 
 .light-theme #settings-modal tbody td input {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
 }
@@ -6612,7 +6851,7 @@ body {
 
 .light-theme #settings-modal button[class*="bg-emerald-500"] {
   background-color: #16a34a !important;
-  color: #ffffff !important;
+  color: var(--fg) !important;
 }
 
 .light-theme #settings-modal button[class*="bg-emerald-500"]:hover {
@@ -6634,7 +6873,7 @@ body {
   color: #334155 !important;
 }
 
-.light-theme #inventory-page-root h2.text-white {
+.light-theme #inventory-page-root h2.text-fg {
   color: #0f172a !important;
 }
 
@@ -6643,7 +6882,7 @@ body {
 }
 
 .light-theme #inventory-page-root button.bg-slate-900 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #334155 !important;
 }
@@ -6655,7 +6894,7 @@ body {
 
 /* KPI Stat Cards */
 .light-theme #inventory-stats-row > div {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
 }
@@ -6714,7 +6953,7 @@ body {
 
 .light-theme #inventory-filter-bar input[type="text"],
 .light-theme #inventory-filter-bar select {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
 }
@@ -6724,7 +6963,7 @@ body {
 }
 
 .light-theme #inventory-filter-bar select option {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   color: #0f172a !important;
 }
 
@@ -6759,7 +6998,7 @@ body {
 
 /* Main Table Container */
 .light-theme #inventory-table-container {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05) !important;
 }
@@ -6778,7 +7017,7 @@ body {
   border-color: #cbd5e1 !important;
 }
 
-.light-theme #inventory-table-container div.bg-slate-950 b.text-white {
+.light-theme #inventory-table-container div.bg-slate-950 b.text-fg {
   color: #0f172a !important;
 }
 
@@ -6832,7 +7071,7 @@ body {
 }
 
 .light-theme #inventory-data-table input[type="checkbox"] {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
 }
 
@@ -6840,7 +7079,7 @@ body {
   color: #0284c7 !important;
 }
 
-.light-theme #inventory-data-table td p.text-white {
+.light-theme #inventory-data-table td p.text-fg {
   color: #0f172a !important;
 }
 
@@ -6945,7 +7184,7 @@ body {
 .light-theme #inventory-edit-modal,
 .light-theme #inventory-stock-modal,
 .light-theme #inventory-import-modal {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #1e293b !important;
 }
@@ -6990,7 +7229,7 @@ body {
 .light-theme #inventory-stock-modal input,
 .light-theme #inventory-stock-modal select,
 .light-theme #inventory-import-modal select {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
 }
@@ -7079,7 +7318,7 @@ body {
   color: #334155 !important;
 }
 
-.light-theme #inventory-import-modal div.bg-slate-900\/50 h4.text-white {
+.light-theme #inventory-import-modal div.bg-slate-900\/50 h4.text-fg {
   color: #0f172a !important;
 }
 
@@ -7133,7 +7372,7 @@ body {
 /* Add Machine Button */
 .light-theme #mach-page-root #btn-add-machine {
   background: linear-gradient(to right, #0284c7, #2563eb) !important;
-  color: #ffffff !important;
+  color: var(--fg) !important;
 }
 
 .light-theme #mach-page-root #btn-add-machine:hover {
@@ -7147,7 +7386,7 @@ body {
 }
 
 .light-theme #mach-page-root #machine-search-input {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
 }
@@ -7166,7 +7405,7 @@ body {
 
 /* Machine list table container */
 .light-theme #mach-page-root div.bg-slate-800.border-slate-700 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05) !important;
 }
@@ -7199,11 +7438,11 @@ body {
   font-weight: 700 !important;
 }
 
-.light-theme #machine-data-table tbody td span.text-white {
+.light-theme #machine-data-table tbody td span.text-fg {
   color: #0f172a !important;
 }
 
-.light-theme #machine-data-table tbody td p.text-white {
+.light-theme #machine-data-table tbody td p.text-fg {
   color: #0f172a !important;
 }
 
@@ -7307,7 +7546,7 @@ body {
 .light-theme #machine-add-modal,
 .light-theme #machine-edit-modal,
 .light-theme #machine-delete-modal {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #1e293b !important;
 }
@@ -7353,7 +7592,7 @@ body {
 .light-theme #machine-edit-modal input[type="text"],
 .light-theme #machine-edit-modal input[type="number"],
 .light-theme #machine-edit-modal select {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
 }
@@ -7380,7 +7619,7 @@ body {
 
 .light-theme #machine-add-modal button[type="submit"] {
   background-color: #16a34a !important;
-  color: #ffffff !important;
+  color: var(--fg) !important;
 }
 
 .light-theme #machine-add-modal button[type="submit"]:hover {
@@ -7389,7 +7628,7 @@ body {
 
 .light-theme #machine-edit-modal button[type="submit"] {
   background-color: #0284c7 !important;
-  color: #ffffff !important;
+  color: var(--fg) !important;
 }
 
 .light-theme #machine-edit-modal button[type="submit"]:hover {
@@ -7439,7 +7678,7 @@ body {
 
 .light-theme #machine-delete-modal button.bg-rose-600 {
   background-color: #dc2626 !important;
-  color: #ffffff !important;
+  color: var(--fg) !important;
 }
 
 .light-theme #machine-delete-modal button.bg-rose-600:hover {
@@ -7451,7 +7690,7 @@ body {
 
 .light-theme #cell-click-add-task-modal-container,
 .light-theme #quick-pm-mng-modal-container {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #1e293b !important;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
@@ -7536,7 +7775,7 @@ body {
 .light-theme #cell-click-add-task-modal-container form textarea,
 .light-theme #quick-pm-mng-modal-container form select,
 .light-theme #quick-pm-mng-modal-container form input {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
 }
@@ -7578,7 +7817,7 @@ body {
 
 .light-theme #cell-click-add-task-modal-container form div.bg-slate-950\/60,
 .light-theme #quick-pm-mng-modal-container form div.bg-slate-950\/60 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
 }
 
@@ -7626,7 +7865,7 @@ body {
 
 .light-theme #cell-click-add-task-modal-container form div.border-t button[class*="border-slate-700"],
 .light-theme #quick-pm-mng-modal-container form div.border-t button[class*="border-slate-700"] {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #475569 !important;
 }
@@ -7640,7 +7879,7 @@ body {
 .light-theme #cell-click-add-task-modal-container form div.border-t button[type="submit"],
 .light-theme #quick-pm-mng-modal-container form div.border-t button[type="submit"] {
   background-color: #0284c7 !important;
-  color: #ffffff !important;
+  color: var(--fg) !important;
 }
 
 .light-theme #cell-click-add-task-modal-container form div.border-t button[type="submit"]:hover,
@@ -7656,7 +7895,7 @@ body {
 }
 
 .light-theme #quick-pm-mng-modal-container div.bg-rose-500\/15 button[class*="bg-slate-750"] {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #475569 !important;
 }
@@ -7672,7 +7911,7 @@ body {
 }
 
 .light-theme #dispatch-page-container > div:first-child {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
 }
@@ -7683,7 +7922,7 @@ body {
 }
 
 .light-theme #dispatch-page-container div.bg-slate-950 input {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #0284c7 !important;
 }
@@ -7704,7 +7943,7 @@ body {
 
 .light-theme #dispatch-form-card,
 .light-theme #technicians-workloads-card {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
 }
@@ -7719,7 +7958,7 @@ body {
 }
 
 .light-theme #dispatch-form-card div.grid-cols-4 button[class*="bg-slate-900"] {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
 }
@@ -7727,7 +7966,7 @@ body {
 .light-theme #dispatch-form-card input,
 .light-theme #dispatch-form-card select,
 .light-theme #dispatch-form-card textarea {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
 }
@@ -7745,7 +7984,7 @@ body {
 }
 
 .light-theme #dispatch-form-card div.bg-slate-950\/60 label {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #475569 !important;
 }
@@ -7761,7 +8000,7 @@ body {
 }
 
 .light-theme #technicians-workloads-card div.bg-slate-950 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
 }
 
@@ -7779,7 +8018,7 @@ body {
 
 /* Summary tab elements */
 .light-theme #dispatch-summary-container div.bg-slate-900\/50 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
 }
@@ -7794,7 +8033,7 @@ body {
 }
 
 .light-theme #department-analytical-summary-card {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
 }
@@ -7843,19 +8082,19 @@ body {
 
 .light-theme #department-analytical-summary-card div.bg-slate-955\/55 div.bg-slate-900\/35,
 .light-theme #department-analytical-summary-card div.bg-slate-950\/55 div.bg-slate-900\/35 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #e2e8f0 !important;
 }
 
 .light-theme #summary-filters-bar {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
 }
 
 .light-theme #summary-filters-bar input,
 .light-theme #summary-filters-bar select {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
 }
@@ -7873,12 +8112,12 @@ body {
 }
 
 .light-theme #summary-filters-bar option {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   color: #0f172a !important;
 }
 
 .light-theme #summary-data-table-card {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05) !important;
 }
@@ -7943,7 +8182,7 @@ body {
 }
 
 .light-theme #summary-data-table-card table tbody td button.bg-slate-950 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #334155 !important;
 }
@@ -7958,7 +8197,7 @@ body {
 }
 
 .light-theme #summary-data-table-card div.md\:hidden {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
 }
 
 .light-theme #summary-data-table-card div.md\:hidden > div {
@@ -7990,7 +8229,7 @@ body {
 }
 
 .light-theme #technician-portfolio-page #btn-print-portfolio {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #334155 !important;
 }
@@ -8002,11 +8241,11 @@ body {
 
 .light-theme #technician-portfolio-page #btn-export-portfolio-pdf {
   background-color: #e11d48 !important;
-  color: #ffffff !important;
+  color: var(--fg) !important;
 }
 
 .light-theme #technician-portfolio-page #btn-preview-portfolio-pdf {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #334155 !important;
 }
@@ -8017,7 +8256,7 @@ body {
 }
 
 .light-theme #portfolio-pdf-modal-header {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #e2e8f0 !important;
 }
 
@@ -8042,12 +8281,12 @@ body {
 
 .light-theme #modal-btn-download-pdf {
   background-color: #e11d48 !important;
-  color: #ffffff !important;
+  color: var(--fg) !important;
 }
 
 .light-theme #modal-btn-export-excel {
   background-color: #059669 !important;
-  color: #ffffff !important;
+  color: var(--fg) !important;
 }
 
 .light-theme #modal-btn-close-pdf {
@@ -8067,8 +8306,8 @@ body {
 @media print {
   /* Hide all app chrome, navigation, headers, footers, and modal backgrounds */
   body {
-    background-color: #ffffff !important;
-    color: #000000 !important;
+    background-color: var(--surface) !important;
+    color: var(--fg) !important;
     margin: 0 !important;
     padding: 0 !important;
     -webkit-print-color-adjust: exact !important;
@@ -8099,7 +8338,7 @@ body {
   }
 
   .bg-slate-900.border.rounded-2xl.w-full {
-    background: #ffffff !important;
+    background: var(--surface) !important;
     border: none !important;
     box-shadow: none !important;
     max-height: none !important;
@@ -8109,7 +8348,7 @@ body {
   }
 
   #portfolio-printable-document {
-    background-color: #ffffff !important;
+    background-color: var(--surface) !important;
     color: #0f172a !important;
     padding: 0 !important;
     margin: 0 !important;
@@ -8165,14 +8404,14 @@ body {
 
 /* 2. Technician Selector & Profile Container */
 .light-theme #technician-portfolio-page .bg-slate-900 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04) !important;
 }
 
 /* Technician Selection Buttons */
 .light-theme #technician-portfolio-page button[id^="tech-select-btn-"] {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #334155 !important;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03) !important;
@@ -8197,22 +8436,22 @@ body {
 .light-theme #technician-portfolio-page button[id^="tech-select-btn-"].bg-cyan-500 {
   background-color: #0284c7 !important;
   border-color: #0284c7 !important;
-  color: #ffffff !important;
+  color: var(--fg) !important;
   box-shadow: 0 4px 6px -1px rgba(2, 132, 199, 0.25) !important;
 }
 
 .light-theme #technician-portfolio-page button[id^="tech-select-btn-"].bg-cyan-500 div {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   color: #0284c7 !important;
 }
 
 .light-theme #technician-portfolio-page button[id^="tech-select-btn-"].bg-cyan-500 p {
-  color: #ffffff !important;
+  color: var(--fg) !important;
 }
 
 .light-theme #technician-portfolio-page button[id^="tech-select-btn-"].bg-cyan-500 span {
   background-color: #0369a1 !important;
-  color: #ffffff !important;
+  color: var(--fg) !important;
 }
 
 /* Scrollbar styling for Light Mode */
@@ -8248,7 +8487,7 @@ body {
 
 /* Quick Metrics Bar */
 .light-theme #technician-portfolio-page .bg-slate-900\/90 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
 }
 
@@ -8279,27 +8518,27 @@ body {
 
 .light-theme #tab-btn-all.bg-cyan-500 {
   background-color: #0284c7 !important;
-  color: #ffffff !important;
+  color: var(--fg) !important;
 }
 
 .light-theme #tab-btn-kaizen.bg-amber-500 {
   background-color: #d97706 !important;
-  color: #ffffff !important;
+  color: var(--fg) !important;
 }
 
 .light-theme #tab-btn-repairs.bg-emerald-500 {
   background-color: #059669 !important;
-  color: #ffffff !important;
+  color: var(--fg) !important;
 }
 
 .light-theme #tab-btn-pm-setup.bg-purple-500 {
   background-color: #7c3aed !important;
-  color: #ffffff !important;
+  color: var(--fg) !important;
 }
 
 .light-theme #kaizen-status-filter,
 .light-theme #input-search-portfolio {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
 }
@@ -8332,7 +8571,7 @@ body {
 /* Modal in Light Mode */
 .light-theme #technician-portfolio-page .fixed .bg-slate-900,
 .light-theme .fixed .bg-slate-900 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
@@ -8354,7 +8593,7 @@ body {
 .light-theme .fixed input,
 .light-theme .fixed select,
 .light-theme .fixed textarea {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
 }
@@ -8388,13 +8627,13 @@ body {
 
 .light-theme .fixed a.bg-slate-800 {
   background-color: #0284c7 !important;
-  color: #ffffff !important;
+  color: var(--fg) !important;
   border: 1px solid #0284c7 !important;
 }
 
 .light-theme .fixed a.bg-slate-800:hover {
   background-color: #0369a1 !important;
-  color: #ffffff !important;
+  color: var(--fg) !important;
 }
 
 .light-theme .fixed .border-slate-800 {
@@ -8415,7 +8654,7 @@ body {
 
 /* 1. Header Card */
 .light-theme #cd5-header-card {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #e2e8f0 !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
 }
@@ -8448,12 +8687,12 @@ body {
 
 /* 2. KPI Cards Grid */
 .light-theme #cd5-kpi-grid > div {
-  background: #ffffff !important;
+  background: var(--surface) !important;
   border-color: #e2e8f0 !important;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04) !important;
 }
 
-.light-theme #cd5-kpi-grid .text-white {
+.light-theme #cd5-kpi-grid .text-fg {
   color: #0f172a !important;
 }
 
@@ -8483,7 +8722,7 @@ body {
 
 /* 3. Filter Card */
 .light-theme #cd5-filter-card {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #e2e8f0 !important;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03) !important;
 }
@@ -8518,7 +8757,7 @@ body {
 
 /* 4. Grid Cards */
 .light-theme #cd5-grid-container > div {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #e2e8f0 !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
 }
@@ -8534,7 +8773,7 @@ body {
   border-color: #e2e8f0 !important;
 }
 
-.light-theme #cd5-grid-container h3.text-white {
+.light-theme #cd5-grid-container h3.text-fg {
   color: #0f172a !important;
 }
 
@@ -8563,7 +8802,7 @@ body {
 
 /* Card Lifespan Banner Area */
 .light-theme #cd5-grid-container .bg-slate-950\/30 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
 }
 
 /* Card Specs Comparison Box Area */
@@ -8597,7 +8836,7 @@ body {
 .light-theme #cd5-grid-container .bg-rose-950\/10 .bg-slate-950\/80,
 .light-theme #cd5-detail-modal .bg-rose-950\/10 p.bg-slate-900\/60,
 .light-theme #cd5-detail-modal .bg-rose-950\/10 .bg-slate-900\/60 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #fecdd3 !important;
   color: #9f1239 !important;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03) !important;
@@ -8606,7 +8845,7 @@ body {
 /* Original Photo Container */
 .light-theme #cd5-grid-container .bg-rose-950\/10 .bg-slate-950,
 .light-theme #cd5-detail-modal .bg-rose-950\/10 .bg-slate-950 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #fecdd3 !important;
 }
 
@@ -8645,7 +8884,7 @@ body {
 .light-theme #cd5-grid-container .bg-emerald-950\/10 .bg-slate-950\/80,
 .light-theme #cd5-detail-modal .bg-emerald-950\/10 p.bg-slate-900\/60,
 .light-theme #cd5-detail-modal .bg-emerald-950\/10 .bg-slate-900\/60 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #bbf7d0 !important;
   color: #166534 !important;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03) !important;
@@ -8654,7 +8893,7 @@ body {
 /* New Photo & CAD Containers */
 .light-theme #cd5-grid-container .bg-emerald-950\/10 .bg-slate-950,
 .light-theme #cd5-detail-modal .bg-emerald-950\/10 .bg-slate-950 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #bbf7d0 !important;
 }
 
@@ -8708,7 +8947,7 @@ body {
   border-color: #e2e8f0 !important;
 }
 
-.light-theme #cd5-lifespan-meter .text-white {
+.light-theme #cd5-lifespan-meter .text-fg {
   color: #0f172a !important;
 }
 
@@ -8742,13 +8981,13 @@ body {
 
 .light-theme #cd5-lifespan-meter .bg-slate-900\/70,
 .light-theme #cd5-lifespan-meter .bg-slate-900\/90 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #e2e8f0 !important;
 }
 
 /* 6. Tabular View */
 .light-theme #cd5-table-container {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #e2e8f0 !important;
 }
 
@@ -8770,7 +9009,7 @@ body {
   background-color: #f8fafc !important;
 }
 
-.light-theme #cd5-table-container .text-white {
+.light-theme #cd5-table-container .text-fg {
   color: #0f172a !important;
 }
 
@@ -8782,7 +9021,7 @@ body {
 .light-theme #cd5-add-edit-modal > div,
 .light-theme #cd5-detail-modal > div,
 .light-theme #cd5-usage-history-modal > div {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #e2e8f0 !important;
   color: #0f172a !important;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
@@ -8795,9 +9034,9 @@ body {
   border-color: #e2e8f0 !important;
 }
 
-.light-theme #cd5-add-edit-modal h2.text-white,
-.light-theme #cd5-detail-modal h2.text-white,
-.light-theme #cd5-usage-history-modal h2.text-white {
+.light-theme #cd5-add-edit-modal h2.text-fg,
+.light-theme #cd5-detail-modal h2.text-fg,
+.light-theme #cd5-usage-history-modal h2.text-fg {
   color: #0f172a !important;
 }
 
@@ -8812,7 +9051,7 @@ body {
 .light-theme #cd5-usage-history-modal input,
 .light-theme #cd5-usage-history-modal select,
 .light-theme #cd5-usage-history-modal textarea {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
 }
@@ -8929,7 +9168,7 @@ body {
   border-color: #e2e8f0 !important;
 }
 
-.light-theme #cd5-add-edit-modal .bg-slate-900\/80 .text-white {
+.light-theme #cd5-add-edit-modal .bg-slate-900\/80 .text-fg {
   color: #0f172a !important;
 }
 
@@ -8950,7 +9189,7 @@ body {
 }
 
 .light-theme #cd5-add-edit-modal input.bg-slate-900 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
 }
@@ -8980,7 +9219,7 @@ body {
 .light-theme #cd5-usage-history-modal .bg-slate-950,
 .light-theme #cd5-usage-history-modal .bg-slate-950\/80,
 .light-theme #cd5-usage-history-modal .bg-slate-950\/60 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #e2e8f0 !important;
 }
 
@@ -9056,7 +9295,7 @@ body {
   border-color: #bae6fd !important;
 }
 
-.light-theme #cd5-usage-history-modal .text-white {
+.light-theme #cd5-usage-history-modal .text-fg {
   color: #0f172a !important;
 }
 
@@ -9112,7 +9351,7 @@ body {
 .light-theme textarea.bg-slate-950,
 .light-theme textarea.bg-\[\#050a14\],
 .light-theme textarea.bg-slate-900 {
-  background-color: #ffffff !important;
+  background-color: var(--surface) !important;
   border-color: #fecdd3 !important;
   color: #1e293b !important;
 }

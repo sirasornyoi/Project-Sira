@@ -47,7 +47,7 @@ export const CD5LifespanMeter: React.FC<CD5LifespanMeterProps> = ({ project, sho
         <div className="flex items-center gap-1.5 text-xs text-slate-300">
           <Calendar size={13} className="text-emerald-400" />
           <span>วันที่เริ่มใช้งาน:</span>
-          <b className="text-white font-mono">{formattedDate}</b>
+          <b className="text-fg font-mono">{formattedDate}</b>
         </div>
 
         {hasInstalled ? (
@@ -91,7 +91,7 @@ export const CD5LifespanMeter: React.FC<CD5LifespanMeterProps> = ({ project, sho
           {/* Actual running fill */}
           {hasInstalled && (
             <div 
-              className={`h-full transition-all duration-500 rounded-full flex items-center justify-end pr-1 text-[9px] font-black text-white ${
+              className={`h-full transition-all duration-500 rounded-full flex items-center justify-end pr-1 text-[9px] font-black text-fg ${
                 isSurpassedTarget 
                   ? 'bg-gradient-to-r from-emerald-600 via-teal-500 to-cyan-400'
                   : isSurpassedOem 
@@ -112,7 +112,7 @@ export const CD5LifespanMeter: React.FC<CD5LifespanMeterProps> = ({ project, sho
           {isSurpassedOem ? (
             <div className="flex items-center gap-1 text-emerald-400 font-bold">
               <TrendingUp size={13} />
-              <span>ยืดอายุเกิน OEM เดิมแล้ว <span className="text-white font-black font-mono">+{diffFromOemDays} วัน</span> (+{diffFromOemPercent}%) 🚀</span>
+              <span>ยืดอายุเกิน OEM เดิมแล้ว <span className="text-fg font-black font-mono">+{diffFromOemDays} วัน</span> (+{diffFromOemPercent}%) 🚀</span>
             </div>
           ) : (
             <div className="flex items-center gap-1 text-amber-400 font-semibold text-[10px]">

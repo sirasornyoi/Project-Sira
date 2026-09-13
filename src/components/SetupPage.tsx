@@ -625,7 +625,7 @@ export const SetupPage: React.FC = () => {
                 ปรับแก้หน้างานตารางกละ
               </span>
             </div>
-            <h1 className="text-xl font-black tracking-tight text-white flex items-center gap-2">
+            <h1 className="text-xl font-black tracking-tight text-fg flex items-center gap-2">
               ⏱ บันทึกเวลา Setup & ปรับตั้งเครื่องระหว่างวัน (Workload)
             </h1>
             <p className="text-xs text-slate-400 mt-1 max-w-2xl">
@@ -668,7 +668,7 @@ export const SetupPage: React.FC = () => {
           </div>
           <div>
             <p className="text-[10px] text-slate-500 font-extrabold uppercase tracking-wider">รายการบันทึกทั้งหมด</p>
-            <p className="text-xl font-bold text-white mt-0.5">{totalSetupLogsCount} รายการ</p>
+            <p className="text-xl font-bold text-fg mt-0.5">{totalSetupLogsCount} รายการ</p>
             <p className="text-[9px] text-slate-400 font-medium mt-0.5">กระจายตามกะผลิตและการตั้งโรงงาน</p>
           </div>
         </div>
@@ -680,7 +680,7 @@ export const SetupPage: React.FC = () => {
           </div>
           <div>
             <p className="text-[10px] text-slate-500 font-extrabold uppercase tracking-wider">เวลาภาระงานสะสม (Workload)</p>
-            <p className="text-xl font-bold text-white mt-0.5">{totalMinutesSpent} นาที</p>
+            <p className="text-xl font-bold text-fg mt-0.5">{totalMinutesSpent} นาที</p>
             <p className="text-[9px] text-slate-400 font-medium mt-0.5">{(totalMinutesSpent / 60).toFixed(1)} ชั่วโมงของการทำงาน</p>
           </div>
         </div>
@@ -692,7 +692,7 @@ export const SetupPage: React.FC = () => {
           </div>
           <div>
             <p className="text-[10px] text-slate-500 font-extrabold uppercase tracking-wider">เฉลี่ยเวลาดำเนินการต่อรอบ</p>
-            <p className="text-xl font-bold text-white mt-0.5">{avgDurationPerLog} นาที</p>
+            <p className="text-xl font-bold text-fg mt-0.5">{avgDurationPerLog} นาที</p>
             <p className="text-[9px] text-slate-400 font-medium mt-0.5">ต่อเครื่องจักรเครื่องพิมพ์และฟิล์ม</p>
           </div>
         </div>
@@ -704,7 +704,7 @@ export const SetupPage: React.FC = () => {
           </div>
           <div>
             <p className="text-[10px] text-slate-500 font-extrabold uppercase tracking-wider">สัดส่วนกิจกรรม Setup / Tuning</p>
-            <p className="text-xl font-bold text-white mt-0.5">{beforeUseCount} / {middayCount}</p>
+            <p className="text-xl font-bold text-fg mt-0.5">{beforeUseCount} / {middayCount}</p>
             <p className="text-[9px] text-slate-400 font-medium mt-0.5">Setup ก่อนเริ่มงาน vs. ปรับจูนหน้างาน</p>
           </div>
         </div>
@@ -719,7 +719,7 @@ export const SetupPage: React.FC = () => {
             <div className="bg-slate-950 border-b border-slate-800 px-5 py-3.5 flex justify-between items-center">
               <div className="flex items-center gap-2">
                 <Settings size={15} className="text-cyan-400" />
-                <h2 className="text-xs font-bold text-white uppercase tracking-wider">
+                <h2 className="text-xs font-bold text-fg uppercase tracking-wider">
                   {isEditing ? '✏️ แก้ไขบันทึกประวัติการ Setup' : '✨ บันทึกเวลางาน Setup ของช่าง'}
                 </h2>
               </div>
@@ -727,7 +727,7 @@ export const SetupPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={resetForm}
-                  className="text-slate-400 hover:text-white hover:bg-slate-800 p-1 rounded transition text-[10px] flex items-center gap-0.5"
+                  className="text-slate-400 hover:text-fg hover:bg-slate-800 p-1 rounded transition text-[10px] flex items-center gap-0.5"
                 >
                   <X size={12} />
                   <span>ยกเลิกเขียนใหม่</span>
@@ -879,7 +879,7 @@ export const SetupPage: React.FC = () => {
               {/* Steps configuration details (Fully dynamic custom additions & deletions) */}
               <div className="space-y-2.5 bg-slate-950/20 p-3 rounded-xl border border-slate-800">
                 <div className="flex justify-between items-center">
-                  <label className="font-extrabold text-white flex items-center gap-1.5">
+                  <label className="font-extrabold text-fg flex items-center gap-1.5">
                     <Clock size={13} className="text-cyan-400" />
                     <span>บันทึกระยะเวลารายขั้นตอนย่อย (ในสเต็ปการทำ) *</span>
                   </label>
@@ -999,7 +999,7 @@ export const SetupPage: React.FC = () => {
                 <div className="flex justify-between items-center pt-2.5 border-t border-slate-800/80 mt-2">
                   <span className="font-extrabold text-slate-400 text-[10.5px]">เวลารวมลงชั่วโมงภาระภาระงาน:</span>
                   <div className="flex items-center gap-1">
-                    <span className="font-mono text-base font-black text-white">{currentTotalDuration}</span>
+                    <span className="font-mono text-base font-black text-fg">{currentTotalDuration}</span>
                     <span className="text-[10px] text-slate-400">นาที/คน</span>
                   </div>
                 </div>
@@ -1099,7 +1099,7 @@ export const SetupPage: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <FileSpreadsheet size={16} className="text-cyan-400" />
                   <div>
-                    <h3 className="text-xs font-bold text-white uppercase tracking-wider">📚 คู่มือและเกณฑ์เวลามาตรฐานการ Setup (SOP Benchmarks)</h3>
+                    <h3 className="text-xs font-bold text-fg uppercase tracking-wider">📚 คู่มือและเกณฑ์เวลามาตรฐานการ Setup (SOP Benchmarks)</h3>
                     <p className="text-[10px] text-slate-400 mt-0.5">มาตรฐานขั้นตอนและชั่วโมงเวลาอ้างอิงแต่ละเครื่องจักรในโรงงาน</p>
                   </div>
                 </div>
@@ -1219,7 +1219,7 @@ export const SetupPage: React.FC = () => {
                         }
                         showAlert('success', `📥 โหลดแบบฟอร์มขั้นตอนมาตรฐานของ ${guide.title} แล้ว!`);
                       }}
-                      className="w-full bg-slate-950 hover:bg-slate-850 border border-slate-800 text-slate-200 hover:text-white py-2 rounded-xl text-[10.5px] font-extrabold transition-all duration-200 flex items-center justify-center gap-1.5 cursor-pointer animate-pulse"
+                      className="w-full bg-slate-950 hover:bg-slate-850 border border-slate-800 text-slate-200 hover:text-fg py-2 rounded-xl text-[10.5px] font-extrabold transition-all duration-200 flex items-center justify-center gap-1.5 cursor-pointer animate-pulse"
                     >
                       <CheckSquare size={13} className="text-cyan-400" />
                       <span>📥 ใช้สเต็ปมาตรฐานนี้ในแบบฟอร์มบันทึกข้างต้น</span>
@@ -1238,7 +1238,7 @@ export const SetupPage: React.FC = () => {
             
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <h2 className="text-sm font-extrabold text-white">📋 ประวัติลงเวลาระบบตารางการเตรียมพร้อม (Setup & Tuning logs)</h2>
+                <h2 className="text-sm font-extrabold text-fg">📋 ประวัติลงเวลาระบบตารางการเตรียมพร้อม (Setup & Tuning logs)</h2>
                 <p className="text-[10.5px] text-slate-400">ประวัติบันทึกการจัดเตรียมเครื่องจักรและร้อยชุดฟิล์มโรงงาน</p>
               </div>
               
@@ -1338,7 +1338,7 @@ export const SetupPage: React.FC = () => {
                       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 border-b border-slate-850 pb-2.5">
                         <div className="space-y-1">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-xs font-black text-white leading-none">
+                            <span className="text-xs font-black text-fg leading-none">
                               {mName} [{log.machineId}]
                             </span>
                             <span className="px-1.5 py-0.5 bg-slate-900 border border-slate-800 text-slate-400 rounded text-[9px] font-mono font-medium">
@@ -1432,7 +1432,7 @@ export const SetupPage: React.FC = () => {
                         <div className="hidden sm:block text-slate-850">|</div>
                         <div className="flex items-center gap-1.5">
                           <span className="text-slate-400 font-medium">⏱️ เวลาที่ทำจริง:</span>
-                          <span className="font-mono text-white font-extrabold bg-slate-900 px-1.5 py-0.5 rounded border border-slate-800">{log.totalDuration} นาที</span>
+                          <span className="font-mono text-fg font-extrabold bg-slate-900 px-1.5 py-0.5 rounded border border-slate-800">{log.totalDuration} นาที</span>
                         </div>
                         <div className="hidden sm:block text-slate-850">|</div>
                         <div className="flex items-center gap-1.5">
@@ -1510,14 +1510,14 @@ export const SetupPage: React.FC = () => {
             <div className="bg-slate-950 border-b border-slate-800 px-5 py-4 flex justify-between items-center">
               <div className="flex items-center gap-2">
                 <Edit2 size={16} className="text-cyan-400" />
-                <h2 className="text-xs font-bold text-white uppercase tracking-wider">
+                <h2 className="text-xs font-bold text-fg uppercase tracking-wider">
                   ✏️ แก้ไขบันทึกประวัติการ Setup & Tuning
                 </h2>
               </div>
               <button
                 type="button"
                 onClick={resetForm}
-                className="text-slate-400 hover:text-white hover:bg-slate-800 p-1.5 rounded-lg transition"
+                className="text-slate-400 hover:text-fg hover:bg-slate-800 p-1.5 rounded-lg transition"
               >
                 <X size={18} />
               </button>
@@ -1613,7 +1613,7 @@ export const SetupPage: React.FC = () => {
                 {/* Steps configuration details */}
                 <div className="space-y-2.5 bg-slate-950/20 p-3 rounded-xl border border-slate-800">
                   <div className="flex justify-between items-center">
-                    <label className="font-extrabold text-white flex items-center gap-1.5">
+                    <label className="font-extrabold text-fg flex items-center gap-1.5">
                       <Clock size={13} className="text-cyan-400" />
                       <span>บันทึกระยะเวลารายขั้นตอนย่อย (ในสเต็ปการทำ) *</span>
                     </label>
@@ -1710,7 +1710,7 @@ export const SetupPage: React.FC = () => {
                   <div className="flex justify-between items-center pt-2.5 border-t border-slate-800/80 mt-2">
                     <span className="font-extrabold text-slate-400 text-[10.5px]">เวลารวมลงชั่วโมงภาระงาน:</span>
                     <div className="flex items-center gap-1">
-                      <span className="font-mono text-base font-black text-white">{currentTotalDuration}</span>
+                      <span className="font-mono text-base font-black text-fg">{currentTotalDuration}</span>
                       <span className="text-[10px] text-slate-400">นาที/คน</span>
                     </div>
                   </div>
@@ -1759,7 +1759,7 @@ export const SetupPage: React.FC = () => {
           <div className="bg-slate-900 border border-slate-750 rounded-2xl w-full max-w-md p-6 space-y-5 shadow-2xl" id="setup-delete-modal">
             <div className="flex items-center gap-3 text-red-400">
               <Trash2 size={24} className="animate-pulse" />
-              <h3 className="text-sm font-black text-white">ยืนยันการลบประวัติเวลา Setup เครื่อง</h3>
+              <h3 className="text-sm font-black text-fg">ยืนยันการลบประวัติเวลา Setup เครื่อง</h3>
             </div>
             <p className="text-xs text-slate-300 leading-relaxed">
               คุณแน่ใจหรือไม่ว่าจะลบประวัติเวลา Setup เครื่องนี้? การลบข้อมูลนี้จะทำให้อัตราคำนวณ Workload และสถิติของเครื่องจักรหายไปด้วย
@@ -1779,7 +1779,7 @@ export const SetupPage: React.FC = () => {
                   setDeleteTargetId(null);
                   showAlert('success', '🗑 ลบรายการประวัติลงเวลานวัตกรรม Setup เรียบร้อย!');
                 }}
-                className="px-5 py-2 text-[11px] bg-red-600 hover:bg-red-500 text-white font-black rounded-xl transition cursor-pointer shadow-lg shadow-red-600/10"
+                className="px-5 py-2 text-[11px] bg-red-600 hover:bg-red-500 text-fg font-black rounded-xl transition cursor-pointer shadow-lg shadow-red-600/10"
               >
                 ยืนยันการลบ
               </button>
@@ -1797,14 +1797,14 @@ export const SetupPage: React.FC = () => {
             <div className="bg-slate-950 border-b border-slate-800 px-5 py-4 flex justify-between items-center">
               <div className="flex items-center gap-2">
                 <Settings size={16} className="text-emerald-400" />
-                <h2 className="text-xs font-bold text-white uppercase tracking-wider">
+                <h2 className="text-xs font-bold text-fg uppercase tracking-wider">
                   {editingMachineObj ? '✏️ แก้ไขข้อมูลเครื่องจักร' : '➕ ลงทะเบียนเครื่องจักรใหม่'}
                 </h2>
               </div>
               <button
                 type="button"
                 onClick={() => setMachineModalOpen(false)}
-                className="text-slate-400 hover:text-white hover:bg-slate-800 p-1.5 rounded-lg transition"
+                className="text-slate-400 hover:text-fg hover:bg-slate-800 p-1.5 rounded-lg transition"
               >
                 <X size={18} />
               </button>
@@ -1894,10 +1894,10 @@ export const SetupPage: React.FC = () => {
           <div className="bg-slate-900 border border-slate-750 rounded-2xl w-full max-w-md p-6 space-y-5 shadow-2xl" id="machine-delete-modal">
             <div className="flex items-center gap-3 text-rose-400">
               <Trash2 size={24} className="animate-pulse" />
-              <h3 className="text-sm font-black text-white">ลบข้อมูลทะเบียนเครื่องจักร</h3>
+              <h3 className="text-sm font-black text-fg">ลบข้อมูลทะเบียนเครื่องจักร</h3>
             </div>
             <p className="text-xs text-slate-300 leading-relaxed">
-              คุณแน่ใจหรือไม่ว่าต้องการลบเครื่องจักร <span className="text-white font-bold font-mono">[{machineToDeleteObj}]</span> ออกจากสารบบ? 
+              คุณแน่ใจหรือไม่ว่าต้องการลบเครื่องจักร <span className="text-fg font-bold font-mono">[{machineToDeleteObj}]</span> ออกจากสารบบ? 
               (การลบข้อมูลนี้จะไม่ส่งผลต่อประวัติบันทึกการทำงานในอดีต แต่เครื่องจักรนี้จะหายไปจากแบบฟอร์มการเลือก)
             </p>
             <div className="flex justify-end gap-3 pt-2">
@@ -1911,7 +1911,7 @@ export const SetupPage: React.FC = () => {
               <button
                 type="button"
                 onClick={handleDeleteMachine}
-                className="px-5 py-2 text-[11px] bg-red-600 hover:bg-red-500 text-white font-black rounded-xl transition cursor-pointer"
+                className="px-5 py-2 text-[11px] bg-red-600 hover:bg-red-500 text-fg font-black rounded-xl transition cursor-pointer"
               >
                 ยืนยันการลบออก
               </button>
@@ -1929,14 +1929,14 @@ export const SetupPage: React.FC = () => {
             <div className="bg-slate-950 border-b border-slate-800 px-5 py-4 flex justify-between items-center">
               <div className="flex items-center gap-2">
                 <FileSpreadsheet size={16} className="text-cyan-400" />
-                <h2 className="text-xs font-bold text-white uppercase tracking-wider">
+                <h2 className="text-xs font-bold text-fg uppercase tracking-wider">
                   {editingGuideKey ? '✏️ แก้ไขคู่มือและเวลาเกณฑ์อ้างอิง SOP' : '➕ เพิ่มคู่มือมาตรฐานเวลางาน SOP ใหม่'}
                 </h2>
               </div>
               <button
                 type="button"
                 onClick={() => setGuideModalOpen(false)}
-                className="text-slate-400 hover:text-white hover:bg-slate-800 p-1.5 rounded-lg transition"
+                className="text-slate-400 hover:text-fg hover:bg-slate-800 p-1.5 rounded-lg transition"
               >
                 <X size={18} />
               </button>
@@ -1983,7 +1983,7 @@ export const SetupPage: React.FC = () => {
 
               {/* Steps management inside the guide */}
               <div className="space-y-2 bg-slate-950/60 p-3 rounded-xl border border-slate-850">
-                <label className="font-extrabold text-white block mb-1">📋 รายละเอียดขั้นตอนมาตรฐาน ({gSteps.length} สเต็ป)</label>
+                <label className="font-extrabold text-fg block mb-1">📋 รายละเอียดขั้นตอนมาตรฐาน ({gSteps.length} สเต็ป)</label>
                 
                 <div className="space-y-1.5 max-h-[160px] overflow-y-auto pr-1">
                   {gSteps.map((step, idx) => (
@@ -2097,7 +2097,7 @@ export const SetupPage: React.FC = () => {
               {/* Header */}
               <div className="p-4 bg-slate-950 border-b border-slate-800 flex justify-between items-start gap-4">
                 <div>
-                  <h3 className="text-sm font-extrabold text-white flex items-center gap-2">
+                  <h3 className="text-sm font-extrabold text-fg flex items-center gap-2">
                     📋 รายงานเปรียบเทียบค่ามาตรฐานรายขั้นตอน (SOP Deviation Report)
                   </h3>
                   <p className="text-[10px] text-slate-400 mt-0.5">
@@ -2106,7 +2106,7 @@ export const SetupPage: React.FC = () => {
                 </div>
                 <button 
                   onClick={() => setSelectedLogForDetail(null)}
-                  className="p-1 hover:bg-slate-800 text-slate-400 hover:text-white rounded transition"
+                  className="p-1 hover:bg-slate-800 text-slate-400 hover:text-fg rounded transition"
                 >
                   <X size={16} />
                 </button>
@@ -2150,7 +2150,7 @@ export const SetupPage: React.FC = () => {
                     <span className="text-xl font-mono font-black text-cyan-400 mt-0.5">{detailStdTotalDuration} <span className="text-xs">นาที</span></span>
                   </div>
                   <div className="bg-slate-950/40 p-3 rounded-xl border border-slate-850 flex flex-col items-center justify-center text-center">
-                    <span className="text-xl font-mono font-black text-white mt-0.5">{selectedLogForDetail.totalDuration} <span className="text-xs">นาที</span></span>
+                    <span className="text-xl font-mono font-black text-fg mt-0.5">{selectedLogForDetail.totalDuration} <span className="text-xs">นาที</span></span>
                     <span className="text-[9.5px] font-bold text-slate-400 uppercase mt-0.5">เวลารวมที่ทำจริง</span>
                   </div>
                   <div className="bg-slate-950/40 p-3 rounded-xl border border-slate-850 flex flex-col items-center justify-center text-center">

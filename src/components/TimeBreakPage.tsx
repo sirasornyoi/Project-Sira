@@ -976,7 +976,7 @@ export const TimeBreakPage: React.FC = () => {
                 <Clock className="w-6 h-6" />
               </div>
               <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight flex items-center gap-2.5">
+                <h1 className="text-xl sm:text-2xl font-bold text-fg tracking-tight flex items-center gap-2.5">
                   เปลี่ยนอะไหล่ Time-Break
                   <span className="text-xs px-2.5 py-0.5 rounded-full font-medium bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">
                     Time-Based Replacement
@@ -997,8 +997,8 @@ export const TimeBreakPage: React.FC = () => {
                 onClick={() => setActiveTab('timebreak')}
                 className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all flex items-center gap-1.5 ${
                   activeTab === 'timebreak' 
-                    ? 'bg-cyan-600 text-white shadow-md' 
-                    : 'text-slate-400 hover:text-white'
+                    ? 'bg-cyan-600 text-fg shadow-md' 
+                    : 'text-slate-400 hover:text-fg'
                 }`}
               >
                 <Clock className="w-3.5 h-3.5" />
@@ -1009,8 +1009,8 @@ export const TimeBreakPage: React.FC = () => {
                 onClick={() => setActiveTab('pmhistory')}
                 className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all flex items-center gap-1.5 ${
                   activeTab === 'pmhistory' 
-                    ? 'bg-cyan-600 text-white shadow-md' 
-                    : 'text-slate-400 hover:text-white'
+                    ? 'bg-cyan-600 text-fg shadow-md' 
+                    : 'text-slate-400 hover:text-fg'
                 }`}
               >
                 <ClipboardCheck className="w-3.5 h-3.5" />
@@ -1023,7 +1023,7 @@ export const TimeBreakPage: React.FC = () => {
                 <button
                   id="btn-export-timebreak-excel"
                   onClick={() => handleExportExcel()}
-                  className="px-3 py-2 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 hover:text-white border border-slate-700 flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
+                  className="px-3 py-2 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 hover:text-fg border border-slate-700 flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
                   title="ส่งออกข้อมูลอะไหล่ Time-Break ทั้งหมดเป็นไฟล์ Excel (.xlsx)"
                 >
                   <Download className="w-4 h-4 text-cyan-400" />
@@ -1038,7 +1038,7 @@ export const TimeBreakPage: React.FC = () => {
                     setImportFileName('');
                     setShowImportModal(true);
                   }}
-                  className="px-3 py-2 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-300 hover:text-white border border-slate-700 flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
+                  className="px-3 py-2 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-300 hover:text-fg border border-slate-700 flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
                   title="นำเข้าข้อมูลอะไหล่ Time-Break จากไฟล์ Excel (.xlsx, .xls, .csv)"
                 >
                   <Upload className="w-4 h-4 text-emerald-400" />
@@ -1048,7 +1048,7 @@ export const TimeBreakPage: React.FC = () => {
                 <button
                   id="btn-add-timebreak-part"
                   onClick={() => handleOpenAddPart()}
-                  className="px-3.5 py-2 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-1.5 transition-all shadow-md shadow-emerald-950/40 cursor-pointer"
+                  className="px-3.5 py-2 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-fg flex items-center gap-1.5 transition-all shadow-md shadow-emerald-950/40 cursor-pointer"
                 >
                   <Plus className="w-4 h-4" />
                   เพิ่มอะไหล่ Time-Break
@@ -1076,7 +1076,7 @@ export const TimeBreakPage: React.FC = () => {
               </div>
               <button 
                 onClick={() => { setExportSuccessMsg(null); setCopyFeedbackMsg(null); }}
-                className="text-emerald-400 hover:text-white cursor-pointer"
+                className="text-emerald-400 hover:text-fg cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -1088,7 +1088,7 @@ export const TimeBreakPage: React.FC = () => {
             <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-800/80 flex items-center justify-between">
               <div>
                 <span className="text-xs text-slate-400 block mb-1">เครื่องที่มีระบบ Time-Break</span>
-                <div className="text-2xl font-bold text-white tracking-tight">
+                <div className="text-2xl font-bold text-fg tracking-tight">
                   {monthKpis.totalMachinesWithParts} <span className="text-xs text-slate-400 font-normal">เครื่อง</span>
                 </div>
                 <span className="text-[11px] text-cyan-400">จากทั้งหมด {machines.length} เครื่อง</span>
@@ -1151,7 +1151,7 @@ export const TimeBreakPage: React.FC = () => {
                     type="month" 
                     value={selectedMonth}
                     onChange={(e) => setSelectedMonth(e.target.value)}
-                    className="bg-transparent text-white text-xs font-semibold outline-none cursor-pointer"
+                    className="bg-transparent text-fg text-xs font-semibold outline-none cursor-pointer"
                   />
                   {selectedMonth !== currentYearMonth && (
                     <button 
@@ -1170,11 +1170,11 @@ export const TimeBreakPage: React.FC = () => {
                     id="filter-line-select"
                     value={selectedLine} 
                     onChange={(e) => setSelectedLine(e.target.value)}
-                    className="bg-transparent text-white text-xs outline-none cursor-pointer"
+                    className="bg-transparent text-fg text-xs outline-none cursor-pointer"
                   >
-                    <option value="all" className="bg-slate-900 text-white">ทุกลำดับไลน์การผลิต</option>
+                    <option value="all" className="bg-slate-900 text-fg">ทุกลำดับไลน์การผลิต</option>
                     {availableLines.map(line => (
-                      <option key={line} value={line} className="bg-slate-900 text-white">{line}</option>
+                      <option key={line} value={line} className="bg-slate-900 text-fg">{line}</option>
                     ))}
                   </select>
                 </div>
@@ -1185,9 +1185,9 @@ export const TimeBreakPage: React.FC = () => {
                     id="filter-status-select"
                     value={statusFilter} 
                     onChange={(e) => setStatusFilter(e.target.value as any)}
-                    className="bg-transparent text-white text-xs outline-none cursor-pointer"
+                    className="bg-transparent text-fg text-xs outline-none cursor-pointer"
                   >
-                    <option value="all" className="bg-slate-900 text-white">สถานะทั้งหมด</option>
+                    <option value="all" className="bg-slate-900 text-fg">สถานะทั้งหมด</option>
                     <option value="due" className="bg-slate-900 text-red-300">🔴 ครบเวลาเปลี่ยน / เกินกำหนด</option>
                     <option value="duemonth" className="bg-slate-900 text-amber-300">🟡 ครบกำหนดในเดือนนี้</option>
                     <option value="normal" className="bg-slate-900 text-emerald-300">🟢 ปกติ ยังไม่ถึงรอบ</option>
@@ -1204,7 +1204,7 @@ export const TimeBreakPage: React.FC = () => {
                   placeholder="ค้นหาเครื่องจักร, ชื่ออะไหล่..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-3 py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+                  className="w-full pl-9 pr-3 py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-xs text-fg placeholder-slate-500 focus:outline-none focus:border-cyan-500"
                 />
               </div>
             </div>
@@ -1219,8 +1219,8 @@ export const TimeBreakPage: React.FC = () => {
                     onClick={() => setViewMode('grouped')}
                     className={`px-3 py-1.5 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-all ${
                       viewMode === 'grouped'
-                        ? 'bg-cyan-600 text-white shadow-sm'
-                        : 'text-slate-400 hover:text-white'
+                        ? 'bg-cyan-600 text-fg shadow-sm'
+                        : 'text-slate-400 hover:text-fg'
                     }`}
                     title="รวมเครื่องชื่อซ้ำไว้ที่เดียวกัน และกดแยกดูได้"
                   >
@@ -1232,8 +1232,8 @@ export const TimeBreakPage: React.FC = () => {
                     onClick={() => setViewMode('flat')}
                     className={`px-3 py-1.5 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-all ${
                       viewMode === 'flat'
-                        ? 'bg-cyan-600 text-white shadow-sm'
-                        : 'text-slate-400 hover:text-white'
+                        ? 'bg-cyan-600 text-fg shadow-sm'
+                        : 'text-slate-400 hover:text-fg'
                     }`}
                     title="แสดงแยกเรียงทีละเครื่องจักรทุกเครื่อง"
                   >
@@ -1272,7 +1272,7 @@ export const TimeBreakPage: React.FC = () => {
           <div className="bg-slate-900/90 border border-slate-800/90 rounded-xl overflow-hidden shadow-xl">
             <div className="p-4 border-b border-slate-800 flex items-center justify-between flex-wrap gap-2">
               <div className="flex items-center gap-2">
-                <h2 className="text-sm sm:text-base font-semibold text-white flex items-center gap-2">
+                <h2 className="text-sm sm:text-base font-semibold text-fg flex items-center gap-2">
                   <span>ตารางระบุเครื่องจักรในเดือนปัจจุบัน ({selectedMonth})</span>
                   <span className="text-xs font-normal text-slate-400">
                     {viewMode === 'grouped' ? (
@@ -1360,7 +1360,7 @@ export const TimeBreakPage: React.FC = () => {
                             {/* Group Name & Badges */}
                             <td className="py-3.5 px-4">
                               <div className="flex items-center gap-2 flex-wrap">
-                                <span className="font-bold text-white text-sm">
+                                <span className="font-bold text-fg text-sm">
                                   {group.groupName}
                                 </span>
                                 {group.hasMultiple ? (
@@ -1430,7 +1430,7 @@ export const TimeBreakPage: React.FC = () => {
                             <td className="py-3.5 px-4">
                               {group.nearestDueDate ? (
                                 <div>
-                                  <div className="font-semibold text-white">
+                                  <div className="font-semibold text-fg">
                                     {formatThaiDate(group.nearestDueDate)}
                                   </div>
                                   <span className="text-[10px] text-slate-400">
@@ -1489,7 +1489,7 @@ export const TimeBreakPage: React.FC = () => {
                                   <button
                                     type="button"
                                     onClick={() => handleOpenAddPart(group.items[0]?.machine.id)}
-                                    className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-cyan-300 hover:text-white rounded-lg text-xs font-medium transition-colors flex items-center gap-1"
+                                    className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-cyan-300 hover:text-fg rounded-lg text-xs font-medium transition-colors flex items-center gap-1"
                                     title="เพิ่มอะไหล่ใหม่ให้กับเครื่องในกลุ่มนี้"
                                   >
                                     <Plus className="w-3.5 h-3.5" />
@@ -1511,7 +1511,7 @@ export const TimeBreakPage: React.FC = () => {
                                       type="button"
                                       id={`btn-add-part-machine-${group.items[0]?.machine.id}`}
                                       onClick={() => handleOpenAddPart(group.items[0]?.machine.id)}
-                                      className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg transition-colors"
+                                      className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-fg rounded-lg transition-colors"
                                       title="เพิ่มอะไหล่ใหม่ให้เครื่องนี้"
                                     >
                                       <Plus className="w-3.5 h-3.5" />
@@ -1588,7 +1588,7 @@ export const TimeBreakPage: React.FC = () => {
                               <td className="py-3 px-4">
                                 {nearestDueDate ? (
                                   <div>
-                                    <div className="font-semibold text-white">
+                                    <div className="font-semibold text-fg">
                                       {formatThaiDate(nearestDueDate)}
                                     </div>
                                     <span className="text-[10px] text-slate-400">
@@ -1658,7 +1658,7 @@ export const TimeBreakPage: React.FC = () => {
                                   <button
                                     id={`btn-add-part-machine-${machine.id}`}
                                     onClick={() => handleOpenAddPart(machine.id)}
-                                    className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg transition-colors"
+                                    className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-fg rounded-lg transition-colors"
                                     title="เพิ่มอะไหล่ใหม่ให้เครื่องนี้"
                                   >
                                     <Plus className="w-3.5 h-3.5" />
@@ -1687,7 +1687,7 @@ export const TimeBreakPage: React.FC = () => {
 
                           {/* Machine Name & Line */}
                           <td className="py-3.5 px-4">
-                            <div className="font-semibold text-white group-hover:text-cyan-300 transition-colors">
+                            <div className="font-semibold text-fg group-hover:text-cyan-300 transition-colors">
                               {machine.name}
                             </div>
                             <div className="text-[11px] text-slate-400 flex items-center gap-1.5 mt-0.5">
@@ -1738,7 +1738,7 @@ export const TimeBreakPage: React.FC = () => {
                           <td className="py-3.5 px-4">
                             {nearestDueDate ? (
                               <div>
-                                <div className="font-semibold text-white">
+                                <div className="font-semibold text-fg">
                                   {formatThaiDate(nearestDueDate)}
                                 </div>
                                 <span className="text-[10px] text-slate-400">
@@ -1808,7 +1808,7 @@ export const TimeBreakPage: React.FC = () => {
                               <button
                                 id={`btn-add-part-machine-${machine.id}`}
                                 onClick={() => handleOpenAddPart(machine.id)}
-                                className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg transition-colors"
+                                className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-fg rounded-lg transition-colors"
                                 title="เพิ่มอะไหล่ใหม่ให้เครื่องนี้"
                               >
                                 <Plus className="w-3.5 h-3.5" />
@@ -1828,7 +1828,7 @@ export const TimeBreakPage: React.FC = () => {
 
       {/* 5. MODAL: รายละเอียดและระบุ PART ของตัวเครื่อง (เมื่อกดไปที่ตัวเครื่อง) */}
       {selectedMachineId && activeMachine && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-sm animate-in fade-in">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-bg/80 backdrop-blur-sm animate-in fade-in">
           <div className="bg-[#0f172a] border border-slate-700 rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
             
             {/* Modal Header */}
@@ -1838,7 +1838,7 @@ export const TimeBreakPage: React.FC = () => {
                   <Cpu className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                  <h3 className="text-lg font-bold text-fg flex items-center gap-2">
                     <span>{activeMachine.id}</span>
                     <span className="text-slate-400 font-normal">| {activeMachine.name}</span>
                     <span className="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-medium">
@@ -1855,7 +1855,7 @@ export const TimeBreakPage: React.FC = () => {
                 <button
                   id="btn-modal-export-machine-excel"
                   onClick={() => handleExportExcel(activeMachine.id)}
-                  className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-cyan-300 hover:text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all border border-slate-700 cursor-pointer shadow-sm"
+                  className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-cyan-300 hover:text-fg rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all border border-slate-700 cursor-pointer shadow-sm"
                   title={`ส่งออกรายการอะไหล่เฉพาะเครื่อง ${activeMachine.name} (${activeMachine.id}) เป็น Excel`}
                 >
                   <Download className="w-3.5 h-3.5 text-cyan-400" />
@@ -1864,7 +1864,7 @@ export const TimeBreakPage: React.FC = () => {
                 <button
                   id="btn-modal-add-part"
                   onClick={() => handleOpenAddPart(activeMachine.id)}
-                  className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all shadow"
+                  className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-fg rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all shadow"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   เพิ่ม Part เครื่องนี้
@@ -1872,7 +1872,7 @@ export const TimeBreakPage: React.FC = () => {
                 <button
                   id="btn-modal-close"
                   onClick={() => setSelectedMachineId(null)}
-                  className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors cursor-pointer"
+                  className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-fg transition-colors cursor-pointer"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -1899,8 +1899,8 @@ export const TimeBreakPage: React.FC = () => {
                         onClick={() => setSelectedMachineId(sm.id)}
                         className={`px-2.5 py-1 rounded-lg text-xs font-mono font-semibold transition-all flex items-center gap-1.5 ${
                           isCurrent
-                            ? 'bg-cyan-600 text-white shadow-sm ring-1 ring-cyan-400'
-                            : 'bg-slate-900 text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-800'
+                            ? 'bg-cyan-600 text-fg shadow-sm ring-1 ring-cyan-400'
+                            : 'bg-slate-900 text-slate-400 hover:text-fg hover:bg-slate-800 border border-slate-800'
                         }`}
                       >
                         <span>{sm.id}</span>
@@ -1931,7 +1931,7 @@ export const TimeBreakPage: React.FC = () => {
                   </p>
                   <button
                     onClick={() => handleOpenAddPart(activeMachine.id)}
-                    className="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold rounded-lg inline-flex items-center gap-2 shadow-lg"
+                    className="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-fg text-xs font-semibold rounded-lg inline-flex items-center gap-2 shadow-lg"
                   >
                     <Plus className="w-4 h-4" />
                     เพิ่ม Part แรกสำหรับเครื่องนี้
@@ -1951,7 +1951,7 @@ export const TimeBreakPage: React.FC = () => {
                           {/* Part Name & Component details */}
                           <div className="space-y-1 flex-1">
                             <div className="flex items-center gap-2 flex-wrap">
-                              <span className="text-base font-bold text-white tracking-tight">
+                              <span className="text-base font-bold text-fg tracking-tight">
                                 {part.partName}
                               </span>
                               {part.partCode && (
@@ -2017,7 +2017,7 @@ export const TimeBreakPage: React.FC = () => {
                             <button
                               id={`btn-replace-part-${part.id}`}
                               onClick={() => handleOpenReplaceModal(part)}
-                              className="px-3 py-1.5 bg-emerald-600/90 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold transition-all shadow flex items-center gap-1.5"
+                              className="px-3 py-1.5 bg-emerald-600/90 hover:bg-emerald-500 text-fg rounded-lg text-xs font-semibold transition-all shadow flex items-center gap-1.5"
                               title="บันทึกว่าเปลี่ยนอะไหล่รอบนี้แล้ว"
                             >
                               <CheckCircle2 className="w-3.5 h-3.5" />
@@ -2026,7 +2026,7 @@ export const TimeBreakPage: React.FC = () => {
                             <button
                               id={`btn-edit-part-${part.id}`}
                               onClick={() => handleOpenEditPart(part)}
-                              className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg transition-colors"
+                              className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-fg rounded-lg transition-colors"
                               title="แก้ไขข้อมูลอะไหล่"
                             >
                               <Edit2 className="w-3.5 h-3.5" />
@@ -2070,7 +2070,7 @@ export const TimeBreakPage: React.FC = () => {
               </span>
               <button
                 onClick={() => setSelectedMachineId(null)}
-                className="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-semibold transition-colors"
+                className="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-fg rounded-lg text-xs font-semibold transition-colors"
               >
                 ปิดหน้าต่าง
               </button>
@@ -2081,7 +2081,7 @@ export const TimeBreakPage: React.FC = () => {
 
       {/* 6. MODAL: เพิ่ม/แก้ไข อะไหล่ Time-Break (แค่วันเริ่มเปลี่ยน กับ จำนวนครั้ง/เวลา) */}
       {showAddPartModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-sm animate-in fade-in">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-bg/80 backdrop-blur-sm animate-in fade-in">
           <div className="bg-[#0f172a] border border-slate-700 rounded-2xl w-full max-w-xl flex flex-col shadow-2xl overflow-hidden">
             
             <div className="p-4 sm:p-5 border-b border-slate-800 flex items-center justify-between bg-slate-900">
@@ -2090,7 +2090,7 @@ export const TimeBreakPage: React.FC = () => {
                   <Plus className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-white">
+                  <h3 className="text-base font-bold text-fg">
                     {editingPart ? 'แก้ไขอะไหล่ Time-Break' : 'เพิ่มอะไหล่ที่ต้องเปลี่ยน (Time-Break)'}
                   </h3>
                   <p className="text-xs text-slate-400">
@@ -2100,7 +2100,7 @@ export const TimeBreakPage: React.FC = () => {
               </div>
               <button
                 onClick={() => setShowAddPartModal(false)}
-                className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white"
+                className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-fg"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -2117,10 +2117,10 @@ export const TimeBreakPage: React.FC = () => {
                   id="form-select-machine"
                   value={formMachineId}
                   onChange={(e) => setFormMachineId(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500 cursor-pointer"
+                  className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-fg focus:outline-none focus:border-cyan-500 cursor-pointer"
                 >
                   {machines.map(m => (
-                    <option key={m.id} value={m.id} className="bg-slate-900 text-white">
+                    <option key={m.id} value={m.id} className="bg-slate-900 text-fg">
                       {m.id} - {m.name} ({m.lineGroup || 'ทั่วไป'})
                     </option>
                   ))}
@@ -2147,7 +2147,7 @@ export const TimeBreakPage: React.FC = () => {
                     placeholder="เช่น สายพานไทม์มิ่ง HTD-8M, ตลับลูกปืน 6205, ซีลลูกสูบ"
                     value={formPartName}
                     onChange={(e) => setFormPartName(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-fg placeholder-slate-500 focus:outline-none focus:border-cyan-500"
                   />
 
                   {/* Preset quick selection from spare parts inventory */}
@@ -2163,7 +2163,7 @@ export const TimeBreakPage: React.FC = () => {
                             setFormPartCode(sp.id);
                             if (sp.pricePerUnit) setFormCost(sp.pricePerUnit);
                           }}
-                          className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white shrink-0 border border-slate-700/60 transition-colors"
+                          className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-fg shrink-0 border border-slate-700/60 transition-colors"
                         >
                           {sp.id}: {sp.name}
                         </button>
@@ -2184,7 +2184,7 @@ export const TimeBreakPage: React.FC = () => {
                   placeholder="เช่น ชุดเพลาขับมอเตอร์หลัก, โซ่ลำเลียงท้ายไลน์, กระบอกลมตัดฟิล์ม, ซีลฝาถัง"
                   value={formComponentLocation}
                   onChange={(e) => setFormComponentLocation(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+                  className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-fg placeholder-slate-500 focus:outline-none focus:border-cyan-500"
                 />
 
                 {/* Location suggestions */}
@@ -2228,7 +2228,7 @@ export const TimeBreakPage: React.FC = () => {
                       type="date"
                       value={formStartDate}
                       onChange={(e) => setFormStartDate(e.target.value)}
-                      className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500"
+                      className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-fg focus:outline-none focus:border-cyan-500"
                     />
                   </div>
 
@@ -2244,13 +2244,13 @@ export const TimeBreakPage: React.FC = () => {
                         min="1"
                         value={formIntervalValue}
                         onChange={(e) => setFormIntervalValue(Math.max(1, parseInt(e.target.value, 10) || 1))}
-                        className="w-24 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white text-center font-bold focus:outline-none focus:border-cyan-500"
+                        className="w-24 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-fg text-center font-bold focus:outline-none focus:border-cyan-500"
                       />
                       <select
                         id="form-interval-unit-select"
                         value={formIntervalUnit}
                         onChange={(e) => setFormIntervalUnit(e.target.value as any)}
-                        className="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500 cursor-pointer"
+                        className="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-fg focus:outline-none focus:border-cyan-500 cursor-pointer"
                       >
                         <option value="วัน">วัน</option>
                         <option value="สัปดาห์">สัปดาห์</option>
@@ -2282,7 +2282,7 @@ export const TimeBreakPage: React.FC = () => {
                       }}
                       className={`px-2 py-0.5 rounded border transition-colors ${
                         formIntervalValue === preset.val && formIntervalUnit === preset.unit
-                          ? 'bg-cyan-600 text-white border-cyan-500'
+                          ? 'bg-cyan-600 text-fg border-cyan-500'
                           : 'bg-slate-900 text-slate-300 border-slate-800 hover:bg-slate-800'
                       }`}
                     >
@@ -2309,10 +2309,10 @@ export const TimeBreakPage: React.FC = () => {
                   <select
                     value={formAssignedTech}
                     onChange={(e) => setFormAssignedTech(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500 cursor-pointer"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-fg focus:outline-none focus:border-cyan-500 cursor-pointer"
                   >
                     {technicians.map(t => (
-                      <option key={t} value={t} className="bg-slate-900 text-white">{t}</option>
+                      <option key={t} value={t} className="bg-slate-900 text-fg">{t}</option>
                     ))}
                   </select>
                 </div>
@@ -2326,7 +2326,7 @@ export const TimeBreakPage: React.FC = () => {
                     placeholder="เช่น ตรวจเช็คความตึง, ตลับลูกปืนทนความร้อน"
                     value={formNotes}
                     onChange={(e) => setFormNotes(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-fg placeholder-slate-500 focus:outline-none focus:border-cyan-500"
                   />
                 </div>
               </div>
@@ -2368,7 +2368,7 @@ export const TimeBreakPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setShowAddPartModal(false)}
-                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-semibold transition-colors"
+                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-fg rounded-lg text-xs font-semibold transition-colors"
               >
                 ยกเลิก
               </button>
@@ -2376,7 +2376,7 @@ export const TimeBreakPage: React.FC = () => {
                 id="btn-save-timebreak-part"
                 type="button"
                 onClick={handleSavePart}
-                className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold transition-all shadow-md shadow-emerald-950/50 flex items-center gap-1.5"
+                className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-fg rounded-lg text-xs font-semibold transition-all shadow-md shadow-emerald-950/50 flex items-center gap-1.5"
               >
                 <CheckCircle className="w-4 h-4" />
                 <span>{editingPart ? 'บันทึกการแก้ไข' : 'บันทึกเพิ่มอะไหล่'}</span>
@@ -2388,7 +2388,7 @@ export const TimeBreakPage: React.FC = () => {
 
       {/* 7. MODAL: บันทึกการเปลี่ยนอะไหล่รอบนี้ (Record Replacement) */}
       {replacingPart && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-sm animate-in fade-in">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-bg/80 backdrop-blur-sm animate-in fade-in">
           <div className="bg-[#0f172a] border border-slate-700 rounded-2xl w-full max-w-lg flex flex-col shadow-2xl overflow-hidden">
             
             <div className="p-4 sm:p-5 border-b border-slate-800 flex items-center justify-between bg-slate-900">
@@ -2397,7 +2397,7 @@ export const TimeBreakPage: React.FC = () => {
                   <CheckCircle2 className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-white">
+                  <h3 className="text-base font-bold text-fg">
                     บันทึกการเปลี่ยนอะไหล่ (รอบที่ {(replacingPart.cycleCount || 0) + 1})
                   </h3>
                   <p className="text-xs text-slate-400">
@@ -2407,7 +2407,7 @@ export const TimeBreakPage: React.FC = () => {
               </div>
               <button
                 onClick={() => setReplacingPart(null)}
-                className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white"
+                className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-fg"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -2415,8 +2415,8 @@ export const TimeBreakPage: React.FC = () => {
 
             <div className="p-4 sm:p-6 space-y-4">
               <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
-                <div className="text-xs text-slate-400">เครื่องจักร: <span className="font-bold text-white">{replacingPart.machineId}</span></div>
-                <div className="text-sm font-bold text-white">{replacingPart.partName}</div>
+                <div className="text-xs text-slate-400">เครื่องจักร: <span className="font-bold text-fg">{replacingPart.machineId}</span></div>
+                <div className="text-sm font-bold text-fg">{replacingPart.partName}</div>
                 <div className="text-xs text-cyan-400">ส่วนที่เปลี่ยน: {replacingPart.componentLocation}</div>
                 <div className="text-xs text-slate-400">รอบความถี่: ทุก {replacingPart.intervalValue} {replacingPart.intervalUnit}</div>
               </div>
@@ -2429,7 +2429,7 @@ export const TimeBreakPage: React.FC = () => {
                   type="date"
                   value={replacementDate}
                   onChange={(e) => setReplacementDate(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500"
+                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-fg focus:outline-none focus:border-cyan-500"
                 />
               </div>
 
@@ -2440,10 +2440,10 @@ export const TimeBreakPage: React.FC = () => {
                 <select
                   value={replacementTech}
                   onChange={(e) => setReplacementTech(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500 cursor-pointer"
+                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-fg focus:outline-none focus:border-cyan-500 cursor-pointer"
                 >
                   {technicians.map(t => (
-                    <option key={t} value={t} className="bg-slate-900 text-white">{t}</option>
+                    <option key={t} value={t} className="bg-slate-900 text-fg">{t}</option>
                   ))}
                 </select>
               </div>
@@ -2457,7 +2457,7 @@ export const TimeBreakPage: React.FC = () => {
                   placeholder="เช่น สภาพฟันสายพานสึกหรอปกติ, เปลี่ยนตลับลูกปืนชุดใหม่เรียบร้อย, ทดสอบเดินเครื่องปกติ"
                   value={replacementNote}
                   onChange={(e) => setReplacementNote(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-fg placeholder-slate-500 focus:outline-none focus:border-cyan-500"
                 />
               </div>
 
@@ -2467,7 +2467,7 @@ export const TimeBreakPage: React.FC = () => {
                   <span>ผลลัพธ์หลังบันทึก:</span>
                 </div>
                 <div className="text-slate-300">
-                  • จำนวนรอบสะสมจะปรับเป็น: <span className="font-bold text-white">รอบที่ {(replacingPart.cycleCount || 0) + 1}</span>
+                  • จำนวนรอบสะสมจะปรับเป็น: <span className="font-bold text-fg">รอบที่ {(replacingPart.cycleCount || 0) + 1}</span>
                 </div>
                 <div className="text-slate-300">
                   • วันครบกำหนดครั้งถัดไปจะคำนวณเป็น: <span className="font-bold text-amber-300">{formatThaiDate(calculateDueDate(replacementDate, replacingPart.intervalValue, replacingPart.intervalUnit))}</span>
@@ -2479,7 +2479,7 @@ export const TimeBreakPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setReplacingPart(null)}
-                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-semibold transition-colors"
+                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-fg rounded-lg text-xs font-semibold transition-colors"
               >
                 ยกเลิก
               </button>
@@ -2487,7 +2487,7 @@ export const TimeBreakPage: React.FC = () => {
                 id="btn-confirm-replace-part"
                 type="button"
                 onClick={handleConfirmReplacement}
-                className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold transition-all shadow-md flex items-center gap-1.5"
+                className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-fg rounded-lg text-xs font-semibold transition-all shadow-md flex items-center gap-1.5"
               >
                 <CheckCircle className="w-4 h-4" />
                 <span>ยืนยันเปลี่ยนอะไหล่รอบนี้</span>
@@ -2499,7 +2499,7 @@ export const TimeBreakPage: React.FC = () => {
 
       {/* 6. EXCEL IMPORT MODAL */}
       {showImportModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm" id="modal-import-timebreak-excel">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg/75 p-4 backdrop-blur-sm" id="modal-import-timebreak-excel">
           <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
             {/* Header */}
             <div className="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-950/60">
@@ -2508,7 +2508,7 @@ export const TimeBreakPage: React.FC = () => {
                   <FileSpreadsheet className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-white flex items-center gap-2">
+                  <h3 className="text-base font-bold text-fg flex items-center gap-2">
                     นำเข้าข้อมูลอะไหล่ Time-Break จาก Excel
                   </h3>
                   <p className="text-xs text-slate-400">
@@ -2523,7 +2523,7 @@ export const TimeBreakPage: React.FC = () => {
                   setImportError(null);
                   setImportFileName('');
                 }}
-                className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-fg transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -2547,7 +2547,7 @@ export const TimeBreakPage: React.FC = () => {
                   type="button"
                   id="btn-download-import-template"
                   onClick={handleDownloadTemplate}
-                  className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-cyan-300 hover:text-white border border-slate-700 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all shrink-0 cursor-pointer shadow-sm"
+                  className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-cyan-300 hover:text-fg border border-slate-700 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all shrink-0 cursor-pointer shadow-sm"
                 >
                   <Download className="w-4 h-4 text-cyan-400" />
                   <span>ดาวน์โหลดไฟล์ตัวอย่าง (.xlsx)</span>
@@ -2573,7 +2573,7 @@ export const TimeBreakPage: React.FC = () => {
                     </div>
                     {importFileName ? (
                       <div>
-                        <p className="font-bold text-white text-sm">{importFileName}</p>
+                        <p className="font-bold text-fg text-sm">{importFileName}</p>
                         <p className="text-emerald-400 text-xs mt-0.5">
                           ✓ อ่านข้อมูลเรียบร้อย พบ {importParsedParts.length} รายการ
                         </p>
@@ -2609,7 +2609,7 @@ export const TimeBreakPage: React.FC = () => {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       <label className={`p-3 rounded-lg border cursor-pointer transition-all flex items-start gap-2.5 ${
                         importMode === 'append'
-                          ? 'bg-cyan-950/40 border-cyan-500/50 text-white'
+                          ? 'bg-cyan-950/40 border-cyan-500/50 text-fg'
                           : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700'
                       }`}>
                         <input
@@ -2627,7 +2627,7 @@ export const TimeBreakPage: React.FC = () => {
 
                       <label className={`p-3 rounded-lg border cursor-pointer transition-all flex items-start gap-2.5 ${
                         importMode === 'replace'
-                          ? 'bg-red-950/40 border-red-500/50 text-white'
+                          ? 'bg-red-950/40 border-red-500/50 text-fg'
                           : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700'
                       }`}>
                         <input
@@ -2671,7 +2671,7 @@ export const TimeBreakPage: React.FC = () => {
                           {importParsedParts.slice(0, 5).map((p, i) => (
                             <tr key={i} className="hover:bg-slate-900/40">
                               <td className="py-2 px-3 font-mono text-cyan-300 font-bold">{p.machineId}</td>
-                              <td className="py-2 px-3 font-medium text-white">{p.partName}</td>
+                              <td className="py-2 px-3 font-medium text-fg">{p.partName}</td>
                               <td className="py-2 px-3 text-slate-400">{p.componentLocation}</td>
                               <td className="py-2 px-3">ทุก {p.intervalValue} {p.intervalUnit}</td>
                               <td className="py-2 px-3 font-mono text-amber-300">{p.nextDueDate}</td>
@@ -2696,7 +2696,7 @@ export const TimeBreakPage: React.FC = () => {
                   setImportError(null);
                   setImportFileName('');
                 }}
-                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-semibold transition-colors cursor-pointer"
+                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-fg rounded-lg text-xs font-semibold transition-colors cursor-pointer"
               >
                 ยกเลิก
               </button>
@@ -2708,7 +2708,7 @@ export const TimeBreakPage: React.FC = () => {
                 onClick={handleConfirmImport}
                 className={`px-5 py-2 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 shadow ${
                   importParsedParts.length > 0
-                    ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-950/40 cursor-pointer'
+                    ? 'bg-emerald-600 hover:bg-emerald-500 text-fg shadow-emerald-950/40 cursor-pointer'
                     : 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
                 }`}
               >

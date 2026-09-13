@@ -500,7 +500,7 @@ export const PMHistoryPage: React.FC = () => {
               <ClipboardCheck size={20} className="text-cyan-400" />
             </div>
             <div>
-              <h1 className="text-lg font-black tracking-tight text-white flex items-center gap-2">
+              <h1 className="text-lg font-black tracking-tight text-fg flex items-center gap-2">
                 📋 บันทึกประวัติและผลต่างเวลา PM
                 <span className="text-xs font-semibold px-2 py-0.5 bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 rounded-full">
                   Std. vs Actual PM Time
@@ -686,7 +686,7 @@ export const PMHistoryPage: React.FC = () => {
                 value={machineFilter}
                 onChange={(e) => setMachineFilter(e.target.value)}
                 placeholder="เช่น RIM01, VAC..."
-                className="w-full bg-[#050a14] border border-slate-800 rounded-xl px-3 py-1.8 text-xs text-white placeholder-slate-600 focus:outline-hidden focus:border-cyan-500/70"
+                className="w-full bg-[#050a14] border border-slate-800 rounded-xl px-3 py-1.8 text-xs text-fg placeholder-slate-600 focus:outline-hidden focus:border-cyan-500/70"
               />
               <Search className="absolute right-2.5 top-2 text-slate-600" size={13} />
             </div>
@@ -699,7 +699,7 @@ export const PMHistoryPage: React.FC = () => {
               id="pm-history-tech-select"
               value={techFilter}
               onChange={(e) => setTechFilter(e.target.value)}
-              className="w-full bg-[#050a14] border border-slate-800 rounded-xl px-3 py-1.8 text-xs text-white focus:outline-hidden focus:border-cyan-500/70"
+              className="w-full bg-[#050a14] border border-slate-800 rounded-xl px-3 py-1.8 text-xs text-fg focus:outline-hidden focus:border-cyan-500/70"
             >
               <option value="">-- แสดงช่างบำรุงทั้งหมด --</option>
               {technicians.map((t, idx) => (
@@ -716,7 +716,7 @@ export const PMHistoryPage: React.FC = () => {
               type="month"
               value={monthFilter}
               onChange={(e) => setMonthFilter(e.target.value)}
-              className="w-full bg-[#050a14] border border-slate-800 rounded-xl px-3 py-1.8 text-xs text-white focus:outline-hidden focus:border-cyan-500/70 select-none"
+              className="w-full bg-[#050a14] border border-slate-800 rounded-xl px-3 py-1.8 text-xs text-fg focus:outline-hidden focus:border-cyan-500/70 select-none"
             />
           </div>
 
@@ -730,7 +730,7 @@ export const PMHistoryPage: React.FC = () => {
               className={`w-full bg-[#050a14] border rounded-xl px-3 py-1.8 text-xs focus:outline-hidden ${
                 varianceFilter === 'overdue'
                   ? 'border-rose-500 text-rose-300 font-bold'
-                  : 'border-slate-800 text-white focus:border-cyan-500/70'
+                  : 'border-slate-800 text-fg focus:border-cyan-500/70'
               }`}
             >
               <option value="all">ทั้งหมด (แสดงเกณฑ์ประสิทธิภาพทุกแบบ)</option>
@@ -964,7 +964,7 @@ export const PMHistoryPage: React.FC = () => {
                         <div className="flex flex-col gap-0.5 max-w-[140px] truncate">
                           <span className="font-bold text-slate-300 truncate">{allTechs[0]}</span>
                           {allTechs.length > 1 && (
-                            <span className="text-[9px] text-slate-500 font-sans flex items-center gap-1 bg-black/30 w-max px-1 rounded border border-slate-800">
+                            <span className="text-[9px] text-slate-500 font-sans flex items-center gap-1 bg-bg/30 w-max px-1 rounded border border-slate-800">
                               <Users size={9} /> ช่างเพิ่ม {allTechs.length - 1} คน
                             </span>
                           )}
@@ -1022,7 +1022,7 @@ export const PMHistoryPage: React.FC = () => {
                               </button>
                               <button
                                 onClick={() => setDeleteConfirmId(null)}
-                                className="text-[9px] text-slate-400 hover:text-white"
+                                className="text-[9px] text-slate-400 hover:text-fg"
                               >
                                 ยกเลิก
                               </button>
@@ -1052,7 +1052,7 @@ export const PMHistoryPage: React.FC = () => {
       {/* VIEW PM DETAILS DISPLAY MODAL BOX */}
       {selectedPmDetail && (
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-xs p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-bg/80 backdrop-blur-xs p-4"
           id="pm-detail-info-overlay"
           onClick={() => setSelectedPmDetail(null)}
         >
@@ -1069,7 +1069,7 @@ export const PMHistoryPage: React.FC = () => {
               </div>
               <button 
                 onClick={() => setSelectedPmDetail(null)}
-                className="text-xs text-slate-500 hover:text-white px-2 py-1 bg-slate-800 rounded-lg"
+                className="text-xs text-slate-500 hover:text-fg px-2 py-1 bg-slate-800 rounded-lg"
               >
                 ปิดหน้าต่าง
               </button>
@@ -1079,7 +1079,7 @@ export const PMHistoryPage: React.FC = () => {
             <div className="p-5 space-y-4 text-xs font-sans">
               <div className="space-y-1">
                 <p className="text-[10px] text-slate-500 uppercase font-bold">ชื่อแผนงานบำรุงรักษา</p>
-                <h2 className="text-sm font-black text-white">
+                <h2 className="text-sm font-black text-fg">
                   {pmPlans.find(p => p.id === selectedPmDetail.pmPlanId)?.title || 'บำรุงรักษาเครื่องจักร'}
                 </h2>
                 <p className="text-[10px] text-slate-400 mt-1">
@@ -1322,7 +1322,7 @@ export const PMHistoryPage: React.FC = () => {
       {/* FORM MODAL FOR CREATING AND EDITING PM HISTORIES */}
       {showFormModal && (
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-xs p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-bg/85 backdrop-blur-xs p-4"
           id="pm-log-modal-overlay"
         >
           <div 
@@ -1341,7 +1341,7 @@ export const PMHistoryPage: React.FC = () => {
                   setFormPlan('');
                   setFormTechnicians([]);
                 }}
-                className="text-slate-500 hover:text-white font-black text-xs px-2.5 py-1.2 bg-slate-900 rounded-lg"
+                className="text-slate-500 hover:text-fg font-black text-xs px-2.5 py-1.2 bg-slate-900 rounded-lg"
               >
                 ยกเลิก
               </button>
@@ -1357,7 +1357,7 @@ export const PMHistoryPage: React.FC = () => {
                   <select
                     value={formMachine}
                     onChange={(e) => handleMachineChangeForForm(e.target.value)}
-                    className="w-full bg-[#050a14] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-hidden focus:border-cyan-500/70"
+                    className="w-full bg-[#050a14] border border-slate-800 rounded-xl px-3 py-2 text-xs text-fg focus:outline-hidden focus:border-cyan-500/70"
                     required
                   >
                     <option value="">-- เลือกเครื่องจักร --</option>
@@ -1375,7 +1375,7 @@ export const PMHistoryPage: React.FC = () => {
                     type="date"
                     value={formDate}
                     onChange={(e) => setFormDate(e.target.value)}
-                    className="w-full bg-[#050a14] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-hidden focus:border-cyan-500/70 select-none"
+                    className="w-full bg-[#050a14] border border-slate-800 rounded-xl px-3 py-2 text-xs text-fg focus:outline-hidden focus:border-cyan-500/70 select-none"
                     required
                   />
                 </div>
@@ -1387,7 +1387,7 @@ export const PMHistoryPage: React.FC = () => {
                 <select
                   value={formPlan}
                   onChange={(e) => handlePlanChangeForForm(e.target.value)}
-                  className="w-full bg-[#050a14] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-hidden focus:border-cyan-500/70"
+                  className="w-full bg-[#050a14] border border-slate-800 rounded-xl px-3 py-2 text-xs text-fg focus:outline-hidden focus:border-cyan-500/70"
                   required
                 >
                   <option value="">-- กรุณาเลือกรายการแผน PM ในระบบ --</option>
@@ -1474,8 +1474,8 @@ export const PMHistoryPage: React.FC = () => {
                           onClick={() => setFormOvertimeReason(preset)}
                           className={`text-[10px] px-2.5 py-1 rounded-lg border text-left transition cursor-pointer ${
                             formOvertimeReason === preset
-                              ? 'bg-rose-500 text-white font-bold border-rose-400 shadow-sm'
-                              : 'bg-slate-900/80 border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white'
+                              ? 'bg-rose-500 text-fg font-bold border-rose-400 shadow-sm'
+                              : 'bg-slate-900/80 border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-fg'
                           }`}
                         >
                           {preset}
@@ -1717,7 +1717,7 @@ export const PMHistoryPage: React.FC = () => {
                     setFormPlan('');
                     setFormTechnicians([]);
                   }}
-                  className="px-4 py-2 bg-slate-900 border border-slate-800 text-slate-400 font-bold hover:text-white rounded-xl"
+                  className="px-4 py-2 bg-slate-900 border border-slate-800 text-slate-400 font-bold hover:text-fg rounded-xl"
                 >
                   ยกเลิก
                 </button>

@@ -840,7 +840,7 @@ export const RepairPage: React.FC = () => {
               setImportPreview([]);
               setShowImportModal(true);
             }}
-            className="flex items-center gap-2 bg-gradient-to-r from-cyan-600 to-blue-700 hover:from-cyan-500 hover:to-blue-600 text-white font-bold px-4 py-2.5 rounded-lg transition-all shadow-md focus:outline-none text-xs cursor-pointer"
+            className="flex items-center gap-2 bg-gradient-to-r from-cyan-600 to-blue-700 hover:from-cyan-500 hover:to-blue-600 text-fg font-bold px-4 py-2.5 rounded-lg transition-all shadow-md focus:outline-none text-xs cursor-pointer"
             title="นำเข้าประวัติการซ่อมบำรุงจากไฟล์ Excel"
           >
             <Upload size={16} />
@@ -851,7 +851,7 @@ export const RepairPage: React.FC = () => {
             type="button"
             id="btn-export-repairs-excel"
             onClick={handleExportAllToExcel}
-            className="flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white font-bold px-4 py-2.5 rounded-lg transition-all shadow-md focus:outline-none text-xs cursor-pointer"
+            className="flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-fg font-bold px-4 py-2.5 rounded-lg transition-all shadow-md focus:outline-none text-xs cursor-pointer"
             title="ส่งออกบันทึกการซ่อมด่วนไปเป็น Excel (CSV) สดประมวลข้อมูล Thai Language เรียบร้อย"
           >
             <FileSpreadsheet size={16} />
@@ -875,7 +875,7 @@ export const RepairPage: React.FC = () => {
               setPhotoBase64('');
               setShowFormModal(true);
             }}
-            className="flex items-center gap-2 bg-gradient-to-r from-rose-500 to-red-650 hover:from-rose-400 hover:to-red-500 text-white font-bold px-4 py-2.5 rounded-lg transition-all shadow-md focus:outline-none text-xs"
+            className="flex items-center gap-2 bg-gradient-to-r from-rose-500 to-red-650 hover:from-rose-400 hover:to-red-500 text-fg font-bold px-4 py-2.5 rounded-lg transition-all shadow-md focus:outline-none text-xs"
           >
             <Plus size={18} />
             บันทึกแจ้งซ่อมด่วน
@@ -1546,7 +1546,7 @@ export const RepairPage: React.FC = () => {
                 <button
                   id="frm-btn-save-repair"
                   type="submit"
-                  className="bg-rose-500 hover:bg-rose-400 text-white font-bold text-xs px-5 py-2.5 rounded-lg transition shadow-md"
+                  className="bg-rose-500 hover:bg-rose-400 text-fg font-bold text-xs px-5 py-2.5 rounded-lg transition shadow-md"
                 >
                   {editingId ? "บันทึกการแก้ไข" : "อนุมัติรายงานวิเคราะห์ซ่อม"}
                 </button>
@@ -1794,7 +1794,7 @@ export const RepairPage: React.FC = () => {
                   <a
                     href={selectedRepairDetail.excelFile.content}
                     download={selectedRepairDetail.excelFile.name}
-                    className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[11px] px-3.5 py-2 rounded-lg transition shadow-md whitespace-nowrap cursor-pointer"
+                    className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-fg font-bold text-[11px] px-3.5 py-2 rounded-lg transition shadow-md whitespace-nowrap cursor-pointer"
                   >
                     <Upload size={14} className="rotate-180" />
                     ดาวน์โหลดไฟล์แนบ
@@ -1814,7 +1814,7 @@ export const RepairPage: React.FC = () => {
                   setSelectedRepairDetail(null);
                   handleDeleteRepair(targetId);
                 }}
-                className="flex items-center gap-1.5 border border-rose-500/30 hover:bg-rose-600 hover:border-rose-500 hover:text-white text-rose-400 font-bold text-xs px-4 py-2 my-1 rounded-lg transition"
+                className="flex items-center gap-1.5 border border-rose-500/30 hover:bg-rose-600 hover:border-rose-500 hover:text-fg text-rose-400 font-bold text-xs px-4 py-2 my-1 rounded-lg transition"
               >
                 <Trash2 size={13} />
                 ลบบันทึกประวัตินี้
@@ -1825,7 +1825,7 @@ export const RepairPage: React.FC = () => {
                   type="button"
                   id={`detail-export-single-excel-${selectedRepairDetail.id}`}
                   onClick={() => handleExportSingleToExcel(selectedRepairDetail)}
-                  className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-4 py-2 rounded-lg transition shadow-md cursor-pointer"
+                  className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-fg font-bold text-xs px-4 py-2 rounded-lg transition shadow-md cursor-pointer"
                   title="ดาวน์โหลดใบบันทึกเชิงวิเคราะห์และสรุป Why-Why นี้ออกเป็นไฟล์ Excel (CSV)"
                 >
                   <FileSpreadsheet size={13} />
@@ -1875,7 +1875,7 @@ export const RepairPage: React.FC = () => {
               <button 
                 type="button" 
                 onClick={() => setShowImportModal(false)}
-                className="text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-750 p-1.5 rounded-lg transition shrink-0"
+                className="text-slate-400 hover:text-fg bg-slate-800 hover:bg-slate-750 p-1.5 rounded-lg transition shrink-0"
               >
                 <X size={18} />
               </button>
@@ -1899,7 +1899,7 @@ export const RepairPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={downloadImportTemplate}
-                    className="w-full flex items-center justify-center gap-1.8 bg-slate-800 hover:bg-slate-750 border border-slate-700 text-slate-200 hover:text-white font-bold py-2 rounded-lg transition text-xs cursor-pointer shadow-sm"
+                    className="w-full flex items-center justify-center gap-1.8 bg-slate-800 hover:bg-slate-750 border border-slate-700 text-slate-200 hover:text-fg font-bold py-2 rounded-lg transition text-xs cursor-pointer shadow-sm"
                   >
                     <FileSpreadsheet size={15} className="text-emerald-400" />
                     ดาวน์โหลดไฟล์ตัวอย่าง (.xlsx)
@@ -1922,7 +1922,7 @@ export const RepairPage: React.FC = () => {
                     รองรับไฟล์นามสกุล .xlsx, .xls, .csv เท่านั้น
                   </span>
                   
-                  <label className="mt-4 bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold px-4 py-2 rounded-lg cursor-pointer transition shadow-md">
+                  <label className="mt-4 bg-cyan-600 hover:bg-cyan-500 text-fg text-xs font-bold px-4 py-2 rounded-lg cursor-pointer transition shadow-md">
                     เลือกไฟล์ในเครื่อง
                     <input 
                       type="file" 
@@ -2062,7 +2062,7 @@ export const RepairPage: React.FC = () => {
                 disabled={importPreview.length === 0}
                 className={`flex items-center gap-1.5 font-bold text-xs px-6 py-2.5 rounded-lg transition shadow-md ${
                   importPreview.length > 0 
-                    ? 'bg-gradient-to-r from-cyan-600 to-blue-700 hover:from-cyan-500 hover:to-blue-600 text-white cursor-pointer' 
+                    ? 'bg-gradient-to-r from-cyan-600 to-blue-700 hover:from-cyan-500 hover:to-blue-600 text-fg cursor-pointer' 
                     : 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-750'
                 }`}
               >
@@ -2113,7 +2113,7 @@ export const RepairPage: React.FC = () => {
                   setRepairs(prev => prev.filter(r => r.id !== deleteConfirmId));
                   setDeleteConfirmId(null);
                 }}
-                className="bg-rose-600 hover:bg-rose-500 text-white font-extrabold text-xs px-4.5 py-2 rounded-lg transition"
+                className="bg-rose-600 hover:bg-rose-500 text-fg font-extrabold text-xs px-4.5 py-2 rounded-lg transition"
               >
                 ยืนยันลบเด็ดขาด
               </button>

@@ -329,7 +329,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
               <button
                 id="btn-settings-reset-all"
                 onClick={triggerResetDatabase}
-                className="w-full text-left text-[11px] font-sans font-bold text-rose-400 hover:text-white hover:bg-rose-500 transition px-3 py-2 rounded-xl flex items-center gap-1.5"
+                className="w-full text-left text-[11px] font-sans font-bold text-rose-400 hover:text-fg hover:bg-rose-500 transition px-3 py-2 rounded-xl flex items-center gap-1.5"
               >
                 <RefreshCw size={12} className="animate-spin duration-900" />
                 รีเซ็ตล้างระบบด่วน
@@ -589,7 +589,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                     <button
                       type="button"
                       onClick={() => modalFileRef.current?.click()}
-                      className="flex items-center justify-center gap-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold text-xs py-2 px-4 rounded-xl shadow transition"
+                      className="flex items-center justify-center gap-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-fg font-bold text-xs py-2 px-4 rounded-xl shadow transition"
                     >
                       <Upload size={13} />
                       <span>เลือกไฟล์สำรองข้อมูล (.json) เพื่อกู้คืน</span>
@@ -647,7 +647,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                         onChange={(e) => setLineEnabled(e.target.checked)}
                         className="sr-only peer"
                       />
-                      <div className="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyan-500"></div>
+                      <div className="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyan-500"></div>
                     </label>
                   </div>
 

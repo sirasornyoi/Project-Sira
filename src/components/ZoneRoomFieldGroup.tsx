@@ -141,7 +141,7 @@ export const ZoneRoomFieldGroup: React.FC<ZoneRoomFieldGroupProps> = ({
                 }
               }}
               placeholder="พิมพ์ชื่อโซนใหม่..."
-              className="flex-1 bg-slate-950 border-2 border-cyan-400 rounded-lg px-3 py-1.5 text-white placeholder:text-slate-400 font-semibold text-xs focus:outline-none focus:ring-2 focus:ring-cyan-300 shadow-inner"
+              className="flex-1 bg-slate-950 border-2 border-cyan-400 rounded-lg px-3 py-1.5 text-fg placeholder:text-slate-400 font-semibold text-xs focus:outline-none focus:ring-2 focus:ring-cyan-300 shadow-inner"
               autoFocus
               onKeyDown={e => {
                 if (e.key === 'Enter') handleSaveCustomZone();
@@ -178,11 +178,11 @@ export const ZoneRoomFieldGroup: React.FC<ZoneRoomFieldGroupProps> = ({
                 onZoneChange(val);
               }
             }}
-            className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white font-medium text-xs focus:outline-none focus:border-cyan-500"
+            className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-fg font-medium text-xs focus:outline-none focus:border-cyan-500"
           >
             <option value="" className="bg-slate-900 text-slate-400">-- เลือกโซน --</option>
             {allZoneNames.map(zName => (
-              <option key={zName} value={zName} className="bg-slate-900 text-white font-medium">
+              <option key={zName} value={zName} className="bg-slate-900 text-fg font-medium">
                 {zName}
               </option>
             ))}
@@ -246,7 +246,7 @@ export const ZoneRoomFieldGroup: React.FC<ZoneRoomFieldGroupProps> = ({
                 }
               }}
               placeholder={zone ? `พิมพ์ห้องใหม่ใน ${zone}...` : 'พิมพ์ชื่อห้องใหม่...'}
-              className="flex-1 bg-slate-950 border-2 border-cyan-400 rounded-lg px-3 py-1.5 text-white placeholder:text-slate-400 font-semibold text-xs focus:outline-none focus:ring-2 focus:ring-cyan-300 shadow-inner"
+              className="flex-1 bg-slate-950 border-2 border-cyan-400 rounded-lg px-3 py-1.5 text-fg placeholder:text-slate-400 font-semibold text-xs focus:outline-none focus:ring-2 focus:ring-cyan-300 shadow-inner"
               autoFocus
               onKeyDown={e => {
                 if (e.key === 'Enter') handleSaveCustomRoom();
@@ -283,11 +283,11 @@ export const ZoneRoomFieldGroup: React.FC<ZoneRoomFieldGroupProps> = ({
                 onRoomChange(val);
               }
             }}
-            className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white font-medium text-xs focus:outline-none focus:border-cyan-500"
+            className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-fg font-medium text-xs focus:outline-none focus:border-cyan-500"
           >
             <option value="" className="bg-slate-900 text-slate-400">-- เลือกห้อง --</option>
             {availableRooms.map(rName => (
-              <option key={rName} value={rName} className="bg-slate-900 text-white font-medium">
+              <option key={rName} value={rName} className="bg-slate-900 text-fg font-medium">
                 {rName}
               </option>
             ))}

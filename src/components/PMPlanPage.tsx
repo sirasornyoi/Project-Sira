@@ -681,7 +681,7 @@ export const PMPlanPage: React.FC = () => {
                     <div className="flex items-start gap-3 flex-1 min-w-0">
                       <button 
                         onClick={() => togglePlanExpanded(plan.id)}
-                        className="mt-1 p-1 hover:bg-slate-700 rounded-lg text-slate-400 hover:text-white transition"
+                        className="mt-1 p-1 hover:bg-slate-700 rounded-lg text-slate-400 hover:text-fg transition"
                         title={expanded ? 'ยุบมุมมอง' : 'ขยายเช็คลิสต์'}
                       >
                         {expanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
@@ -754,7 +754,7 @@ export const PMPlanPage: React.FC = () => {
                         </button>
                         <button
                           onClick={() => setDeleteConfirmId(plan.id)}
-                          className="p-1.5 bg-rose-500/10 border border-rose-500/30 hover:bg-rose-500 text-rose-400 hover:text-white rounded-lg text-xs transition"
+                          className="p-1.5 bg-rose-500/10 border border-rose-500/30 hover:bg-rose-500 text-rose-400 hover:text-fg rounded-lg text-xs transition"
                           title="ลบแผนงาน PM นี้"
                         >
                           <Trash2 size={14} />
@@ -900,7 +900,7 @@ export const PMPlanPage: React.FC = () => {
                                         onClick={() => handleSetStepResult(plan.id, idx, 'ไม่ปกติ')}
                                         className={`px-2 py-0.5 rounded text-[10.5px] font-bold transition ${
                                           isAbnormal 
-                                            ? 'bg-rose-500 text-white shadow-sm' 
+                                            ? 'bg-rose-500 text-fg shadow-sm' 
                                             : 'text-slate-400 hover:text-rose-300'
                                         }`}
                                       >
@@ -928,7 +928,7 @@ export const PMPlanPage: React.FC = () => {
                                       placeholder="บันทึกค่าที่วัดได้ หรือสิ่งผิดปกติ..."
                                       value={step.abnormalDetail || ''}
                                       onChange={(e) => handleUpdateStepField(plan.id, idx, 'abnormalDetail', e.target.value)}
-                                      className={`w-full bg-slate-950/80 border rounded-lg px-2.5 py-1 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500 ${
+                                      className={`w-full bg-slate-950/80 border rounded-lg px-2.5 py-1 text-xs text-fg placeholder-slate-600 focus:outline-none focus:border-cyan-500 ${
                                         isAbnormal ? 'border-rose-500/50 text-rose-200' : 'border-slate-700/80'
                                       }`}
                                     />
@@ -941,7 +941,7 @@ export const PMPlanPage: React.FC = () => {
                                       placeholder="หมายเหตุ (เช่น เบอร์อะไหล่)..."
                                       value={step.remark || ''}
                                       onChange={(e) => handleUpdateStepField(plan.id, idx, 'remark', e.target.value)}
-                                      className="w-full bg-slate-950/80 border border-slate-700/80 rounded-lg px-2.5 py-1 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500"
+                                      className="w-full bg-slate-950/80 border border-slate-700/80 rounded-lg px-2.5 py-1 text-xs text-fg placeholder-slate-600 focus:outline-none focus:border-cyan-500"
                                     />
                                   </td>
 
@@ -1043,7 +1043,7 @@ export const PMPlanPage: React.FC = () => {
               </div>
               <button 
                 onClick={() => setShowImportModal(false)}
-                className="px-2.5 py-1 text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-lg font-bold"
+                className="px-2.5 py-1 text-slate-400 hover:text-fg bg-slate-800 hover:bg-slate-700 rounded-lg font-bold"
               >
                 &times; ปิด
               </button>
@@ -1197,7 +1197,7 @@ export const PMPlanPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowImportModal(false)}
-                  className="px-4 py-2 border border-slate-700 text-slate-400 hover:text-white rounded-lg transition text-xs"
+                  className="px-4 py-2 border border-slate-700 text-slate-400 hover:text-fg rounded-lg transition text-xs"
                 >
                   ยกเลิก
                 </button>
@@ -1228,7 +1228,7 @@ export const PMPlanPage: React.FC = () => {
               </h3>
               <button 
                 onClick={() => setStepModalPlanId(null)}
-                className="text-slate-400 hover:text-white font-bold"
+                className="text-slate-400 hover:text-fg font-bold"
               >
                 &times;
               </button>
@@ -1242,7 +1242,7 @@ export const PMPlanPage: React.FC = () => {
                     type="number"
                     value={stepForm.itemNo || ''}
                     onChange={(e) => setStepForm(prev => ({ ...prev, itemNo: Number(e.target.value) || 1 }))}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-white font-mono focus:outline-none focus:border-cyan-500"
+                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-fg font-mono focus:outline-none focus:border-cyan-500"
                   />
                 </div>
                 <div className="col-span-2 space-y-1">
@@ -1252,7 +1252,7 @@ export const PMPlanPage: React.FC = () => {
                     placeholder="เช่น ดูด้วยสายตา, เครื่องมือวัด, มือ สายตา"
                     value={stepForm.method || ''}
                     onChange={(e) => setStepForm(prev => ({ ...prev, method: e.target.value }))}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-white focus:outline-none focus:border-cyan-500"
+                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-fg focus:outline-none focus:border-cyan-500"
                   />
                 </div>
               </div>
@@ -1265,7 +1265,7 @@ export const PMPlanPage: React.FC = () => {
                   placeholder="เช่น ตรวจเช็คสภาพใบมีด, ตรวจวัดค่าแรงดัน"
                   value={stepForm.title || ''}
                   onChange={(e) => setStepForm(prev => ({ ...prev, title: e.target.value }))}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-white focus:outline-none focus:border-cyan-500"
+                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-fg focus:outline-none focus:border-cyan-500"
                 />
               </div>
 
@@ -1276,7 +1276,7 @@ export const PMPlanPage: React.FC = () => {
                   placeholder="เช่น โครงสร้างสมบูรณ์ ไม่ชำรุด, แรงดัน 200-240V 3 เฟส สมดุล"
                   value={stepForm.standard || ''}
                   onChange={(e) => setStepForm(prev => ({ ...prev, standard: e.target.value }))}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-white focus:outline-none focus:border-cyan-500"
+                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-fg focus:outline-none focus:border-cyan-500"
                 />
               </div>
 
@@ -1288,7 +1288,7 @@ export const PMPlanPage: React.FC = () => {
                     min={1}
                     value={stepForm.stdTime || 10}
                     onChange={(e) => setStepForm(prev => ({ ...prev, stdTime: Number(e.target.value) || 10 }))}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-white font-mono focus:outline-none focus:border-cyan-500"
+                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-fg font-mono focus:outline-none focus:border-cyan-500"
                   />
                 </div>
                 <div className="space-y-1">
@@ -1298,7 +1298,7 @@ export const PMPlanPage: React.FC = () => {
                     placeholder="เช่น 1 เดือน/ครั้ง, 1 สัปดาห์/ครั้ง"
                     value={stepForm.frequency || '1 เดือน/ครั้ง'}
                     onChange={(e) => setStepForm(prev => ({ ...prev, frequency: e.target.value }))}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-white focus:outline-none focus:border-cyan-500"
+                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-fg focus:outline-none focus:border-cyan-500"
                   />
                 </div>
               </div>
@@ -1310,7 +1310,7 @@ export const PMPlanPage: React.FC = () => {
                   placeholder="เช่น ลูกปืนมีด 6006 2 ตลับ"
                   value={stepForm.remark || ''}
                   onChange={(e) => setStepForm(prev => ({ ...prev, remark: e.target.value }))}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-white focus:outline-none focus:border-cyan-500"
+                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-fg focus:outline-none focus:border-cyan-500"
                 />
               </div>
 
@@ -1318,7 +1318,7 @@ export const PMPlanPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setStepModalPlanId(null)}
-                  className="px-4 py-2 border border-slate-700 text-slate-400 hover:text-white rounded-lg transition"
+                  className="px-4 py-2 border border-slate-700 text-slate-400 hover:text-fg rounded-lg transition"
                 >
                   ยกเลิก
                 </button>
@@ -1370,7 +1370,7 @@ export const PMPlanPage: React.FC = () => {
                     placeholder="เช่น ใบรายงาน Preventive Maintenance (PM) - เครื่องหั่นผัก"
                     value={planTitle}
                     onChange={(e) => setPlanTitle(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-500"
+                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-fg focus:outline-none focus:border-cyan-500"
                   />
                 </div>
 
@@ -1379,7 +1379,7 @@ export const PMPlanPage: React.FC = () => {
                   <select
                     value={planFrequency}
                     onChange={(e) => setPlanFrequency(e.target.value as PMFrequency)}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-500"
+                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-fg focus:outline-none focus:border-cyan-500"
                   >
                     <option value="รายวัน">รายวัน (Daily)</option>
                     <option value="รายสัปดาห์">รายสัปดาห์ (Weekly)</option>
@@ -1422,7 +1422,7 @@ export const PMPlanPage: React.FC = () => {
                             updated[idx] = { ...updated[idx], title: e.target.value };
                             setPlanSteps(updated);
                           }}
-                          className="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-white focus:outline-none focus:border-cyan-500"
+                          className="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-fg focus:outline-none focus:border-cyan-500"
                         />
                         <div className="flex items-center gap-1 shrink-0 w-24">
                           <input
@@ -1434,7 +1434,7 @@ export const PMPlanPage: React.FC = () => {
                               updated[idx] = { ...updated[idx], stdTime: Number(e.target.value) || 10 };
                               setPlanSteps(updated);
                             }}
-                            className="w-14 bg-slate-900 border border-slate-700 rounded-lg px-1.5 py-1 text-white text-center font-mono"
+                            className="w-14 bg-slate-900 border border-slate-700 rounded-lg px-1.5 py-1 text-fg text-center font-mono"
                           />
                           <span className="text-[10px] text-slate-500">นาที</span>
                         </div>
@@ -1489,7 +1489,7 @@ export const PMPlanPage: React.FC = () => {
                     placeholder="เช่น ลูกปืนมีด 6006, ลูกปืนเฟือง 6003"
                     value={planSpareParts}
                     onChange={(e) => setPlanSpareParts(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-white"
+                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-fg"
                   />
                 </div>
                 <div className="col-span-1 space-y-1">
@@ -1499,7 +1499,7 @@ export const PMPlanPage: React.FC = () => {
                     placeholder="เช่น 2 ตลับ, 4 ชิ้น"
                     value={planSparePartsQty}
                     onChange={(e) => setPlanSparePartsQty(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-white"
+                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-fg"
                   />
                 </div>
               </div>
@@ -1513,7 +1513,7 @@ export const PMPlanPage: React.FC = () => {
                     placeholder="เช่น สมศักดิ์ ช่างเครื่อง"
                     value={planInspectorTech}
                     onChange={(e) => setPlanInspectorTech(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-white"
+                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-fg"
                   />
                 </div>
                 <div className="space-y-1">
@@ -1523,7 +1523,7 @@ export const PMPlanPage: React.FC = () => {
                     placeholder="เช่น วิชัย หัวหน้ากะผลิต"
                     value={planAcknowledgingDept}
                     onChange={(e) => setPlanAcknowledgingDept(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-white"
+                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-fg"
                   />
                 </div>
                 <div className="space-y-1">
@@ -1533,7 +1533,7 @@ export const PMPlanPage: React.FC = () => {
                     placeholder="เช่น ธีระพงษ์ วิศวกร PM"
                     value={planSupervisorName}
                     onChange={(e) => setPlanSupervisorName(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-white"
+                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-fg"
                   />
                 </div>
               </div>
@@ -1543,7 +1543,7 @@ export const PMPlanPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowFormModal(false)}
-                  className="px-4 py-2 border border-slate-700 text-slate-400 hover:text-white rounded-lg transition"
+                  className="px-4 py-2 border border-slate-700 text-slate-400 hover:text-fg rounded-lg transition"
                 >
                   ยกเลิก
                 </button>
@@ -1586,7 +1586,7 @@ export const PMPlanPage: React.FC = () => {
                   setPmPlans(prev => prev.filter(p => p.id !== deleteConfirmId));
                   setDeleteConfirmId(null);
                 }}
-                className="bg-rose-600 hover:bg-rose-500 text-white font-extrabold px-4.5 py-2 rounded-lg transition"
+                className="bg-rose-600 hover:bg-rose-500 text-fg font-extrabold px-4.5 py-2 rounded-lg transition"
               >
                 ยืนยันลบแผน
               </button>
@@ -1608,7 +1608,7 @@ export const PMPlanPage: React.FC = () => {
               </div>
               <button 
                 onClick={() => setShowCopyModal(false)}
-                className="text-slate-400 hover:text-white text-lg font-bold"
+                className="text-slate-400 hover:text-fg text-lg font-bold"
               >
                 &times;
               </button>
@@ -1616,7 +1616,7 @@ export const PMPlanPage: React.FC = () => {
 
             <div className="p-5 overflow-y-auto space-y-4 flex-1">
               <div className="bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 p-3 rounded-xl">
-                เป้าหมายการคัดลอก: <span className="font-mono font-bold text-white">{selectedMachine?.id}</span> ({selectedMachine?.name})
+                เป้าหมายการคัดลอก: <span className="font-mono font-bold text-fg">{selectedMachine?.id}</span> ({selectedMachine?.name})
               </div>
 
               <div className="space-y-1.5">
@@ -1627,7 +1627,7 @@ export const PMPlanPage: React.FC = () => {
                     setCopySourceMachineId(e.target.value);
                     setSelectedPlansToCopy([]);
                   }}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-500"
+                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-fg focus:outline-none focus:border-cyan-500"
                 >
                   <option value="">-- เลือกเครื่องจักรต้นทาง --</option>
                   {machines
@@ -1696,7 +1696,7 @@ export const PMPlanPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowCopyModal(false)}
-                  className="px-4 py-2 border border-slate-700 text-slate-400 hover:text-white rounded-lg transition"
+                  className="px-4 py-2 border border-slate-700 text-slate-400 hover:text-fg rounded-lg transition"
                 >
                   ยกเลิก
                 </button>

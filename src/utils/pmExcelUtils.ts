@@ -16,7 +16,47 @@ export interface ParsedPMReportResult {
 }
 
 /**
- * Export PM Plan as Excel (.xlsx) mirroring the exact layout of:
+ * Column width mapping based on specification:
+ * A=9, B=3.7, H=16, I=5, K=9.9, L=3.7, S=23, T=10.9, U=1.6, V=4, W=1.6, X=4.4
+ * (0-indexed: A=0, B=1, H=7, I=8, K=10, L=11, S=18, T=19, U=20, V=21, W=22, X=23)
+ */
+const get34ColumnWidths = (): { wch: number }[] => {
+  const specificWidths: { [col: number]: number } = {
+    0: 9,      // A
+    1: 3.7,    // B
+    7: 16,     // H
+    8: 5,      // I
+    10: 9.9,   // K
+    11: 3.7,   // L
+    18: 23,    // S
+    19: 10.9,  // T
+    20: 1.6,   // U
+    21: 4,     // V
+    22: 1.6,   // W
+    23: 4.4    // X
+  };
+
+  const cols: { wch: number }[] = [];
+  for (let c = 0; c < 34; c++) {
+    if (specificWidths[c] !== undefined) {
+      cols.push({ wch: specificWidths[c] });
+    } else if (c >= 2 && c <= 6) {
+      cols.push({ wch: 3.7 }); // C..G
+    } else if (c === 9) {
+      cols.push({ wch: 5 });   // J
+    } else if (c >= 12 && c <= 17) {
+      cols.push({ wch: 3.7 }); // M..R
+    } else if (c >= 24 && c <= 31) {
+      cols.push({ wch: 4.0 }); // Y..AF
+    } else {
+      cols.push({ wch: 6.0 }); // AG..AH
+    }
+  }
+  return cols;
+};
+
+/**
+ * Export PM Plan as Excel (.xlsx) mirroring the exact 34-column layout (A–AH) of:
  * "ใบรายงาน Preventive Maintenance (PM)"
  */
 export const exportPMReportToExcel = (
@@ -30,134 +70,181 @@ export const exportPMReportToExcel = (
   const machName = machine?.name || plan.machineId || 'เครื่องหั่นผัก (Food Slicer)';
   const dateStr = reportDate || plan.lastCheckedDate || new Date().toISOString().split('T')[0];
 
-  // Prepare 2D array of rows
+  const TOTAL_COLS = 34;
   const rows: any[][] = [];
 
   // Row 0: Title
-  rows.push(['ใบรายงาน Preventive Maintenance (PM)', '', '', '', '', '', '', '', '']);
+  const row0 = new Array(TOTAL_COLS).fill('');
+  row0[0] = 'ใบรายงาน Preventive Maintenance (PM)';
+  rows.push(row0);
 
   // Row 1: Machine Header
-  rows.push([
-    `ชื่อเครื่องจักร: ${machName}`, '', '', '',
-    `รหัสเครื่องจักร: ${machId}`, '',
-    `วันที่ทำ PM: ${dateStr}`, '', ''
-  ]);
+  const row1 = new Array(TOTAL_COLS).fill('');
+  row1[0] = `ชื่อเครื่องจักร: ${machName}`;
+  row1[9] = `รหัสเครื่องจักร: ${machId}`;
+  row1[24] = `วันที่ทำ PM: ${dateStr}`;
+  rows.push(row1);
 
-  // Row 2: Table Header
-  rows.push([
-    'ลำดับ',
-    'หัวข้อ PM',
-    'วิธีการ',
-    'มาตรฐาน',
-    'ความถี่',
-    'ผลการ PM: ปกติ',
-    'ผลการ PM: ไม่ปกติ',
-    'รายละเอียดสิ่งที่ผิดปกติ / ค่าที่วัดได้',
-    'หมายเหตุ'
-  ]);
+  // Row 2: Table Header Top
+  const row2 = new Array(TOTAL_COLS).fill('');
+  row2[0] = 'ลำดับ';
+  row2[1] = 'หัวข้อ PM';
+  row2[8] = 'วิธีการ';
+  row2[11] = 'มาตรฐาน';
+  row2[19] = 'ความถี่';
+  row2[20] = 'ผลการ PM';
+  row2[24] = 'รายละเอียดสิ่งที่ผิดปกติ / ค่าที่วัดได้';
+  row2[32] = 'หมายเหตุ';
+  rows.push(row2);
 
-  // Rows 3+: PM Steps
+  // Row 3: Table Header Sub (under ผลการ PM: ปกติ merge 20-21, ไม่ปกติ merge 22-23)
+  const row3 = new Array(TOTAL_COLS).fill('');
+  row3[20] = 'ปกติ';
+  row3[22] = 'ไม่ปกติ';
+  rows.push(row3);
+
+  // Header and title merges
+  const merges: XLSX.Range[] = [
+    // Title row 0 merge A1:AH1 (0..33)
+    { s: { r: 0, c: 0 }, e: { r: 0, c: 33 } },
+    // Header machine name merge (0..8)
+    { s: { r: 1, c: 0 }, e: { r: 1, c: 8 } },
+    // Machine ID merge (9..23)
+    { s: { r: 1, c: 9 }, e: { r: 1, c: 23 } },
+    // PM Date merge (24..33)
+    { s: { r: 1, c: 24 }, e: { r: 1, c: 33 } },
+
+    // Header merges (rows 2-3):
+    // ลำดับ(0)
+    { s: { r: 2, c: 0 }, e: { r: 3, c: 0 } },
+    // หัวข้อ PM(1–7)
+    { s: { r: 2, c: 1 }, e: { r: 3, c: 7 } },
+    // วิธีการ(8–10)
+    { s: { r: 2, c: 8 }, e: { r: 3, c: 10 } },
+    // มาตรฐาน(11–18)
+    { s: { r: 2, c: 11 }, e: { r: 3, c: 18 } },
+    // ความถี่(19)
+    { s: { r: 2, c: 19 }, e: { r: 3, c: 19 } },
+    // ผลการ PM(20–23) เป็นหัวรวมคร่อม
+    { s: { r: 2, c: 20 }, e: { r: 2, c: 23 } },
+    // ใต้ "ผลการ PM" แตกเป็น 2 ช่อง: ปกติ merge(20–21), ไม่ปกติ merge(22–23)
+    { s: { r: 3, c: 20 }, e: { r: 3, c: 21 } },
+    { s: { r: 3, c: 22 }, e: { r: 3, c: 23 } },
+    // รายละเอียด(24–31)
+    { s: { r: 2, c: 24 }, e: { r: 3, c: 31 } },
+    // หมายเหตุ(32–33)
+    { s: { r: 2, c: 32 }, e: { r: 3, c: 33 } }
+  ];
+
+  // Rows 4+: PM Steps
   const steps = plan.steps && plan.steps.length > 0 ? plan.steps : [
     { title: 'ตรวจเช็คสภาพทั่วไปทั้งภายในและภายนอกเครื่อง', method: 'ดูด้วยสายตา', standard: 'โครงสร้างสมบูรณ์ ไม่มีส่วนชำรุด', frequency: '1 เดือน/ครั้ง', stdTime: 15 }
   ];
+  const totalStepsCount = Math.max(steps.length, 6);
 
-  steps.forEach((step, idx) => {
-    const itemNo = step.itemNo !== undefined && step.itemNo !== '' ? step.itemNo : (idx + 1);
-    const isNormal = step.result === 'ปกติ' || (step.done && step.result !== 'ไม่ปกติ');
-    const isAbnormal = step.result === 'ไม่ปกติ';
+  for (let idx = 0; idx < totalStepsCount; idx++) {
+    const r = 4 + idx;
+    const step = steps[idx];
+    const dataRow = new Array(TOTAL_COLS).fill('');
 
-    rows.push([
-      itemNo,
-      step.title || '',
-      step.method || 'ดูด้วยสายตา',
-      step.standard || '-',
-      step.frequency || plan.frequency || '1 เดือน/ครั้ง',
-      isNormal ? '✓' : '',
-      isAbnormal ? '✓' : '',
-      step.abnormalDetail || '',
-      step.remark || ''
-    ]);
-  });
+    if (step) {
+      const itemNo = step.itemNo !== undefined && step.itemNo !== '' ? step.itemNo : (idx + 1);
+      const isNormal = step.result === 'ปกติ' || (step.done && step.result !== 'ไม่ปกติ');
+      const isAbnormal = step.result === 'ไม่ปกติ';
+
+      dataRow[0] = itemNo;
+      dataRow[1] = step.title || '';
+      dataRow[8] = step.method || 'ดูด้วยสายตา';
+      dataRow[11] = step.standard || '-';
+      dataRow[19] = step.frequency || plan.frequency || '1 เดือน/ครั้ง';
+      // ✓ ลงคอลัมน์ 20 (ปกติ) หรือ 22 (ไม่ปกติ)
+      if (isNormal) dataRow[20] = '✓';
+      if (isAbnormal) dataRow[22] = '✓';
+      dataRow[24] = step.abnormalDetail || '';
+      dataRow[32] = step.remark || '';
+    } else {
+      dataRow[0] = idx + 1;
+    }
+    rows.push(dataRow);
+
+    // Merges for step row r:
+    merges.push(
+      // หัวข้อ PM(1–7)
+      { s: { r, c: 1 }, e: { r, c: 7 } },
+      // วิธีการ(8–10)
+      { s: { r, c: 8 }, e: { r, c: 10 } },
+      // มาตรฐาน(11–18)
+      { s: { r, c: 11 }, e: { r, c: 18 } },
+      // ปกติ merge(20–21)
+      { s: { r, c: 20 }, e: { r, c: 21 } },
+      // ไม่ปกติ merge(22–23)
+      { s: { r, c: 22 }, e: { r, c: 23 } },
+      // รายละเอียด(24–31)
+      { s: { r, c: 24 }, e: { r, c: 31 } },
+      // หมายเหตุ(32–33)
+      { s: { r, c: 32 }, e: { r, c: 33 } }
+    );
+  }
+
+  const dataEndRow = 3 + totalStepsCount;
 
   // Empty separator
-  rows.push(['', '', '', '', '', '', '', '', '']);
+  rows.push(new Array(TOTAL_COLS).fill(''));
 
-  // Spare parts row
-  rows.push([
-    'ลำดับ',
-    'รายการอะไหล่ที่เตรียมแก้ไข',
-    '',
-    '',
-    '',
-    '',
-    'จำนวน',
-    '',
-    ''
-  ]);
-  rows.push([
-    '1',
-    plan.spareParts || '-',
-    '',
-    '',
-    '',
-    '',
-    plan.sparePartsQty || '-',
-    '',
-    ''
-  ]);
+  // Spare parts header row
+  const spareHeader = new Array(TOTAL_COLS).fill('');
+  spareHeader[0] = 'ลำดับ';
+  spareHeader[1] = 'รายการอะไหล่ที่เตรียมแก้ไข';
+  spareHeader[24] = 'จำนวน';
+  rows.push(spareHeader);
+
+  // Spare parts data row
+  const spareData = new Array(TOTAL_COLS).fill('');
+  spareData[0] = '1';
+  spareData[1] = plan.spareParts || '-';
+  spareData[24] = plan.sparePartsQty || '-';
+  rows.push(spareData);
+
+  // Empty separator
+  rows.push(new Array(TOTAL_COLS).fill(''));
 
   // Signatures / Approvals
-  rows.push(['', '', '', '', '', '', '', '', '']);
-  rows.push([
-    `ผู้ทำการ PM: ${plan.inspectorTech || '...................................................'} ทีมช่าง`, '', '', '',
-    '', '', '', '', ''
-  ]);
-  rows.push([
-    `ผู้รับทราบทำการ PM: ${plan.acknowledgingDept || '...................................................'} ฝ่ายผลิต`, '', '', '',
-    '', '', '', '', ''
-  ]);
-  rows.push([
-    `ผู้ตรวจสอบทำการ PM: ${plan.supervisorName || '...................................................'} หัวหน้าหน่วย PM`, '', '', '',
-    '', '', '', '', ''
-  ]);
+  const sig1 = new Array(TOTAL_COLS).fill('');
+  sig1[0] = `ผู้ทำการ PM: ${plan.inspectorTech || '...................................................'} ทีมช่าง`;
+  rows.push(sig1);
+
+  const sig2 = new Array(TOTAL_COLS).fill('');
+  sig2[0] = `ผู้รับทราบทำการ PM: ${plan.acknowledgingDept || '...................................................'} ฝ่ายผลิต`;
+  rows.push(sig2);
+
+  const sig3 = new Array(TOTAL_COLS).fill('');
+  sig3[0] = `ผู้ตรวจสอบทำการ PM: ${plan.supervisorName || '...................................................'} หัวหน้าหน่วย PM`;
+  rows.push(sig3);
+
+  // Footer merges (ขยาย merge ให้พอดี 34 คอลัมน์)
+  const spareHeaderRow = dataEndRow + 2;
+  const spareDataRow = dataEndRow + 3;
+  const sig1Row = dataEndRow + 5;
+  const sig2Row = dataEndRow + 6;
+  const sig3Row = dataEndRow + 7;
+
+  merges.push(
+    // Spare parts header: ลำดับ(0), รายการอะไหล่(1-23), จำนวน(24-33)
+    { s: { r: spareHeaderRow, c: 1 }, e: { r: spareHeaderRow, c: 23 } },
+    { s: { r: spareHeaderRow, c: 24 }, e: { r: spareHeaderRow, c: 33 } },
+    // Spare parts data
+    { s: { r: spareDataRow, c: 1 }, e: { r: spareDataRow, c: 23 } },
+    { s: { r: spareDataRow, c: 24 }, e: { r: spareDataRow, c: 33 } },
+    // Signatures merges across all 34 cols
+    { s: { r: sig1Row, c: 0 }, e: { r: sig1Row, c: 33 } },
+    { s: { r: sig2Row, c: 0 }, e: { r: sig2Row, c: 33 } },
+    { s: { r: sig3Row, c: 0 }, e: { r: sig3Row, c: 33 } }
+  );
 
   // Create worksheet from rows
   const ws = XLSX.utils.aoa_to_sheet(rows);
-
-  // Configure column widths
-  ws['!cols'] = [
-    { wch: 8 },  // ลำดับ
-    { wch: 35 }, // หัวข้อ PM
-    { wch: 18 }, // วิธีการ
-    { wch: 45 }, // มาตรฐาน
-    { wch: 14 }, // ความถี่
-    { wch: 10 }, // ปกติ
-    { wch: 10 }, // ไม่ปกติ
-    { wch: 35 }, // รายละเอียดสิ่งที่ผิดปกติ
-    { wch: 25 }  // หมายเหตุ
-  ];
-
-  // Merges
-  ws['!merges'] = [
-    // Title row merge A1:I1
-    { s: { r: 0, c: 0 }, e: { r: 0, c: 8 } },
-    // Header machine name merge A2:D2
-    { s: { r: 1, c: 0 }, e: { r: 1, c: 3 } },
-    // Machine ID merge E2:F2
-    { s: { r: 1, c: 4 }, e: { r: 1, c: 5 } },
-    // PM Date merge G2:I2
-    { s: { r: 1, c: 6 }, e: { r: 1, c: 8 } },
-    // Spare parts header merge B(row):F(row)
-    { s: { r: rows.length - 5, c: 1 }, e: { r: rows.length - 5, c: 5 } },
-    { s: { r: rows.length - 5, c: 6 }, e: { r: rows.length - 5, c: 8 } },
-    // Spare parts data merge B(row):F(row)
-    { s: { r: rows.length - 4, c: 1 }, e: { r: rows.length - 4, c: 5 } },
-    { s: { r: rows.length - 4, c: 6 }, e: { r: rows.length - 4, c: 8 } },
-    // Signatures merges
-    { s: { r: rows.length - 3, c: 0 }, e: { r: rows.length - 3, c: 8 } },
-    { s: { r: rows.length - 2, c: 0 }, e: { r: rows.length - 2, c: 8 } },
-    { s: { r: rows.length - 1, c: 0 }, e: { r: rows.length - 1, c: 8 } }
-  ];
+  ws['!merges'] = merges;
+  ws['!cols'] = get34ColumnWidths();
 
   // Border style definitions
   const thinBorder = {
@@ -166,11 +253,6 @@ export const exportPMReportToExcel = (
     left: { style: 'thin', color: { rgb: '000000' } },
     right: { style: 'thin', color: { rgb: '000000' } }
   };
-
-  const TOTAL_COLS = 9;
-  const stepsEndRow = 2 + steps.length;
-  const spareHeaderRow = rows.length - 5;
-  const spareDataRow = rows.length - 4;
 
   // 1. Title Row (Row 0)
   for (let c = 0; c < TOTAL_COLS; c++) {
@@ -190,45 +272,51 @@ export const exportPMReportToExcel = (
     if (!ws[ref]) ws[ref] = { t: 's', v: '' };
     ws[ref].s = {
       font: { bold: true, sz: 10.5, color: { rgb: '1E293B' } },
-      alignment: { vertical: 'center', horizontal: c >= 6 ? 'center' : 'left' },
+      alignment: { vertical: 'center', horizontal: c >= 24 ? 'center' : 'left' },
       fill: { fgColor: { rgb: 'F8FAFC' } },
       border: thinBorder
     };
   }
 
-  // 3. Table Header Row (Row 2)
-  for (let c = 0; c < TOTAL_COLS; c++) {
-    const ref = XLSX.utils.encode_cell({ r: 2, c });
-    if (!ws[ref]) ws[ref] = { t: 's', v: '' };
-    ws[ref].s = {
-      font: { bold: true, sz: 10, color: { rgb: '0F172A' } },
-      alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
-      fill: { fgColor: { rgb: 'E2E8F0' } },
-      border: thinBorder
-    };
+  // 3. Table Header Rows (Row 2 and Row 3)
+  for (let r = 2; r <= 3; r++) {
+    for (let c = 0; c < TOTAL_COLS; c++) {
+      const ref = XLSX.utils.encode_cell({ r, c });
+      if (!ws[ref]) ws[ref] = { t: 's', v: '' };
+      ws[ref].s = {
+        font: { bold: true, sz: 10, color: { rgb: '0F172A' } },
+        alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
+        fill: { fgColor: { rgb: 'E2E8F0' } },
+        border: thinBorder
+      };
+    }
   }
 
-  // 4. Data Rows (Rows 3 to stepsEndRow)
-  for (let r = 3; r <= stepsEndRow; r++) {
-    const isEven = (r - 3) % 2 === 1;
+  // 4. Data Rows (Rows 4 to dataEndRow)
+  for (let r = 4; r <= dataEndRow; r++) {
+    const isEven = (r - 4) % 2 === 1;
     const rowBg = isEven ? 'F8FAFC' : 'FFFFFF';
 
     for (let c = 0; c < TOTAL_COLS; c++) {
       const ref = XLSX.utils.encode_cell({ r, c });
       if (!ws[ref]) ws[ref] = { t: 's', v: '' };
 
-      const isCenterCol = (c === 0 || c === 4 || c === 5 || c === 6);
+      const isCheckCol = (c >= 20 && c <= 23);
+      const isCenterCol = (c === 0 || c === 19 || isCheckCol);
+      const isNormalCol = (c === 20 || c === 21);
+      const isAbnormalCol = (c === 22 || c === 23);
+
       let valColor = '1E293B';
       let isBold = false;
       const cellVal = String(ws[ref].v || '');
       if (cellVal === '✓' || cellVal === '✔') {
         isBold = true;
-        valColor = c === 5 ? '059669' : (c === 6 ? 'DC2626' : '1E293B');
+        valColor = isNormalCol ? '059669' : (isAbnormalCol ? 'DC2626' : '1E293B');
       }
 
       ws[ref].s = {
         font: {
-          sz: (c === 5 || c === 6) ? 12 : 10,
+          sz: isCheckCol ? 12 : 10,
           bold: isBold,
           color: { rgb: valColor }
         },
@@ -258,14 +346,14 @@ export const exportPMReportToExcel = (
     if (!ws[dataRef]) ws[dataRef] = { t: 's', v: '' };
     ws[dataRef].s = {
       font: { sz: 10, color: { rgb: '1E293B' } },
-      alignment: { horizontal: (c === 0 || c >= 6) ? 'center' : 'left', vertical: 'center' },
+      alignment: { horizontal: (c === 0 || c >= 24) ? 'center' : 'left', vertical: 'center' },
       fill: { fgColor: { rgb: 'FFFFFF' } },
       border: thinBorder
     };
   }
 
-  // 6. Signatures (rows.length - 3 to rows.length - 1)
-  for (let r = rows.length - 3; r < rows.length; r++) {
+  // 6. Signatures (sig1Row to sig3Row)
+  for (let r = sig1Row; r <= sig3Row; r++) {
     for (let c = 0; c < TOTAL_COLS; c++) {
       const ref = XLSX.utils.encode_cell({ r, c });
       if (!ws[ref]) ws[ref] = { t: 's', v: '' };
@@ -278,11 +366,12 @@ export const exportPMReportToExcel = (
 
   // Row heights
   const rowHeights: { hpt: number }[] = [
-    { hpt: 24 }, // Row 0
-    { hpt: 24 }, // Row 1
-    { hpt: 24 }, // Row 2 Header
+    { hpt: 26 }, // Row 0 Title
+    { hpt: 24 }, // Row 1 Machine Info
+    { hpt: 22 }, // Row 2 Header Top
+    { hpt: 20 }, // Row 3 Header Sub
   ];
-  for (let r = 3; r <= stepsEndRow; r++) {
+  for (let r = 4; r <= dataEndRow; r++) {
     rowHeights.push({ hpt: 28 });
   }
   rowHeights.push({ hpt: 12 }); // Empty separator
@@ -341,25 +430,23 @@ export const parsePMReportExcel = (data: ArrayBuffer): ParsedPMReportResult => {
   // 1. Scan the top 12 rows for metadata & header row
   for (let r = 0; r < Math.min(rawRows.length, 12); r++) {
     const row = rawRows[r] || [];
-    const rowJoined = row.map(c => String(c).trim()).join(' ');
 
-    // Machine Name
-    const nameMatch = rowJoined.match(/ชื่อเครื่องจักร\s*[:：]?\s*([^รหัส|วันที่|\n]+)/i);
-    if (nameMatch && nameMatch[1]) {
-      machineName = nameMatch[1].trim();
-    }
-
-    // Machine ID
-    const idMatch = rowJoined.match(/รหัสเครื่องจักร\s*[:：]?\s*([A-Za-z0-9_-]+)/i);
-    if (idMatch && idMatch[1]) {
-      machineId = idMatch[1].trim();
-    }
-
-    // Date
-    const dateMatch = rowJoined.match(/วันที่\s*(?:ทำ\s*PM)?\s*[:：]?\s*([0-9\/\-\.]+)/i);
-    if (dateMatch && dateMatch[1] && !dateMatch[1].startsWith('..')) {
-      reportDate = dateMatch[1].trim();
-    }
+    // Cell-by-cell metadata extraction
+    row.forEach(cell => {
+      const s = String(cell).trim();
+      if (s.startsWith('ชื่อเครื่องจักร')) {
+        const val = s.replace(/^ชื่อเครื่องจักร\s*[:：]?\s*/i, '').trim();
+        if (val) machineName = val;
+      }
+      if (s.startsWith('รหัสเครื่องจักร')) {
+        const val = s.replace(/^รหัสเครื่องจักร\s*[:：]?\s*/i, '').trim();
+        if (val) machineId = val;
+      }
+      if (s.includes('วันที่')) {
+        const m = s.match(/วันที่\s*(?:ทำ\s*PM)?\s*[:：]?\s*([0-9\/\-\.]+)/i);
+        if (m && m[1] && !m[1].startsWith('..')) reportDate = m[1].trim();
+      }
+    });
 
     // Check if this row is the table header
     const hasHeaderKeywords = row.some(cell => {
@@ -378,11 +465,28 @@ export const parsePMReportExcel = (data: ArrayBuffer): ParsedPMReportResult => {
         else if (s.includes('วิธี')) colIndex.method = c;
         else if (s.includes('มาตรฐาน')) colIndex.standard = c;
         else if (s.includes('ความถี่')) colIndex.frequency = c;
-        else if (s.includes('ปกติ') && !s.includes('ไม่')) colIndex.normal = c;
-        else if (s.includes('ไม่ปกติ')) colIndex.abnormal = c;
         else if (s.includes('ผิดปกติ') || s.includes('รายละเอียด') || s.includes('ค่าที่วัด')) colIndex.abnormalDetail = c;
         else if (s.includes('หมายเหตุ')) colIndex.remark = c;
+        else if (s.includes('ไม่ปกติ')) colIndex.abnormal = c;
+        else if (s.includes('ปกติ') && !s.includes('ไม่') && !s.includes('ผิด')) colIndex.normal = c;
       });
+
+      // Also inspect sub-header row (r + 1) for 'ปกติ' (col 20) and 'ไม่ปกติ' (col 22)
+      const nextHeaderRow = rawRows[r + 1] || [];
+      nextHeaderRow.forEach((cell, c) => {
+        const s = String(cell).toLowerCase();
+        if (s.includes('ผิดปกติ') || s.includes('รายละเอียด')) colIndex.abnormalDetail = c;
+        else if (s.includes('ไม่ปกติ')) colIndex.abnormal = c;
+        else if (s.includes('ปกติ') && !s.includes('ไม่') && !s.includes('ผิด')) colIndex.normal = c;
+      });
+
+      // For 34-column layout, enforce canonical columns if row is wide
+      if (row.length >= 30) {
+        if (colIndex.normal === 0 || colIndex.normal === 20) colIndex.normal = 20;
+        if (colIndex.abnormal === 1 || colIndex.abnormal === 22) colIndex.abnormal = 22;
+        colIndex.abnormalDetail = 24;
+        colIndex.remark = 32;
+      }
     }
   }
 
@@ -391,12 +495,19 @@ export const parsePMReportExcel = (data: ArrayBuffer): ParsedPMReportResult => {
     headerRowIndex = 2;
   }
 
-  // 2. Parse data rows starting after headerRowIndex
+  // 2. Parse data rows starting after headerRowIndex (skip sub-header if present)
   const steps: PMStep[] = [];
   let currentTitle = '';
   let currentMethod = '';
 
-  for (let r = headerRowIndex + 1; r < rawRows.length; r++) {
+  const subHeaderRow = rawRows[headerRowIndex + 1] || [];
+  const hasSubHeader = subHeaderRow.some(c => {
+    const s = String(c).trim();
+    return s.includes('ปกติ') || s.includes('ไม่ปกติ');
+  });
+  const dataStartRow = headerRowIndex + (hasSubHeader ? 2 : 1);
+
+  for (let r = dataStartRow; r < rawRows.length; r++) {
     const row = rawRows[r] || [];
     const rowJoined = row.map(c => String(c).trim()).join(' ');
 
@@ -413,16 +524,16 @@ export const parsePMReportExcel = (data: ArrayBuffer): ParsedPMReportResult => {
         const fJoined = fRow.map(c => String(c).trim()).join(' ');
 
         if (fJoined.includes('ผู้ทำการ PM') || fJoined.includes('ทีมช่าง')) {
-          const m = fJoined.match(/ผู้ทำการ\s*PM\s*[:：]?\s*([^ทีมช่าง\n\.]+)/i);
-          if (m && m[1] && !m[1].includes('...')) inspectorTech = m[1].trim();
+          const val = fJoined.replace(/^.*ผู้ทำการ\s*PM\s*[:：]?\s*/i, '').replace(/ทีมช่าง.*$/i, '').trim();
+          if (val && !val.includes('...')) inspectorTech = val;
         }
         if (fJoined.includes('ผู้รับทราบ') || fJoined.includes('ฝ่ายผลิต')) {
-          const m = fJoined.match(/ผู้รับทราบ\s*ทำ?การ\s*PM\s*[:：]?\s*([^ฝ่ายผลิต\n\.]+)/i);
-          if (m && m[1] && !m[1].includes('...')) acknowledgingDept = m[1].trim();
+          const val = fJoined.replace(/^.*ผู้รับทราบ\s*(?:ทำ\s*การ)?\s*PM\s*[:：]?\s*/i, '').replace(/ฝ่ายผลิต.*$/i, '').trim();
+          if (val && !val.includes('...')) acknowledgingDept = val;
         }
         if (fJoined.includes('ผู้ตรวจสอบ') || fJoined.includes('หัวหน้า')) {
-          const m = fJoined.match(/ผู้ตรวจสอบ\s*ทำ?การ\s*PM\s*[:：]?\s*([^หัวหน้า\n\.]+)/i);
-          if (m && m[1] && !m[1].includes('...')) supervisorName = m[1].trim();
+          const val = fJoined.replace(/^.*ผู้ตรวจสอบ\s*(?:ทำ\s*การ)?\s*PM\s*[:：]?\s*/i, '').replace(/หัวหน้า.*$/i, '').trim();
+          if (val && !val.includes('...')) supervisorName = val;
         }
         if (fJoined.includes('รายการอะไหล่ที่เตรียมแก้ไข')) {
           // Look at next row for spare part value
@@ -431,7 +542,10 @@ export const parsePMReportExcel = (data: ArrayBuffer): ParsedPMReportResult => {
             const partCandidate = String(nextRow[1] || '').trim();
             if (partCandidate && partCandidate !== '-') {
               spareParts = partCandidate;
-              sparePartsQty = String(nextRow[nextRow.length - 3] || nextRow[colIndex.normal] || '').trim();
+              const qtyCandidate = String(nextRow[24] || nextRow[nextRow.length - 3] || nextRow[colIndex.normal] || '').trim();
+              if (qtyCandidate && qtyCandidate !== '-') {
+                sparePartsQty = qtyCandidate;
+              }
             }
           }
         }
@@ -448,8 +562,16 @@ export const parsePMReportExcel = (data: ArrayBuffer): ParsedPMReportResult => {
     const rawMethod = row[colIndex.method] !== undefined ? String(row[colIndex.method]).trim() : '';
     const rawStandard = row[colIndex.standard] !== undefined ? String(row[colIndex.standard]).trim() : '';
     const rawFreq = row[colIndex.frequency] !== undefined ? String(row[colIndex.frequency]).trim() : '';
-    const rawNormal = row[colIndex.normal] !== undefined ? String(row[colIndex.normal]).trim() : '';
-    const rawAbnormal = row[colIndex.abnormal] !== undefined ? String(row[colIndex.abnormal]).trim() : '';
+    
+    // Support normal at colIndex.normal (or col 20/21) and abnormal at colIndex.abnormal (or col 22/23)
+    let rawNormal = row[colIndex.normal] !== undefined ? String(row[colIndex.normal]).trim() : '';
+    let rawAbnormal = row[colIndex.abnormal] !== undefined ? String(row[colIndex.abnormal]).trim() : '';
+    if (colIndex.normal === 20 && !rawNormal && row[21] !== undefined) {
+      rawNormal = String(row[21]).trim();
+    }
+    if (colIndex.abnormal === 22 && !rawAbnormal && row[23] !== undefined) {
+      rawAbnormal = String(row[23]).trim();
+    }
     const rawAbnormalDetail = row[colIndex.abnormalDetail] !== undefined ? String(row[colIndex.abnormalDetail]).trim() : '';
     const rawRemark = row[colIndex.remark] !== undefined ? String(row[colIndex.remark]).trim() : '';
 

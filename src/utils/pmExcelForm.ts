@@ -43,12 +43,13 @@ const getColumnWidths = (): { wch: number }[] => {
 
 /**
  * Export PM Form to Excel (.xlsx) using SheetJS (XLSX.utils.aoa_to_sheet)
- * Layout (0-based columns, A=0 ... AH=33):
- * - Row 0: Title merge (0,0)–(1,33) = "ใบรายงาน Preventive Maintenance (PM)"
- * - Row 3: "ชื่อเครื่องจักร : "+machine.name merge (0)–(8); "รหัสเครื่องจักร: "+machine.id merge (9)–(27); "วันที่ทำPM......." merge (28)–(33)
- * - Header h=4, height 3: ลำดับ(0) | หัวข้อ PM(1–7) | วิธีการ(8–10) | มาตรฐาน(11–18) | ความถี่(19) | ผลการPM(20–23) | รายละเอียดสิ่งที่ผิดปกติ(24–31) | หมายเหตุ(32–33)
- * - Header sub-row h+1 (Row 5) height 2: ปกติ merge(20–21), ไม่ปกติ merge(22–23)
- * - Data starts at h+3 (Row 7): 1 step = 1 row
+ * Standard 34-column layout (0-based columns, A=0 ... AH=33):
+ * - Row 0: Title merge (0..33) = "ใบรายงาน Preventive Maintenance (PM)"
+ * - Row 1: "ชื่อเครื่องจักร : "+machine.name merge (0)–(8); "รหัสเครื่องจักร: "+machine.id merge (9)–(23); "วันที่ทำ PM: ......" merge (24)–(33)
+ * - Header Row 2: ลำดับ(0) | หัวข้อ PM(1–7) | วิธีการ(8–10) | มาตรฐาน(11–18) | ความถี่(19) | ผลการ PM(20–23) เป็นหัวรวมคร่อม | รายละเอียด(24–31) | หมายเหตุ(32–33)
+ * - Header sub-row (Row 3): ปกติ merge(20–21), ไม่ปกติ merge(22–23)
+ * - Data starts at Row 4: 1 step = 1 row (✓ in col 20 for normal, col 22 for abnormal)
+ * - Footer: Spare parts table & signatures merged to 34 columns
  */
 export function exportPMForm(machine: Machine, plan: PMPlan): void {
   const TOTAL_COLS = 34;
@@ -59,80 +60,68 @@ export function exportPMForm(machine: Machine, plan: PMPlan): void {
   row0[0] = 'ใบรายงาน Preventive Maintenance (PM)';
   rows.push(row0);
 
-  // Row 1: (Merged with row 0)
-  rows.push(new Array(TOTAL_COLS).fill(''));
+  // Row 1: Machine Info
+  const row1 = new Array(TOTAL_COLS).fill('');
+  row1[0] = `ชื่อเครื่องจักร : ${machine.name || ''}`;
+  row1[9] = `รหัสเครื่องจักร: ${machine.id || ''}`;
+  row1[24] = 'วันที่ทำ PM: .......................................';
+  rows.push(row1);
 
-  // Row 2: Blank spacer row
-  rows.push(new Array(TOTAL_COLS).fill(''));
+  // Row 2: Header Top
+  const row2 = new Array(TOTAL_COLS).fill('');
+  row2[0] = 'ลำดับ';
+  row2[1] = 'หัวข้อ PM';
+  row2[8] = 'วิธีการ';
+  row2[11] = 'มาตรฐาน';
+  row2[19] = 'ความถี่';
+  row2[20] = 'ผลการ PM';
+  row2[24] = 'รายละเอียดสิ่งที่ผิดปกติ / ค่าที่วัดได้';
+  row2[32] = 'หมายเหตุ';
+  rows.push(row2);
 
-  // Row 3: Machine Info
+  // Row 3: Header Sub-row
   const row3 = new Array(TOTAL_COLS).fill('');
-  row3[0] = `ชื่อเครื่องจักร : ${machine.name || ''}`;
-  row3[9] = `รหัสเครื่องจักร: ${machine.id || ''}`;
-  row3[28] = 'วันที่ทำPM.......';
+  row3[20] = 'ปกติ';
+  row3[22] = 'ไม่ปกติ';
   rows.push(row3);
-
-  // Header h=4 (Row 4)
-  const row4 = new Array(TOTAL_COLS).fill('');
-  row4[0] = 'ลำดับ';
-  row4[1] = 'หัวข้อ PM';
-  row4[8] = 'วิธีการ';
-  row4[11] = 'มาตรฐาน';
-  row4[19] = 'ความถี่';
-  row4[20] = 'ผลการ PM';
-  row4[24] = 'รายละเอียดสิ่งที่ผิดปกติ';
-  row4[32] = 'หมายเหตุ';
-  rows.push(row4);
-
-  // Header Sub-row h+1 (Row 5)
-  const row5 = new Array(TOTAL_COLS).fill('');
-  row5[20] = 'ปกติ';
-  row5[22] = 'ไม่ปกติ';
-  rows.push(row5);
-
-  // Row 6 (Merged with Header rows 4 & 5)
-  rows.push(new Array(TOTAL_COLS).fill(''));
 
   // Header and layout merges
   const merges: XLSX.Range[] = [
-    // แถว 0: Title merge (0,0)–(1,33)
-    { s: { r: 0, c: 0 }, e: { r: 1, c: 33 } },
+    // แถว 0: Title merge (0,0)–(0,33)
+    { s: { r: 0, c: 0 }, e: { r: 0, c: 33 } },
 
-    // แถว 3:
-    // "ชื่อเครื่องจักร : "+machine.name merge (0)–(8)
-    { s: { r: 3, c: 0 }, e: { r: 3, c: 8 } },
-    // "รหัสเครื่องจักร: "+machine.id merge (9)–(27)
-    { s: { r: 3, c: 9 }, e: { r: 3, c: 27 } },
-    // "วันที่ทำPM......." merge (28)–(33)
-    { s: { r: 3, c: 28 }, e: { r: 3, c: 33 } },
+    // แถว 1: Machine info
+    { s: { r: 1, c: 0 }, e: { r: 1, c: 8 } },
+    { s: { r: 1, c: 9 }, e: { r: 1, c: 23 } },
+    { s: { r: 1, c: 24 }, e: { r: 1, c: 33 } },
 
-    // Header h=4, สูง 3 แถว (r: 4 to 6):
+    // Header merges (rows 2-3):
     // ลำดับ(0)
-    { s: { r: 4, c: 0 }, e: { r: 6, c: 0 } },
+    { s: { r: 2, c: 0 }, e: { r: 3, c: 0 } },
     // หัวข้อ PM(1–7)
-    { s: { r: 4, c: 1 }, e: { r: 6, c: 7 } },
+    { s: { r: 2, c: 1 }, e: { r: 3, c: 7 } },
     // วิธีการ(8–10)
-    { s: { r: 4, c: 8 }, e: { r: 6, c: 10 } },
+    { s: { r: 2, c: 8 }, e: { r: 3, c: 10 } },
     // มาตรฐาน(11–18)
-    { s: { r: 4, c: 11 }, e: { r: 6, c: 18 } },
+    { s: { r: 2, c: 11 }, e: { r: 3, c: 18 } },
     // ความถี่(19)
-    { s: { r: 4, c: 19 }, e: { r: 6, c: 19 } },
-    // ผลการ PM Title(20–23)
-    { s: { r: 4, c: 20 }, e: { r: 4, c: 23 } },
-    // Header ย่อย แถว h+1 (Row 5) สูง 2: ปกติ merge(20–21), ไม่ปกติ merge(22–23)
-    { s: { r: 5, c: 20 }, e: { r: 6, c: 21 } },
-    { s: { r: 5, c: 22 }, e: { r: 6, c: 23 } },
+    { s: { r: 2, c: 19 }, e: { r: 3, c: 19 } },
+    // ผลการ PM Title(20–23) เป็นหัวรวมคร่อม
+    { s: { r: 2, c: 20 }, e: { r: 2, c: 23 } },
+    // ปกติ merge(20–21), ไม่ปกติ merge(22–23)
+    { s: { r: 3, c: 20 }, e: { r: 3, c: 21 } },
+    { s: { r: 3, c: 22 }, e: { r: 3, c: 23 } },
     // รายละเอียดสิ่งที่ผิดปกติ(24–31)
-    { s: { r: 4, c: 24 }, e: { r: 6, c: 31 } },
+    { s: { r: 2, c: 24 }, e: { r: 3, c: 31 } },
     // หมายเหตุ(32–33)
-    { s: { r: 4, c: 32 }, e: { r: 6, c: 33 } }
+    { s: { r: 2, c: 32 }, e: { r: 3, c: 33 } }
   ];
 
-  // Data starts at row h+3 = 7
+  // Data starts at Row 4
   const steps = plan.steps || [];
-  const totalRowsCount = Math.max(steps.length, 6); // At least 6 rows so form has standard size
+  const totalRowsCount = Math.max(steps.length, 6);
   for (let idx = 0; idx < totalRowsCount; idx++) {
-    const r = 7 + idx;
+    const r = 4 + idx;
     const step = steps[idx];
     const dataRow = new Array(TOTAL_COLS).fill('');
 
@@ -143,7 +132,7 @@ export function exportPMForm(machine: Machine, plan: PMPlan): void {
       dataRow[11] = step.standard || '';
       dataRow[19] = step.frequency || '';
 
-      // ผลการ PM: result==='ปกติ' → เซลล์คอลัมน์ 20 = '✓'; result==='ไม่ปกติ' → คอลัมน์ 22 = '✓'; 'ยังไม่ตรวจ' → เว้นทั้งคู่
+      // ผลการ PM: ✓ ลงคอลัมน์ 20 (ปกติ) หรือ 22 (ไม่ปกติ)
       if (step.result === 'ปกติ') {
         dataRow[20] = '✓';
       } else if (step.result === 'ไม่ปกติ') {
@@ -176,6 +165,58 @@ export function exportPMForm(machine: Machine, plan: PMPlan): void {
     );
   }
 
+  const dataEndRow = 3 + totalRowsCount;
+
+  // Empty separator
+  rows.push(new Array(TOTAL_COLS).fill(''));
+
+  // Spare parts header row
+  const spareHeader = new Array(TOTAL_COLS).fill('');
+  spareHeader[0] = 'ลำดับ';
+  spareHeader[1] = 'รายการอะไหล่ที่เตรียมแก้ไข';
+  spareHeader[24] = 'จำนวน';
+  rows.push(spareHeader);
+
+  // Spare parts data row
+  const spareData = new Array(TOTAL_COLS).fill('');
+  spareData[0] = '1';
+  spareData[1] = plan.spareParts || '-';
+  spareData[24] = plan.sparePartsQty || '-';
+  rows.push(spareData);
+
+  // Empty separator
+  rows.push(new Array(TOTAL_COLS).fill(''));
+
+  // Signatures / Approvals
+  const sig1 = new Array(TOTAL_COLS).fill('');
+  sig1[0] = `ผู้ทำการ PM: ${plan.inspectorTech || '...................................................'} ทีมช่าง`;
+  rows.push(sig1);
+
+  const sig2 = new Array(TOTAL_COLS).fill('');
+  sig2[0] = `ผู้รับทราบทำการ PM: ${plan.acknowledgingDept || '...................................................'} ฝ่ายผลิต`;
+  rows.push(sig2);
+
+  const sig3 = new Array(TOTAL_COLS).fill('');
+  sig3[0] = `ผู้ตรวจสอบทำการ PM: ${plan.supervisorName || '...................................................'} หัวหน้าหน่วย PM`;
+  rows.push(sig3);
+
+  // Footer merges
+  const spareHeaderRow = dataEndRow + 2;
+  const spareDataRow = dataEndRow + 3;
+  const sig1Row = dataEndRow + 5;
+  const sig2Row = dataEndRow + 6;
+  const sig3Row = dataEndRow + 7;
+
+  merges.push(
+    { s: { r: spareHeaderRow, c: 1 }, e: { r: spareHeaderRow, c: 23 } },
+    { s: { r: spareHeaderRow, c: 24 }, e: { r: spareHeaderRow, c: 33 } },
+    { s: { r: spareDataRow, c: 1 }, e: { r: spareDataRow, c: 23 } },
+    { s: { r: spareDataRow, c: 24 }, e: { r: spareDataRow, c: 33 } },
+    { s: { r: sig1Row, c: 0 }, e: { r: sig1Row, c: 33 } },
+    { s: { r: sig2Row, c: 0 }, e: { r: sig2Row, c: 33 } },
+    { s: { r: sig3Row, c: 0 }, e: { r: sig3Row, c: 33 } }
+  );
+
   // Create worksheet
   const ws = XLSX.utils.aoa_to_sheet(rows);
   ws['!merges'] = merges;
@@ -189,34 +230,32 @@ export function exportPMForm(machine: Machine, plan: PMPlan): void {
     right: { style: 'thin', color: { rgb: '000000' } }
   };
 
-  // 1. Style Title (Rows 0-1)
-  for (let r = 0; r <= 1; r++) {
-    for (let c = 0; c < TOTAL_COLS; c++) {
-      const ref = XLSX.utils.encode_cell({ r, c });
-      if (!ws[ref]) ws[ref] = { t: 's', v: '' };
-      ws[ref].s = {
-        font: { bold: true, sz: 14, color: { rgb: '0F172A' } },
-        alignment: { horizontal: 'center', vertical: 'center' },
-        fill: { fgColor: { rgb: 'F1F5F9' } },
-        border: thinBorder
-      };
-    }
+  // 1. Style Title (Row 0)
+  for (let c = 0; c < TOTAL_COLS; c++) {
+    const ref = XLSX.utils.encode_cell({ r: 0, c });
+    if (!ws[ref]) ws[ref] = { t: 's', v: '' };
+    ws[ref].s = {
+      font: { bold: true, sz: 14, color: { rgb: '0F172A' } },
+      alignment: { horizontal: 'center', vertical: 'center' },
+      fill: { fgColor: { rgb: 'F1F5F9' } },
+      border: thinBorder
+    };
   }
 
-  // 2. Style Machine Info (Row 3)
+  // 2. Style Machine Info (Row 1)
   for (let c = 0; c < TOTAL_COLS; c++) {
-    const ref = XLSX.utils.encode_cell({ r: 3, c });
+    const ref = XLSX.utils.encode_cell({ r: 1, c });
     if (!ws[ref]) ws[ref] = { t: 's', v: '' };
     ws[ref].s = {
       font: { bold: true, sz: 10.5, color: { rgb: '1E293B' } },
-      alignment: { vertical: 'center', horizontal: c >= 28 ? 'center' : 'left' },
+      alignment: { vertical: 'center', horizontal: c >= 24 ? 'center' : 'left' },
       fill: { fgColor: { rgb: 'F8FAFC' } },
       border: thinBorder
     };
   }
 
-  // 3. Style Table Headers (Rows 4, 5, 6)
-  for (let r = 4; r <= 6; r++) {
+  // 3. Style Table Headers (Rows 2, 3)
+  for (let r = 2; r <= 3; r++) {
     for (let c = 0; c < TOTAL_COLS; c++) {
       const ref = XLSX.utils.encode_cell({ r, c });
       if (!ws[ref]) ws[ref] = { t: 's', v: '' };
@@ -229,10 +268,9 @@ export function exportPMForm(machine: Machine, plan: PMPlan): void {
     }
   }
 
-  // 4. Style Data Rows (Rows 7 onwards)
-  const lastDataRow = 7 + totalRowsCount - 1;
-  for (let r = 7; r <= lastDataRow; r++) {
-    const isEven = (r - 7) % 2 === 1;
+  // 4. Style Data Rows (Rows 4 to dataEndRow)
+  for (let r = 4; r <= dataEndRow; r++) {
+    const isEven = (r - 4) % 2 === 1;
     const rowBg = isEven ? 'F8FAFC' : 'FFFFFF';
 
     for (let c = 0; c < TOTAL_COLS; c++) {
@@ -269,19 +307,57 @@ export function exportPMForm(machine: Machine, plan: PMPlan): void {
     }
   }
 
+  // 5. Spare parts rows
+  for (let c = 0; c < TOTAL_COLS; c++) {
+    const headerRef = XLSX.utils.encode_cell({ r: spareHeaderRow, c });
+    if (!ws[headerRef]) ws[headerRef] = { t: 's', v: '' };
+    ws[headerRef].s = {
+      font: { bold: true, sz: 10, color: { rgb: '0F172A' } },
+      alignment: { horizontal: 'center', vertical: 'center' },
+      fill: { fgColor: { rgb: 'E2E8F0' } },
+      border: thinBorder
+    };
+
+    const dataRef = XLSX.utils.encode_cell({ r: spareDataRow, c });
+    if (!ws[dataRef]) ws[dataRef] = { t: 's', v: '' };
+    ws[dataRef].s = {
+      font: { sz: 10, color: { rgb: '1E293B' } },
+      alignment: { horizontal: (c === 0 || c >= 24) ? 'center' : 'left', vertical: 'center' },
+      fill: { fgColor: { rgb: 'FFFFFF' } },
+      border: thinBorder
+    };
+  }
+
+  // 6. Signatures (sig1Row to sig3Row)
+  for (let r = sig1Row; r <= sig3Row; r++) {
+    for (let c = 0; c < TOTAL_COLS; c++) {
+      const ref = XLSX.utils.encode_cell({ r, c });
+      if (!ws[ref]) ws[ref] = { t: 's', v: '' };
+      ws[ref].s = {
+        font: { sz: 10, color: { rgb: '334155' } },
+        alignment: { horizontal: 'left', vertical: 'center' }
+      };
+    }
+  }
+
   // Row heights
   const rowHeights: { hpt: number }[] = [
-    { hpt: 24 }, // Row 0
+    { hpt: 26 }, // Row 0
     { hpt: 24 }, // Row 1
-    { hpt: 8 },  // Row 2 spacer
-    { hpt: 26 }, // Row 3 machine info
-    { hpt: 22 }, // Row 4 header
-    { hpt: 20 }, // Row 5 sub-header
-    { hpt: 20 }, // Row 6 header bottom
+    { hpt: 22 }, // Row 2 Header Top
+    { hpt: 20 }, // Row 3 Header Sub
   ];
-  for (let r = 7; r <= lastDataRow; r++) {
-    rowHeights.push({ hpt: 28 }); // 28pt for comfortable multiline data readability
+  for (let r = 4; r <= dataEndRow; r++) {
+    rowHeights.push({ hpt: 28 });
   }
+  rowHeights.push({ hpt: 12 }); // Empty separator
+  rowHeights.push({ hpt: 22 }); // Spare header
+  rowHeights.push({ hpt: 24 }); // Spare data
+  rowHeights.push({ hpt: 12 }); // Empty separator
+  rowHeights.push({ hpt: 24 }); // Sig 1
+  rowHeights.push({ hpt: 24 }); // Sig 2
+  rowHeights.push({ hpt: 24 }); // Sig 3
+
   ws['!rows'] = rowHeights;
   ws['!views'] = [{ showGridLines: true }];
 
@@ -325,19 +401,45 @@ export function importPMForm(file: File): Promise<{ machineName: string; machine
 
         const rows: any[][] = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
 
-        // แถว 3: "ชื่อเครื่องจักร : "+machine.name merge (0)–(8); "รหัสเครื่องจักร: "+machine.id merge (9)–(27)
-        const row3 = rows[3] || [];
-        const rawName = String(row3[0] ?? '');
-        const rawCode = String(row3[9] ?? '');
+        // Find machine name and code from top rows
+        let machineName = '';
+        let machineCode = '';
+        for (let r = 0; r < Math.min(rows.length, 6); r++) {
+          const row = rows[r] || [];
+          const rowStr = row.map(c => String(c ?? '')).join(' ');
+          const nameM = rowStr.match(/ชื่อเครื่องจักร\s*[:：]?\s*([^รหัส|วันที่|\n]+)/i);
+          if (nameM && nameM[1] && !machineName) machineName = nameM[1].trim();
+          const idM = rowStr.match(/รหัสเครื่องจักร\s*[:：]?\s*([A-Za-z0-9_-]+)/i);
+          if (idM && idM[1] && !machineCode) machineCode = idM[1].trim();
+        }
 
-        const machineName = rawName.replace(/^ชื่อเครื่องจักร\s*:\s*/i, '').trim();
-        const machineCode = rawCode.replace(/^รหัสเครื่องจักร\s*:\s*/i, '').trim();
+        // Detect header row index
+        let headerRow = -1;
+        for (let r = 0; r < Math.min(rows.length, 8); r++) {
+          const rowStr = (rows[r] || []).map(c => String(c ?? '')).join(' ');
+          if (rowStr.includes('หัวข้อ') || rowStr.includes('มาตรฐาน')) {
+            headerRow = r;
+            break;
+          }
+        }
+        
+        let startRow = 4;
+        if (headerRow !== -1) {
+          const nextRowStr = (rows[headerRow + 1] || []).map(c => String(c ?? '')).join(' ');
+          startRow = (nextRowStr.includes('ปกติ') || nextRowStr.includes('ไม่ปกติ')) ? headerRow + 2 : headerRow + 1;
+        }
 
-        // Data starts at row h+3 = 7
+        // Data loop starting from detected startRow
         const steps: PMStep[] = [];
-        for (let r = 7; r < rows.length; r++) {
+        for (let r = startRow; r < rows.length; r++) {
           const row = rows[r];
           if (!row || row.length === 0) continue;
+
+          const rowStr = row.map(c => String(c ?? '')).join(' ');
+          // Stop when reaching footer
+          if (rowStr.includes('รายการอะไหล่') || rowStr.includes('ผู้ทำการ PM') || rowStr.includes('ผู้รับทราบ') || rowStr.includes('ผู้ตรวจสอบ')) {
+            break;
+          }
 
           // ถ้าคอลัมน์ 11 (มาตรฐาน) ว่าง = ข้าม
           const standard = String(row[11] ?? '').trim();
@@ -346,10 +448,14 @@ export function importPMForm(file: File): Promise<{ machineName: string; machine
           }
 
           const col20 = String(row[20] ?? '').trim();
+          const col21 = String(row[21] ?? '').trim();
           const col22 = String(row[22] ?? '').trim();
+          const col23 = String(row[23] ?? '').trim();
 
-          const isNormalChecked = col20 === '✓' || col20 === '✔' || col20.toLowerCase() === 'v' || col20 === '/' || col20.toLowerCase() === 'x' || col20 === '1';
-          const isAbnormalChecked = col22 === '✓' || col22 === '✔' || col22.toLowerCase() === 'v' || col22 === '/' || col22.toLowerCase() === 'x' || col22 === '1';
+          const isNormalChecked = col20 === '✓' || col20 === '✔' || col20.toLowerCase() === 'v' || col20 === '/' || col20.toLowerCase() === 'x' || col20 === '1' ||
+                                  col21 === '✓' || col21 === '✔';
+          const isAbnormalChecked = col22 === '✓' || col22 === '✔' || col22.toLowerCase() === 'v' || col22 === '/' || col22.toLowerCase() === 'x' || col22 === '1' ||
+                                    col23 === '✓' || col23 === '✔';
 
           let result: 'ปกติ' | 'ไม่ปกติ' | 'ยังไม่ตรวจ' = 'ยังไม่ตรวจ';
           if (isNormalChecked) {

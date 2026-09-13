@@ -586,7 +586,7 @@ export const InventoryPage: React.FC = () => {
           <span className="px-2.5 py-1 bg-cyan-500/10 text-cyan-400 border border-cyan-500/25 rounded-md font-bold text-[10px] uppercase tracking-widest block w-fit">
             Inventory & Spare Parts
           </span>
-          <h2 className="text-xl font-black text-white mt-1.5 flex items-center gap-2">
+          <h2 className="text-xl font-black text-fg mt-1.5 flex items-center gap-2">
             ⚙️ ระบบบริหารคลังอะไหล่สำรอง (Inventory Manager)
           </h2>
           <p className="text-xs text-slate-400 mt-1 font-sans">
@@ -791,18 +791,18 @@ export const InventoryPage: React.FC = () => {
             {selectedPartIds.length > 0 && (
               <div className="flex items-center gap-2 bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-850">
                 <span className="text-[10.5px] text-amber-400 font-sans font-bold">
-                  เลือกไว้ <b className="font-mono text-white text-xs">{selectedPartIds.length}</b> รายการ
+                  เลือกไว้ <b className="font-mono text-fg text-xs">{selectedPartIds.length}</b> รายการ
                 </span>
                 <span className="text-slate-600">|</span>
                 <button
                   onClick={() => setSelectedPartIds([])}
-                  className="text-slate-400 hover:text-white text-[10px] uppercase font-bold cursor-pointer transition select-none"
+                  className="text-slate-400 hover:text-fg text-[10px] uppercase font-bold cursor-pointer transition select-none"
                 >
                   ล้างที่เลือก (Deselect)
                 </button>
                 <button
                   onClick={handleBulkDelete}
-                  className="ml-1 px-2.5 py-1 bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white border border-red-500/20 rounded-md font-bold text-[10px] flex items-center gap-1 transition cursor-pointer select-none"
+                  className="ml-1 px-2.5 py-1 bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-fg border border-red-500/20 rounded-md font-bold text-[10px] flex items-center gap-1 transition cursor-pointer select-none"
                   title="ลบอะไหล่ทั้งหมดที่เลือกชั่วคราว"
                 >
                   <Trash2 size={11} />
@@ -861,13 +861,13 @@ export const InventoryPage: React.FC = () => {
                   </th>
                   <th 
                     onClick={() => triggerSort('id')}
-                    className="p-3.5 text-slate-400 font-bold uppercase tracking-wider font-mono text-[10px] cursor-pointer hover:text-white hover:bg-slate-800 select-none w-28"
+                    className="p-3.5 text-slate-400 font-bold uppercase tracking-wider font-mono text-[10px] cursor-pointer hover:text-fg hover:bg-slate-800 select-none w-28"
                   >
                     SKU Code <ArrowUpDown size={11} className="inline ml-1" />
                   </th>
                   <th 
                     onClick={() => triggerSort('name')}
-                    className="p-3.5 text-slate-400 font-bold uppercase tracking-wider font-sans text-[10px] cursor-pointer hover:text-white hover:bg-slate-800 select-none"
+                    className="p-3.5 text-slate-400 font-bold uppercase tracking-wider font-sans text-[10px] cursor-pointer hover:text-fg hover:bg-slate-800 select-none"
                   >
                     ชื่ออะไหล่ / สเปค <ArrowUpDown size={11} className="inline ml-1" />
                   </th>
@@ -879,7 +879,7 @@ export const InventoryPage: React.FC = () => {
                   </th>
                   <th 
                     onClick={() => triggerSort('quantity')}
-                    className="p-3.5 text-slate-400 font-bold uppercase tracking-wider font-sans text-[10px] cursor-pointer hover:text-white hover:bg-slate-800 select-none text-center w-36"
+                    className="p-3.5 text-slate-400 font-bold uppercase tracking-wider font-sans text-[10px] cursor-pointer hover:text-fg hover:bg-slate-800 select-none text-center w-36"
                   >
                     จำนวนคงเหลือ <ArrowUpDown size={11} className="inline-block ml-1" />
                   </th>
@@ -888,7 +888,7 @@ export const InventoryPage: React.FC = () => {
                   </th>
                   <th 
                     onClick={() => triggerSort('pricePerUnit')}
-                    className="p-3.5 text-slate-400 font-bold uppercase tracking-wider font-sans text-[10px] cursor-pointer hover:text-white hover:bg-slate-800 select-none text-right w-32"
+                    className="p-3.5 text-slate-400 font-bold uppercase tracking-wider font-sans text-[10px] cursor-pointer hover:text-fg hover:bg-slate-800 select-none text-right w-32"
                   >
                     ราคาต่อหน่วย <ArrowUpDown size={11} className="inline-block ml-1" />
                   </th>
@@ -931,7 +931,7 @@ export const InventoryPage: React.FC = () => {
                       {/* Name / Spec */}
                       <td className="p-3.5">
                         <div className="space-y-1">
-                          <p className="font-semibold text-white leading-normal">{item.name}</p>
+                          <p className="font-semibold text-fg leading-normal">{item.name}</p>
                           {item.specifications && (
                             <p className="text-[10px] text-slate-400 italic max-w-sm cut-text leading-relaxed font-sans" title={item.specifications}>
                               ⚙️ Spec: {item.specifications}
@@ -1026,7 +1026,7 @@ export const InventoryPage: React.FC = () => {
                           {/* Stock Quick Adjustment */}
                           <button
                             onClick={() => openStockModal(item)}
-                            className="bg-slate-950 border border-slate-800 hover:border-slate-700 text-slate-350 hover:text-white px-2 py-1 rounded transition text-[10px] flex items-center gap-1 font-sans cursor-pointer select-none"
+                            className="bg-slate-950 border border-slate-800 hover:border-slate-700 text-slate-350 hover:text-fg px-2 py-1 rounded transition text-[10px] flex items-center gap-1 font-sans cursor-pointer select-none"
                             title="ปรับยอดเบิกจ่าย หรือ ตรวจนับสต็อกล่าสุ"
                           >
                             <RefreshCw size={11} />
@@ -1077,7 +1077,7 @@ export const InventoryPage: React.FC = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in" id="inventory-add-modal-overlay">
           <div className="bg-slate-900 border border-slate-750 rounded-2xl w-full max-w-xl shadow-2xl overflow-hidden" id="inventory-add-modal">
             <div className="p-4 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
-              <h3 className="text-sm font-black text-white uppercase tracking-wider flex items-center gap-1.5">
+              <h3 className="text-sm font-black text-fg uppercase tracking-wider flex items-center gap-1.5">
                 <Package size={16} className="text-cyan-400" />
                 ลงทะเบียนอุปกรณ์อะไหล่ใหม่เข้าระบบคลัง
               </h3>
@@ -1100,7 +1100,7 @@ export const InventoryPage: React.FC = () => {
                     required
                     value={formId}
                     onChange={(e) => setFormId(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 p-2 text-white font-mono rounded focus:border-cyan-500 focus:outline-none"
+                    className="w-full bg-slate-950 border border-slate-800 p-2 text-fg font-mono rounded focus:border-cyan-500 focus:outline-none"
                     placeholder="เช่น SP-09"
                   />
                 </div>
@@ -1128,7 +1128,7 @@ export const InventoryPage: React.FC = () => {
                   required
                   value={formName}
                   onChange={(e) => setFormName(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 p-2 text-white rounded focus:border-cyan-500 focus:outline-none"
+                  className="w-full bg-slate-950 border border-slate-800 p-2 text-fg rounded focus:border-cyan-500 focus:outline-none"
                   placeholder="เช่น มอเตอร์ไฟฟ้าดีซี 24V หรือ เทอร์โมคัปเปิลชนิด K"
                 />
               </div>
@@ -1167,7 +1167,7 @@ export const InventoryPage: React.FC = () => {
                     required
                     value={formQuantity}
                     onChange={(e) => setFormQuantity(parseInt(e.target.value) || 0)}
-                    className="w-full bg-slate-950 border border-slate-800 p-2 text-white font-mono rounded focus:border-cyan-500 focus:outline-none"
+                    className="w-full bg-slate-950 border border-slate-800 p-2 text-fg font-mono rounded focus:border-cyan-500 focus:outline-none"
                   />
                 </div>
 
@@ -1180,7 +1180,7 @@ export const InventoryPage: React.FC = () => {
                     required
                     value={formMinRequired}
                     onChange={(e) => setFormMinRequired(parseInt(e.target.value) || 1)}
-                    className="w-full bg-slate-950 border border-slate-800 p-2 text-white font-mono rounded focus:border-cyan-500 focus:outline-none font-sans"
+                    className="w-full bg-slate-950 border border-slate-800 p-2 text-fg font-mono rounded focus:border-cyan-500 focus:outline-none font-sans"
                   />
                 </div>
 
@@ -1192,7 +1192,7 @@ export const InventoryPage: React.FC = () => {
                     required
                     value={formUnit}
                     onChange={(e) => setFormUnit(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 p-2 text-white rounded focus:border-cyan-500 focus:outline-none"
+                    className="w-full bg-slate-950 border border-slate-800 p-2 text-fg rounded focus:border-cyan-500 focus:outline-none"
                     placeholder="เช่น ชิ้น, ตัว, ม้วน"
                   />
                 </div>
@@ -1206,7 +1206,7 @@ export const InventoryPage: React.FC = () => {
                     type="text"
                     value={formLocation}
                     onChange={(e) => setFormLocation(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 p-2 text-white rounded focus:border-cyan-500 focus:outline-none"
+                    className="w-full bg-slate-950 border border-slate-800 p-2 text-fg rounded focus:border-cyan-500 focus:outline-none"
                     placeholder="เช่น ตู้ A ชั้น 3, บอร์ดเครื่องพ่น"
                   />
                 </div>
@@ -1219,7 +1219,7 @@ export const InventoryPage: React.FC = () => {
                     min="0"
                     value={formPrice}
                     onChange={(e) => setFormPrice(parseInt(e.target.value) || 0)}
-                    className="w-full bg-slate-950 border border-slate-800 p-2 text-white font-mono rounded focus:border-cyan-500 focus:outline-none"
+                    className="w-full bg-slate-950 border border-slate-800 p-2 text-fg font-mono rounded focus:border-cyan-500 focus:outline-none"
                   />
                 </div>
               </div>
@@ -1230,7 +1230,7 @@ export const InventoryPage: React.FC = () => {
                 <textarea
                   value={formSpecs}
                   onChange={(e) => setFormSpecs(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 p-2 text-white rounded focus:border-cyan-500 focus:outline-none font-sans h-16 resize-none"
+                  className="w-full bg-slate-950 border border-slate-800 p-2 text-fg rounded focus:border-cyan-500 focus:outline-none font-sans h-16 resize-none"
                   placeholder="เช่น มอเตอร์ยี่ห้อ Omron ใช้งาน 1/2HP หรือ ลวดซีลแว็กซ์ชนิดร่องแบน ทนแรงดึง..."
                 />
               </div>
@@ -1264,7 +1264,7 @@ export const InventoryPage: React.FC = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in" id="inventory-edit-modal-overlay">
           <div className="bg-slate-900 border border-slate-750 rounded-2xl w-full max-w-xl shadow-2xl overflow-hidden" id="inventory-edit-modal">
             <div className="p-4 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
-              <h3 className="text-sm font-black text-white uppercase tracking-wider flex items-center gap-1.5 animate-pulse">
+              <h3 className="text-sm font-black text-fg uppercase tracking-wider flex items-center gap-1.5 animate-pulse">
                 <Edit2 size={15} className="text-cyan-400" />
                 แก้ไขข้อมูลอะไหล่ระบบ SKU: {selectedPart.id}
               </h3>
@@ -1313,7 +1313,7 @@ export const InventoryPage: React.FC = () => {
                   required
                   value={formName}
                   onChange={(e) => setFormName(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 p-2 text-white rounded focus:border-cyan-500 focus:outline-none"
+                  className="w-full bg-slate-950 border border-slate-800 p-2 text-fg rounded focus:border-cyan-500 focus:outline-none"
                 />
               </div>
 
@@ -1348,7 +1348,7 @@ export const InventoryPage: React.FC = () => {
                     required
                     value={formQuantity}
                     onChange={(e) => setFormQuantity(parseInt(e.target.value) || 0)}
-                    className="w-full bg-slate-950 border border-slate-800 p-2 text-white font-mono rounded focus:border-cyan-500 focus:outline-none"
+                    className="w-full bg-slate-950 border border-slate-800 p-2 text-fg font-mono rounded focus:border-cyan-500 focus:outline-none"
                   />
                 </div>
 
@@ -1361,7 +1361,7 @@ export const InventoryPage: React.FC = () => {
                     required
                     value={formMinRequired}
                     onChange={(e) => setFormMinRequired(parseInt(e.target.value) || 1)}
-                    className="w-full bg-slate-950 border border-slate-800 p-2 text-white font-mono rounded focus:border-cyan-500 focus:outline-none"
+                    className="w-full bg-slate-950 border border-slate-800 p-2 text-fg font-mono rounded focus:border-cyan-500 focus:outline-none"
                   />
                 </div>
 
@@ -1373,7 +1373,7 @@ export const InventoryPage: React.FC = () => {
                     required
                     value={formUnit}
                     onChange={(e) => setFormUnit(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 p-2 text-white rounded focus:border-cyan-500 focus:outline-none"
+                    className="w-full bg-slate-950 border border-slate-800 p-2 text-fg rounded focus:border-cyan-500 focus:outline-none"
                   />
                 </div>
               </div>
@@ -1386,7 +1386,7 @@ export const InventoryPage: React.FC = () => {
                     type="text"
                     value={formLocation}
                     onChange={(e) => setFormLocation(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 p-2 text-white rounded focus:border-cyan-500 focus:outline-none"
+                    className="w-full bg-slate-950 border border-slate-800 p-2 text-fg rounded focus:border-cyan-500 focus:outline-none"
                   />
                 </div>
 
@@ -1398,7 +1398,7 @@ export const InventoryPage: React.FC = () => {
                     min="0"
                     value={formPrice}
                     onChange={(e) => setFormPrice(parseInt(e.target.value) || 0)}
-                    className="w-full bg-slate-950 border border-slate-800 p-2 text-white font-mono rounded focus:border-cyan-500 focus:outline-none"
+                    className="w-full bg-slate-950 border border-slate-800 p-2 text-fg font-mono rounded focus:border-cyan-500 focus:outline-none"
                   />
                 </div>
               </div>
@@ -1409,7 +1409,7 @@ export const InventoryPage: React.FC = () => {
                 <textarea
                   value={formSpecs}
                   onChange={(e) => setFormSpecs(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 p-2 text-white rounded focus:border-cyan-500 focus:outline-none font-sans h-20"
+                  className="w-full bg-slate-950 border border-slate-800 p-2 text-fg rounded focus:border-cyan-500 focus:outline-none font-sans h-20"
                   placeholder="สเปค อะไหล่ หรือ บันทึก ประวัติคลัง..."
                 />
               </div>
@@ -1443,7 +1443,7 @@ export const InventoryPage: React.FC = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in" id="inventory-stock-modal-overlay">
           <div className="bg-slate-900 border border-slate-750 rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden" id="inventory-stock-modal">
             <div className="p-4 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
-              <h3 className="text-xs font-black text-white uppercase tracking-wider flex items-center gap-1.5">
+              <h3 className="text-xs font-black text-fg uppercase tracking-wider flex items-center gap-1.5">
                 <RefreshCw size={14} className="text-cyan-400 rotate-180" />
                 เบิกหรือรับชิ้นส่วนอะไหล่ (Quick Stock Adjust)
               </h3>
@@ -1463,7 +1463,7 @@ export const InventoryPage: React.FC = () => {
                 <p className="text-slate-100 font-bold font-sans mt-1 leading-normal">{selectedPart.name}</p>
                 <div className="flex justify-between items-center mt-2 pt-2 border-t border-slate-800/80 text-[10px]">
                   <span className="text-slate-400">สต็อกคงเหลือปัจจุบัน:</span>
-                  <span className="font-mono font-bold text-white text-xs">{selectedPart.quantity} {selectedPart.unit}</span>
+                  <span className="font-mono font-bold text-fg text-xs">{selectedPart.quantity} {selectedPart.unit}</span>
                 </div>
               </div>
 
@@ -1503,7 +1503,7 @@ export const InventoryPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setAdjustmentQty(Math.max(1, adjustmentQty - 1))}
-                    className="w-10 h-10 bg-slate-950 hover:bg-slate-850 text-white font-black rounded-lg border border-slate-800 text-lg transition select-none cursor-pointer"
+                    className="w-10 h-10 bg-slate-950 hover:bg-slate-850 text-fg font-black rounded-lg border border-slate-800 text-lg transition select-none cursor-pointer"
                   >
                     -
                   </button>
@@ -1513,12 +1513,12 @@ export const InventoryPage: React.FC = () => {
                     required
                     value={adjustmentQty}
                     onChange={(e) => setAdjustmentQty(Math.max(1, parseInt(e.target.value) || 1))}
-                    className="flex-1 bg-slate-950 border border-slate-800 p-2.5 text-center text-white font-mono font-black rounded-lg focus:border-cyan-500 focus:outline-none"
+                    className="flex-1 bg-slate-950 border border-slate-800 p-2.5 text-center text-fg font-mono font-black rounded-lg focus:border-cyan-500 focus:outline-none"
                   />
                   <button
                     type="button"
                     onClick={() => setAdjustmentQty(adjustmentQty + 1)}
-                    className="w-10 h-10 bg-slate-950 hover:bg-slate-850 text-white font-black rounded-lg border border-slate-800 text-lg transition select-none cursor-pointer"
+                    className="w-10 h-10 bg-slate-950 hover:bg-slate-850 text-fg font-black rounded-lg border border-slate-800 text-lg transition select-none cursor-pointer"
                   >
                     +
                   </button>
@@ -1533,7 +1533,7 @@ export const InventoryPage: React.FC = () => {
                   required
                   value={adjustmentNote}
                   onChange={(e) => setAdjustmentNote(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 p-2 text-white rounded focus:border-cyan-500 focus:outline-none font-sans"
+                  className="w-full bg-slate-950 border border-slate-800 p-2 text-fg rounded focus:border-cyan-500 focus:outline-none font-sans"
                   placeholder="เช่น ซ่อม VAC01 กะบ่าย, รับสต็อกเติมของใหม่"
                 />
               </div>
@@ -1552,7 +1552,7 @@ export const InventoryPage: React.FC = () => {
                   className={`px-4.5 py-2 font-black rounded-lg cursor-pointer select-none transition flex items-center gap-1.5 ${
                     adjustmentType === 'IN' 
                       ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950' 
-                      : 'bg-red-500 hover:bg-red-400 text-white'
+                      : 'bg-red-500 hover:bg-red-400 text-fg'
                   }`}
                 >
                   <CheckCircle size={14} strokeWidth={2.5} />
@@ -1575,7 +1575,7 @@ export const InventoryPage: React.FC = () => {
             <div className="p-4 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <FileSpreadsheet size={18} className="text-emerald-400 animate-pulse" />
-                <h3 className="text-sm font-black text-white uppercase tracking-wider">
+                <h3 className="text-sm font-black text-fg uppercase tracking-wider">
                   Excel / CSV Spare parts Importer (นำเข้ารายชื่อคลังอะไหล่)
                 </h3>
               </div>
@@ -1599,7 +1599,7 @@ export const InventoryPage: React.FC = () => {
                 <div className="flex items-start gap-2.5">
                   <Info size={18} className="text-emerald-400 shrink-0 mt-0.5" />
                   <div>
-                    <h4 className="font-bold text-white text-xs mb-0.5">ต้องการนำเข้าอะไหล่จำนวนมากอย่างรวดเร็ว?</h4>
+                    <h4 className="font-bold text-fg text-xs mb-0.5">ต้องการนำเข้าอะไหล่จำนวนมากอย่างรวดเร็ว?</h4>
                     <p className="text-slate-400 text-[11px] leading-relaxed">
                       คุณสามารถอัปโหลดไฟล์ Excel (.xlsx, .xls) หรือ CSV เดิมของคุณได้ทันที ระบบจะสแกนคอลัมน์โดยอัตโนมัติ และคุณยังเลือกแมปจับคู่ชื่อคอลัมน์ของไฟล์คุณกับคอลัมน์ของคลังอะไหล่ได้โดยอิสระ
                     </p>
@@ -1624,7 +1624,7 @@ export const InventoryPage: React.FC = () => {
                 </div>
 
                 <div className="flex flex-col items-center justify-center">
-                  <label className="px-5 py-3.5 bg-slate-950 border border-dashed border-slate-800 hover:border-cyan-500/50 rounded-xl cursor-pointer text-slate-400 hover:text-white transition group flex flex-col items-center gap-2 max-w-sm w-full">
+                  <label className="px-5 py-3.5 bg-slate-950 border border-dashed border-slate-800 hover:border-cyan-500/50 rounded-xl cursor-pointer text-slate-400 hover:text-fg transition group flex flex-col items-center gap-2 max-w-sm w-full">
                     <Upload size={24} className="text-slate-500 group-hover:text-cyan-400 transition" />
                     <span className="text-xs font-semibold">
                       {fileName ? `📂 ${fileName}` : 'คลิกเพื่อเลือกไฟล์ Excel ของคุณ'}
@@ -1875,7 +1875,7 @@ export const InventoryPage: React.FC = () => {
                             <td className="p-2 text-cyan-400 font-mono font-bold">{p.id}</td>
                             <td className="p-2">
                               <div>
-                                <p className="font-semibold text-white truncate max-w-xs">{p.name}</p>
+                                <p className="font-semibold text-fg truncate max-w-xs">{p.name}</p>
                                 {p.specifications && <p className="text-[10px] text-slate-500 truncate max-w-xs">{p.specifications}</p>}
                               </div>
                             </td>
@@ -1961,7 +1961,7 @@ export const InventoryPage: React.FC = () => {
               {customDialog.type === 'success' && <CheckCircle size={18} className="shrink-0" />}
               {customDialog.type === 'info' && <Info size={18} className="shrink-0" />}
               
-              <h3 className="text-xs font-black uppercase tracking-wider text-white">
+              <h3 className="text-xs font-black uppercase tracking-wider text-fg">
                 {customDialog.title}
               </h3>
             </div>

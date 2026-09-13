@@ -143,7 +143,7 @@ export const PMRescheduleModal: React.FC<PMRescheduleModalProps> = ({ job, onClo
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-xs p-4 overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-bg/80 backdrop-blur-xs p-4 overflow-y-auto"
       id="pm-reschedule-modal-overlay"
       onClick={onClose}
     >
@@ -159,7 +159,7 @@ export const PMRescheduleModal: React.FC<PMRescheduleModalProps> = ({ job, onClo
               <RefreshCw size={18} className="animate-spin-slow" />
             </div>
             <div>
-              <h2 className="text-sm font-black tracking-wide text-white flex items-center gap-2">
+              <h2 className="text-sm font-black tracking-wide text-fg flex items-center gap-2">
                 จัดการเลื่อนแผนงาน PM (Reschedule Plan)
               </h2>
               <p className="text-[10px] text-slate-400">
@@ -169,7 +169,7 @@ export const PMRescheduleModal: React.FC<PMRescheduleModalProps> = ({ job, onClo
           </div>
           <button 
             onClick={onClose}
-            className="p-1.5 text-slate-500 hover:text-white bg-slate-900 hover:bg-slate-800 rounded-lg transition"
+            className="p-1.5 text-slate-500 hover:text-fg bg-slate-900 hover:bg-slate-800 rounded-lg transition"
           >
             <X size={16} />
           </button>
@@ -189,7 +189,7 @@ export const PMRescheduleModal: React.FC<PMRescheduleModalProps> = ({ job, onClo
                   </span>
                 </p>
                 <p className="text-[10.5px] text-slate-300">
-                  กำหนดเดิมคือ <b className="text-white font-mono">{job.date}</b> แต่ยังไม่ได้ลงบันทึกเสร็จงาน ระบบจำเป็นต้องบันทึกเหตุผลการเลื่อนแผนเพื่อการปรับปรุง KPI
+                  กำหนดเดิมคือ <b className="text-fg font-mono">{job.date}</b> แต่ยังไม่ได้ลงบันทึกเสร็จงาน ระบบจำเป็นต้องบันทึกเหตุผลการเลื่อนแผนเพื่อการปรับปรุง KPI
                 </p>
               </div>
             </div>
@@ -222,7 +222,7 @@ export const PMRescheduleModal: React.FC<PMRescheduleModalProps> = ({ job, onClo
               <div className="flex items-center gap-1.5">
                 <History size={14} className="text-indigo-400" />
                 <span>
-                  งานนี้เคยเลื่อนแผนมาแล้ว <b>{job.rescheduledCount} ครั้ง</b> (แผนดั้งเดิม: <span className="font-mono font-bold text-white">{job.rescheduledFromDate}</span>)
+                  งานนี้เคยเลื่อนแผนมาแล้ว <b>{job.rescheduledCount} ครั้ง</b> (แผนดั้งเดิม: <span className="font-mono font-bold text-fg">{job.rescheduledFromDate}</span>)
                 </span>
               </div>
               <button
@@ -268,7 +268,7 @@ export const PMRescheduleModal: React.FC<PMRescheduleModalProps> = ({ job, onClo
               type="date"
               value={newDate}
               onChange={(e) => setNewDate(e.target.value)}
-              className="w-full bg-[#050a14] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-hidden focus:border-cyan-500 font-mono font-bold"
+              className="w-full bg-[#050a14] border border-slate-700 rounded-xl px-3 py-2 text-xs text-fg focus:outline-hidden focus:border-cyan-500 font-mono font-bold"
               required
             />
             
@@ -315,7 +315,7 @@ export const PMRescheduleModal: React.FC<PMRescheduleModalProps> = ({ job, onClo
             <select
               value={selectedReason}
               onChange={(e) => setSelectedReason(e.target.value)}
-              className="w-full bg-[#050a14] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-hidden focus:border-cyan-500"
+              className="w-full bg-[#050a14] border border-slate-700 rounded-xl px-3 py-2 text-xs text-fg focus:outline-hidden focus:border-cyan-500"
               required
             >
               {RESCHEDULE_REASONS.map((reason, idx) => (
@@ -329,7 +329,7 @@ export const PMRescheduleModal: React.FC<PMRescheduleModalProps> = ({ job, onClo
                 placeholder="ระบุสาเหตุเพิ่มเติม..."
                 value={customReasonText}
                 onChange={(e) => setCustomReasonText(e.target.value)}
-                className="w-full bg-[#050a14] border border-amber-500/50 rounded-xl px-3 py-1.8 text-xs text-white placeholder-slate-500 focus:outline-hidden focus:border-amber-400 mt-1"
+                className="w-full bg-[#050a14] border border-amber-500/50 rounded-xl px-3 py-1.8 text-xs text-fg placeholder-slate-500 focus:outline-hidden focus:border-amber-400 mt-1"
                 required
               />
             )}
@@ -348,7 +348,7 @@ export const PMRescheduleModal: React.FC<PMRescheduleModalProps> = ({ job, onClo
                 <select
                   value={selectedTech}
                   onChange={(e) => setSelectedTech(e.target.value)}
-                  className="w-full bg-[#050a14] border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-hidden focus:border-cyan-500 mt-0.5"
+                  className="w-full bg-[#050a14] border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-fg focus:outline-hidden focus:border-cyan-500 mt-0.5"
                 >
                   {technicians.map((t, idx) => (
                     <option key={idx} value={t}>{t}</option>
@@ -367,7 +367,7 @@ export const PMRescheduleModal: React.FC<PMRescheduleModalProps> = ({ job, onClo
                       className={`px-1.5 py-0.5 text-[9.5px] rounded transition ${
                         selectedCoTechs.includes(t) 
                           ? 'bg-cyan-500 text-slate-950 font-bold' 
-                          : 'bg-slate-800 text-slate-400 hover:text-white'
+                          : 'bg-slate-800 text-slate-400 hover:text-fg'
                       }`}
                     >
                       {t}
@@ -389,7 +389,7 @@ export const PMRescheduleModal: React.FC<PMRescheduleModalProps> = ({ job, onClo
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="ระบุข้อตกลง เช่น ประสานงานหัวหน้ากะ A เรียบร้อยแล้ว ย้ายไปทำช่วงพักเที่ยง..."
-              className="w-full bg-[#050a14] border border-slate-700 rounded-xl px-3 py-1.8 text-xs text-white placeholder-slate-600 focus:outline-hidden focus:border-cyan-500"
+              className="w-full bg-[#050a14] border border-slate-700 rounded-xl px-3 py-1.8 text-xs text-fg placeholder-slate-600 focus:outline-hidden focus:border-cyan-500"
             />
           </div>
 

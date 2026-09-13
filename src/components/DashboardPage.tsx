@@ -1633,14 +1633,14 @@ export const DashboardPage: React.FC = () => {
               <div className="p-6 border-b border-slate-800 bg-gradient-to-r from-slate-950/80 to-slate-900 shrink-0 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
                   {/* Decorative Initials Avatar */}
-                  <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-cyan-500 via-indigo-500 to-purple-600 flex items-center justify-center text-white font-black text-xl shadow-lg ring-2 ring-slate-800 shrink-0 select-none">
+                  <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-cyan-500 via-indigo-500 to-purple-600 flex items-center justify-center text-fg font-black text-xl shadow-lg ring-2 ring-slate-800 shrink-0 select-none">
                     {techName.substring(0, 2).toUpperCase()}
                   </div>
                   <div>
                     <span className="px-2 py-0.5 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded font-bold text-[9px] uppercase tracking-wider">
                       Technician Performance Card
                     </span>
-                    <h2 className="text-xl font-black text-white mt-1 flex items-center gap-2">
+                    <h2 className="text-xl font-black text-fg mt-1 flex items-center gap-2">
                       {techName}
                       <span className="text-xs font-normal text-slate-400">| ช่างซ่อมบำรุงวิทยฐานะอาวุโส</span>
                     </h2>
@@ -1663,7 +1663,7 @@ export const DashboardPage: React.FC = () => {
                   )}
                   <button 
                     onClick={() => setSelectedTechnician(null)}
-                    className="text-slate-400 hover:text-white p-2 hover:bg-slate-800 rounded-xl transition duration-150 font-bold shrink-0 shadow-inner ml-2 border border-slate-800"
+                    className="text-slate-400 hover:text-fg p-2 hover:bg-slate-800 rounded-xl transition duration-150 font-bold shrink-0 shadow-inner ml-2 border border-slate-800"
                   >
                     <X size={15} />
                   </button>
@@ -1797,7 +1797,7 @@ export const DashboardPage: React.FC = () => {
                   {/* Attendance Log (Column 5) */}
                   <div className="lg:col-span-5 bg-slate-950/20 p-4 border border-slate-800 rounded-2xl flex flex-col space-y-4">
                     <div>
-                      <h4 className="text-xs font-black text-white uppercase tracking-wider flex items-center gap-1.5 border-b border-slate-800 pb-2">
+                      <h4 className="text-xs font-black text-fg uppercase tracking-wider flex items-center gap-1.5 border-b border-slate-800 pb-2">
                         <Coffee size={14} className="text-amber-400" />
                         <span>รายงานบันทึกการลาและวันหยุดกะประจำเดือน</span>
                       </h4>
@@ -1826,7 +1826,7 @@ export const DashboardPage: React.FC = () => {
                                   <span className={`px-2 py-0.5 rounded text-[8.5px] font-black border uppercase ${badgeColor}`}>
                                     {lv.type}
                                   </span>
-                                  <span className="font-mono text-white text-[10.5px] font-bold">
+                                  <span className="font-mono text-fg text-[10.5px] font-bold">
                                     📅 {lv.date}
                                   </span>
                                 </div>
@@ -1846,7 +1846,7 @@ export const DashboardPage: React.FC = () => {
                   {/* Technical Repairs Performance logs (Column 7) */}
                   <div className="lg:col-span-7 bg-slate-950/20 p-4 border border-slate-800 rounded-2xl flex flex-col space-y-4">
                     <div>
-                      <h4 className="text-xs font-black text-white uppercase tracking-wider flex items-center gap-1.5 border-b border-slate-800 pb-2">
+                      <h4 className="text-xs font-black text-fg uppercase tracking-wider flex items-center gap-1.5 border-b border-slate-800 pb-2">
                         <Wrench size={14} className="text-rose-400" />
                         <span>รายงานบันทึกประวัติซ่อมฉุกเฉินด่วนแยกรายเคส</span>
                       </h4>
@@ -1907,7 +1907,7 @@ export const DashboardPage: React.FC = () => {
               <div className="p-4 border-t border-slate-800 bg-slate-950/40 flex justify-end gap-3 shrink-0">
                 <button 
                   onClick={() => setSelectedTechnician(null)}
-                  className="px-4.5 py-2 bg-slate-800 hover:bg-slate-705 text-white font-black rounded-xl text-xs transition cursor-pointer select-none"
+                  className="px-4.5 py-2 bg-slate-800 hover:bg-slate-705 text-fg font-black rounded-xl text-xs transition cursor-pointer select-none"
                 >
                   ปิดหน้าต่างโปรไฟล์
                 </button>

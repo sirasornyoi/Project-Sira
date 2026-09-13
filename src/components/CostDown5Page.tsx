@@ -423,7 +423,7 @@ export const CostDown5Page: React.FC = () => {
         : '<tr><td colspan="6" style="padding:4px; text-align:center; color:#94a3b8; font-size:10px;">ยังไม่มีประวัติรอบการใช้งาน</td></tr>';
 
       return `
-        <div style="border:1px solid #cbd5e1; border-radius:8px; padding:14px; margin-bottom:14px; background:#ffffff; page-break-inside:avoid; break-inside:avoid;">
+        <div style="border:1px solid #cbd5e1; border-radius:8px; padding:14px; margin-bottom:14px; background:#f7f7f7; page-break-inside:avoid; break-inside:avoid;">
           <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1px solid #e2e8f0; padding-bottom:8px; margin-bottom:8px;">
             <div>
               <div style="display:flex; align-items:center; gap:8px;">
@@ -455,7 +455,7 @@ export const CostDown5Page: React.FC = () => {
               <p style="margin:2px 0;"><b>ราคาต่อชิ้น:</b> <span style="font-weight:bold; color:#dc2626;">฿${p.originalPrice.toLocaleString()}</span></p>
               <p style="margin:2px 0;"><b>อายุการใช้งานเดิม:</b> ${p.originalLifespanDays} ${p.originalLifespanUnit || 'วัน'}</p>
               <p style="margin:4px 0 0 0; font-size:10px; color:#64748b;">${p.originalQualityNotes || '-'}</p>
-              ${p.photoOriginal ? `<div style="margin-top:6px; height:100px; text-align:center; background:#ffffff; border:1px solid #fda4af; border-radius:4px; overflow:hidden;"><img src="${p.photoOriginal}" style="max-height:100px; max-width:100%; object-fit:contain;" /></div>` : ''}
+              ${p.photoOriginal ? `<div style="margin-top:6px; height:100px; text-align:center; background:#f7f7f7; border:1px solid #fda4af; border-radius:4px; overflow:hidden;"><img src="${p.photoOriginal}" style="max-height:100px; max-width:100%; object-fit:contain;" /></div>` : ''}
             </div>
 
             <!-- NEW COST DOWN -->
@@ -466,8 +466,8 @@ export const CostDown5Page: React.FC = () => {
               <p style="margin:2px 0;"><b>อายุการใช้งานเป้าหมาย:</b> <span style="font-weight:bold; color:#15803d;">${p.newLifespanDays} ${p.newLifespanUnit || 'วัน'}</span> (+${p.lifespanExtensionPercent}%)</p>
               <p style="margin:4px 0 0 0; font-size:10px; color:#166534;">${p.newQualityNotes || '-'}</p>
               <div style="display:flex; gap:6px; margin-top:6px;">
-                ${p.photoNew ? `<div style="flex:1; height:100px; text-align:center; background:#ffffff; border:1px solid #86efac; border-radius:4px; overflow:hidden;"><img src="${p.photoNew}" style="max-height:100px; max-width:100%; object-fit:contain;" /></div>` : ''}
-                ${p.drawingPhoto ? `<div style="flex:1; height:100px; text-align:center; background:#ffffff; border:1px solid #86efac; border-radius:4px; overflow:hidden;"><img src="${p.drawingPhoto}" style="max-height:100px; max-width:100%; object-fit:contain;" /></div>` : ''}
+                ${p.photoNew ? `<div style="flex:1; height:100px; text-align:center; background:#f7f7f7; border:1px solid #86efac; border-radius:4px; overflow:hidden;"><img src="${p.photoNew}" style="max-height:100px; max-width:100%; object-fit:contain;" /></div>` : ''}
+                ${p.drawingPhoto ? `<div style="flex:1; height:100px; text-align:center; background:#f7f7f7; border:1px solid #86efac; border-radius:4px; overflow:hidden;"><img src="${p.drawingPhoto}" style="max-height:100px; max-width:100%; object-fit:contain;" /></div>` : ''}
               </div>
             </div>
           </div>
@@ -511,12 +511,12 @@ export const CostDown5Page: React.FC = () => {
         <style>
           @page { size: A4 portrait; margin: 12mm 12mm 15mm 12mm; }
           body { margin:0; padding:0; background:#f1f5f9; font-family:'Sarabun', -apple-system, sans-serif; color:#0f172a; }
-          .page-container { max-width: 820px; margin: 0 auto; background: #ffffff; padding: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-          .no-print-bar { position:sticky; top:0; background:#0f172a; color:#ffffff; padding:12px 24px; display:flex; justify-content:space-between; align-items:center; z-index:999; }
-          .btn-print { background:#16a34a; color:#ffffff; border:none; padding:8px 18px; border-radius:6px; font-weight:bold; cursor:pointer; font-size:13px; font-family:'Sarabun', sans-serif; }
+          .page-container { max-width: 820px; margin: 0 auto; background: #f7f7f7; padding: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+          .no-print-bar { position:sticky; top:0; background:#1e1e1e; color:#e8e8e8; padding:12px 24px; display:flex; justify-content:space-between; align-items:center; z-index:999; }
+          .btn-print { background:#16a34a; color:#e8e8e8; border:none; padding:8px 18px; border-radius:6px; font-weight:bold; cursor:pointer; font-size:13px; font-family:'Sarabun', sans-serif; }
           @media print {
             .no-print-bar { display: none !important; }
-            body { background: #ffffff !important; }
+            body { background: #f7f7f7 !important; }
             .page-container { box-shadow: none !important; padding: 0 !important; width: 100% !important; max-width: 100% !important; }
           }
         </style>
@@ -553,7 +553,7 @@ export const CostDown5Page: React.FC = () => {
           </div>
 
           <!-- KPI BANNER -->
-          <div style="background:#0f172a; color:#ffffff; border-radius:8px; padding:12px 16px; margin-bottom:16px; display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; text-align:center;">
+          <div style="background:#1e1e1e; color:#e8e8e8; border-radius:8px; padding:12px 16px; margin-bottom:16px; display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; text-align:center;">
             <div>
               <p style="margin:0; font-size:9px; color:#94a3b8; text-transform:uppercase;">ยอดประหยัดรวมสะสม/ปี</p>
               <p style="margin:2px 0 0 0; font-size:16px; font-weight:900; color:#4ade80;">฿${totalAnnualSavings.toLocaleString()}</p>
@@ -633,7 +633,7 @@ export const CostDown5Page: React.FC = () => {
                 <TrendingDown size={24} className="animate-pulse" />
               </div>
               <div>
-                <h1 className="text-xl font-extrabold tracking-tight text-white flex items-center gap-2">
+                <h1 className="text-xl font-extrabold tracking-tight text-fg flex items-center gap-2">
                   Cost Down 5 (CD5)
                   <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
                     Engineering & Spare Parts Optimization
@@ -667,7 +667,7 @@ export const CostDown5Page: React.FC = () => {
 
             <button
               onClick={handleOpenAddModal}
-              className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-lg shadow-lg shadow-emerald-500/20 transition cursor-pointer"
+              className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-fg rounded-lg shadow-lg shadow-emerald-500/20 transition cursor-pointer"
             >
               <Plus size={16} />
               <span>+ เสนอโครงการ CD5</span>
@@ -680,7 +680,7 @@ export const CostDown5Page: React.FC = () => {
           <div className="bg-gradient-to-br from-emerald-950/40 to-slate-900/80 border border-emerald-500/30 rounded-xl p-3.5 flex items-center justify-between">
             <div>
               <p className="text-[11px] font-semibold text-emerald-400 uppercase tracking-wider">ยอดเงินประหยัดรวมสะสม</p>
-              <p className="text-2xl font-black text-white mt-1">฿{totalAnnualSavings.toLocaleString()}</p>
+              <p className="text-2xl font-black text-fg mt-1">฿{totalAnnualSavings.toLocaleString()}</p>
               <p className="text-[10px] text-slate-400 mt-0.5">ต่อปี (คำนวณจากทุกโครงการ)</p>
             </div>
             <div className="p-2.5 bg-emerald-500/20 rounded-xl text-emerald-400">
@@ -691,7 +691,7 @@ export const CostDown5Page: React.FC = () => {
           <div className="bg-gradient-to-br from-cyan-950/40 to-slate-900/80 border border-cyan-500/30 rounded-xl p-3.5 flex items-center justify-between">
             <div>
               <p className="text-[11px] font-semibold text-cyan-400 uppercase tracking-wider">อนุมัติใช้งานจริงแล้ว</p>
-              <p className="text-2xl font-black text-white mt-1">฿{approvedAnnualSavings.toLocaleString()}</p>
+              <p className="text-2xl font-black text-fg mt-1">฿{approvedAnnualSavings.toLocaleString()}</p>
               <p className="text-[10px] text-slate-400 mt-0.5">ลดค่าใช้จ่ายโรงงานสำเร็จ</p>
             </div>
             <div className="p-2.5 bg-cyan-500/20 rounded-xl text-cyan-400">
@@ -702,7 +702,7 @@ export const CostDown5Page: React.FC = () => {
           <div className="bg-gradient-to-br from-amber-950/40 to-slate-900/80 border border-amber-500/30 rounded-xl p-3.5 flex items-center justify-between">
             <div>
               <p className="text-[11px] font-semibold text-amber-400 uppercase tracking-wider">อัตราลดต้นทุนเฉลี่ย</p>
-              <p className="text-2xl font-black text-white mt-1">{avgCostReduction}%</p>
+              <p className="text-2xl font-black text-fg mt-1">{avgCostReduction}%</p>
               <p className="text-[10px] text-slate-400 mt-0.5">เทียบราคา OEM เดิม</p>
             </div>
             <div className="p-2.5 bg-amber-500/20 rounded-xl text-amber-400">
@@ -713,7 +713,7 @@ export const CostDown5Page: React.FC = () => {
           <div className="bg-gradient-to-br from-purple-950/40 to-slate-900/80 border border-purple-500/30 rounded-xl p-3.5 flex items-center justify-between">
             <div>
               <p className="text-[11px] font-semibold text-purple-400 uppercase tracking-wider">ยืดอายุอะไหล่เฉลี่ย</p>
-              <p className="text-2xl font-black text-white mt-1">+{avgLifespanExtension}%</p>
+              <p className="text-2xl font-black text-fg mt-1">+{avgLifespanExtension}%</p>
               <p className="text-[10px] text-slate-400 mt-0.5">ลดรอบและเวลาทำ PM/ซ่อม</p>
             </div>
             <div className="p-2.5 bg-purple-500/20 rounded-xl text-purple-400">
@@ -798,7 +798,7 @@ export const CostDown5Page: React.FC = () => {
             <p className="text-xs text-slate-500 mt-1">กดปุ่มด้านล่างเพื่อเริ่มสร้างโครงการใหม่</p>
             <button
               onClick={handleOpenAddModal}
-              className="mt-4 px-4 py-2 text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg inline-flex items-center gap-1.5 transition"
+              className="mt-4 px-4 py-2 text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-fg rounded-lg inline-flex items-center gap-1.5 transition"
             >
               <Plus size={15} />
               <span>+ เพิ่มโครงการ Cost Down 5</span>
@@ -835,7 +835,7 @@ export const CostDown5Page: React.FC = () => {
                             {p.category}
                           </span>
                         </div>
-                        <h3 className="text-sm font-bold text-white mt-1.5 line-clamp-2">
+                        <h3 className="text-sm font-bold text-fg mt-1.5 line-clamp-2">
                           {p.title}
                         </h3>
                         <p className="text-xs text-slate-400 mt-0.5">
@@ -901,7 +901,7 @@ export const CostDown5Page: React.FC = () => {
                             className="h-20 bg-slate-950 rounded-lg border border-rose-900/40 overflow-hidden cursor-pointer relative group flex items-center justify-center"
                           >
                             <img src={p.photoOriginal} alt="Original Part" className="h-full w-full object-contain p-1" />
-                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition text-white text-xs font-semibold gap-1">
+                            <div className="absolute inset-0 bg-bg/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition text-fg text-xs font-semibold gap-1">
                               <Eye size={14} /> ดูรูป
                             </div>
                           </div>
@@ -954,7 +954,7 @@ export const CostDown5Page: React.FC = () => {
                             className="flex-1 h-20 bg-slate-950 rounded-lg border border-emerald-900/40 overflow-hidden cursor-pointer relative group flex items-center justify-center"
                           >
                             <img src={p.photoNew} alt="New Custom Part" className="h-full w-full object-contain p-1" />
-                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition text-white text-[10px] font-semibold gap-0.5">
+                            <div className="absolute inset-0 bg-bg/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition text-fg text-[10px] font-semibold gap-0.5">
                               <Eye size={12} /> อะไหล่ใหม่
                             </div>
                           </div>
@@ -966,7 +966,7 @@ export const CostDown5Page: React.FC = () => {
                             className="flex-1 h-20 bg-slate-950 rounded-lg border border-cyan-800/40 overflow-hidden cursor-pointer relative group flex items-center justify-center"
                           >
                             <img src={p.drawingPhoto} alt="CAD Drawing" className="h-full w-full object-contain p-1" />
-                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition text-white text-[10px] font-semibold gap-0.5">
+                            <div className="absolute inset-0 bg-bg/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition text-fg text-[10px] font-semibold gap-0.5">
                               <Eye size={12} /> แบบ Drawing
                             </div>
                           </div>
@@ -1055,14 +1055,14 @@ export const CostDown5Page: React.FC = () => {
                     return (
                       <tr key={p.id} className="hover:bg-slate-800/40 transition">
                         <td className="p-3">
-                          <div className="font-bold text-white">{p.title}</div>
+                          <div className="font-bold text-fg">{p.title}</div>
                           <div className="text-[11px] text-slate-400 font-mono">
                             {p.id} | {p.partName} {p.partCode ? `(${p.partCode})` : ''}
                           </div>
                         </td>
                         <td className="p-3 font-semibold text-cyan-300">{getMachineName(p.machineId)}</td>
                         <td className="p-3">
-                          <div className="font-mono text-white font-semibold">{p.installedDate || '-'}</div>
+                          <div className="font-mono text-fg font-semibold">{p.installedDate || '-'}</div>
                           <div className="text-[10px] text-emerald-400">เดินเครื่อง {runningDays} วัน</div>
                         </td>
                         <td className="p-3 text-right text-rose-300 font-semibold">฿{p.originalPrice.toLocaleString()}</td>
@@ -1124,7 +1124,7 @@ export const CostDown5Page: React.FC = () => {
 
       {/* 5. ADD / EDIT PROJECT MODAL */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto" id="cd5-add-edit-modal">
+        <div className="fixed inset-0 z-50 bg-bg/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto" id="cd5-add-edit-modal">
           <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden my-auto">
             {/* Header */}
             <div className="p-4 sm:p-5 border-b border-slate-800 bg-slate-950 flex items-center justify-between">
@@ -1133,7 +1133,7 @@ export const CostDown5Page: React.FC = () => {
                   <TrendingDown size={20} />
                 </div>
                 <div>
-                  <h2 className="text-base font-bold text-white">
+                  <h2 className="text-base font-bold text-fg">
                     {editingProject ? `แก้ไขโครงการ: ${editingProject.id}` : 'เสนอโครงการ Cost Down 5 (CD5) ใหม่'}
                   </h2>
                   <p className="text-xs text-slate-400">
@@ -1143,7 +1143,7 @@ export const CostDown5Page: React.FC = () => {
               </div>
               <button 
                 onClick={() => setShowAddModal(false)}
-                className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition"
+                className="p-1.5 text-slate-400 hover:text-fg rounded-lg hover:bg-slate-800 transition"
               >
                 <X size={18} />
               </button>
@@ -1324,7 +1324,7 @@ export const CostDown5Page: React.FC = () => {
                     {formPhotoOrig && (
                       <div className="mt-2 h-16 bg-slate-950 rounded border border-rose-900/40 p-1 flex items-center justify-center relative">
                         <img src={formPhotoOrig} alt="Original Preview" className="h-full object-contain" />
-                        <button type="button" onClick={() => setFormPhotoOrig('')} className="absolute top-0 right-0 p-0.5 bg-rose-600 text-white rounded-full"><X size={10} /></button>
+                        <button type="button" onClick={() => setFormPhotoOrig('')} className="absolute top-0 right-0 p-0.5 bg-rose-600 text-fg rounded-full"><X size={10} /></button>
                       </div>
                     )}
                   </div>
@@ -1394,7 +1394,7 @@ export const CostDown5Page: React.FC = () => {
                       {formPhotoNew && (
                         <div className="mt-1 h-14 bg-slate-950 rounded border border-emerald-900/40 p-1 flex items-center justify-center relative">
                           <img src={formPhotoNew} alt="New Preview" className="h-full object-contain" />
-                          <button type="button" onClick={() => setFormPhotoNew('')} className="absolute top-0 right-0 p-0.5 bg-rose-600 text-white rounded-full text-[8px]"><X size={10} /></button>
+                          <button type="button" onClick={() => setFormPhotoNew('')} className="absolute top-0 right-0 p-0.5 bg-rose-600 text-fg rounded-full text-[8px]"><X size={10} /></button>
                         </div>
                       )}
                     </div>
@@ -1410,7 +1410,7 @@ export const CostDown5Page: React.FC = () => {
                       {formDrawingPhoto && (
                         <div className="mt-1 h-14 bg-slate-950 rounded border border-cyan-900/40 p-1 flex items-center justify-center relative">
                           <img src={formDrawingPhoto} alt="Drawing Preview" className="h-full object-contain" />
-                          <button type="button" onClick={() => setFormDrawingPhoto('')} className="absolute top-0 right-0 p-0.5 bg-rose-600 text-white rounded-full text-[8px]"><X size={10} /></button>
+                          <button type="button" onClick={() => setFormDrawingPhoto('')} className="absolute top-0 right-0 p-0.5 bg-rose-600 text-fg rounded-full text-[8px]"><X size={10} /></button>
                         </div>
                       )}
                     </div>
@@ -1431,7 +1431,7 @@ export const CostDown5Page: React.FC = () => {
                       min="1"
                       value={formAnnualUsage}
                       onChange={(e) => setFormAnnualUsage(Math.max(1, Number(e.target.value)))}
-                      className="w-20 bg-slate-900 border border-slate-700 rounded px-2 py-1 text-center font-bold text-white text-xs"
+                      className="w-20 bg-slate-900 border border-slate-700 rounded px-2 py-1 text-center font-bold text-fg text-xs"
                     />
                     <span className="text-slate-400 text-xs">ชิ้น/ปี</span>
                   </div>
@@ -1440,7 +1440,7 @@ export const CostDown5Page: React.FC = () => {
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
                   <div className="bg-slate-900/80 p-2.5 rounded-lg border border-slate-800">
                     <span className="text-[10px] text-slate-400 block">ส่วนต่างราคาต่อชิ้น</span>
-                    <span className="text-base font-extrabold text-white">฿{liveSavingsPerUnit.toLocaleString()}</span>
+                    <span className="text-base font-extrabold text-fg">฿{liveSavingsPerUnit.toLocaleString()}</span>
                     <span className="text-[10px] text-emerald-400 block mt-0.5">ลดลง {liveSavingsPercent}%</span>
                   </div>
 
@@ -1503,7 +1503,7 @@ export const CostDown5Page: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-bold shadow-lg shadow-emerald-600/30 transition flex items-center gap-1.5"
+                  className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-fg rounded-lg font-bold shadow-lg shadow-emerald-600/30 transition flex items-center gap-1.5"
                 >
                   <Check size={16} />
                   <span>บันทึกโครงการ Cost Down 5</span>
@@ -1517,7 +1517,7 @@ export const CostDown5Page: React.FC = () => {
 
       {/* 6. DETAIL VIEW MODAL */}
       {viewingProject && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto" id="cd5-detail-modal">
+        <div className="fixed inset-0 z-50 bg-bg/85 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto" id="cd5-detail-modal">
           <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden my-auto">
             {/* Header */}
             <div className="p-4 sm:p-5 border-b border-slate-800 bg-slate-950 flex items-center justify-between">
@@ -1533,11 +1533,11 @@ export const CostDown5Page: React.FC = () => {
                     {viewingProject.category}
                   </span>
                 </div>
-                <h2 className="text-lg font-bold text-white mt-1">{viewingProject.title}</h2>
+                <h2 className="text-lg font-bold text-fg mt-1">{viewingProject.title}</h2>
               </div>
               <button 
                 onClick={() => setViewingProject(null)}
-                className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition"
+                className="p-1.5 text-slate-400 hover:text-fg rounded-lg hover:bg-slate-800 transition"
               >
                 <X size={18} />
               </button>
@@ -1563,7 +1563,7 @@ export const CostDown5Page: React.FC = () => {
                     onClick={() => {
                       setHistoryTrackingProject(viewingProject);
                     }}
-                    className="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-bold flex items-center gap-1.5 transition"
+                    className="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-fg rounded-lg font-bold flex items-center gap-1.5 transition"
                   >
                     <History size={15} />
                     <span>จัดการประวัติรอบใช้งาน ({viewingProject.usageHistory?.length || 0})</span>
@@ -1681,12 +1681,12 @@ export const CostDown5Page: React.FC = () => {
       {zoomedImage && (
         <div 
           onClick={() => setZoomedImage(null)}
-          className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 cursor-pointer"
+          className="fixed inset-0 z-50 bg-bg/90 backdrop-blur-md flex items-center justify-center p-4 cursor-pointer"
         >
           <div className="max-w-4xl max-h-[90vh] bg-slate-900 border border-slate-700 rounded-2xl overflow-hidden p-2 flex flex-col items-center">
             <div className="w-full flex items-center justify-between px-3 py-2 border-b border-slate-800 text-slate-200 text-xs font-bold">
               <span>{zoomedImage.title}</span>
-              <button onClick={() => setZoomedImage(null)} className="p-1 hover:text-white"><X size={16} /></button>
+              <button onClick={() => setZoomedImage(null)} className="p-1 hover:text-fg"><X size={16} /></button>
             </div>
             <img 
               src={zoomedImage.url} 

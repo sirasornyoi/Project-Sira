@@ -113,7 +113,7 @@ export const CD5UsageHistoryModal: React.FC<CD5UsageHistoryModalProps> = ({
   const origDays = project.originalLifespanDays || 30;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto" id="cd5-usage-history-modal">
+    <div className="fixed inset-0 z-50 bg-bg/85 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto" id="cd5-usage-history-modal">
       <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden my-auto">
         
         {/* Modal Header */}
@@ -127,7 +127,7 @@ export const CD5UsageHistoryModal: React.FC<CD5UsageHistoryModalProps> = ({
                 <span className="text-xs font-mono font-bold text-cyan-400 bg-cyan-950 px-2 py-0.5 rounded border border-cyan-800">
                   {project.id}
                 </span>
-                <h2 className="text-base font-bold text-white">
+                <h2 className="text-base font-bold text-fg">
                   ประวัติอายุการใช้งานจริง เทียบกับอะไหล่ Original
                 </h2>
               </div>
@@ -139,7 +139,7 @@ export const CD5UsageHistoryModal: React.FC<CD5UsageHistoryModalProps> = ({
 
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition"
+            className="p-1.5 text-slate-400 hover:text-fg rounded-lg hover:bg-slate-800 transition"
           >
             <X size={18} />
           </button>
@@ -178,7 +178,7 @@ export const CD5UsageHistoryModal: React.FC<CD5UsageHistoryModalProps> = ({
             
             <button
               onClick={() => setShowAddForm(!showAddForm)}
-              className="px-3 py-1.5 text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg inline-flex items-center gap-1 transition shadow-md shadow-emerald-700/20"
+              className="px-3 py-1.5 text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-fg rounded-lg inline-flex items-center gap-1 transition shadow-md shadow-emerald-700/20"
             >
               <Plus size={14} />
               <span>{showAddForm ? 'ปิดแบบฟอร์ม' : '+ บันทึกรอบการใช้งาน/ถอดเปลี่ยน'}</span>
@@ -200,7 +200,7 @@ export const CD5UsageHistoryModal: React.FC<CD5UsageHistoryModalProps> = ({
                     min="1"
                     value={formCycle}
                     onChange={(e) => setFormCycle(Number(e.target.value))}
-                    className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-white font-mono"
+                    className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-fg font-mono"
                   />
                 </div>
 
@@ -209,7 +209,7 @@ export const CD5UsageHistoryModal: React.FC<CD5UsageHistoryModalProps> = ({
                   <select
                     value={formPartType}
                     onChange={(e) => setFormPartType(e.target.value as any)}
-                    className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-white"
+                    className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-fg"
                   >
                     <option value="NEW_CUSTOM">🟢 อะไหล่สั่งทำ/ปรับปรุงใหม่ (CD5)</option>
                     <option value="ORIGINAL_OEM">🔴 อะไหล่เดิม (Original OEM)</option>
@@ -221,7 +221,7 @@ export const CD5UsageHistoryModal: React.FC<CD5UsageHistoryModalProps> = ({
                   <select
                     value={formTechnician}
                     onChange={(e) => setFormTechnician(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-white"
+                    className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-fg"
                   >
                     {technicians.map(t => (
                       <option key={t} value={t}>{t}</option>
@@ -236,7 +236,7 @@ export const CD5UsageHistoryModal: React.FC<CD5UsageHistoryModalProps> = ({
                     required
                     value={formInstalledDate}
                     onChange={(e) => setFormInstalledDate(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-white font-mono"
+                    className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-fg font-mono"
                   />
                 </div>
 
@@ -263,7 +263,7 @@ export const CD5UsageHistoryModal: React.FC<CD5UsageHistoryModalProps> = ({
                       type="date"
                       value={formReplacedDate}
                       onChange={(e) => setFormReplacedDate(e.target.value)}
-                      className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-white font-mono"
+                      className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-fg font-mono"
                     />
                   </div>
                 )}
@@ -276,7 +276,7 @@ export const CD5UsageHistoryModal: React.FC<CD5UsageHistoryModalProps> = ({
                   value={formWearCondition}
                   onChange={(e) => setFormWearCondition(e.target.value)}
                   placeholder="เช่น คมมีดยังดี 95%, ไร้สนิม, ไม่บิ่น, รอยสึกสม่ำเสมอ"
-                  className="w-full bg-slate-900 border border-slate-700 rounded px-3 py-1.5 text-white"
+                  className="w-full bg-slate-900 border border-slate-700 rounded px-3 py-1.5 text-fg"
                 />
               </div>
 
@@ -287,7 +287,7 @@ export const CD5UsageHistoryModal: React.FC<CD5UsageHistoryModalProps> = ({
                   value={formNotes}
                   onChange={(e) => setFormNotes(e.target.value)}
                   placeholder="บันทึกผลการตัด/เดินเครื่องเทียบกับของเดิม..."
-                  className="w-full bg-slate-900 border border-slate-700 rounded px-3 py-1.5 text-white"
+                  className="w-full bg-slate-900 border border-slate-700 rounded px-3 py-1.5 text-fg"
                 />
               </div>
 
@@ -327,7 +327,7 @@ export const CD5UsageHistoryModal: React.FC<CD5UsageHistoryModalProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-bold"
+                  className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-fg rounded font-bold"
                 >
                   บันทึกประวัติรอบนี้
                 </button>
@@ -394,7 +394,7 @@ export const CD5UsageHistoryModal: React.FC<CD5UsageHistoryModalProps> = ({
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1 text-center">
                       <div className="bg-slate-900 p-2 rounded border border-slate-800">
                         <span className="text-[10px] text-slate-400 block">วันที่เริ่มใช้งาน</span>
-                        <span className="text-xs font-bold text-white font-mono">{item.installedDate}</span>
+                        <span className="text-xs font-bold text-fg font-mono">{item.installedDate}</span>
                       </div>
                       <div className="bg-slate-900 p-2 rounded border border-slate-800">
                         <span className="text-[10px] text-slate-400 block">วันที่ถอดเปลี่ยน</span>

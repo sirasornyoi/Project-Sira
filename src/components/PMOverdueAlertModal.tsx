@@ -96,7 +96,7 @@ export const PMOverdueAlertModal: React.FC<PMOverdueAlertModalProps> = ({
   return (
     <>
       <div 
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-xs p-4 overflow-y-auto"
+        className="fixed inset-0 z-50 flex items-center justify-center bg-bg/80 backdrop-blur-xs p-4 overflow-y-auto"
         id="pm-overdue-alert-modal-overlay"
         onClick={onClose}
       >
@@ -112,7 +112,7 @@ export const PMOverdueAlertModal: React.FC<PMOverdueAlertModalProps> = ({
                 <ShieldAlert size={22} className="animate-pulse" />
               </div>
               <div>
-                <h2 className="text-sm font-black tracking-wide text-white flex items-center gap-2">
+                <h2 className="text-sm font-black tracking-wide text-fg flex items-center gap-2">
                   ศูนย์ตรวจเช็คและแจ้งเตือนงาน PM เลยกำหนด / เลื่อนแผน
                   {totalOverdueCount > 0 && (
                     <span className="px-2 py-0.5 bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-full text-xs font-mono font-bold">
@@ -127,7 +127,7 @@ export const PMOverdueAlertModal: React.FC<PMOverdueAlertModalProps> = ({
             </div>
             <button 
               onClick={onClose}
-              className="p-1.5 text-slate-500 hover:text-white bg-slate-900 hover:bg-slate-800 rounded-lg transition cursor-pointer"
+              className="p-1.5 text-slate-500 hover:text-fg bg-slate-900 hover:bg-slate-800 rounded-lg transition cursor-pointer"
             >
               <X size={16} />
             </button>
@@ -202,7 +202,7 @@ export const PMOverdueAlertModal: React.FC<PMOverdueAlertModalProps> = ({
                   placeholder="ค้นหาเครื่องจักร, แผน PM..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-[#050a14] border border-slate-700 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-hidden focus:border-cyan-500"
+                  className="w-full bg-[#050a14] border border-slate-700 rounded-xl pl-8 pr-3 py-1.5 text-xs text-fg placeholder-slate-500 focus:outline-hidden focus:border-cyan-500"
                 />
                 <Search className="absolute left-2.5 top-2 text-slate-500" size={13} />
               </div>
@@ -210,7 +210,7 @@ export const PMOverdueAlertModal: React.FC<PMOverdueAlertModalProps> = ({
               <select
                 value={selectedTech}
                 onChange={(e) => setSelectedTech(e.target.value)}
-                className="bg-[#050a14] border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-hidden focus:border-cyan-500"
+                className="bg-[#050a14] border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-fg focus:outline-hidden focus:border-cyan-500"
               >
                 <option value="">-- ช่างทั้งหมด --</option>
                 {technicians.map((t, idx) => (
@@ -273,7 +273,7 @@ export const PMOverdueAlertModal: React.FC<PMOverdueAlertModalProps> = ({
                           <span className="px-2 py-0.5 bg-slate-800 border border-slate-700 rounded text-xs font-mono font-bold text-cyan-400">
                             {job.machineId}
                           </span>
-                          <span className="font-bold text-white text-xs">
+                          <span className="font-bold text-fg text-xs">
                             {planObj?.title || 'งานบำรุงรักษา PM'}
                           </span>
                           <span className="text-[10px] text-slate-400 px-1.5 py-0.2 bg-slate-800/80 rounded font-sans">

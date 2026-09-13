@@ -840,7 +840,7 @@ export const ImprovementPage: React.FC = () => {
                         <button
                           type="button"
                           onClick={handleRemovePhotoBeforeDetail}
-                          className="text-[9px] font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20 hover:bg-rose-500 hover:text-white px-2 py-0.5 rounded transition"
+                          className="text-[9px] font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20 hover:bg-rose-500 hover:text-fg px-2 py-0.5 rounded transition"
                           title="ลบรูปภาพก่อนปรับปรุงออก"
                         >
                           ลบรูป
@@ -865,7 +865,7 @@ export const ImprovementPage: React.FC = () => {
                       <button
                         type="button"
                         onClick={handleRemovePhotoBeforeDetail}
-                        className="absolute top-2 right-2 p-1 bg-rose-600/90 hover:bg-rose-500 text-white rounded-lg opacity-85 hover:opacity-100 transition shadow z-10"
+                        className="absolute top-2 right-2 p-1 bg-rose-600/90 hover:bg-rose-500 text-fg rounded-lg opacity-85 hover:opacity-100 transition shadow z-10"
                         title="ลบรูปภาพนี้ออก"
                       >
                         <Trash2 size={13} />
@@ -906,7 +906,7 @@ export const ImprovementPage: React.FC = () => {
                         <button
                           type="button"
                           onClick={handleRemovePhotoAfterDetail}
-                          className="text-[9px] font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20 hover:bg-rose-500 hover:text-white px-2 py-0.5 rounded transition"
+                          className="text-[9px] font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20 hover:bg-rose-500 hover:text-fg px-2 py-0.5 rounded transition"
                           title="ลบรูปภาพหลังปรับปรุงออก"
                         >
                           ลบรูป
@@ -931,7 +931,7 @@ export const ImprovementPage: React.FC = () => {
                       <button
                         type="button"
                         onClick={handleRemovePhotoAfterDetail}
-                        className="absolute top-2 right-2 p-1 bg-rose-600/90 hover:bg-rose-500 text-white rounded-lg opacity-85 hover:opacity-100 transition shadow z-10"
+                        className="absolute top-2 right-2 p-1 bg-rose-600/90 hover:bg-rose-500 text-fg rounded-lg opacity-85 hover:opacity-100 transition shadow z-10"
                         title="ลบรูปภาพนี้ออก"
                       >
                         <Trash2 size={13} />
@@ -1099,7 +1099,7 @@ export const ImprovementPage: React.FC = () => {
               <button
                 type="button"
                 onClick={confirmDeleteProjectAction}
-                className="w-1/2 bg-rose-600 hover:bg-rose-500 text-white py-2.5 rounded-xl transition shadow-lg shadow-rose-600/10 cursor-pointer"
+                className="w-1/2 bg-rose-600 hover:bg-rose-500 text-fg py-2.5 rounded-xl transition shadow-lg shadow-rose-600/10 cursor-pointer"
               >
                 ลบโครงการถาวร
               </button>
@@ -1134,7 +1134,7 @@ export const ImprovementPage: React.FC = () => {
               <button
                 type="button"
                 onClick={confirmDeleteWorkLogAction}
-                className="w-1/2 bg-rose-600 hover:bg-rose-500 text-white py-2.5 rounded-xl transition cursor-pointer"
+                className="w-1/2 bg-rose-600 hover:bg-rose-500 text-fg py-2.5 rounded-xl transition cursor-pointer"
               >
                 ยืนยันลบ
               </button>
@@ -1176,7 +1176,7 @@ export const ImprovementPage: React.FC = () => {
               <button
                 type="button"
                 onClick={confirmDeletePhotoAction}
-                className="w-1/2 bg-rose-600 hover:bg-rose-500 text-white py-2.5 rounded-xl transition shadow-lg shadow-rose-600/20 flex items-center justify-center gap-1 cursor-pointer"
+                className="w-1/2 bg-rose-600 hover:bg-rose-500 text-fg py-2.5 rounded-xl transition shadow-lg shadow-rose-600/20 flex items-center justify-center gap-1 cursor-pointer"
               >
                 <Trash2 size={13} />
                 <span>ยืนยันลบรูป</span>

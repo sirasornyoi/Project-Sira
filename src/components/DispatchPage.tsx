@@ -1174,7 +1174,7 @@ export const DispatchPage: React.FC = () => {
           onClick={() => setDispatchTab('create')}
           className={`flex-1 py-2 text-xs font-black rounded-lg transition-all duration-150 flex items-center justify-center gap-1.5 cursor-pointer ${
             dispatchTab === 'create'
-              ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-md'
+              ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-fg shadow-md'
               : 'text-slate-400 hover:text-slate-200'
           }`}
         >
@@ -1185,7 +1185,7 @@ export const DispatchPage: React.FC = () => {
           onClick={() => setDispatchTab('summary')}
           className={`flex-1 py-2 text-xs font-black rounded-lg transition-all duration-150 flex items-center justify-center gap-1.5 cursor-pointer ${
             dispatchTab === 'summary'
-              ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-md'
+              ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-fg shadow-md'
               : 'text-slate-400 hover:text-slate-200'
           }`}
           id="dispatch-summary-subtab"
@@ -2376,7 +2376,7 @@ export const DispatchPage: React.FC = () => {
                                         setRepWhyCount(3);
                                         setRepUsedParts([]);
                                       }}
-                                      className="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 text-white px-2.5 py-1 rounded text-[10px] font-black transition cursor-pointer"
+                                      className="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 text-fg px-2.5 py-1 rounded text-[10px] font-black transition cursor-pointer"
                                     >
                                       ปิดงานซ่อม
                                     </button>
@@ -2390,7 +2390,7 @@ export const DispatchPage: React.FC = () => {
                                         setActualPMDuration(job.rawItem.duration);
                                         setPmUsedParts([]);
                                       }}
-                                      className="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 text-white px-2.5 py-1 rounded text-[10px] font-black transition cursor-pointer"
+                                      className="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 text-fg px-2.5 py-1 rounded text-[10px] font-black transition cursor-pointer"
                                     >
                                       ปิดงาน PM
                                     </button>
@@ -2400,7 +2400,7 @@ export const DispatchPage: React.FC = () => {
                                   {job.type === 'PM' && job.status === 'รอดำเนินการ' && (
                                     <button
                                       onClick={() => handleTogglePMStatus(job.id, job.status)}
-                                      className="text-slate-400 hover:text-white bg-slate-950 border border-slate-800 px-2 py-1 rounded text-[9px] font-bold"
+                                      className="text-slate-400 hover:text-fg bg-slate-950 border border-slate-800 px-2 py-1 rounded text-[9px] font-bold"
                                     >
                                       เริ่มดำเนินงาน PM
                                     </button>
@@ -2501,7 +2501,7 @@ export const DispatchPage: React.FC = () => {
                                     setRepWhyCount(3);
                                     setRepUsedParts([]);
                                   }}
-                                  className="bg-emerald-600 text-white px-2.5 py-1 rounded text-[9px] font-black"
+                                  className="bg-emerald-600 text-fg px-2.5 py-1 rounded text-[9px] font-black"
                                 >
                                   ปิดงานซ่อม
                                 </button>
@@ -2514,7 +2514,7 @@ export const DispatchPage: React.FC = () => {
                                     setActualPMDuration(job.rawItem.duration);
                                     setPmUsedParts([]);
                                   }}
-                                  className="bg-emerald-600 text-white px-2.5 py-1 rounded text-[9px] font-black"
+                                  className="bg-emerald-600 text-fg px-2.5 py-1 rounded text-[9px] font-black"
                                 >
                                   ปิดงาน PM
                                 </button>
@@ -3010,7 +3010,7 @@ export const DispatchPage: React.FC = () => {
                     type="button"
                     onClick={handleAddPMPart}
                     disabled={!pmSelectedPartId}
-                    className="bg-cyan-600 hover:bg-cyan-500 disabled:opacity-30 disabled:cursor-not-allowed text-white px-3 py-1.5 rounded-lg text-xs font-bold transition shrink-0"
+                    className="bg-cyan-600 hover:bg-cyan-500 disabled:opacity-30 disabled:cursor-not-allowed text-fg px-3 py-1.5 rounded-lg text-xs font-bold transition shrink-0"
                   >
                     + เพิ่ม
                   </button>
@@ -3060,7 +3060,7 @@ export const DispatchPage: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="bg-gradient-to-r from-indigo-600 to-[#6366f1] hover:from-indigo-500 hover:to-indigo-400 text-white font-black px-5 py-2 rounded-xl transition cursor-pointer shadow-lg"
+                  className="bg-gradient-to-r from-indigo-600 to-[#6366f1] hover:from-indigo-500 hover:to-indigo-400 text-fg font-black px-5 py-2 rounded-xl transition cursor-pointer shadow-lg"
                 >
                   💾 บันทึกปิดงานและตัดคลัง
                 </button>
@@ -3099,8 +3099,8 @@ export const DispatchPage: React.FC = () => {
                   <AlertTriangle size={14} /> WARNING: งานอันตราย - พื้นที่มีสิทธิ์เกิดอุบัติเหตุกายภาพ
                 </p>
                 <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-300 font-mono">
-                  <span>ใบงานประเภท: <b className="text-white">{lotoItem.type}</b></span>
-                  <span>เครื่องจักรเป้าหมาย: <b className="text-white">{lotoItem.item.machineId || "-"}</b></span>
+                  <span>ใบงานประเภท: <b className="text-fg">{lotoItem.type}</b></span>
+                  <span>เครื่องจักรเป้าหมาย: <b className="text-fg">{lotoItem.item.machineId || "-"}</b></span>
                   <span className="col-span-2">ช่างเทคนิคผู้ถือครองป้าย: <b className="text-yellow-400">{lotoItem.item.technicians?.join(', ') || lotoItem.item.technician}</b></span>
                 </div>
               </div>
@@ -3199,7 +3199,7 @@ export const DispatchPage: React.FC = () => {
                 <button
                   type="submit"
                   disabled={!lotoBreakerChecked || !lotoPneumaticChecked || !lotoTagoutChecked || !lotoPpeChecked}
-                  className="bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-red-400 disabled:opacity-40 disabled:cursor-not-allowed text-white font-black px-5 py-2 rounded-xl transition cursor-pointer shadow-lg flex items-center gap-1.5"
+                  className="bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-red-400 disabled:opacity-40 disabled:cursor-not-allowed text-fg font-black px-5 py-2 rounded-xl transition cursor-pointer shadow-lg flex items-center gap-1.5"
                 >
                   <Lock size={14} />
                   สวม LOTO และอนุมัติเข้าซ่อม
@@ -3407,7 +3407,7 @@ export const DispatchPage: React.FC = () => {
                     type="button"
                     onClick={handleAddRepairPart}
                     disabled={!repSelectedPartId}
-                    className="bg-cyan-600 hover:bg-cyan-500 disabled:opacity-30 disabled:cursor-not-allowed text-white px-3 py-1.5 rounded-lg text-xs font-bold transition shrink-0"
+                    className="bg-cyan-600 hover:bg-cyan-500 disabled:opacity-30 disabled:cursor-not-allowed text-fg px-3 py-1.5 rounded-lg text-xs font-bold transition shrink-0"
                   >
                     + เพิ่ม
                   </button>
@@ -3457,7 +3457,7 @@ export const DispatchPage: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-emerald-400 text-white font-black px-5 py-2 rounded-xl transition cursor-pointer shadow-lg flex items-center gap-1"
+                  className="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-emerald-400 text-fg font-black px-5 py-2 rounded-xl transition cursor-pointer shadow-lg flex items-center gap-1"
                 >
                   <Check size={14} />
                   ยืนยันบันทึกปิดใบงาน
@@ -3562,8 +3562,8 @@ export const DispatchPage: React.FC = () => {
                           onClick={() => setPmOvertimeReason(preset)}
                           className={`text-[10px] px-2.5 py-1 rounded-lg border text-left transition cursor-pointer ${
                             pmOvertimeReason === preset
-                              ? 'bg-rose-500 text-white font-bold border-rose-400 shadow-sm'
-                              : 'bg-slate-900/80 border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white'
+                              ? 'bg-rose-500 text-fg font-bold border-rose-400 shadow-sm'
+                              : 'bg-slate-900/80 border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-fg'
                           }`}
                         >
                           {preset}
@@ -3596,7 +3596,7 @@ export const DispatchPage: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="bg-gradient-to-r from-indigo-600 to-[#6366f1] hover:from-indigo-500 hover:to-indigo-400 text-white font-black px-5 py-2 rounded-xl transition cursor-pointer shadow-lg"
+                  className="bg-gradient-to-r from-indigo-600 to-[#6366f1] hover:from-indigo-500 hover:to-indigo-400 text-fg font-black px-5 py-2 rounded-xl transition cursor-pointer shadow-lg"
                 >
                   💾 บันทึกปิดงานและเปรียบเทียบเวลา
                 </button>
@@ -3628,7 +3628,7 @@ export const DispatchPage: React.FC = () => {
               <button
                 type="button"
                 onClick={confirmDeleteScheduleTask}
-                className="w-1/2 bg-rose-600 hover:bg-rose-500 text-white py-2.5 rounded-xl cursor-pointer"
+                className="w-1/2 bg-rose-600 hover:bg-rose-500 text-fg py-2.5 rounded-xl cursor-pointer"
               >
                 ยืนยันถอนงาน
               </button>
@@ -3659,7 +3659,7 @@ export const DispatchPage: React.FC = () => {
               <button
                 type="button"
                 onClick={confirmDeleteRepairTask}
-                className="w-1/2 bg-rose-600 hover:bg-rose-500 text-white py-2.5 rounded-xl cursor-pointer"
+                className="w-1/2 bg-rose-600 hover:bg-rose-500 text-fg py-2.5 rounded-xl cursor-pointer"
               >
                 ยืนยันลบ
               </button>
@@ -3690,7 +3690,7 @@ export const DispatchPage: React.FC = () => {
               <button
                 type="button"
                 onClick={confirmDeleteImprovementTask}
-                className="w-1/2 bg-rose-600 hover:bg-rose-500 text-white py-2.5 rounded-xl cursor-pointer"
+                className="w-1/2 bg-rose-600 hover:bg-rose-500 text-fg py-2.5 rounded-xl cursor-pointer"
               >
                 ยืนยันลบ
               </button>
@@ -3730,7 +3730,7 @@ export const DispatchPage: React.FC = () => {
             </div>
 
             {/* Print Content area styled beautifully */}
-            <div className="p-8 overflow-y-auto flex-1 bg-white text-slate-900 print:p-0 print:bg-white print:text-black scrollbar-thin" id="print-printable-area">
+            <div className="p-8 overflow-y-auto flex-1 bg-surface text-slate-900 print:p-0 print:bg-surface print:text-fg scrollbar-thin" id="print-printable-area">
               <style dangerouslySetInnerHTML={{__html: `
                 @media print {
                   body * {
