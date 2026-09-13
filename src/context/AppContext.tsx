@@ -39,6 +39,7 @@ interface AppContextType {
   setTimeBreakParts: React.Dispatch<React.SetStateAction<TimeBreakPartItem[]>>;
   zones: ZoneStructure[];
   setZones: React.Dispatch<React.SetStateAction<ZoneStructure[]>>;
+  isLoaded: boolean;
   addZone: (zoneName: string) => boolean;
   addRoomToZone: (zoneName: string, roomName: string) => boolean;
   removeZone: (zoneName: string) => void;
@@ -51,6 +52,18 @@ interface AppContextType {
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
+
+export const deduplicateById = <T extends { id?: string | number }>(items: T[]): T[] => {
+  if (!Array.isArray(items)) return [];
+  const seen = new Set<string>();
+  return items.filter(item => {
+    if (!item || item.id === undefined || item.id === null) return true;
+    const key = String(item.id);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+};
 
 export const extractDefaultZones = (machinesList: Machine[]): ZoneStructure[] => {
   const zoneMap = new Map<string, Set<string>>();
@@ -180,18 +193,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 notes: m.notes || pre.notes
               };
             });
-            setMachines(enriched);
-            setTechnicians(serverData.technicians || PRELOADED_TECHNICIANS);
-            setEmployees(serverData.employees || []);
-            setPmPlans(serverData.pmPlans || PRELOADED_PM_PLANS);
-            setSchedules(serverData.schedules || PRELOADED_SCHEDULES);
-            setRepairs(serverData.repairs || PRELOADED_REPAIRS);
-            setImprovements(serverData.improvements || PRELOADED_IMPROVEMENTS);
-            setSetupLogs(serverData.setupLogs || PRELOADED_SETUPS);
-            setSpareParts(serverData.spareParts || PRELOADED_SPARE_PARTS);
-            setLeaves(serverData.leaves || []);
-            setCd5Projects(serverData.cd5Projects || PRELOADED_CD5_PROJECTS);
-            setTimeBreakParts(serverData.timeBreakParts || PRELOADED_TIME_BREAK_PARTS);
+            setMachines(deduplicateById(enriched));
+            setTechnicians(Array.from(new Set(serverData.technicians || PRELOADED_TECHNICIANS)));
+            setEmployees(deduplicateById(serverData.employees || []));
+            setPmPlans(deduplicateById(serverData.pmPlans || PRELOADED_PM_PLANS));
+            setSchedules(deduplicateById(serverData.schedules || PRELOADED_SCHEDULES));
+            setRepairs(deduplicateById(serverData.repairs || PRELOADED_REPAIRS));
+            setImprovements(deduplicateById(serverData.improvements || PRELOADED_IMPROVEMENTS));
+            setSetupLogs(deduplicateById(serverData.setupLogs || PRELOADED_SETUPS));
+            setSpareParts(deduplicateById(serverData.spareParts || PRELOADED_SPARE_PARTS));
+            setLeaves(deduplicateById(serverData.leaves || []));
+            setCd5Projects(deduplicateById(serverData.cd5Projects || PRELOADED_CD5_PROJECTS));
+            setTimeBreakParts(deduplicateById(serverData.timeBreakParts || PRELOADED_TIME_BREAK_PARTS));
             if (serverData.zones && Array.isArray(serverData.zones)) {
               setZones(mergeZonesWithMachines(serverData.zones, enriched));
             } else {
@@ -262,31 +275,31 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           setEmployees(defaultEmployees);
         }
 
-        if (storedPlans) setPmPlans(JSON.parse(storedPlans));
+        if (storedPlans) setPmPlans(deduplicateById(JSON.parse(storedPlans)));
         else setPmPlans(PRELOADED_PM_PLANS);
 
-        if (storedSchedules) setSchedules(JSON.parse(storedSchedules));
+        if (storedSchedules) setSchedules(deduplicateById(JSON.parse(storedSchedules)));
         else setSchedules(PRELOADED_SCHEDULES);
 
-        if (storedRepairs) setRepairs(JSON.parse(storedRepairs));
+        if (storedRepairs) setRepairs(deduplicateById(JSON.parse(storedRepairs)));
         else setRepairs(PRELOADED_REPAIRS);
 
-        if (storedImprovements) setImprovements(JSON.parse(storedImprovements));
+        if (storedImprovements) setImprovements(deduplicateById(JSON.parse(storedImprovements)));
         else setImprovements(PRELOADED_IMPROVEMENTS);
 
-        if (storedSetups) setSetupLogs(JSON.parse(storedSetups));
+        if (storedSetups) setSetupLogs(deduplicateById(JSON.parse(storedSetups)));
         else setSetupLogs(PRELOADED_SETUPS);
 
-        if (storedSpareParts) setSpareParts(JSON.parse(storedSpareParts));
+        if (storedSpareParts) setSpareParts(deduplicateById(JSON.parse(storedSpareParts)));
         else setSpareParts(PRELOADED_SPARE_PARTS);
 
-        if (storedCd5) setCd5Projects(JSON.parse(storedCd5));
+        if (storedCd5) setCd5Projects(deduplicateById(JSON.parse(storedCd5)));
         else setCd5Projects(PRELOADED_CD5_PROJECTS);
 
-        if (storedTimeBreakParts) setTimeBreakParts(JSON.parse(storedTimeBreakParts));
+        if (storedTimeBreakParts) setTimeBreakParts(deduplicateById(JSON.parse(storedTimeBreakParts)));
         else setTimeBreakParts(PRELOADED_TIME_BREAK_PARTS);
 
-        if (storedLeaves) setLeaves(JSON.parse(storedLeaves));
+        if (storedLeaves) setLeaves(deduplicateById(JSON.parse(storedLeaves)));
         else {
           const preloadingLeaves = [
             { id: 'lv-001', technician: 'ช่าง 1', date: '2026-06-08', type: 'ลากิจ' as const, note: 'ติดต่อราชการครอบครัว' },
@@ -345,18 +358,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
 
     const dataToSave = {
-      machines,
-      technicians,
-      employees,
-      pmPlans,
-      schedules,
-      repairs,
-      improvements,
-      setupLogs,
-      leaves,
-      spareParts,
-      cd5Projects,
-      timeBreakParts,
+      machines: deduplicateById(machines),
+      technicians: Array.from(new Set(technicians)),
+      employees: deduplicateById(employees),
+      pmPlans: deduplicateById(pmPlans),
+      schedules: deduplicateById(schedules),
+      repairs: deduplicateById(repairs),
+      improvements: deduplicateById(improvements),
+      setupLogs: deduplicateById(setupLogs),
+      leaves: deduplicateById(leaves),
+      spareParts: deduplicateById(spareParts),
+      cd5Projects: deduplicateById(cd5Projects),
+      timeBreakParts: deduplicateById(timeBreakParts),
       settings,
       zones
     };
@@ -693,6 +706,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       cd5Projects, setCd5Projects,
       timeBreakParts, setTimeBreakParts,
       zones, setZones,
+      isLoaded,
       addZone, addRoomToZone,
       removeZone, removeRoomFromZone,
       renameZone, renameRoom,

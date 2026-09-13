@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { 
   ScheduleItem, PMScheduleItem, RepairLog, ContactOtherTask, PMPlan, Machine 
@@ -33,8 +33,11 @@ export const SchedulePage: React.FC = () => {
     schedules, setSchedules, 
     technicians, pmPlans, machines, 
     repairs, setRepairs,
-    settings 
+    settings,
+    isLoaded
   } = useApp();
+
+  const seededMonthsRef = useRef<Set<string>>(new Set());
 
   // Reference today date
   const now = new Date();
@@ -98,10 +101,14 @@ export const SchedulePage: React.FC = () => {
 
   // Seed sample initial tasks for current month if none exist yet
   useEffect(() => {
+    if (!isLoaded || machines.length === 0) return;
+    if (seededMonthsRef.current.has(selectedMonth)) return;
+
     const hasAnyCurrentMonthTasks = schedules.some(s => s.date.startsWith(selectedMonth)) || 
                                    repairs.some(r => r.date.startsWith(selectedMonth));
     
-    if (!hasAnyCurrentMonthTasks && machines.length > 0) {
+    if (!hasAnyCurrentMonthTasks) {
+      seededMonthsRef.current.add(selectedMonth);
       const [y, m] = selectedMonth.split('-');
       const sample1Date = `${y}-${m}-09`;
       const sample2Date = `${y}-${m}-10`;
@@ -110,7 +117,7 @@ export const SchedulePage: React.FC = () => {
 
       const initialPMs: PMScheduleItem[] = [
         {
-          id: `pm-seed-01`,
+          id: `pm-seed-${selectedMonth}-01`,
           type: 'PM',
           technician: technicians[0] || 'ช่าง 1',
           technicians: [technicians[0] || 'ช่าง 1', technicians[1] || 'ช่าง 2'],
@@ -123,7 +130,7 @@ export const SchedulePage: React.FC = () => {
           peopleCount: 2
         },
         {
-          id: `pm-seed-02`,
+          id: `pm-seed-${selectedMonth}-02`,
           type: 'PM',
           technician: technicians[2] || 'ช่าง 3',
           technicians: [technicians[2] || 'ช่าง 3'],
@@ -136,7 +143,7 @@ export const SchedulePage: React.FC = () => {
           peopleCount: 1
         },
         {
-          id: `pm-seed-03`,
+          id: `pm-seed-${selectedMonth}-03`,
           type: 'PM',
           technician: technicians[4] || 'ช่าง 5',
           technicians: [technicians[4] || 'ช่าง 5', technicians[5] || 'ช่าง 6'],
@@ -152,7 +159,7 @@ export const SchedulePage: React.FC = () => {
 
       const initialOtherTasks: ContactOtherTask[] = [
         {
-          id: `other-seed-01`,
+          id: `other-seed-${selectedMonth}-01`,
           type: 'Other',
           title: 'ไปติดต่อร้านอะไหล่ด่วน รับสายพานไทม์มิ่งและลูกปืนสแตนเลส',
           category: 'งานติดต่อ',
@@ -168,7 +175,7 @@ export const SchedulePage: React.FC = () => {
           notes: 'นำใบขอซื้อและตัวอย่างสายพานเดิมไปเทียบขนาดจริง'
         },
         {
-          id: `other-seed-02`,
+          id: `other-seed-${selectedMonth}-02`,
           type: 'Other',
           title: 'นำแกนเพลาและลูกรีดไปส่งโรงกลึง CNC เพื่อกลึงพ่นพอก Hard Chrome',
           category: 'งานโรงกลึง/ภายนอก',
@@ -184,7 +191,7 @@ export const SchedulePage: React.FC = () => {
           notes: 'ตรวจรับใบส่งของและกำหนดวันส่งมอบกลับภายใน 3 วัน'
         },
         {
-          id: `other-seed-03`,
+          id: `other-seed-${selectedMonth}-03`,
           type: 'Other',
           title: 'เข้าร่วมประชุมความปลอดภัยและซักซ้อมมาตรการ LOTO ร่วมกับฝ่ายผลิต',
           category: 'งานประชุม/อบรม',
@@ -203,7 +210,7 @@ export const SchedulePage: React.FC = () => {
 
       const initialRepairs: RepairLog[] = [
         {
-          id: `rep-seed-01`,
+          id: `rep-seed-${selectedMonth}-01`,
           type: 'Repair',
           technician: technicians[3] || 'ช่าง 4',
           technicians: [technicians[3] || 'ช่าง 4', technicians[4] || 'ช่าง 5'],
@@ -225,10 +232,18 @@ export const SchedulePage: React.FC = () => {
         }
       ];
 
-      setSchedules(prev => [...prev, ...initialPMs, ...initialOtherTasks]);
-      setRepairs(prev => [...prev, ...initialRepairs]);
+      setSchedules(prev => {
+        const existingIds = new Set(prev.map(p => p.id));
+        const toAdd = [...initialPMs, ...initialOtherTasks].filter(t => !existingIds.has(t.id));
+        return toAdd.length > 0 ? [...prev, ...toAdd] : prev;
+      });
+      setRepairs(prev => {
+        const existingIds = new Set(prev.map(r => r.id));
+        const toAdd = initialRepairs.filter(r => !existingIds.has(r.id));
+        return toAdd.length > 0 ? [...prev, ...toAdd] : prev;
+      });
     }
-  }, [selectedMonth, machines]);
+  }, [selectedMonth, machines, isLoaded, schedules, repairs]);
 
   // Calendar calculations
   const [currentYearStr, currentMonthStr] = selectedMonth.split('-');
@@ -837,13 +852,13 @@ export const SchedulePage: React.FC = () => {
                     ) : (
                       <>
                         {/* PM Tasks */}
-                        {visiblePM.slice(0, 2).map(pm => {
+                        {visiblePM.slice(0, 2).map((pm, idx) => {
                           const plan = pmPlans.find(p => p.id === pm.pmPlanId);
                           const people = pm.peopleCount || pm.technicians?.length || 1;
                           const techName = pm.technicians?.length ? pm.technicians[0] : pm.technician;
                           return (
                             <div
-                              key={pm.id}
+                              key={`chip-pm-${pm.id}-${idx}`}
                               className={`px-1.5 py-1 rounded-md text-[9.5px] border leading-tight truncate transition ${
                                 pm.status === 'เสร็จสิ้น'
                                   ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300 line-through opacity-70'
@@ -865,11 +880,11 @@ export const SchedulePage: React.FC = () => {
                         })}
 
                         {/* Repair Tasks */}
-                        {visibleRepair.slice(0, 2).map(rep => {
+                        {visibleRepair.slice(0, 2).map((rep, idx) => {
                           const people = rep.peopleCount || rep.technicians?.length || 1;
                           return (
                             <div
-                              key={rep.id}
+                              key={`chip-rep-${rep.id}-${idx}`}
                               className={`px-1.5 py-1 rounded-md text-[9.5px] border leading-tight truncate transition ${
                                 rep.status === 'ปิดงาน'
                                   ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300 line-through opacity-70'
@@ -889,11 +904,11 @@ export const SchedulePage: React.FC = () => {
                         })}
 
                         {/* Contact / Other Tasks */}
-                        {visibleOther.slice(0, 2).map(oth => {
+                        {visibleOther.slice(0, 2).map((oth, idx) => {
                           const people = oth.peopleCount || oth.technicians?.length || 1;
                           return (
                             <div
-                              key={oth.id}
+                              key={`chip-oth-${oth.id}-${idx}`}
                               className={`px-1.5 py-1 rounded-md text-[9.5px] border leading-tight truncate transition ${
                                 oth.status === 'เสร็จสิ้น'
                                   ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300 line-through opacity-70'
@@ -1021,7 +1036,7 @@ export const SchedulePage: React.FC = () => {
                   </div>
                 ) : (
                   <div className="space-y-2.5">
-                    {activeDateTasks.pmList.map(pm => {
+                    {activeDateTasks.pmList.map((pm, idx) => {
                       const mach = machines.find(m => m.id === pm.machineId);
                       const plan = pmPlans.find(p => p.id === pm.pmPlanId);
                       const people = pm.peopleCount || pm.technicians?.length || 1;
@@ -1029,7 +1044,7 @@ export const SchedulePage: React.FC = () => {
 
                       return (
                         <div
-                          key={pm.id}
+                          key={`modal-pm-${pm.id}-${idx}`}
                           className="bg-slate-900 border border-slate-750 hover:border-blue-500/50 rounded-xl p-4 transition shadow-sm"
                         >
                           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-2">
@@ -1128,14 +1143,14 @@ export const SchedulePage: React.FC = () => {
                   </div>
                 ) : (
                   <div className="space-y-2.5">
-                    {activeDateTasks.repairList.map(rep => {
+                    {activeDateTasks.repairList.map((rep, idx) => {
                       const mach = machines.find(m => m.id === rep.machineId);
                       const people = rep.peopleCount || rep.technicians?.length || 1;
                       const allTechs = rep.technicians && rep.technicians.length > 0 ? rep.technicians : [rep.technician];
 
                       return (
                         <div
-                          key={rep.id}
+                          key={`modal-rep-${rep.id}-${idx}`}
                           className="bg-slate-900 border border-slate-750 hover:border-rose-500/50 rounded-xl p-4 transition shadow-sm"
                         >
                           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-2">
@@ -1230,13 +1245,13 @@ export const SchedulePage: React.FC = () => {
                   </div>
                 ) : (
                   <div className="space-y-2.5">
-                    {activeDateTasks.otherList.map(oth => {
+                    {activeDateTasks.otherList.map((oth, idx) => {
                       const people = oth.peopleCount || oth.technicians?.length || 1;
                       const allTechs = oth.technicians && oth.technicians.length > 0 ? oth.technicians : [];
 
                       return (
                         <div
-                          key={oth.id}
+                          key={`modal-oth-${oth.id}-${idx}`}
                           className="bg-slate-900 border border-slate-750 hover:border-emerald-500/50 rounded-xl p-4 transition shadow-sm"
                         >
                           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-2">

@@ -1,4 +1,4 @@
-import * as XLSX from 'xlsx';
+import * as XLSX from 'xlsx-js-style';
 import { PMPlan, PMStep, PMFrequency, Machine } from '../types';
 
 export interface ParsedPMReportResult {
@@ -158,6 +158,143 @@ export const exportPMReportToExcel = (
     { s: { r: rows.length - 2, c: 0 }, e: { r: rows.length - 2, c: 8 } },
     { s: { r: rows.length - 1, c: 0 }, e: { r: rows.length - 1, c: 8 } }
   ];
+
+  // Border style definitions
+  const thinBorder = {
+    top: { style: 'thin', color: { rgb: '000000' } },
+    bottom: { style: 'thin', color: { rgb: '000000' } },
+    left: { style: 'thin', color: { rgb: '000000' } },
+    right: { style: 'thin', color: { rgb: '000000' } }
+  };
+
+  const TOTAL_COLS = 9;
+  const stepsEndRow = 2 + steps.length;
+  const spareHeaderRow = rows.length - 5;
+  const spareDataRow = rows.length - 4;
+
+  // 1. Title Row (Row 0)
+  for (let c = 0; c < TOTAL_COLS; c++) {
+    const ref = XLSX.utils.encode_cell({ r: 0, c });
+    if (!ws[ref]) ws[ref] = { t: 's', v: '' };
+    ws[ref].s = {
+      font: { bold: true, sz: 14, color: { rgb: '0F172A' } },
+      alignment: { horizontal: 'center', vertical: 'center' },
+      fill: { fgColor: { rgb: 'F1F5F9' } },
+      border: thinBorder
+    };
+  }
+
+  // 2. Machine Info Row (Row 1)
+  for (let c = 0; c < TOTAL_COLS; c++) {
+    const ref = XLSX.utils.encode_cell({ r: 1, c });
+    if (!ws[ref]) ws[ref] = { t: 's', v: '' };
+    ws[ref].s = {
+      font: { bold: true, sz: 10.5, color: { rgb: '1E293B' } },
+      alignment: { vertical: 'center', horizontal: c >= 6 ? 'center' : 'left' },
+      fill: { fgColor: { rgb: 'F8FAFC' } },
+      border: thinBorder
+    };
+  }
+
+  // 3. Table Header Row (Row 2)
+  for (let c = 0; c < TOTAL_COLS; c++) {
+    const ref = XLSX.utils.encode_cell({ r: 2, c });
+    if (!ws[ref]) ws[ref] = { t: 's', v: '' };
+    ws[ref].s = {
+      font: { bold: true, sz: 10, color: { rgb: '0F172A' } },
+      alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
+      fill: { fgColor: { rgb: 'E2E8F0' } },
+      border: thinBorder
+    };
+  }
+
+  // 4. Data Rows (Rows 3 to stepsEndRow)
+  for (let r = 3; r <= stepsEndRow; r++) {
+    const isEven = (r - 3) % 2 === 1;
+    const rowBg = isEven ? 'F8FAFC' : 'FFFFFF';
+
+    for (let c = 0; c < TOTAL_COLS; c++) {
+      const ref = XLSX.utils.encode_cell({ r, c });
+      if (!ws[ref]) ws[ref] = { t: 's', v: '' };
+
+      const isCenterCol = (c === 0 || c === 4 || c === 5 || c === 6);
+      let valColor = '1E293B';
+      let isBold = false;
+      const cellVal = String(ws[ref].v || '');
+      if (cellVal === '✓' || cellVal === '✔') {
+        isBold = true;
+        valColor = c === 5 ? '059669' : (c === 6 ? 'DC2626' : '1E293B');
+      }
+
+      ws[ref].s = {
+        font: {
+          sz: (c === 5 || c === 6) ? 12 : 10,
+          bold: isBold,
+          color: { rgb: valColor }
+        },
+        alignment: {
+          horizontal: isCenterCol ? 'center' : 'left',
+          vertical: 'center',
+          wrapText: true
+        },
+        fill: { fgColor: { rgb: rowBg } },
+        border: thinBorder
+      };
+    }
+  }
+
+  // 5. Spare parts rows
+  for (let c = 0; c < TOTAL_COLS; c++) {
+    const headerRef = XLSX.utils.encode_cell({ r: spareHeaderRow, c });
+    if (!ws[headerRef]) ws[headerRef] = { t: 's', v: '' };
+    ws[headerRef].s = {
+      font: { bold: true, sz: 10, color: { rgb: '0F172A' } },
+      alignment: { horizontal: 'center', vertical: 'center' },
+      fill: { fgColor: { rgb: 'E2E8F0' } },
+      border: thinBorder
+    };
+
+    const dataRef = XLSX.utils.encode_cell({ r: spareDataRow, c });
+    if (!ws[dataRef]) ws[dataRef] = { t: 's', v: '' };
+    ws[dataRef].s = {
+      font: { sz: 10, color: { rgb: '1E293B' } },
+      alignment: { horizontal: (c === 0 || c >= 6) ? 'center' : 'left', vertical: 'center' },
+      fill: { fgColor: { rgb: 'FFFFFF' } },
+      border: thinBorder
+    };
+  }
+
+  // 6. Signatures (rows.length - 3 to rows.length - 1)
+  for (let r = rows.length - 3; r < rows.length; r++) {
+    for (let c = 0; c < TOTAL_COLS; c++) {
+      const ref = XLSX.utils.encode_cell({ r, c });
+      if (!ws[ref]) ws[ref] = { t: 's', v: '' };
+      ws[ref].s = {
+        font: { sz: 10, color: { rgb: '334155' } },
+        alignment: { horizontal: 'left', vertical: 'center' }
+      };
+    }
+  }
+
+  // Row heights
+  const rowHeights: { hpt: number }[] = [
+    { hpt: 24 }, // Row 0
+    { hpt: 24 }, // Row 1
+    { hpt: 24 }, // Row 2 Header
+  ];
+  for (let r = 3; r <= stepsEndRow; r++) {
+    rowHeights.push({ hpt: 28 });
+  }
+  rowHeights.push({ hpt: 12 }); // Empty separator
+  rowHeights.push({ hpt: 22 }); // Spare header
+  rowHeights.push({ hpt: 24 }); // Spare data
+  rowHeights.push({ hpt: 12 }); // Empty separator
+  rowHeights.push({ hpt: 24 }); // Sig 1
+  rowHeights.push({ hpt: 24 }); // Sig 2
+  rowHeights.push({ hpt: 24 }); // Sig 3
+
+  ws['!rows'] = rowHeights;
+  ws['!views'] = [{ showGridLines: true }];
 
   XLSX.utils.book_append_sheet(wb, ws, 'ใบรายงาน_PM');
 
@@ -382,4 +519,87 @@ export const parsePMReportExcel = (data: ArrayBuffer): ParsedPMReportResult => {
     acknowledgingDept,
     supervisorName
   };
+};
+
+/**
+ * Export a blank/sample PM Report Template in Excel format
+ */
+export const exportPMTemplateExcel = (machine?: Machine) => {
+  const samplePlan: PMPlan = {
+    id: 'template',
+    machineId: machine?.id || 'SLI01',
+    title: 'ใบรายงาน Preventive Maintenance (PM)',
+    frequency: 'รายเดือน',
+    ttm: 60,
+    spareParts: 'ลูกปืนมีด 6006, สายพานไทม์มิ่ง',
+    sparePartsQty: '2 ชุด',
+    inspectorTech: 'ทีมช่างบำรุงรักษา',
+    acknowledgingDept: 'ฝ่ายผลิต',
+    supervisorName: 'หัวหน้าหน่วย PM',
+    lastCheckedDate: new Date().toISOString().split('T')[0],
+    steps: [
+      {
+        itemNo: 1,
+        title: 'ตรวจเช็คสภาพทั่วไปทั้งภายในและภายนอกเครื่อง',
+        method: 'ดูด้วยสายตา',
+        standard: 'โครงสร้างสมบูรณ์ ไม่มีส่วนชำรุด',
+        frequency: '1 เดือน/ครั้ง',
+        stdTime: 10,
+        result: 'ปกติ',
+        done: true,
+        abnormalDetail: '',
+        remark: ''
+      },
+      {
+        itemNo: 2,
+        title: 'ตรวจวัดค่าแรงดัน',
+        method: 'เครื่องมือวัด',
+        standard: 'แรงดันไฟฟ้า……3 เฟส 200-240 V. (บันทึกค่าที่วัดได้)',
+        frequency: '1 เดือน/ครั้ง',
+        stdTime: 10,
+        result: 'ปกติ',
+        done: true,
+        abnormalDetail: '220V 3 เฟส สมดุล',
+        remark: ''
+      },
+      {
+        itemNo: 3,
+        title: 'ตรวจวัดค่ากระแสไฟฟ้า มอเตอร์ขับสายพาน 0.2KW',
+        method: 'เครื่องมือวัด',
+        standard: 'กระแสไฟฟ้า ไม่เกิน 1.15 A.... (บันทึกค่าที่วัดได้)',
+        frequency: '1 เดือน/ครั้ง',
+        stdTime: 15,
+        result: 'ยังไม่ตรวจ',
+        done: false,
+        abnormalDetail: '',
+        remark: ''
+      },
+      {
+        itemNo: 4,
+        title: 'ตรวจเช็คสภาพใบมีด/ลับคม',
+        method: 'มือ สายตา',
+        standard: 'ใบมีดมีความคมและยึดแน่น ไม่มีส่วนใดชำรุด บิ่น',
+        frequency: '1 เดือน/ครั้ง',
+        stdTime: 15,
+        result: 'ยังไม่ตรวจ',
+        done: false,
+        abnormalDetail: '',
+        remark: 'ลูกปืนมีด 6006 2 ตลับ'
+      },
+      {
+        itemNo: 5,
+        title: 'ทำความสะอาดทั่วไปโดยรอบเครื่องจักร',
+        method: 'มือ สายตา',
+        standard: 'ภายในและภายนอกเครื่อง ตู้ควบคุม สะอาด ไม่มีความชื้น',
+        frequency: '1 เดือน/ครั้ง',
+        stdTime: 10,
+        result: 'ยังไม่ตรวจ',
+        done: false,
+        abnormalDetail: '',
+        remark: ''
+      }
+    ]
+  };
+
+  exportPMReportToExcel(samplePlan, machine);
 };

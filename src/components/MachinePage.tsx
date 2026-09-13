@@ -1,7 +1,8 @@
 import React, { useState, useMemo } from 'react';
-import * as XLSX from 'xlsx';
+import * as XLSX from 'xlsx-js-style';
 import { useApp } from '../context/AppContext';
-import { Machine, PMPlan } from '../types';
+import { Machine, PMPlan, PMStep } from '../types';
+import { exportPMForm, importPMForm } from '../utils/pmExcelForm';
 import { 
   Plus, Search, ChevronDown, ChevronUp, FileSpreadsheet, Settings, 
   Trash2, Edit3, AlertTriangle, Layers, ListFilter, Eye, CheckCircle2,
@@ -22,7 +23,7 @@ interface MachineGroup {
 }
 
 export const MachinePage: React.FC = () => {
-  const { machines, setMachines, pmPlans, repairs, zones, addZone, addRoomToZone } = useApp();
+  const { machines, setMachines, pmPlans, setPmPlans, repairs, zones, addZone, addRoomToZone } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedMachineId, setExpandedMachineId] = useState<string | null>(null);
   const [showZoneManagerModal, setShowZoneManagerModal] = useState(false);
@@ -216,6 +217,55 @@ export const MachinePage: React.FC = () => {
         { wch: 20 }, // Serial Number
         { wch: 32 }  // หมายเหตุ
       ];
+
+      const thinBorder = {
+        top: { style: 'thin', color: { rgb: '000000' } },
+        bottom: { style: 'thin', color: { rgb: '000000' } },
+        left: { style: 'thin', color: { rgb: '000000' } },
+        right: { style: 'thin', color: { rgb: '000000' } }
+      };
+
+      const COLS_COUNT = 11;
+      // Header styling
+      for (let c = 0; c < COLS_COUNT; c++) {
+        const ref = XLSX.utils.encode_cell({ r: 0, c });
+        if (!ws[ref]) ws[ref] = { t: 's', v: '' };
+        ws[ref].s = {
+          font: { bold: true, sz: 10.5, color: { rgb: '0F172A' } },
+          alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
+          fill: { fgColor: { rgb: 'E2E8F0' } },
+          border: thinBorder
+        };
+      }
+
+      // Data rows styling
+      const rowHeights: { hpt: number }[] = [{ hpt: 26 }];
+      for (let r = 1; r < rows.length; r++) {
+        rowHeights.push({ hpt: 24 });
+        const isEven = r % 2 === 0;
+        const rowBg = isEven ? 'F8FAFC' : 'FFFFFF';
+
+        for (let c = 0; c < COLS_COUNT; c++) {
+          const ref = XLSX.utils.encode_cell({ r, c });
+          if (!ws[ref]) ws[ref] = { t: 's', v: '' };
+
+          const isCenterCol = (c === 0 || c === 1 || c === 5 || c === 9);
+          ws[ref].s = {
+            font: { sz: 10, color: { rgb: '1E293B' } },
+            alignment: {
+              horizontal: isCenterCol ? 'center' : 'left',
+              vertical: 'center',
+              wrapText: true
+            },
+            fill: { fgColor: { rgb: rowBg } },
+            border: thinBorder
+          };
+        }
+      }
+
+      ws['!rows'] = rowHeights;
+      ws['!views'] = [{ showGridLines: true }];
+
       XLSX.utils.book_append_sheet(wb, ws, 'ทะเบียนเครื่องจักร');
 
       const fileName = `ทะเบียนเครื่องจักร_Machines_${new Date().toISOString().split('T')[0]}.xlsx`;
@@ -305,6 +355,55 @@ export const MachinePage: React.FC = () => {
         { wch: 20 },
         { wch: 35 }
       ];
+
+      const thinBorder = {
+        top: { style: 'thin', color: { rgb: '000000' } },
+        bottom: { style: 'thin', color: { rgb: '000000' } },
+        left: { style: 'thin', color: { rgb: '000000' } },
+        right: { style: 'thin', color: { rgb: '000000' } }
+      };
+
+      const COLS_COUNT = 11;
+      // Header styling
+      for (let c = 0; c < COLS_COUNT; c++) {
+        const ref = XLSX.utils.encode_cell({ r: 0, c });
+        if (!ws[ref]) ws[ref] = { t: 's', v: '' };
+        ws[ref].s = {
+          font: { bold: true, sz: 10.5, color: { rgb: '0F172A' } },
+          alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
+          fill: { fgColor: { rgb: 'E2E8F0' } },
+          border: thinBorder
+        };
+      }
+
+      // Sample rows styling
+      const rowHeights: { hpt: number }[] = [{ hpt: 26 }];
+      for (let r = 1; r < sampleRows.length; r++) {
+        rowHeights.push({ hpt: 24 });
+        const isEven = r % 2 === 0;
+        const rowBg = isEven ? 'F8FAFC' : 'FFFFFF';
+
+        for (let c = 0; c < COLS_COUNT; c++) {
+          const ref = XLSX.utils.encode_cell({ r, c });
+          if (!ws[ref]) ws[ref] = { t: 's', v: '' };
+
+          const isCenterCol = (c === 0 || c === 1 || c === 5 || c === 9);
+          ws[ref].s = {
+            font: { sz: 10, color: { rgb: '1E293B' } },
+            alignment: {
+              horizontal: isCenterCol ? 'center' : 'left',
+              vertical: 'center',
+              wrapText: true
+            },
+            fill: { fgColor: { rgb: rowBg } },
+            border: thinBorder
+          };
+        }
+      }
+
+      ws['!rows'] = rowHeights;
+      ws['!views'] = [{ showGridLines: true }];
+
       XLSX.utils.book_append_sheet(wb, ws, 'Machine_Template');
       XLSX.writeFile(wb, 'เทมเพลตนำเข้าทะเบียนเครื่องจักร.xlsx');
     } catch (err: any) {
@@ -590,6 +689,136 @@ export const MachinePage: React.FC = () => {
     setExpandedMachineId(expandedMachineId === mId ? null : mId);
   };
 
+  // Export PM Form for a machine
+  const handleExportPM = (machine: Machine, planParam?: PMPlan) => {
+    try {
+      const plan = planParam || pmPlans.find(p => p.machineId === machine.id);
+      if (!plan) {
+        // If no plan yet, generate a default PMPlan structure so the user can export the template
+        const defaultPlan: PMPlan = {
+          id: `pm-${machine.id}-${Date.now()}`,
+          machineId: machine.id,
+          title: `ใบรายงาน Preventive Maintenance (PM) - ${machine.name}`,
+          frequency: 'รายเดือน',
+          steps: [
+            {
+              id: `step-${Date.now()}-1`,
+              itemNo: 1,
+              title: 'ตรวจเช็คสภาพทั่วไปทั้งภายในและภายนอกเครื่อง',
+              method: 'ดูด้วยสายตา',
+              standard: 'โครงสร้างสมบูรณ์ ไม่มีส่วนชำรุดเสียหาย',
+              frequency: '1 เดือน/ครั้ง',
+              stdTime: 15,
+              result: 'ยังไม่ตรวจ'
+            }
+          ],
+          ttm: 15
+        };
+        exportPMForm(machine, defaultPlan);
+      } else {
+        exportPMForm(machine, plan);
+      }
+
+      setFeedbackMessage({
+        type: 'success',
+        text: `ส่งออกฟอร์ม PM เครื่อง ${machine.id} (${machine.name}) เป็นไฟล์ Excel เรียบร้อยแล้ว`
+      });
+    } catch (err: any) {
+      setFeedbackMessage({
+        type: 'error',
+        text: `เกิดข้อผิดพลาดในการส่งออกฟอร์ม PM: ${err?.message || err}`
+      });
+    }
+  };
+
+  // Import PM Form from Excel file
+  const handleImportPM = async (machine: Machine, file: File, specificPlanId?: string) => {
+    try {
+      const imported = await importPMForm(file);
+      if (!imported.steps || imported.steps.length === 0) {
+        setFeedbackMessage({
+          type: 'error',
+          text: 'ไม่พบรายการขั้นตอน PM ในไฟล์ Excel ที่นำเข้า (โปรดตรวจสอบว่าแถวข้อมูลมีข้อมูลในคอลัมน์มาตรฐาน)'
+        });
+        return;
+      }
+
+      setPmPlans(prev => {
+        const existingIdx = prev.findIndex(p => specificPlanId ? p.id === specificPlanId : p.machineId === machine.id);
+        if (existingIdx >= 0) {
+          return prev.map((p, idx) => {
+            if (idx === existingIdx) {
+              return {
+                ...p,
+                steps: imported.steps,
+                ttm: imported.steps.reduce((sum, s) => sum + (s.stdTime || 0), 0)
+              };
+            }
+            return p;
+          });
+        } else {
+          const newPlan: PMPlan = {
+            id: `pm-${machine.id}-${Date.now()}`,
+            machineId: machine.id,
+            title: `ใบรายงาน Preventive Maintenance (PM) - ${imported.machineName || machine.name}`,
+            frequency: 'รายเดือน',
+            steps: imported.steps,
+            ttm: imported.steps.reduce((sum, s) => sum + (s.stdTime || 0), 0)
+          };
+          return [...prev, newPlan];
+        }
+      });
+
+      setFeedbackMessage({
+        type: 'success',
+        text: `นำเข้าฟอร์ม PM สำหรับเครื่อง ${machine.id} สำเร็จ (${imported.steps.length} ขั้นตอน, ผลการตรวจอัปเดตเรียบร้อย)`
+      });
+    } catch (err: any) {
+      setFeedbackMessage({
+        type: 'error',
+        text: `นำเข้าฟอร์ม PM ล้มเหลว: ${err?.message || err}`
+      });
+    }
+  };
+
+  // Toggle step result: 'ปกติ' / 'ไม่ปกติ' / 'ยังไม่ตรวจ' (clicking same value toggles back to 'ยังไม่ตรวจ')
+  const handleToggleStepResult = (planId: string, stepIndex: number, target: 'ปกติ' | 'ไม่ปกติ') => {
+    setPmPlans(prev => prev.map(p => {
+      if (p.id !== planId) return p;
+      const nextSteps = [...p.steps];
+      const current = nextSteps[stepIndex];
+      if (!current) return p;
+
+      const newResult: 'ปกติ' | 'ไม่ปกติ' | 'ยังไม่ตรวจ' =
+        current.result === target ? 'ยังไม่ตรวจ' : target;
+
+      nextSteps[stepIndex] = {
+        ...current,
+        result: newResult,
+        done: newResult !== 'ยังไม่ตรวจ'
+      };
+
+      return {
+        ...p,
+        steps: nextSteps
+      };
+    }));
+  };
+
+  // Update abnormalDetail or remark for a PM step
+  const handleUpdateStepNote = (planId: string, stepIndex: number, field: 'abnormalDetail' | 'remark', value: string) => {
+    setPmPlans(prev => prev.map(p => {
+      if (p.id !== planId) return p;
+      const nextSteps = [...p.steps];
+      if (!nextSteps[stepIndex]) return p;
+      nextSteps[stepIndex] = {
+        ...nextSteps[stepIndex],
+        [field]: value
+      };
+      return { ...p, steps: nextSteps };
+    }));
+  };
+
   // Helper to render machine deep detail (PM plans & MTTR stats & Specifications)
   const renderMachineDetails = (m: Machine, stats: ReturnType<typeof getMachineStats>, unitLabel?: string) => {
     const fullLocation = [m.locationZone, m.locationRoom].filter(Boolean).join(' > ') || '-';
@@ -711,70 +940,327 @@ export const MachinePage: React.FC = () => {
           )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* PM list */}
-          <div className="space-y-2">
-            <h4 className="text-xs font-semibold uppercase text-slate-400 tracking-wider flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded bg-cyan-400"></span>
-              รายการแผน PM ประจำเครื่อง
-            </h4>
-            {stats.linkedPlans.length === 0 ? (
-              <p className="text-xs text-slate-500 italic py-2">
-                ยังไม่มีการระบุแผนบำรุงรักษาเชิงป้องกัน (PM) สำหรับเครื่องไฟฟ้านี้
-              </p>
-            ) : (
-              <div className="grid gap-2">
-                {stats.linkedPlans.map(plan => (
-                  <div 
-                    key={plan.id}
-                    className="bg-slate-800/80 border border-slate-700 rounded-lg p-3 flex justify-between items-center"
-                  >
-                    <div>
-                      <p className="text-xs text-slate-200 font-medium">{plan.title}</p>
-                      <div className="flex items-center gap-2 mt-1.5">
-                        <span className="text-[10px] bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 font-medium px-2 py-0.5 rounded">
-                          {plan.frequency}
-                        </span>
-                        <span className="text-[10px] text-slate-400 font-mono">
-                          {plan.steps.length} ขั้นตอน
-                        </span>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xs text-slate-400">เวลามาตรฐาน TTM</p>
-                      <p className="text-sm font-mono font-bold text-cyan-400">{plan.ttm} นาที</p>
-                    </div>
-                  </div>
-                ))}
+        {/* PM Form and Checklist Section */}
+        <div className="space-y-4 pt-1">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-slate-950/80 border border-slate-800 rounded-xl p-3.5 shadow-sm">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shrink-0">
+                <FileSpreadsheet size={17} />
               </div>
-            )}
+              <div>
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-200 flex items-center gap-2">
+                  <span>ฟอร์ม Preventive Maintenance (PM)</span>
+                  <span className="text-[10px] text-cyan-400 font-mono bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20 lowercase">
+                    {stats.linkedPlans.length} แผน
+                  </span>
+                </h4>
+                <p className="text-[11px] text-slate-400 mt-0.5">
+                  ระบบฟอร์มตรวจเช็ก PM แบบ 3 สถานะ (ปกติ / ไม่ปกติ / ยังไม่ตรวจ) พร้อม Export/Import Excel SheetJS
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
+              <button
+                type="button"
+                id={`btn-export-pm-form-${m.id}`}
+                onClick={() => handleExportPM(m)}
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white transition border border-emerald-500/50 cursor-pointer shadow-sm"
+                title={`Export ฟอร์ม PM เครื่อง ${m.id} เป็นไฟล์ Excel (.xlsx)`}
+              >
+                <Download size={13} />
+                <span>Export ฟอร์ม PM (.xlsx)</span>
+              </button>
+
+              <label
+                htmlFor={`input-import-pm-form-${m.id}`}
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-cyan-300 hover:text-cyan-200 transition border border-cyan-500/40 cursor-pointer shadow-sm"
+                title={`Import ฟอร์ม PM เครื่อง ${m.id} จากไฟล์ Excel (.xlsx)`}
+              >
+                <Upload size={13} />
+                <span>Import ฟอร์ม PM</span>
+                <input
+                  id={`input-import-pm-form-${m.id}`}
+                  type="file"
+                  accept=".xlsx"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      handleImportPM(m, file);
+                      e.target.value = '';
+                    }
+                  }}
+                />
+              </label>
+            </div>
           </div>
 
-          {/* Historical repair overview */}
-          <div className="space-y-2">
-            <h4 className="text-xs font-semibold uppercase text-slate-400 tracking-wider flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded bg-rose-500"></span>
-              ประวัติการซ่อมบำรุง (ยอดสะสมล่าสุด)
-            </h4>
-            <div className="bg-slate-800/80 border border-slate-700 rounded-lg p-4 grid grid-cols-2 gap-4">
-              <div className="text-center p-2 bg-slate-900/60 rounded">
-                <p className="text-[10px] text-slate-400 uppercase">ยอดซ่อมสะสมทั้งหมด</p>
-                <p className="text-lg font-mono font-extrabold text-rose-400 mt-1">
-                  {repairs.filter(r => r.machineId === m.id).length} ครั้ง
-                </p>
+          {stats.linkedPlans.length === 0 ? (
+            <div className="bg-slate-950/60 border border-slate-800/90 rounded-xl p-5 text-center space-y-3">
+              <p className="text-xs text-slate-400">
+                ยังไม่มีการระบุแผนบำรุงรักษาเชิงป้องกัน (PM) สำหรับเครื่องจักร <span className="text-cyan-300 font-bold">{m.id} ({m.name})</span>
+              </p>
+              <div className="flex items-center justify-center gap-2.5 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => handleExportPM(m)}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600/25 hover:bg-emerald-600/40 text-emerald-300 border border-emerald-500/40 transition cursor-pointer"
+                >
+                  <Download size={14} />
+                  <span>สร้าง &amp; Export ฟอร์ม PM ตัวอย่าง</span>
+                </button>
+                <label
+                  htmlFor={`input-import-pm-empty-${m.id}`}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-cyan-600/25 hover:bg-cyan-600/40 text-cyan-300 border border-cyan-500/40 transition cursor-pointer"
+                >
+                  <Upload size={14} />
+                  <span>นำเข้าไฟล์ฟอร์ม PM (.xlsx)</span>
+                  <input
+                    id={`input-import-pm-empty-${m.id}`}
+                    type="file"
+                    accept=".xlsx"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        handleImportPM(m, file);
+                        e.target.value = '';
+                      }
+                    }}
+                  />
+                </label>
               </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {stats.linkedPlans.map((plan) => {
+                const normalCount = plan.steps.filter(s => s.result === 'ปกติ').length;
+                const abnormalCount = plan.steps.filter(s => s.result === 'ไม่ปกติ').length;
+                const uncheckedCount = plan.steps.length - normalCount - abnormalCount;
 
-              <div className="text-center p-2 bg-slate-900/60 rounded">
-                <p className="text-[10px] text-slate-400 uppercase">เวลารอซ่อมเฉลี่ย MTTR</p>
-                <p className="text-lg font-mono font-extrabold text-amber-400 mt-1">
-                  {(() => {
-                    const machReps = repairs.filter(r => r.machineId === m.id);
-                    if (machReps.length === 0) return "-";
-                    const total = machReps.reduce((sum, r) => sum + r.duration, 0);
-                    return `${(total / machReps.length).toFixed(1)} นาที`;
-                  })()}
-                </p>
-              </div>
+                return (
+                  <div key={plan.id} className="bg-slate-950/70 border border-slate-800 rounded-xl overflow-hidden shadow-inner">
+                    {/* Plan Top Info Bar */}
+                    <div className="bg-slate-900/90 border-b border-slate-800 p-3.5 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                      <div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h5 className="text-xs font-bold text-slate-100">{plan.title}</h5>
+                          <span className="text-[10px] bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 font-semibold px-2 py-0.5 rounded">
+                            {plan.frequency}
+                          </span>
+                          <span className="text-[10px] text-slate-400 font-mono">
+                            {plan.steps.length} ขั้นตอน (TTM: {plan.ttm} นาที)
+                          </span>
+                        </div>
+                        {/* Result summary tags */}
+                        <div className="flex items-center gap-2 mt-1.5 text-[11px]">
+                          <span className="inline-flex items-center gap-1 text-emerald-400 bg-emerald-950/40 border border-emerald-500/30 px-2 py-0.5 rounded">
+                            <Check size={11} /> ปกติ: {normalCount}
+                          </span>
+                          <span className="inline-flex items-center gap-1 text-rose-400 bg-rose-950/40 border border-rose-500/30 px-2 py-0.5 rounded">
+                            <X size={11} /> ไม่ปกติ: {abnormalCount}
+                          </span>
+                          <span className="inline-flex items-center gap-1 text-slate-400 bg-slate-900 border border-slate-700/60 px-2 py-0.5 rounded">
+                            ยังไม่ตรวจ: {uncheckedCount}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 self-end md:self-auto">
+                        <button
+                          type="button"
+                          onClick={() => handleExportPM(m, plan)}
+                          className="inline-flex items-center gap-1 text-[11px] font-semibold bg-emerald-600/20 hover:bg-emerald-600/35 text-emerald-300 border border-emerald-500/40 px-2.5 py-1.5 rounded-lg transition cursor-pointer"
+                          title="Export แผนนี้เป็น Excel"
+                        >
+                          <Download size={12} />
+                          <span>Export Excel</span>
+                        </button>
+                        <label
+                          htmlFor={`input-import-plan-${plan.id}`}
+                          className="inline-flex items-center gap-1 text-[11px] font-semibold bg-cyan-600/20 hover:bg-cyan-600/35 text-cyan-300 border border-cyan-500/40 px-2.5 py-1.5 rounded-lg transition cursor-pointer"
+                          title="Import ไฟล์ Excel อัปเดตแผนนี้"
+                        >
+                          <Upload size={12} />
+                          <span>Import Excel</span>
+                          <input
+                            id={`input-import-plan-${plan.id}`}
+                            type="file"
+                            accept=".xlsx"
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                handleImportPM(m, file, plan.id);
+                                e.target.value = '';
+                              }
+                            }}
+                          />
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* PM Steps Checklist Table */}
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-xs border-collapse">
+                        <thead>
+                          <tr className="bg-slate-900/60 text-slate-400 border-b border-slate-800 text-[11px] uppercase tracking-wider font-semibold">
+                            <th className="py-2.5 px-3 w-14 text-center">ลำดับ</th>
+                            <th className="py-2.5 px-3 min-w-[200px]">หัวข้อ PM &amp; เกณฑ์มาตรฐาน</th>
+                            <th className="py-2.5 px-3 w-28">วิธีการ</th>
+                            <th className="py-2.5 px-3 w-24 text-center">ความถี่</th>
+                            <th className="py-2.5 px-3 w-48 text-center">ผลการ PM (ช่องติ๊ก 3 สถานะ)</th>
+                            <th className="py-2.5 px-3 min-w-[180px]">รายละเอียดความผิดปกติ / หมายเหตุ</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-800/60">
+                          {plan.steps.map((step, sIdx) => {
+                            const isNormal = step.result === 'ปกติ';
+                            const isAbnormal = step.result === 'ไม่ปกติ';
+                            const isUnchecked = !step.result || step.result === 'ยังไม่ตรวจ';
+
+                            return (
+                              <tr 
+                                key={step.id || `step-${sIdx}`}
+                                className={`transition-colors hover:bg-slate-900/50 ${
+                                  isAbnormal 
+                                    ? 'bg-rose-950/20' 
+                                    : isNormal 
+                                    ? 'bg-emerald-950/10' 
+                                    : ''
+                                }`}
+                              >
+                                {/* ลำดับ (itemNo) */}
+                                <td className="py-2.5 px-3 text-center font-mono font-bold text-slate-300">
+                                  {step.itemNo !== undefined && step.itemNo !== null ? step.itemNo : (sIdx + 1)}
+                                </td>
+
+                                {/* หัวข้อ PM & มาตรฐาน */}
+                                <td className="py-2.5 px-3">
+                                  <div className="font-semibold text-slate-100">{step.title}</div>
+                                  {step.standard && (
+                                    <div className="text-[11px] text-cyan-300/90 mt-0.5 leading-relaxed">
+                                      <span className="text-slate-400 font-medium">มาตรฐาน: </span>
+                                      {step.standard}
+                                    </div>
+                                  )}
+                                </td>
+
+                                {/* วิธีการ */}
+                                <td className="py-2.5 px-3 text-slate-300 text-[11px]">
+                                  {step.method || '-'}
+                                </td>
+
+                                {/* ความถี่ */}
+                                <td className="py-2.5 px-3 text-center">
+                                  <span className="inline-block text-[10px] bg-slate-900 border border-slate-700/80 text-slate-300 px-2 py-0.5 rounded font-mono">
+                                    {step.frequency || plan.frequency}
+                                  </span>
+                                </td>
+
+                                {/* ผลการ PM (ช่องติ๊ก toggle) */}
+                                <td className="py-2.5 px-3 text-center">
+                                  <div className="flex items-center justify-center gap-1.5">
+                                    {/* ปุ่ม ปกติ */}
+                                    <button
+                                      type="button"
+                                      id={`btn-step-normal-${plan.id}-${sIdx}`}
+                                      onClick={() => handleToggleStepResult(plan.id, sIdx, 'ปกติ')}
+                                      className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold transition border cursor-pointer ${
+                                        isNormal
+                                          ? 'bg-emerald-600 text-white border-emerald-400 shadow-sm ring-1 ring-emerald-400/40'
+                                          : 'bg-slate-900 hover:bg-emerald-950/50 text-slate-400 hover:text-emerald-300 border-slate-700 hover:border-emerald-500/40'
+                                      }`}
+                                      title={isNormal ? 'คลิกซ้ำเพื่อยกเลิก (เปลี่ยนกลับเป็นยังไม่ตรวจ)' : 'เลือกผลการตรวจ: ปกติ'}
+                                    >
+                                      <Check size={13} className={isNormal ? 'text-white' : 'text-emerald-400'} />
+                                      <span>ปกติ</span>
+                                    </button>
+
+                                    {/* ปุ่ม ไม่ปกติ */}
+                                    <button
+                                      type="button"
+                                      id={`btn-step-abnormal-${plan.id}-${sIdx}`}
+                                      onClick={() => handleToggleStepResult(plan.id, sIdx, 'ไม่ปกติ')}
+                                      className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold transition border cursor-pointer ${
+                                        isAbnormal
+                                          ? 'bg-rose-600 text-white border-rose-400 shadow-sm ring-1 ring-rose-400/40'
+                                          : 'bg-slate-900 hover:bg-rose-950/50 text-slate-400 hover:text-rose-300 border-slate-700 hover:border-rose-500/40'
+                                      }`}
+                                      title={isAbnormal ? 'คลิกซ้ำเพื่อยกเลิก (เปลี่ยนกลับเป็นยังไม่ตรวจ)' : 'เลือกผลการตรวจ: ไม่ปกติ'}
+                                    >
+                                      <X size={13} className={isAbnormal ? 'text-white' : 'text-rose-400'} />
+                                      <span>ไม่ปกติ</span>
+                                    </button>
+
+                                    {/* แสดงสถานะ ยังไม่ตรวจ */}
+                                    {isUnchecked && (
+                                      <span className="text-[10px] text-slate-500 italic pl-1 hidden xl:inline">
+                                        ยังไม่ตรวจ
+                                      </span>
+                                    )}
+                                  </div>
+                                </td>
+
+                                {/* รายละเอียดความผิดปกติ / หมายเหตุ */}
+                                <td className="py-2.5 px-3">
+                                  <div className="space-y-1">
+                                    <input
+                                      type="text"
+                                      placeholder={isAbnormal ? 'ระบุสิ่งผิดปกติ / ค่าที่วัดได้*' : 'รายละเอียด/ค่าที่วัดได้'}
+                                      value={step.abnormalDetail || ''}
+                                      onChange={(e) => handleUpdateStepNote(plan.id, sIdx, 'abnormalDetail', e.target.value)}
+                                      className={`w-full bg-slate-900/90 text-xs px-2.5 py-1 rounded border focus:outline-none transition ${
+                                        isAbnormal 
+                                          ? 'border-rose-500/60 text-rose-200 placeholder-rose-400/50 focus:border-rose-400' 
+                                          : 'border-slate-800 text-slate-200 placeholder-slate-600 focus:border-cyan-500'
+                                      }`}
+                                    />
+                                    {step.remark && (
+                                      <div className="text-[10px] text-slate-400 truncate" title={step.remark}>
+                                        หมายเหตุ: {step.remark}
+                                      </div>
+                                    )}
+                                  </div>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Historical repair overview */}
+        <div className="space-y-2 pt-2 border-t border-slate-800/80">
+          <h4 className="text-xs font-semibold uppercase text-slate-400 tracking-wider flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded bg-rose-500"></span>
+            ประวัติการซ่อมบำรุง (ยอดสะสมล่าสุด)
+          </h4>
+          <div className="bg-slate-800/80 border border-slate-700 rounded-lg p-4 grid grid-cols-2 gap-4">
+            <div className="text-center p-2 bg-slate-900/60 rounded">
+              <p className="text-[10px] text-slate-400 uppercase">ยอดซ่อมสะสมทั้งหมด</p>
+              <p className="text-lg font-mono font-extrabold text-rose-400 mt-1">
+                {repairs.filter(r => r.machineId === m.id).length} ครั้ง
+              </p>
+            </div>
+
+            <div className="text-center p-2 bg-slate-900/60 rounded">
+              <p className="text-[10px] text-slate-400 uppercase">เวลารอซ่อมเฉลี่ย MTTR</p>
+              <p className="text-lg font-mono font-extrabold text-amber-400 mt-1">
+                {(() => {
+                  const machReps = repairs.filter(r => r.machineId === m.id);
+                  if (machReps.length === 0) return "-";
+                  const total = machReps.reduce((sum, r) => sum + r.duration, 0);
+                  return `${(total / machReps.length).toFixed(1)} นาที`;
+                })()}
+              </p>
             </div>
           </div>
         </div>

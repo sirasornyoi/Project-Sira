@@ -1161,11 +1161,15 @@
       "steps": [
         {
           "title": "ตรวจสอบใบกวนและจุดยึด",
-          "stdTime": 15
+          "stdTime": 15,
+          "result": "ปกติ",
+          "done": true
         },
         {
           "title": "ทำความสะอาดหัวฉีดน้ำส้มสายชู",
-          "stdTime": 10
+          "stdTime": 10,
+          "result": "ปกติ",
+          "done": true
         },
         {
           "title": "ตรวจสอบระบบขับเคลื่อนและเฟืองเกียร์",
@@ -1173,7 +1177,8 @@
         }
       ],
       "spareParts": "น้ำมันหล่อลื่นเกรดอาหาร NSF-H1",
-      "ttm": 45
+      "ttm": 45,
+      "lastCheckedDate": "2026-09-13"
     },
     {
       "id": "plan-pm-02",
@@ -1385,642 +1390,6 @@
       "duration": 90,
       "status": "รอดำเนินการ",
       "notes": "เตรียมเอกสารคู่มือความปลอดภัยก่อนเริ่มกะ"
-    },
-    {
-      "id": "pm-seed-01",
-      "type": "PM",
-      "technician": "ช่าง 1",
-      "technicians": [
-        "ช่าง 1",
-        "ช่าง 2"
-      ],
-      "date": "2026-08-09",
-      "machineId": "RIM01",
-      "pmPlanId": "plan-pm-01",
-      "status": "กำลังทำ",
-      "duration": 45,
-      "destination": "ไลน์ผสมข้าว A (ชั้น 2)",
-      "peopleCount": 2
-    },
-    {
-      "id": "pm-seed-02",
-      "type": "PM",
-      "technician": "ช่าง 3",
-      "technicians": [
-        "ช่าง 3"
-      ],
-      "date": "2026-08-10",
-      "machineId": "TOC02",
-      "pmPlanId": "plan-pm-02",
-      "status": "รอดำเนินการ",
-      "duration": 60,
-      "destination": "ไลน์ลำเลียง TOC หน้างาน",
-      "peopleCount": 1
-    },
-    {
-      "id": "pm-seed-03",
-      "type": "PM",
-      "technician": "ช่าง 5",
-      "technicians": [
-        "ช่าง 5",
-        "ช่าง 6"
-      ],
-      "date": "2026-08-18",
-      "machineId": "VAC05",
-      "pmPlanId": "plan-pm-03",
-      "status": "รอดำเนินการ",
-      "duration": 90,
-      "destination": "ห้องเย็น VACUUM อาคาร B",
-      "peopleCount": 2
-    },
-    {
-      "id": "other-seed-01",
-      "type": "Other",
-      "title": "ไปติดต่อร้านอะไหล่ด่วน รับสายพานไทม์มิ่งและลูกปืนสแตนเลส",
-      "category": "งานติดต่อ",
-      "date": "2026-08-09",
-      "destination": "ร้านเจริญอะไหล่ยนต์ (พระราม 2)",
-      "peopleCount": 2,
-      "technicians": [
-        "ช่าง 7",
-        "ช่าง 8"
-      ],
-      "technicianNamesText": "ช่าง 7, ช่าง 8",
-      "startTime": "09:30",
-      "endTime": "12:30",
-      "duration": 180,
-      "status": "รอดำเนินการ",
-      "notes": "นำใบขอซื้อและตัวอย่างสายพานเดิมไปเทียบขนาดจริง"
-    },
-    {
-      "id": "other-seed-02",
-      "type": "Other",
-      "title": "นำแกนเพลาและลูกรีดไปส่งโรงกลึง CNC เพื่อกลึงพ่นพอก Hard Chrome",
-      "category": "งานโรงกลึง/ภายนอก",
-      "date": "2026-08-10",
-      "destination": "โรงกลึง CNC มีนบุรี",
-      "peopleCount": 2,
-      "technicians": [
-        "ช่าง 9",
-        "ช่าง 10"
-      ],
-      "technicianNamesText": "ช่าง 9, ช่าง 10",
-      "startTime": "13:00",
-      "endTime": "16:30",
-      "duration": 210,
-      "status": "รอดำเนินการ",
-      "notes": "ตรวจรับใบส่งของและกำหนดวันส่งมอบกลับภายใน 3 วัน"
-    },
-    {
-      "id": "other-seed-03",
-      "type": "Other",
-      "title": "เข้าร่วมประชุมความปลอดภัยและซักซ้อมมาตรการ LOTO ร่วมกับฝ่ายผลิต",
-      "category": "งานประชุม/อบรม",
-      "date": "2026-08-15",
-      "destination": "ห้องประชุมช่าง / อาคาร 1",
-      "peopleCount": 4,
-      "technicians": [
-        "ช่าง 1",
-        "ช่าง 2",
-        "ช่าง 3",
-        "ช่าง 4"
-      ],
-      "technicianNamesText": "ทีมช่าง กะเช้า 4 คน",
-      "startTime": "10:00",
-      "endTime": "11:30",
-      "duration": 90,
-      "status": "รอดำเนินการ",
-      "notes": "เตรียมเอกสารคู่มือความปลอดภัยก่อนเริ่มกะ"
-    },
-    {
-      "id": "pm-seed-01",
-      "type": "PM",
-      "technician": "ช่าง 1",
-      "technicians": [
-        "ช่าง 1",
-        "ช่าง 2"
-      ],
-      "date": "2026-07-09",
-      "machineId": "RIM01",
-      "pmPlanId": "plan-pm-01",
-      "status": "กำลังทำ",
-      "duration": 45,
-      "destination": "ไลน์ผสมข้าว A (ชั้น 2)",
-      "peopleCount": 2
-    },
-    {
-      "id": "pm-seed-02",
-      "type": "PM",
-      "technician": "ช่าง 3",
-      "technicians": [
-        "ช่าง 3"
-      ],
-      "date": "2026-07-10",
-      "machineId": "TOC02",
-      "pmPlanId": "plan-pm-02",
-      "status": "รอดำเนินการ",
-      "duration": 60,
-      "destination": "ไลน์ลำเลียง TOC หน้างาน",
-      "peopleCount": 1
-    },
-    {
-      "id": "pm-seed-03",
-      "type": "PM",
-      "technician": "ช่าง 5",
-      "technicians": [
-        "ช่าง 5",
-        "ช่าง 6"
-      ],
-      "date": "2026-07-18",
-      "machineId": "VAC05",
-      "pmPlanId": "plan-pm-03",
-      "status": "รอดำเนินการ",
-      "duration": 90,
-      "destination": "ห้องเย็น VACUUM อาคาร B",
-      "peopleCount": 2
-    },
-    {
-      "id": "other-seed-01",
-      "type": "Other",
-      "title": "ไปติดต่อร้านอะไหล่ด่วน รับสายพานไทม์มิ่งและลูกปืนสแตนเลส",
-      "category": "งานติดต่อ",
-      "date": "2026-07-09",
-      "destination": "ร้านเจริญอะไหล่ยนต์ (พระราม 2)",
-      "peopleCount": 2,
-      "technicians": [
-        "ช่าง 7",
-        "ช่าง 8"
-      ],
-      "technicianNamesText": "ช่าง 7, ช่าง 8",
-      "startTime": "09:30",
-      "endTime": "12:30",
-      "duration": 180,
-      "status": "รอดำเนินการ",
-      "notes": "นำใบขอซื้อและตัวอย่างสายพานเดิมไปเทียบขนาดจริง"
-    },
-    {
-      "id": "other-seed-02",
-      "type": "Other",
-      "title": "นำแกนเพลาและลูกรีดไปส่งโรงกลึง CNC เพื่อกลึงพ่นพอก Hard Chrome",
-      "category": "งานโรงกลึง/ภายนอก",
-      "date": "2026-07-10",
-      "destination": "โรงกลึง CNC มีนบุรี",
-      "peopleCount": 2,
-      "technicians": [
-        "ช่าง 9",
-        "ช่าง 10"
-      ],
-      "technicianNamesText": "ช่าง 9, ช่าง 10",
-      "startTime": "13:00",
-      "endTime": "16:30",
-      "duration": 210,
-      "status": "รอดำเนินการ",
-      "notes": "ตรวจรับใบส่งของและกำหนดวันส่งมอบกลับภายใน 3 วัน"
-    },
-    {
-      "id": "other-seed-03",
-      "type": "Other",
-      "title": "เข้าร่วมประชุมความปลอดภัยและซักซ้อมมาตรการ LOTO ร่วมกับฝ่ายผลิต",
-      "category": "งานประชุม/อบรม",
-      "date": "2026-07-15",
-      "destination": "ห้องประชุมช่าง / อาคาร 1",
-      "peopleCount": 4,
-      "technicians": [
-        "ช่าง 1",
-        "ช่าง 2",
-        "ช่าง 3",
-        "ช่าง 4"
-      ],
-      "technicianNamesText": "ทีมช่าง กะเช้า 4 คน",
-      "startTime": "10:00",
-      "endTime": "11:30",
-      "duration": 90,
-      "status": "รอดำเนินการ",
-      "notes": "เตรียมเอกสารคู่มือความปลอดภัยก่อนเริ่มกะ"
-    },
-    {
-      "id": "pm-seed-01",
-      "type": "PM",
-      "technician": "ช่าง 1",
-      "technicians": [
-        "ช่าง 1",
-        "ช่าง 2"
-      ],
-      "date": "2026-05-09",
-      "machineId": "RIM01",
-      "pmPlanId": "plan-pm-01",
-      "status": "กำลังทำ",
-      "duration": 45,
-      "destination": "ไลน์ผสมข้าว A (ชั้น 2)",
-      "peopleCount": 2
-    },
-    {
-      "id": "pm-seed-02",
-      "type": "PM",
-      "technician": "ช่าง 3",
-      "technicians": [
-        "ช่าง 3"
-      ],
-      "date": "2026-05-10",
-      "machineId": "TOC02",
-      "pmPlanId": "plan-pm-02",
-      "status": "รอดำเนินการ",
-      "duration": 60,
-      "destination": "ไลน์ลำเลียง TOC หน้างาน",
-      "peopleCount": 1
-    },
-    {
-      "id": "pm-seed-03",
-      "type": "PM",
-      "technician": "ช่าง 5",
-      "technicians": [
-        "ช่าง 5",
-        "ช่าง 6"
-      ],
-      "date": "2026-05-18",
-      "machineId": "VAC05",
-      "pmPlanId": "plan-pm-03",
-      "status": "รอดำเนินการ",
-      "duration": 90,
-      "destination": "ห้องเย็น VACUUM อาคาร B",
-      "peopleCount": 2
-    },
-    {
-      "id": "other-seed-01",
-      "type": "Other",
-      "title": "ไปติดต่อร้านอะไหล่ด่วน รับสายพานไทม์มิ่งและลูกปืนสแตนเลส",
-      "category": "งานติดต่อ",
-      "date": "2026-05-09",
-      "destination": "ร้านเจริญอะไหล่ยนต์ (พระราม 2)",
-      "peopleCount": 2,
-      "technicians": [
-        "ช่าง 7",
-        "ช่าง 8"
-      ],
-      "technicianNamesText": "ช่าง 7, ช่าง 8",
-      "startTime": "09:30",
-      "endTime": "12:30",
-      "duration": 180,
-      "status": "รอดำเนินการ",
-      "notes": "นำใบขอซื้อและตัวอย่างสายพานเดิมไปเทียบขนาดจริง"
-    },
-    {
-      "id": "other-seed-02",
-      "type": "Other",
-      "title": "นำแกนเพลาและลูกรีดไปส่งโรงกลึง CNC เพื่อกลึงพ่นพอก Hard Chrome",
-      "category": "งานโรงกลึง/ภายนอก",
-      "date": "2026-05-10",
-      "destination": "โรงกลึง CNC มีนบุรี",
-      "peopleCount": 2,
-      "technicians": [
-        "ช่าง 9",
-        "ช่าง 10"
-      ],
-      "technicianNamesText": "ช่าง 9, ช่าง 10",
-      "startTime": "13:00",
-      "endTime": "16:30",
-      "duration": 210,
-      "status": "รอดำเนินการ",
-      "notes": "ตรวจรับใบส่งของและกำหนดวันส่งมอบกลับภายใน 3 วัน"
-    },
-    {
-      "id": "other-seed-03",
-      "type": "Other",
-      "title": "เข้าร่วมประชุมความปลอดภัยและซักซ้อมมาตรการ LOTO ร่วมกับฝ่ายผลิต",
-      "category": "งานประชุม/อบรม",
-      "date": "2026-05-15",
-      "destination": "ห้องประชุมช่าง / อาคาร 1",
-      "peopleCount": 4,
-      "technicians": [
-        "ช่าง 1",
-        "ช่าง 2",
-        "ช่าง 3",
-        "ช่าง 4"
-      ],
-      "technicianNamesText": "ทีมช่าง กะเช้า 4 คน",
-      "startTime": "10:00",
-      "endTime": "11:30",
-      "duration": 90,
-      "status": "รอดำเนินการ",
-      "notes": "เตรียมเอกสารคู่มือความปลอดภัยก่อนเริ่มกะ"
-    },
-    {
-      "id": "pm-seed-01",
-      "type": "PM",
-      "technician": "ช่าง 1",
-      "technicians": [
-        "ช่าง 1",
-        "ช่าง 2"
-      ],
-      "date": "2026-10-09",
-      "machineId": "RIM01",
-      "pmPlanId": "plan-pm-01",
-      "status": "กำลังทำ",
-      "duration": 45,
-      "destination": "ไลน์ผสมข้าว A (ชั้น 2)",
-      "peopleCount": 2
-    },
-    {
-      "id": "pm-seed-02",
-      "type": "PM",
-      "technician": "ช่าง 3",
-      "technicians": [
-        "ช่าง 3"
-      ],
-      "date": "2026-10-10",
-      "machineId": "TOC02",
-      "pmPlanId": "plan-pm-02",
-      "status": "รอดำเนินการ",
-      "duration": 60,
-      "destination": "ไลน์ลำเลียง TOC หน้างาน",
-      "peopleCount": 1
-    },
-    {
-      "id": "pm-seed-03",
-      "type": "PM",
-      "technician": "ช่าง 5",
-      "technicians": [
-        "ช่าง 5",
-        "ช่าง 6"
-      ],
-      "date": "2026-10-18",
-      "machineId": "VAC05",
-      "pmPlanId": "plan-pm-03",
-      "status": "รอดำเนินการ",
-      "duration": 90,
-      "destination": "ห้องเย็น VACUUM อาคาร B",
-      "peopleCount": 2
-    },
-    {
-      "id": "other-seed-01",
-      "type": "Other",
-      "title": "ไปติดต่อร้านอะไหล่ด่วน รับสายพานไทม์มิ่งและลูกปืนสแตนเลส",
-      "category": "งานติดต่อ",
-      "date": "2026-10-09",
-      "destination": "ร้านเจริญอะไหล่ยนต์ (พระราม 2)",
-      "peopleCount": 2,
-      "technicians": [
-        "ช่าง 7",
-        "ช่าง 8"
-      ],
-      "technicianNamesText": "ช่าง 7, ช่าง 8",
-      "startTime": "09:30",
-      "endTime": "12:30",
-      "duration": 180,
-      "status": "รอดำเนินการ",
-      "notes": "นำใบขอซื้อและตัวอย่างสายพานเดิมไปเทียบขนาดจริง"
-    },
-    {
-      "id": "other-seed-02",
-      "type": "Other",
-      "title": "นำแกนเพลาและลูกรีดไปส่งโรงกลึง CNC เพื่อกลึงพ่นพอก Hard Chrome",
-      "category": "งานโรงกลึง/ภายนอก",
-      "date": "2026-10-10",
-      "destination": "โรงกลึง CNC มีนบุรี",
-      "peopleCount": 2,
-      "technicians": [
-        "ช่าง 9",
-        "ช่าง 10"
-      ],
-      "technicianNamesText": "ช่าง 9, ช่าง 10",
-      "startTime": "13:00",
-      "endTime": "16:30",
-      "duration": 210,
-      "status": "รอดำเนินการ",
-      "notes": "ตรวจรับใบส่งของและกำหนดวันส่งมอบกลับภายใน 3 วัน"
-    },
-    {
-      "id": "other-seed-03",
-      "type": "Other",
-      "title": "เข้าร่วมประชุมความปลอดภัยและซักซ้อมมาตรการ LOTO ร่วมกับฝ่ายผลิต",
-      "category": "งานประชุม/อบรม",
-      "date": "2026-10-15",
-      "destination": "ห้องประชุมช่าง / อาคาร 1",
-      "peopleCount": 4,
-      "technicians": [
-        "ช่าง 1",
-        "ช่าง 2",
-        "ช่าง 3",
-        "ช่าง 4"
-      ],
-      "technicianNamesText": "ทีมช่าง กะเช้า 4 คน",
-      "startTime": "10:00",
-      "endTime": "11:30",
-      "duration": 90,
-      "status": "รอดำเนินการ",
-      "notes": "เตรียมเอกสารคู่มือความปลอดภัยก่อนเริ่มกะ"
-    },
-    {
-      "id": "pm-seed-01",
-      "type": "PM",
-      "technician": "ช่าง 1",
-      "technicians": [
-        "ช่าง 1",
-        "ช่าง 2"
-      ],
-      "date": "2026-11-09",
-      "machineId": "RIM01",
-      "pmPlanId": "plan-pm-01",
-      "status": "กำลังทำ",
-      "duration": 45,
-      "destination": "ไลน์ผสมข้าว A (ชั้น 2)",
-      "peopleCount": 2
-    },
-    {
-      "id": "pm-seed-02",
-      "type": "PM",
-      "technician": "ช่าง 3",
-      "technicians": [
-        "ช่าง 3"
-      ],
-      "date": "2026-11-10",
-      "machineId": "TOC02",
-      "pmPlanId": "plan-pm-02",
-      "status": "รอดำเนินการ",
-      "duration": 60,
-      "destination": "ไลน์ลำเลียง TOC หน้างาน",
-      "peopleCount": 1
-    },
-    {
-      "id": "pm-seed-03",
-      "type": "PM",
-      "technician": "ช่าง 5",
-      "technicians": [
-        "ช่าง 5",
-        "ช่าง 6"
-      ],
-      "date": "2026-11-18",
-      "machineId": "VAC05",
-      "pmPlanId": "plan-pm-03",
-      "status": "รอดำเนินการ",
-      "duration": 90,
-      "destination": "ห้องเย็น VACUUM อาคาร B",
-      "peopleCount": 2
-    },
-    {
-      "id": "other-seed-01",
-      "type": "Other",
-      "title": "ไปติดต่อร้านอะไหล่ด่วน รับสายพานไทม์มิ่งและลูกปืนสแตนเลส",
-      "category": "งานติดต่อ",
-      "date": "2026-11-09",
-      "destination": "ร้านเจริญอะไหล่ยนต์ (พระราม 2)",
-      "peopleCount": 2,
-      "technicians": [
-        "ช่าง 7",
-        "ช่าง 8"
-      ],
-      "technicianNamesText": "ช่าง 7, ช่าง 8",
-      "startTime": "09:30",
-      "endTime": "12:30",
-      "duration": 180,
-      "status": "รอดำเนินการ",
-      "notes": "นำใบขอซื้อและตัวอย่างสายพานเดิมไปเทียบขนาดจริง"
-    },
-    {
-      "id": "other-seed-02",
-      "type": "Other",
-      "title": "นำแกนเพลาและลูกรีดไปส่งโรงกลึง CNC เพื่อกลึงพ่นพอก Hard Chrome",
-      "category": "งานโรงกลึง/ภายนอก",
-      "date": "2026-11-10",
-      "destination": "โรงกลึง CNC มีนบุรี",
-      "peopleCount": 2,
-      "technicians": [
-        "ช่าง 9",
-        "ช่าง 10"
-      ],
-      "technicianNamesText": "ช่าง 9, ช่าง 10",
-      "startTime": "13:00",
-      "endTime": "16:30",
-      "duration": 210,
-      "status": "รอดำเนินการ",
-      "notes": "ตรวจรับใบส่งของและกำหนดวันส่งมอบกลับภายใน 3 วัน"
-    },
-    {
-      "id": "other-seed-03",
-      "type": "Other",
-      "title": "เข้าร่วมประชุมความปลอดภัยและซักซ้อมมาตรการ LOTO ร่วมกับฝ่ายผลิต",
-      "category": "งานประชุม/อบรม",
-      "date": "2026-11-15",
-      "destination": "ห้องประชุมช่าง / อาคาร 1",
-      "peopleCount": 4,
-      "technicians": [
-        "ช่าง 1",
-        "ช่าง 2",
-        "ช่าง 3",
-        "ช่าง 4"
-      ],
-      "technicianNamesText": "ทีมช่าง กะเช้า 4 คน",
-      "startTime": "10:00",
-      "endTime": "11:30",
-      "duration": 90,
-      "status": "รอดำเนินการ",
-      "notes": "เตรียมเอกสารคู่มือความปลอดภัยก่อนเริ่มกะ"
-    },
-    {
-      "id": "pm-seed-01",
-      "type": "PM",
-      "technician": "ช่าง 1",
-      "technicians": [
-        "ช่าง 1",
-        "ช่าง 2"
-      ],
-      "date": "2026-12-09",
-      "machineId": "RIM01",
-      "pmPlanId": "plan-pm-01",
-      "status": "กำลังทำ",
-      "duration": 45,
-      "destination": "ไลน์ผสมข้าว A (ชั้น 2)",
-      "peopleCount": 2
-    },
-    {
-      "id": "pm-seed-02",
-      "type": "PM",
-      "technician": "ช่าง 3",
-      "technicians": [
-        "ช่าง 3"
-      ],
-      "date": "2026-12-10",
-      "machineId": "TOC02",
-      "pmPlanId": "plan-pm-02",
-      "status": "รอดำเนินการ",
-      "duration": 60,
-      "destination": "ไลน์ลำเลียง TOC หน้างาน",
-      "peopleCount": 1
-    },
-    {
-      "id": "pm-seed-03",
-      "type": "PM",
-      "technician": "ช่าง 5",
-      "technicians": [
-        "ช่าง 5",
-        "ช่าง 6"
-      ],
-      "date": "2026-12-18",
-      "machineId": "VAC05",
-      "pmPlanId": "plan-pm-03",
-      "status": "รอดำเนินการ",
-      "duration": 90,
-      "destination": "ห้องเย็น VACUUM อาคาร B",
-      "peopleCount": 2
-    },
-    {
-      "id": "other-seed-01",
-      "type": "Other",
-      "title": "ไปติดต่อร้านอะไหล่ด่วน รับสายพานไทม์มิ่งและลูกปืนสแตนเลส",
-      "category": "งานติดต่อ",
-      "date": "2026-12-09",
-      "destination": "ร้านเจริญอะไหล่ยนต์ (พระราม 2)",
-      "peopleCount": 2,
-      "technicians": [
-        "ช่าง 7",
-        "ช่าง 8"
-      ],
-      "technicianNamesText": "ช่าง 7, ช่าง 8",
-      "startTime": "09:30",
-      "endTime": "12:30",
-      "duration": 180,
-      "status": "รอดำเนินการ",
-      "notes": "นำใบขอซื้อและตัวอย่างสายพานเดิมไปเทียบขนาดจริง"
-    },
-    {
-      "id": "other-seed-02",
-      "type": "Other",
-      "title": "นำแกนเพลาและลูกรีดไปส่งโรงกลึง CNC เพื่อกลึงพ่นพอก Hard Chrome",
-      "category": "งานโรงกลึง/ภายนอก",
-      "date": "2026-12-10",
-      "destination": "โรงกลึง CNC มีนบุรี",
-      "peopleCount": 2,
-      "technicians": [
-        "ช่าง 9",
-        "ช่าง 10"
-      ],
-      "technicianNamesText": "ช่าง 9, ช่าง 10",
-      "startTime": "13:00",
-      "endTime": "16:30",
-      "duration": 210,
-      "status": "รอดำเนินการ",
-      "notes": "ตรวจรับใบส่งของและกำหนดวันส่งมอบกลับภายใน 3 วัน"
-    },
-    {
-      "id": "other-seed-03",
-      "type": "Other",
-      "title": "เข้าร่วมประชุมความปลอดภัยและซักซ้อมมาตรการ LOTO ร่วมกับฝ่ายผลิต",
-      "category": "งานประชุม/อบรม",
-      "date": "2026-12-15",
-      "destination": "ห้องประชุมช่าง / อาคาร 1",
-      "peopleCount": 4,
-      "technicians": [
-        "ช่าง 1",
-        "ช่าง 2",
-        "ช่าง 3",
-        "ช่าง 4"
-      ],
-      "technicianNamesText": "ทีมช่าง กะเช้า 4 คน",
-      "startTime": "10:00",
-      "endTime": "11:30",
-      "duration": 90,
-      "status": "รอดำเนินการ",
-      "notes": "เตรียมเอกสารคู่มือความปลอดภัยก่อนเริ่มกะ"
     }
   ],
   "repairs": [
@@ -2076,150 +1445,6 @@
       "machineId": "VAC01",
       "breakdownTime": "2026-09-09T13:30",
       "repairDoneTime": "2026-09-09T15:00",
-      "symptoms": "ปั๊มสุญญากาศทำแรงดันช้าผิดปกติ โซลินอยด์วาล์วไม่เปิด",
-      "why1": "วาล์วลมค้าง",
-      "why2": "มีคราบฝุ่นเกาะ",
-      "why3": "ซีลยางเสื่อมสภาพ",
-      "why4": "ใช้งานเกินอายุ",
-      "why5": "ยังไม่ถึงรอบเปลี่ยนตามแผน",
-      "correctiveAction": "ล้างทำความสะอาดโซลินอยด์วาล์วและเปลี่ยนซีลยางใหม่",
-      "destination": "หน้างานห้องเย็น VACUUM อาคาร B",
-      "peopleCount": 2,
-      "duration": 90,
-      "status": "กำลังซ่อม"
-    },
-    {
-      "id": "rep-seed-01",
-      "type": "Repair",
-      "technician": "ช่าง 4",
-      "technicians": [
-        "ช่าง 4",
-        "ช่าง 5"
-      ],
-      "date": "2026-08-09",
-      "machineId": "VAC01",
-      "breakdownTime": "2026-08-09T13:30",
-      "repairDoneTime": "2026-08-09T15:00",
-      "symptoms": "ปั๊มสุญญากาศทำแรงดันช้าผิดปกติ โซลินอยด์วาล์วไม่เปิด",
-      "why1": "วาล์วลมค้าง",
-      "why2": "มีคราบฝุ่นเกาะ",
-      "why3": "ซีลยางเสื่อมสภาพ",
-      "why4": "ใช้งานเกินอายุ",
-      "why5": "ยังไม่ถึงรอบเปลี่ยนตามแผน",
-      "correctiveAction": "ล้างทำความสะอาดโซลินอยด์วาล์วและเปลี่ยนซีลยางใหม่",
-      "destination": "หน้างานห้องเย็น VACUUM อาคาร B",
-      "peopleCount": 2,
-      "duration": 90,
-      "status": "กำลังซ่อม"
-    },
-    {
-      "id": "rep-seed-01",
-      "type": "Repair",
-      "technician": "ช่าง 4",
-      "technicians": [
-        "ช่าง 4",
-        "ช่าง 5"
-      ],
-      "date": "2026-07-09",
-      "machineId": "VAC01",
-      "breakdownTime": "2026-07-09T13:30",
-      "repairDoneTime": "2026-07-09T15:00",
-      "symptoms": "ปั๊มสุญญากาศทำแรงดันช้าผิดปกติ โซลินอยด์วาล์วไม่เปิด",
-      "why1": "วาล์วลมค้าง",
-      "why2": "มีคราบฝุ่นเกาะ",
-      "why3": "ซีลยางเสื่อมสภาพ",
-      "why4": "ใช้งานเกินอายุ",
-      "why5": "ยังไม่ถึงรอบเปลี่ยนตามแผน",
-      "correctiveAction": "ล้างทำความสะอาดโซลินอยด์วาล์วและเปลี่ยนซีลยางใหม่",
-      "destination": "หน้างานห้องเย็น VACUUM อาคาร B",
-      "peopleCount": 2,
-      "duration": 90,
-      "status": "กำลังซ่อม"
-    },
-    {
-      "id": "rep-seed-01",
-      "type": "Repair",
-      "technician": "ช่าง 4",
-      "technicians": [
-        "ช่าง 4",
-        "ช่าง 5"
-      ],
-      "date": "2026-05-09",
-      "machineId": "VAC01",
-      "breakdownTime": "2026-05-09T13:30",
-      "repairDoneTime": "2026-05-09T15:00",
-      "symptoms": "ปั๊มสุญญากาศทำแรงดันช้าผิดปกติ โซลินอยด์วาล์วไม่เปิด",
-      "why1": "วาล์วลมค้าง",
-      "why2": "มีคราบฝุ่นเกาะ",
-      "why3": "ซีลยางเสื่อมสภาพ",
-      "why4": "ใช้งานเกินอายุ",
-      "why5": "ยังไม่ถึงรอบเปลี่ยนตามแผน",
-      "correctiveAction": "ล้างทำความสะอาดโซลินอยด์วาล์วและเปลี่ยนซีลยางใหม่",
-      "destination": "หน้างานห้องเย็น VACUUM อาคาร B",
-      "peopleCount": 2,
-      "duration": 90,
-      "status": "กำลังซ่อม"
-    },
-    {
-      "id": "rep-seed-01",
-      "type": "Repair",
-      "technician": "ช่าง 4",
-      "technicians": [
-        "ช่าง 4",
-        "ช่าง 5"
-      ],
-      "date": "2026-10-09",
-      "machineId": "VAC01",
-      "breakdownTime": "2026-10-09T13:30",
-      "repairDoneTime": "2026-10-09T15:00",
-      "symptoms": "ปั๊มสุญญากาศทำแรงดันช้าผิดปกติ โซลินอยด์วาล์วไม่เปิด",
-      "why1": "วาล์วลมค้าง",
-      "why2": "มีคราบฝุ่นเกาะ",
-      "why3": "ซีลยางเสื่อมสภาพ",
-      "why4": "ใช้งานเกินอายุ",
-      "why5": "ยังไม่ถึงรอบเปลี่ยนตามแผน",
-      "correctiveAction": "ล้างทำความสะอาดโซลินอยด์วาล์วและเปลี่ยนซีลยางใหม่",
-      "destination": "หน้างานห้องเย็น VACUUM อาคาร B",
-      "peopleCount": 2,
-      "duration": 90,
-      "status": "กำลังซ่อม"
-    },
-    {
-      "id": "rep-seed-01",
-      "type": "Repair",
-      "technician": "ช่าง 4",
-      "technicians": [
-        "ช่าง 4",
-        "ช่าง 5"
-      ],
-      "date": "2026-11-09",
-      "machineId": "VAC01",
-      "breakdownTime": "2026-11-09T13:30",
-      "repairDoneTime": "2026-11-09T15:00",
-      "symptoms": "ปั๊มสุญญากาศทำแรงดันช้าผิดปกติ โซลินอยด์วาล์วไม่เปิด",
-      "why1": "วาล์วลมค้าง",
-      "why2": "มีคราบฝุ่นเกาะ",
-      "why3": "ซีลยางเสื่อมสภาพ",
-      "why4": "ใช้งานเกินอายุ",
-      "why5": "ยังไม่ถึงรอบเปลี่ยนตามแผน",
-      "correctiveAction": "ล้างทำความสะอาดโซลินอยด์วาล์วและเปลี่ยนซีลยางใหม่",
-      "destination": "หน้างานห้องเย็น VACUUM อาคาร B",
-      "peopleCount": 2,
-      "duration": 90,
-      "status": "กำลังซ่อม"
-    },
-    {
-      "id": "rep-seed-01",
-      "type": "Repair",
-      "technician": "ช่าง 4",
-      "technicians": [
-        "ช่าง 4",
-        "ช่าง 5"
-      ],
-      "date": "2026-12-09",
-      "machineId": "VAC01",
-      "breakdownTime": "2026-12-09T13:30",
-      "repairDoneTime": "2026-12-09T15:00",
       "symptoms": "ปั๊มสุญญากาศทำแรงดันช้าผิดปกติ โซลินอยด์วาล์วไม่เปิด",
       "why1": "วาล์วลมค้าง",
       "why2": "มีคราบฝุ่นเกาะ",
@@ -3154,5 +2379,153 @@
       "RJT": 30,
       "PAC": 60
     }
-  }
+  },
+  "zones": [
+    {
+      "id": "โซนตรวจสอบคุณภาพ",
+      "name": "โซนตรวจสอบคุณภาพ",
+      "rooms": [
+        "ห้องตรวจจับโลหะไลน์ 1",
+        "ห้องตรวจจับโลหะไลน์ 2",
+        "ห้องตรวจจับโลหะไลน์ 3",
+        "ห้องตรวจจับโลหะไลน์ 4",
+        "ห้องตรวจจับโลหะไลน์ 5",
+        "ห้องตรวจจับโลหะไลน์ 6",
+        "ห้องตรวจจับโลหะไลน์ 8",
+        "ห้องตรวจจับโลหะไลน์เบอร์เกอร์"
+      ]
+    },
+    {
+      "id": "โซนตรวจสอบสิ่งแปลกปลอม",
+      "name": "โซนตรวจสอบสิ่งแปลกปลอม",
+      "rooms": [
+        "ห้องเอ็กซเรย์อาหารไลน์ 1",
+        "ห้องเอ็กซเรย์อาหารไลน์ 2",
+        "ห้องเอ็กซเรย์อาหารไลน์ 3",
+        "ห้องเอ็กซเรย์อาหารไลน์ 4",
+        "ห้องเอ็กซเรย์อาหารไลน์ 5",
+        "ห้องเอ็กซเรย์อาหารไลน์ 6",
+        "ห้องเอ็กซเรย์อาหารไลน์ 8",
+        "ห้องเอ็กซเรย์อาหารไลน์เบอร์เกอร์"
+      ]
+    },
+    {
+      "id": "โซนเตรียมข้าว",
+      "name": "โซนเตรียมข้าว",
+      "rooms": [
+        "ห้องผสมข้าว 1",
+        "ห้องผสมข้าว 1 (Rice Mixing 1)",
+        "ห้องผสมข้าว 2",
+        "ห้องผสมข้าว 2 (Rice Mixing 2)",
+        "Rice"
+      ]
+    },
+    {
+      "id": "โซนทำให้เย็น",
+      "name": "โซนทำให้เย็น",
+      "rooms": [
+        "ห้องสุญญากาศลดอุณหภูมิ A",
+        "ห้องสุญญากาศลดอุณหภูมิ B",
+        "ห้องสุญญากาศลดอุณหภูมิ C",
+        "ห้องสุญญากาศลดอุณหภูมิ D",
+        "ห้องสุญญากาศลดอุณหภูมิ E",
+        "ห้องสุญญากาศลดอุณหภูมิ F"
+      ]
+    },
+    {
+      "id": "โซนบรรจุภัณฑ์",
+      "name": "โซนบรรจุภัณฑ์",
+      "rooms": [
+        "ห้องบรรจุปลอดเชื้อ (Clean Room 1)",
+        "ห้องบรรจุปลอดเชื้อ (Clean Room 2)",
+        "ห้องบรรจุปลอดเชื้อ (Clean Room 3)"
+      ]
+    },
+    {
+      "id": "โซนป้อนข้าว",
+      "name": "โซนป้อนข้าว",
+      "rooms": [
+        "ห้องป้อนข้าวเข้าสู่สายพาน"
+      ]
+    },
+    {
+      "id": "โซนปิดผนึก",
+      "name": "โซนปิดผนึก",
+      "rooms": [
+        "ห้องบรรจุกล่องอาหาร 1",
+        "ห้องบรรจุกล่องอาหาร 2",
+        "ห้องบรรจุข้าวเหนียว",
+        "ห้องบรรจุยำสาหร่าย",
+        "ห้องบรรจุสลัด",
+        "ห้องบรรจุ Cup To Go"
+      ]
+    },
+    {
+      "id": "โซนรัดกล่อง",
+      "name": "โซนรัดกล่อง",
+      "rooms": [
+        "ห้องมัดสายรัดบรรจุภัณฑ์ 1",
+        "ห้องมัดสายรัดบรรจุภัณฑ์ 2",
+        "ห้องมัดสายรัดบรรจุภัณฑ์ 3",
+        "ห้องมัดสายรัดบรรจุภัณฑ์ 4",
+        "ห้องมัดสายรัดบรรจุภัณฑ์ 5",
+        "ห้องมัดสายรัดบรรจุภัณฑ์ 6"
+      ]
+    },
+    {
+      "id": "CONVEYOR",
+      "name": "CONVEYOR",
+      "rooms": []
+    },
+    {
+      "id": "FILLER",
+      "name": "FILLER",
+      "rooms": []
+    },
+    {
+      "id": "FREEZER",
+      "name": "FREEZER",
+      "rooms": []
+    },
+    {
+      "id": "MIXER",
+      "name": "MIXER",
+      "rooms": []
+    },
+    {
+      "id": "PACKING",
+      "name": "PACKING",
+      "rooms": []
+    },
+    {
+      "id": "PRINTER",
+      "name": "PRINTER",
+      "rooms": []
+    },
+    {
+      "id": "QC",
+      "name": "QC",
+      "rooms": []
+    },
+    {
+      "id": "REJECTOR",
+      "name": "REJECTOR",
+      "rooms": []
+    },
+    {
+      "id": "ROBOT",
+      "name": "ROBOT",
+      "rooms": []
+    },
+    {
+      "id": "STICKER",
+      "name": "STICKER",
+      "rooms": []
+    },
+    {
+      "id": "UTILITY",
+      "name": "UTILITY",
+      "rooms": []
+    }
+  ]
 }
