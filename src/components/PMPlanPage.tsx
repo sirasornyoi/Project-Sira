@@ -869,15 +869,15 @@ export const PMPlanPage: React.FC = () => {
                                     )}
                                   </td>
 
-                                  {/* 4. Method */}
+                                   {/* 4. Method */}
                                   <td className="py-2.5 px-3 text-fg dark:text-slate-300">
-                                    <span className="text-[11px] bg-slate-100 dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700/60 px-2 py-0.5 rounded text-slate-800 dark:text-slate-300 font-medium">
+                                    <span className="text-[11px] bg-slate-100 dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700/60 px-2 py-0.5 rounded text-slate-900 dark:text-slate-100 font-semibold">
                                       {step.method || 'ดูด้วยสายตา'}
                                     </span>
                                   </td>
 
                                   {/* 5. Standard */}
-                                  <td className="py-2.5 px-3 text-fg dark:text-slate-300 text-xs">
+                                  <td className="py-2.5 px-3 text-fg dark:text-slate-200 text-xs">
                                     {step.standard || '-'}
                                   </td>
 
@@ -890,7 +890,7 @@ export const PMPlanPage: React.FC = () => {
                                         className={`px-2 py-0.5 rounded text-[10.5px] font-bold transition ${
                                           isNormal 
                                             ? 'bg-emerald-600 dark:bg-emerald-500 text-white shadow-sm' 
-                                            : 'text-fg-muted dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-300'
+                                            : 'text-slate-700 dark:text-slate-200 hover:text-emerald-600 dark:hover:text-emerald-300'
                                         }`}
                                       >
                                         ปกติ
@@ -901,7 +901,7 @@ export const PMPlanPage: React.FC = () => {
                                         className={`px-2 py-0.5 rounded text-[10.5px] font-bold transition ${
                                           isAbnormal 
                                             ? 'bg-rose-600 dark:bg-rose-500 text-white shadow-sm' 
-                                            : 'text-fg-muted dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-300'
+                                            : 'text-slate-700 dark:text-slate-200 hover:text-rose-600 dark:hover:text-rose-300'
                                         }`}
                                       >
                                         ไม่ปกติ
@@ -911,8 +911,8 @@ export const PMPlanPage: React.FC = () => {
                                         onClick={() => handleSetStepResult(plan.id, idx, 'ยังไม่ตรวจ')}
                                         className={`px-1.5 py-0.5 rounded text-[10px] transition ${
                                           step.result === 'ยังไม่ตรวจ' 
-                                            ? 'bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-300 font-medium' 
-                                            : 'text-slate-400 dark:text-slate-600 hover:text-slate-600 dark:hover:text-slate-400'
+                                            ? 'bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-semibold' 
+                                            : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
                                         }`}
                                         title="ยังไม่ตรวจ"
                                       >

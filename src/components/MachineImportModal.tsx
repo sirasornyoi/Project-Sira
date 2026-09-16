@@ -245,26 +245,26 @@ export const MachineImportModal: React.FC<MachineImportModalProps> = ({
   const updateCount = parsedMachines.length - newCount;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-3 sm:p-4 overflow-y-auto" id="machine-import-modal-overlay">
-      <div className="bg-slate-800 border border-slate-700 rounded-2xl max-w-4xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden my-auto" id="machine-import-modal">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 dark:bg-slate-950/80 backdrop-blur-xs p-3 sm:p-4 overflow-y-auto" id="machine-import-modal-overlay">
+      <div className="bg-surface dark:bg-slate-800 border border-border dark:border-slate-700 rounded-2xl max-w-4xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden my-auto" id="machine-import-modal">
         {/* Header */}
-        <div className="bg-gradient-to-r from-slate-800 via-slate-800 to-slate-900 border-b border-slate-700/80 px-6 py-4 flex justify-between items-center shrink-0">
+        <div className="bg-slate-50 dark:bg-slate-800/90 border-b border-border dark:border-slate-700/80 px-6 py-4 flex justify-between items-center shrink-0">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
+            <div className="p-2.5 rounded-xl bg-emerald-100 dark:bg-emerald-500/15 border border-emerald-300 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400">
               <FileSpreadsheet size={22} />
             </div>
             <div>
-              <h3 className="text-base font-bold text-slate-100 flex items-center gap-2">
+              <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                 นำเข้าข้อมูลทะเบียนเครื่องจักรจาก Excel
               </h3>
-              <p className="text-xs text-slate-400 mt-0.5">
-                รองรับไฟล์ .xlsx, .xls, .csv พร้อมจัดเรียงข้อมูลตาม <span className="text-cyan-400 font-semibold">โซน และ ห้อง</span>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                รองรับไฟล์ .xlsx, .xls, .csv พร้อมจัดเรียงข้อมูลตาม <span className="text-cyan-600 dark:text-cyan-400 font-semibold">โซน และ ห้อง</span>
               </p>
             </div>
           </div>
           <button 
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-200 text-xl font-medium p-1 rounded-lg hover:bg-slate-700/50 cursor-pointer transition"
+            className="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 text-xl font-medium p-1 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700/50 cursor-pointer transition"
           >
             <X size={20} />
           </button>
@@ -273,13 +273,13 @@ export const MachineImportModal: React.FC<MachineImportModalProps> = ({
         {/* Content Body */}
         <div className="p-6 overflow-y-auto space-y-5 flex-1 custom-scrollbar">
           {/* Format Specification Banner */}
-          <div className="bg-slate-900/80 border border-cyan-500/30 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="bg-slate-50 dark:bg-slate-900/80 border border-cyan-300 dark:border-cyan-500/30 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="space-y-1">
-              <div className="flex items-center gap-1.5 text-cyan-400 font-semibold text-xs">
+              <div className="flex items-center gap-1.5 text-cyan-700 dark:text-cyan-400 font-semibold text-xs">
                 <Info size={15} />
                 <span>มาตรฐานรูปแบบคอลัมน์ Excel (คอลัมน์ A ถึง K)</span>
               </div>
-              <p className="text-[11px] text-slate-300 leading-relaxed">
+              <p className="text-[11px] text-slate-700 dark:text-slate-300 leading-relaxed">
                 A: ลำดับ | B: รหัสอุปกรณ์ | C: รายชื่อเครื่องจักร | D: Model(รุ่น) | E: แรงดัน/กำลังไฟ | F: วันที่ติดตั้ง | G: บริษัทผู้ขาย | H: โซน | I: ตำแหน่งที่ติดตั้ง (ห้อง) | J: Serial Number | K: หมายเหตุ
               </p>
             </div>
@@ -287,7 +287,7 @@ export const MachineImportModal: React.FC<MachineImportModalProps> = ({
               id="btn-download-sample-template"
               type="button"
               onClick={onDownloadTemplate}
-              className="inline-flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 border border-slate-600 hover:border-cyan-400 text-cyan-300 px-3.5 py-2 rounded-lg text-xs font-semibold shrink-0 cursor-pointer transition shadow-sm"
+              className="inline-flex items-center justify-center gap-2 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-border dark:border-slate-600 hover:border-cyan-500 dark:hover:border-cyan-400 text-cyan-700 dark:text-cyan-300 px-3.5 py-2 rounded-lg text-xs font-semibold shrink-0 cursor-pointer transition shadow-sm"
             >
               <Download size={14} />
               <span>ดาวน์โหลดเทมเพลตตัวอย่าง</span>
@@ -302,10 +302,10 @@ export const MachineImportModal: React.FC<MachineImportModalProps> = ({
             onClick={() => fileInputRef.current?.click()}
             className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all ${
               isDragging 
-                ? 'border-cyan-400 bg-cyan-500/10' 
+                ? 'border-cyan-500 dark:border-cyan-400 bg-cyan-50 dark:bg-cyan-500/10' 
                 : file 
-                  ? 'border-emerald-500/50 bg-emerald-500/5' 
-                  : 'border-slate-700 hover:border-slate-500 bg-slate-900/50 hover:bg-slate-900/80'
+                  ? 'border-emerald-500/50 bg-emerald-50/60 dark:bg-emerald-500/5' 
+                  : 'border-border dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500 bg-slate-50/50 dark:bg-slate-900/50 hover:bg-slate-100/60 dark:hover:bg-slate-900/80'
             }`}
           >
             <input 
@@ -316,14 +316,14 @@ export const MachineImportModal: React.FC<MachineImportModalProps> = ({
               className="hidden" 
             />
             <div className="flex flex-col items-center justify-center gap-2">
-              <div className={`p-3 rounded-full ${file ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-800 text-slate-400'}`}>
+              <div className={`p-3 rounded-full ${file ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400' : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}>
                 {file ? <CheckCircle2 size={24} /> : <Upload size={24} />}
               </div>
               <div>
-                <p className="text-sm font-semibold text-slate-200">
+                <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">
                   {file ? file.name : 'ลากไฟล์ Excel มาวางที่นี่ หรือคลิกเพื่อเลือกไฟล์'}
                 </p>
-                <p className="text-xs text-slate-400 mt-0.5">
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                   {file ? `ขนาดไฟล์ ${(file.size / 1024).toFixed(1)} KB` : 'รองรับไฟล์นามสกุล .xlsx, .xls, .csv'}
                 </p>
               </div>
@@ -332,7 +332,7 @@ export const MachineImportModal: React.FC<MachineImportModalProps> = ({
 
           {/* Error message */}
           {errorMsg && (
-            <div className="bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs p-3.5 rounded-xl flex items-center gap-2.5">
+            <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 text-rose-700 dark:text-rose-400 text-xs p-3.5 rounded-xl flex items-center gap-2.5">
               <AlertTriangle size={18} className="shrink-0" />
               <span>{errorMsg}</span>
             </div>
@@ -341,16 +341,16 @@ export const MachineImportModal: React.FC<MachineImportModalProps> = ({
           {/* Preview Section if data is parsed */}
           {parsedMachines.length > 0 && (
             <div className="space-y-3">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-700/60 pb-2">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border dark:border-slate-700/60 pb-2">
                 <div className="flex items-center gap-2">
-                  <h4 className="text-xs font-bold text-slate-200 uppercase tracking-wider">
+                  <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
                     ตัวอย่างข้อมูลที่ตรวจพบ ({parsedMachines.length} รายการ)
                   </h4>
-                  <span className="text-[11px] bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 px-2 py-0.5 rounded font-mono">
+                  <span className="text-[11px] bg-emerald-100 dark:bg-emerald-500/15 border border-emerald-300 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-400 px-2 py-0.5 rounded font-mono font-medium">
                     เพิ่มใหม่: {newCount}
                   </span>
                   {updateCount > 0 && (
-                    <span className="text-[11px] bg-amber-500/15 border border-amber-500/30 text-amber-400 px-2 py-0.5 rounded font-mono">
+                    <span className="text-[11px] bg-amber-100 dark:bg-amber-500/15 border border-amber-300 dark:border-amber-500/30 text-amber-800 dark:text-amber-400 px-2 py-0.5 rounded font-mono font-medium">
                       อัปเดตเดิม: {updateCount}
                     </span>
                   )}
@@ -358,35 +358,35 @@ export const MachineImportModal: React.FC<MachineImportModalProps> = ({
 
                 {/* Import Mode Selector */}
                 <div className="flex items-center gap-3 text-xs">
-                  <label className="flex items-center gap-1.5 cursor-pointer text-slate-300">
+                  <label className="flex items-center gap-1.5 cursor-pointer text-slate-700 dark:text-slate-300">
                     <input 
                       type="radio" 
                       name="import-mode" 
                       value="append" 
                       checked={importMode === 'append'}
                       onChange={() => setImportMode('append')}
-                      className="accent-cyan-500" 
+                      className="accent-cyan-600" 
                     />
                     <span>อัปเดตและเพิ่มต่อท้าย (แนะนำ)</span>
                   </label>
-                  <label className="flex items-center gap-1.5 cursor-pointer text-slate-300">
+                  <label className="flex items-center gap-1.5 cursor-pointer text-slate-700 dark:text-slate-300">
                     <input 
                       type="radio" 
                       name="import-mode" 
                       value="replace" 
                       checked={importMode === 'replace'}
                       onChange={() => setImportMode('replace')}
-                      className="accent-rose-500" 
+                      className="accent-rose-600" 
                     />
-                    <span className="text-rose-400">แทนที่ทั้งหมด</span>
+                    <span className="text-rose-600 dark:text-rose-400">แทนที่ทั้งหมด</span>
                   </label>
                 </div>
               </div>
 
               {/* Preview Table */}
-              <div className="border border-slate-700 rounded-xl overflow-hidden bg-slate-900/90 max-h-60 overflow-y-auto">
+              <div className="border border-border dark:border-slate-700 rounded-xl overflow-hidden bg-white dark:bg-slate-900/90 max-h-60 overflow-y-auto">
                 <table className="w-full text-left text-xs border-collapse">
-                  <thead className="sticky top-0 bg-slate-800 text-slate-300 border-b border-slate-700">
+                  <thead className="sticky top-0 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-b border-border dark:border-slate-700">
                     <tr>
                       <th className="py-2.5 px-3 text-center w-12">#</th>
                       <th className="py-2.5 px-3 font-mono">รหัส (ID)</th>
@@ -398,29 +398,29 @@ export const MachineImportModal: React.FC<MachineImportModalProps> = ({
                       <th className="py-2.5 px-3 font-mono">Serial No.</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-800 text-slate-300">
+                  <tbody className="divide-y divide-border dark:divide-slate-800 text-slate-700 dark:text-slate-300">
                     {parsedMachines.map((m, idx) => {
                       const isExisting = existingMachines.some(e => e.id === m.id);
 
                       return (
-                        <tr key={`${m.id}-${idx}`} className="hover:bg-slate-800/40">
+                        <tr key={`${m.id}-${idx}`} className="hover:bg-slate-50 dark:hover:bg-slate-800/40">
                           <td className="py-2 px-3 text-center text-slate-500 font-mono text-[11px]">
                             {idx + 1}
                           </td>
-                          <td className="py-2 px-3 font-mono font-bold text-cyan-400">
+                          <td className="py-2 px-3 font-mono font-bold text-cyan-700 dark:text-cyan-400">
                             {m.id}
                             {isExisting && (
-                              <span className="ml-1 text-[9px] bg-amber-500/20 text-amber-300 px-1 py-0.2 rounded">
+                              <span className="ml-1 text-[9px] bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 px-1 py-0.2 rounded border border-amber-300 dark:border-amber-500/30">
                                 เดิม
                               </span>
                             )}
                           </td>
-                          <td className="py-2 px-3 font-medium text-slate-200">{m.name}</td>
-                          <td className="py-2 px-3 text-slate-400">{m.model || '-'}</td>
-                          <td className="py-2 px-3 text-amber-400 font-mono text-[11px]">{m.powerVoltage || '-'}</td>
-                          <td className="py-2 px-3 text-slate-300">{m.locationZone || m.lineGroup || '-'}</td>
-                          <td className="py-2 px-3 text-cyan-300 font-medium">{m.locationRoom || '-'}</td>
-                          <td className="py-2 px-3 font-mono text-[11px] text-slate-400">{m.serialNumber || '-'}</td>
+                          <td className="py-2 px-3 font-medium text-slate-800 dark:text-slate-200">{m.name}</td>
+                          <td className="py-2 px-3 text-slate-600 dark:text-slate-400">{m.model || '-'}</td>
+                          <td className="py-2 px-3 text-amber-700 dark:text-amber-400 font-mono text-[11px] font-medium">{m.powerVoltage || '-'}</td>
+                          <td className="py-2 px-3 text-slate-700 dark:text-slate-300">{m.locationZone || m.lineGroup || '-'}</td>
+                          <td className="py-2 px-3 text-cyan-700 dark:text-cyan-300 font-medium">{m.locationRoom || '-'}</td>
+                          <td className="py-2 px-3 font-mono text-[11px] text-slate-600 dark:text-slate-400">{m.serialNumber || '-'}</td>
                         </tr>
                       );
                     })}
@@ -432,10 +432,10 @@ export const MachineImportModal: React.FC<MachineImportModalProps> = ({
         </div>
 
         {/* Modal Footer */}
-        <div className="bg-slate-900/90 border-t border-slate-700/80 px-6 py-4 flex items-center justify-between shrink-0">
-          <div className="text-xs text-slate-400">
+        <div className="bg-slate-50 dark:bg-slate-900/90 border-t border-border dark:border-slate-700/80 px-6 py-4 flex items-center justify-between shrink-0">
+          <div className="text-xs text-slate-600 dark:text-slate-400">
             {parsedMachines.length > 0 ? (
-              <span>พร้อมนำเข้าข้อมูลเครื่องจักร <strong className="text-cyan-400">{parsedMachines.length}</strong> เครื่อง</span>
+              <span>พร้อมนำเข้าข้อมูลเครื่องจักร <strong className="text-cyan-700 dark:text-cyan-400">{parsedMachines.length}</strong> เครื่อง</span>
             ) : (
               <span>กรุณาเลือกไฟล์ Excel เพื่อดำเนินการต่อ</span>
             )}
@@ -444,7 +444,7 @@ export const MachineImportModal: React.FC<MachineImportModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="border border-slate-700 hover:bg-slate-700 text-slate-300 text-xs font-semibold px-4 py-2.5 rounded-lg transition cursor-pointer"
+              className="border border-border dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold px-4 py-2.5 rounded-lg transition cursor-pointer"
             >
               ยกเลิก
             </button>
@@ -455,8 +455,8 @@ export const MachineImportModal: React.FC<MachineImportModalProps> = ({
               onClick={handleConfirmImport}
               className={`flex items-center gap-2 font-bold text-xs px-5 py-2.5 rounded-lg transition shadow-md cursor-pointer ${
                 parsedMachines.length > 0 && !isProcessing
-                  ? 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950'
-                  : 'bg-slate-700 text-slate-500 cursor-not-allowed'
+                  ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                  : 'bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed'
               }`}
             >
               <CheckCircle2 size={16} />

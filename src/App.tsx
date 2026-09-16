@@ -207,7 +207,7 @@ function AppContent() {
                     <span 
                       className={`px-1.5 py-0.2 rounded-full text-[9px] font-mono font-bold shrink-0 ${
                         isSelected 
-                          ? 'bg-rose-950 text-rose-200 border border-rose-500/30' 
+                          ? 'bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-200 border border-rose-300 dark:border-rose-500/30' 
                           : 'bg-rose-500 text-white animate-pulse'
                       }`}
                       title={`${totalOverdueCount} งาน PM เลยกำหนด`}

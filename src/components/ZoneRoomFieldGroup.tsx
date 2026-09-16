@@ -80,15 +80,15 @@ export const ZoneRoomFieldGroup: React.FC<ZoneRoomFieldGroupProps> = ({
   };
 
   return (
-    <div className="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 p-3.5 bg-slate-900/80 border border-slate-700/80 rounded-xl">
+    <div className="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 p-3.5 bg-slate-50 dark:bg-slate-900/80 border border-border dark:border-slate-700/80 rounded-xl">
       {/* Zone Field */}
       <div className="space-y-1.5">
         <div className="flex items-center justify-between">
           <label 
             htmlFor={`${idPrefix}-select-zone`}
-            className="text-xs font-semibold text-cyan-300 flex items-center gap-1.5"
+            className="text-xs font-semibold text-cyan-700 dark:text-cyan-300 flex items-center gap-1.5"
           >
-            <MapPin size={13} className="text-cyan-400" />
+            <MapPin size={13} className="text-cyan-600 dark:text-cyan-400" />
             <span>โซน (Zone)*</span>
           </label>
           <div className="flex items-center gap-1">
@@ -100,7 +100,7 @@ export const ZoneRoomFieldGroup: React.FC<ZoneRoomFieldGroupProps> = ({
                   setIsAddingZone(true);
                   setCustomZoneInput('');
                 }}
-                className="text-[11px] text-cyan-400 hover:text-cyan-200 hover:bg-cyan-950/50 px-1.5 py-0.5 rounded flex items-center gap-0.5 transition cursor-pointer"
+                className="text-[11px] text-cyan-600 dark:text-cyan-400 hover:text-cyan-700 dark:hover:text-cyan-200 hover:bg-cyan-100 dark:hover:bg-cyan-950/50 px-1.5 py-0.5 rounded flex items-center gap-0.5 transition cursor-pointer"
                 title="พิมพ์เพิ่มโซนใหม่"
               >
                 <Plus size={11} />
@@ -112,7 +112,7 @@ export const ZoneRoomFieldGroup: React.FC<ZoneRoomFieldGroupProps> = ({
                 type="button"
                 id={`${idPrefix}-btn-open-zone-manager`}
                 onClick={onOpenManager}
-                className="text-[11px] text-slate-400 hover:text-slate-200 hover:bg-slate-800 px-1.5 py-0.5 rounded flex items-center gap-1 transition cursor-pointer"
+                className="text-[11px] text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800 px-1.5 py-0.5 rounded flex items-center gap-1 transition cursor-pointer"
                 title="เปิดหน้าต่างจัดการโซนและห้อง"
               >
                 <Settings2 size={11} />
@@ -141,7 +141,7 @@ export const ZoneRoomFieldGroup: React.FC<ZoneRoomFieldGroupProps> = ({
                 }
               }}
               placeholder="พิมพ์ชื่อโซนใหม่..."
-              className="flex-1 bg-slate-950 border-2 border-cyan-400 rounded-lg px-3 py-1.5 text-fg placeholder:text-slate-400 font-semibold text-xs focus:outline-none focus:ring-2 focus:ring-cyan-300 shadow-inner"
+              className="flex-1 bg-white dark:bg-slate-950 border-2 border-cyan-500 rounded-lg px-3 py-1.5 text-fg placeholder:text-slate-400 font-semibold text-xs focus:outline-none focus:ring-2 focus:ring-cyan-300 shadow-inner"
               autoFocus
               onKeyDown={e => {
                 if (e.key === 'Enter') handleSaveCustomZone();
@@ -152,7 +152,7 @@ export const ZoneRoomFieldGroup: React.FC<ZoneRoomFieldGroupProps> = ({
               type="button"
               id={`${idPrefix}-btn-confirm-custom-zone`}
               onClick={() => handleSaveCustomZone()}
-              className="p-1.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-md transition cursor-pointer shadow-sm"
+              className="p-1.5 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-md transition cursor-pointer shadow-sm"
               title="บันทึกโซน"
             >
               <Check size={14} />
@@ -160,7 +160,7 @@ export const ZoneRoomFieldGroup: React.FC<ZoneRoomFieldGroupProps> = ({
             <button
               type="button"
               onClick={() => setIsAddingZone(false)}
-              className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-md transition cursor-pointer"
+              className="p-1.5 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-md transition cursor-pointer"
               title="ยกเลิก"
             >
               <X size={14} />
@@ -178,20 +178,20 @@ export const ZoneRoomFieldGroup: React.FC<ZoneRoomFieldGroupProps> = ({
                 onZoneChange(val);
               }
             }}
-            className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-fg font-medium text-xs focus:outline-none focus:border-cyan-500"
+            className="w-full bg-white dark:bg-slate-950 border border-border dark:border-slate-700 rounded-lg px-3 py-2 text-fg font-medium text-xs focus:outline-none focus:border-cyan-500"
           >
-            <option value="" className="bg-slate-900 text-slate-400">-- เลือกโซน --</option>
+            <option value="" className="bg-white dark:bg-slate-900 text-slate-500">-- เลือกโซน --</option>
             {allZoneNames.map(zName => (
-              <option key={zName} value={zName} className="bg-slate-900 text-fg font-medium">
+              <option key={zName} value={zName} className="bg-white dark:bg-slate-900 text-fg font-medium">
                 {zName}
               </option>
             ))}
-            <option value="__ADD_NEW__" className="text-cyan-400 font-semibold bg-slate-900">
+            <option value="__ADD_NEW__" className="text-cyan-600 dark:text-cyan-400 font-semibold bg-white dark:bg-slate-900">
               ➕ + เพิ่มโซนใหม่...
             </option>
           </select>
         )}
-        <p className="text-[10px] text-slate-400">
+        <p className="text-[10px] text-slate-500 dark:text-slate-400">
           * เลือกโซนที่ต้องการ หรือคลิก "+ เพิ่มโซน" เพื่อสร้างใหม่
         </p>
       </div>
@@ -201,11 +201,11 @@ export const ZoneRoomFieldGroup: React.FC<ZoneRoomFieldGroupProps> = ({
         <div className="flex items-center justify-between">
           <label 
             htmlFor={`${idPrefix}-select-room`}
-            className="text-xs font-semibold text-cyan-300 flex items-center gap-1.5"
+            className="text-xs font-semibold text-cyan-700 dark:text-cyan-300 flex items-center gap-1.5"
           >
             <span>ห้องที่ติดตั้ง (Room)*</span>
             {zone && (
-              <span className="text-[10px] text-slate-400 font-normal truncate max-w-[120px]">
+              <span className="text-[10px] text-slate-500 dark:text-slate-400 font-normal truncate max-w-[120px]">
                 (ใน {zone})
               </span>
             )}
@@ -218,7 +218,7 @@ export const ZoneRoomFieldGroup: React.FC<ZoneRoomFieldGroupProps> = ({
                 setIsAddingRoom(true);
                 setCustomRoomInput('');
               }}
-              className="text-[11px] text-cyan-400 hover:text-cyan-200 hover:bg-cyan-950/50 px-1.5 py-0.5 rounded flex items-center gap-0.5 transition cursor-pointer"
+              className="text-[11px] text-cyan-600 dark:text-cyan-400 hover:text-cyan-700 dark:hover:text-cyan-200 hover:bg-cyan-100 dark:hover:bg-cyan-950/50 px-1.5 py-0.5 rounded flex items-center gap-0.5 transition cursor-pointer"
               title="พิมพ์เพิ่มห้องใหม่ในโซนนี้"
             >
               <Plus size={11} />
@@ -246,7 +246,7 @@ export const ZoneRoomFieldGroup: React.FC<ZoneRoomFieldGroupProps> = ({
                 }
               }}
               placeholder={zone ? `พิมพ์ห้องใหม่ใน ${zone}...` : 'พิมพ์ชื่อห้องใหม่...'}
-              className="flex-1 bg-slate-950 border-2 border-cyan-400 rounded-lg px-3 py-1.5 text-fg placeholder:text-slate-400 font-semibold text-xs focus:outline-none focus:ring-2 focus:ring-cyan-300 shadow-inner"
+              className="flex-1 bg-white dark:bg-slate-950 border-2 border-cyan-500 rounded-lg px-3 py-1.5 text-fg placeholder:text-slate-400 font-semibold text-xs focus:outline-none focus:ring-2 focus:ring-cyan-300 shadow-inner"
               autoFocus
               onKeyDown={e => {
                 if (e.key === 'Enter') handleSaveCustomRoom();
@@ -257,7 +257,7 @@ export const ZoneRoomFieldGroup: React.FC<ZoneRoomFieldGroupProps> = ({
               type="button"
               id={`${idPrefix}-btn-confirm-custom-room`}
               onClick={() => handleSaveCustomRoom()}
-              className="p-1.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-md transition cursor-pointer shadow-sm"
+              className="p-1.5 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-md transition cursor-pointer shadow-sm"
               title="บันทึกห้อง"
             >
               <Check size={14} />
@@ -265,7 +265,7 @@ export const ZoneRoomFieldGroup: React.FC<ZoneRoomFieldGroupProps> = ({
             <button
               type="button"
               onClick={() => setIsAddingRoom(false)}
-              className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-md transition cursor-pointer"
+              className="p-1.5 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-md transition cursor-pointer"
               title="ยกเลิก"
             >
               <X size={14} />
@@ -283,20 +283,20 @@ export const ZoneRoomFieldGroup: React.FC<ZoneRoomFieldGroupProps> = ({
                 onRoomChange(val);
               }
             }}
-            className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-fg font-medium text-xs focus:outline-none focus:border-cyan-500"
+            className="w-full bg-white dark:bg-slate-950 border border-border dark:border-slate-700 rounded-lg px-3 py-2 text-fg font-medium text-xs focus:outline-none focus:border-cyan-500"
           >
-            <option value="" className="bg-slate-900 text-slate-400">-- เลือกห้อง --</option>
+            <option value="" className="bg-white dark:bg-slate-900 text-slate-500">-- เลือกห้อง --</option>
             {availableRooms.map(rName => (
-              <option key={rName} value={rName} className="bg-slate-900 text-fg font-medium">
+              <option key={rName} value={rName} className="bg-white dark:bg-slate-900 text-fg font-medium">
                 {rName}
               </option>
             ))}
-            <option value="__ADD_NEW__" className="text-cyan-400 font-semibold bg-slate-900">
+            <option value="__ADD_NEW__" className="text-cyan-600 dark:text-cyan-400 font-semibold bg-white dark:bg-slate-900">
               ➕ + เพิ่มห้องใหม่...
             </option>
           </select>
         )}
-        <p className="text-[10px] text-slate-400">
+        <p className="text-[10px] text-slate-500 dark:text-slate-400">
           {zone ? `* ห้องภายในโซน "${zone}"` : '* แสดงห้องทั้งหมด หรือเลือกโซนก่อน'}
         </p>
       </div>

@@ -247,18 +247,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 backdrop-blur-sm p-4" id="settings-modal-overlay">
-      <div className="bg-slate-800 border border-slate-700 rounded-3xl max-w-2xl w-full h-[600px] flex flex-col overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-155" id="settings-modal">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg/80 backdrop-blur-sm p-4" id="settings-modal-overlay">
+      <div className="bg-surface dark:bg-slate-800 border border-border dark:border-slate-700 rounded-3xl max-w-2xl w-full h-[600px] flex flex-col overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-155" id="settings-modal">
         
         {/* Top Header */}
-        <div className="bg-gradient-to-r from-slate-800 to-slate-900 border-b border-slate-700/80 p-5 shrink-0 flex justify-between items-center">
-          <h3 className="text-base font-bold text-cyan-400 flex items-center gap-2 font-sans tracking-tight">
+        <div className="bg-slate-50 dark:bg-slate-900 border-b border-border dark:border-slate-700/80 p-5 shrink-0 flex justify-between items-center">
+          <h3 className="text-base font-bold text-cyan-600 dark:text-cyan-400 flex items-center gap-2 font-sans tracking-tight">
             <Settings className="animate-spin duration-9000" size={18} />
             จัดการระบบ และการกำหนดเกณฑ์ (System Settings Panel)
           </h3>
           <button 
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-200 p-1 rounded-full hover:bg-slate-900 transition"
+            className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 p-1 rounded-full hover:bg-slate-200 dark:hover:bg-slate-900 transition cursor-pointer"
           >
             <X size={18} />
           </button>
@@ -268,13 +268,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
         <div className="flex-1 flex min-h-0">
           
           {/* Modal Sidebar Tab Selection (Width 200px) */}
-          <div className="w-48 bg-slate-900/50 border-r border-slate-700/60 p-4 space-y-1.5 shrink-0 select-none">
+          <div className="w-48 bg-slate-50 dark:bg-slate-900/50 border-r border-border dark:border-slate-700/60 p-4 space-y-1.5 shrink-0 select-none">
             
             <button
               id="sub-tab-techs"
               onClick={() => setSubTab('techs')}
-              className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition ${
-                subTab === 'techs' ? 'bg-cyan-500 text-slate-950 font-bold shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+              className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition cursor-pointer ${
+                subTab === 'techs' ? 'bg-cyan-600 dark:bg-cyan-500 text-white dark:text-slate-950 font-bold shadow' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-800/40'
               }`}
             >
               <Users size={14} />
@@ -284,8 +284,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
             <button
               id="sub-tab-hours"
               onClick={() => setSubTab('hours')}
-              className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition ${
-                subTab === 'hours' ? 'bg-cyan-500 text-slate-950 font-bold shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+              className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition cursor-pointer ${
+                subTab === 'hours' ? 'bg-cyan-600 dark:bg-cyan-500 text-white dark:text-slate-950 font-bold shadow' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-800/40'
               }`}
             >
               <Clock size={14} />
@@ -295,8 +295,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
             <button
               id="sub-tab-std-mttr"
               onClick={() => setSubTab('std-mttr')}
-              className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition ${
-                subTab === 'std-mttr' ? 'bg-cyan-500 text-slate-950 font-bold shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+              className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition cursor-pointer ${
+                subTab === 'std-mttr' ? 'bg-cyan-600 dark:bg-cyan-500 text-white dark:text-slate-950 font-bold shadow' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-800/40'
               }`}
             >
               <Wrench size={14} />
@@ -306,8 +306,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
             <button
               id="sub-tab-export-import"
               onClick={() => setSubTab('export-import')}
-              className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition ${
-                subTab === 'export-import' ? 'bg-cyan-500 text-slate-950 font-bold shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+              className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition cursor-pointer ${
+                subTab === 'export-import' ? 'bg-cyan-600 dark:bg-cyan-500 text-white dark:text-slate-950 font-bold shadow' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-800/40'
               }`}
             >
               <FileJson size={14} />
@@ -317,19 +317,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
             <button
               id="sub-tab-line-notify"
               onClick={() => setSubTab('line-notify')}
-              className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition ${
-                subTab === 'line-notify' ? 'bg-cyan-500 text-slate-950 font-bold shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+              className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition cursor-pointer ${
+                subTab === 'line-notify' ? 'bg-cyan-600 dark:bg-cyan-500 text-white dark:text-slate-950 font-bold shadow' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-800/40'
               }`}
             >
               <Bell size={14} />
               ตั้งค่าแจ้งเตือน LINE
             </button>
 
-            <div className="pt-4 border-t border-slate-800 mt-6 shrink-0">
+            <div className="pt-4 border-t border-border dark:border-slate-800 mt-6 shrink-0">
               <button
                 id="btn-settings-reset-all"
                 onClick={triggerResetDatabase}
-                className="w-full text-left text-[11px] font-sans font-bold text-rose-400 hover:text-fg hover:bg-rose-500 transition px-3 py-2 rounded-xl flex items-center gap-1.5"
+                className="w-full text-left text-[11px] font-sans font-bold text-rose-600 dark:text-rose-400 hover:text-white hover:bg-rose-600 dark:hover:bg-rose-500 transition px-3 py-2 rounded-xl flex items-center gap-1.5 cursor-pointer"
               >
                 <RefreshCw size={12} className="animate-spin duration-900" />
                 รีเซ็ตล้างระบบด่วน
@@ -338,53 +338,53 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
           </div>
 
           {/* Active Modal Sub-Tab Content Workspace Panel (Flex-1) */}
-          <div className="flex-1 p-6 overflow-y-auto bg-slate-900/10 text-xs">
+          <div className="flex-1 p-6 overflow-y-auto bg-white dark:bg-slate-900/10 text-xs">
             
             {/* SUB-TAB 1: MANAGING TECHNICIANS LIST */}
             {subTab === 'techs' && (
               <div className="space-y-4">
                 <div>
-                  <h4 className="text-sm font-bold text-slate-200 flex items-center gap-1.5">
-                    <Users size={15} className="text-cyan-400" />
+                  <h4 className="text-sm font-bold text-fg dark:text-slate-200 flex items-center gap-1.5">
+                    <Users size={15} className="text-cyan-600 dark:text-cyan-400" />
                     บัญชีชื่อพนักงานช่างประจำโรงงาน
                   </h4>
-                  <p className="text-slate-400 text-[10px] mt-0.5">เปลี่ยนหรือตั้งชื่อจริง ลบ และเพิ่มจำนวนยอดช่างได้แบบทันตาเห็นในปฏิทินงาน</p>
+                  <p className="text-slate-500 dark:text-slate-400 text-[10px] mt-0.5">เปลี่ยนหรือตั้งชื่อจริง ลบ และเพิ่มจำนวนยอดช่างได้แบบทันตาเห็นในปฏิทินงาน</p>
                 </div>
 
                 {/* Adding form */}
-                <div className="flex gap-2 bg-slate-900 p-2.5 rounded-xl border border-slate-700/80">
+                <div className="flex gap-2 bg-slate-50 dark:bg-slate-900 p-2.5 rounded-xl border border-border dark:border-slate-700/80">
                   <input
                     id="sett-new-tech-input"
                     type="text"
                     placeholder="ป้อนชื่อช่างใหม่..."
                     value={newTechName}
                     onChange={(e) => setNewTechName(e.target.value)}
-                    className="flex-1 bg-slate-800 border border-slate-700 rounded px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-500"
+                    className="flex-1 bg-white dark:bg-slate-800 border border-border dark:border-slate-700 rounded px-3 py-1.5 text-xs text-fg dark:text-slate-200 focus:outline-none focus:border-cyan-500"
                   />
                   <button
                     type="button"
                     onClick={handleAddTech}
-                    className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs px-4 py-1.5 rounded transition"
+                    className="bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs px-4 py-1.5 rounded transition cursor-pointer"
                   >
                     + เพิ่มรายชื่อ
                   </button>
                 </div>
 
                 {/* Table of techs */}
-                <div className="border border-slate-700/60 rounded-xl overflow-hidden max-h-[240px] overflow-y-auto">
+                <div className="border border-border dark:border-slate-700/60 rounded-xl overflow-hidden max-h-[240px] overflow-y-auto">
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
-                      <tr className="bg-slate-900 border-b border-slate-700 text-slate-400 font-semibold uppercase text-[10px]">
+                      <tr className="bg-slate-100 dark:bg-slate-900 border-b border-border dark:border-slate-700 text-slate-600 dark:text-slate-400 font-semibold uppercase text-[10px]">
                         <th className="py-2 px-4 w-12 text-center">ลำดับ</th>
                         <th className="py-2 px-4">ชื่อเรียก / ประจำเครื่อง</th>
                         <th className="py-2 px-4 w-16 text-center">จัดการ</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-700/40 text-slate-300">
+                    <tbody className="divide-y divide-border dark:divide-slate-700/40 text-slate-700 dark:text-slate-300">
                       {tempTechs.map((tName, i) => (
-                        <tr key={i} className="hover:bg-slate-900/40">
-                          <td className="py-2 px-4 text-center text-slate-500 font-mono">{i + 1}</td>
-                          <td className="py-2 px-4 font-bold text-slate-205">
+                        <tr key={i} className="hover:bg-slate-50 dark:hover:bg-slate-900/40">
+                          <td className="py-2 px-4 text-center text-slate-400 font-mono">{i + 1}</td>
+                          <td className="py-2 px-4 font-bold">
                             <input
                               type="text"
                               value={tName}
@@ -396,13 +396,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                                   return cloned;
                                 });
                               }}
-                              className="w-full bg-slate-950/60 border border-slate-700/80 rounded px-2 py-1 text-xs text-slate-200 focus:outline-none focus:border-cyan-500 font-sans font-medium"
+                              className="w-full bg-white dark:bg-slate-950/60 border border-border dark:border-slate-700/80 rounded px-2 py-1 text-xs text-fg dark:text-slate-200 focus:outline-none focus:border-cyan-500 font-sans font-medium"
                             />
                           </td>
                           <td className="py-2 px-4 text-center">
                             <button
                               onClick={() => handleRemoveTech(i)}
-                              className="text-slate-400 hover:text-rose-400 text-sm transition bg-slate-950/20 hover:bg-slate-900 p-1 rounded"
+                              className="text-slate-400 hover:text-rose-500 text-sm transition bg-slate-100 dark:bg-slate-950/20 hover:bg-slate-200 dark:hover:bg-slate-900 p-1 rounded cursor-pointer"
                               title="ลบรายชื่อช่างคนนี้"
                             >
                               &times;
@@ -414,10 +414,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                   </table>
                 </div>
 
-                <div className="pt-3 border-t border-slate-850 flex items-center justify-end">
+                <div className="pt-3 border-t border-border dark:border-slate-850 flex items-center justify-end">
                   <button
                     onClick={handleSaveTechs}
-                    className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold px-5 py-2 rounded-xl transition shadow"
+                    className="bg-cyan-600 hover:bg-cyan-500 text-white font-bold px-5 py-2 rounded-xl transition shadow cursor-pointer"
                   >
                     บันทึกรายชื่อช่างหลัก
                   </button>
@@ -429,18 +429,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
             {subTab === 'hours' && (
               <div className="space-y-5">
                 <div>
-                  <h4 className="text-sm font-bold text-slate-200 flex items-center gap-1.5">
-                    <Clock size={15} className="text-cyan-400" />
+                  <h4 className="text-sm font-bold text-fg dark:text-slate-200 flex items-center gap-1.5">
+                    <Clock size={15} className="text-cyan-600 dark:text-cyan-400" />
                     กำหนดระยะเวลาพิกัดการทำงานในรอบ 1 กะ
                   </h4>
-                  <p className="text-slate-400 text-[10px] mt-0.5">เปลี่ยนพิกัดชั่วโมงทํางานเฉลี่ยเพื่อพิจารณาความตึงเครียดโหลดในปฏิทินปฏิบัติงาน</p>
+                  <p className="text-slate-500 dark:text-slate-400 text-[10px] mt-0.5">เปลี่ยนพิกัดชั่วโมงทํางานเฉลี่ยเพื่อพิจารณาความตึงเครียดโหลดในปฏิทินปฏิบัติงาน</p>
                 </div>
 
-                <div className="bg-slate-900 p-5 rounded-2xl border border-slate-700/80 space-y-4">
+                <div className="bg-slate-50 dark:bg-slate-900 p-5 rounded-2xl border border-border dark:border-slate-700/80 space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
                     <div>
-                      <p className="text-xs font-bold text-slate-205">เวลากำหนดทำงานปกติ (ชั่วโมง / วันต่อกะ)*</p>
-                      <p className="text-[10px] text-slate-400 mt-1">ดีฟอลต์สากลคือ 8 ชม. (480 นาที), สามารถตั้งเป็น 16 ชม. (960 นาที) สำหรับ 2 กะได้</p>
+                      <p className="text-xs font-bold text-fg dark:text-slate-205">เวลากำหนดทำงานปกติ (ชั่วโมง / วันต่อกะ)*</p>
+                      <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1">ดีฟอลต์สากลคือ 8 ชม. (480 นาที), สามารถตั้งเป็น 16 ชม. (960 นาที) สำหรับ 2 กะได้</p>
                     </div>
 
                     <div className="flex items-center gap-2 justify-end shrink-0">
@@ -451,14 +451,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                         max={24}
                         value={workingHours}
                         onChange={(e) => setWorkingHours(Math.max(1, Number(e.target.value) || 0))}
-                        className="w-24 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-center text-sm text-slate-100 font-mono font-bold focus:outline-none"
+                        className="w-24 bg-white dark:bg-slate-800 border border-border dark:border-slate-700 rounded-lg px-3 py-2 text-center text-sm text-fg dark:text-slate-100 font-mono font-bold focus:outline-none"
                       />
-                      <span className="text-slate-400 font-medium">ชั่วโมง/วัน</span>
+                      <span className="text-slate-500 dark:text-slate-400 font-medium">ชั่วโมง/วัน</span>
                     </div>
                   </div>
 
-                  <div className="bg-slate-950/40 p-3.5 rounded-lg border border-slate-805 text-[11px] text-slate-400 font-mono">
-                    <p className="text-slate-300 font-bold">สรุปศักยภาพเวลากำลังสูงสุด:</p>
+                  <div className="bg-white dark:bg-slate-950/40 p-3.5 rounded-lg border border-border dark:border-slate-805 text-[11px] text-slate-600 dark:text-slate-400 font-mono">
+                    <p className="text-slate-800 dark:text-slate-300 font-bold">สรุปศักยภาพเวลากำลังสูงสุด:</p>
                     <ul className="list-disc pl-4 space-y-1 mt-1 text-xs">
                       <li>เวลาความถนัดรวมเฉลี่ย: <strong>{workingHours * 60} นาทีต่อวัน</strong></li>
                       <li>สะสมพิจารณารายสัปดาห์: <strong>{workingHours * 7} ชั่วโมง / คน</strong></li>
@@ -466,10 +466,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                   </div>
                 </div>
 
-                <div className="pt-2 border-t border-slate-850 flex items-center justify-end">
+                <div className="pt-2 border-t border-border dark:border-slate-850 flex items-center justify-end">
                   <button
                     onClick={handleSaveHours}
-                    className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold px-5 py-2 rounded-xl transition shadow"
+                    className="bg-cyan-600 hover:bg-cyan-500 text-white font-bold px-5 py-2 rounded-xl transition shadow cursor-pointer"
                   >
                     บันทึกพิกัดชั่วโมง
                   </button>
@@ -481,23 +481,23 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
             {subTab === 'std-mttr' && (
               <div className="space-y-4">
                 <div>
-                  <h4 className="text-sm font-bold text-slate-205 flex items-center gap-1.5">
-                    <Wrench size={15} className="text-cyan-400" />
+                  <h4 className="text-sm font-bold text-fg dark:text-slate-205 flex items-center gap-1.5">
+                    <Wrench size={15} className="text-cyan-600 dark:text-cyan-400" />
                     กำหนดระบุเวลากู้หน้าซ่อมจริงแยกตามประเภทเครื่องประเภทจักร
                   </h4>
-                  <p className="text-slate-400 text-[10px] mt-0.5">ใช้ระบุค่าเกณฑ์ประเมิน Std.MTTR (นาที) หากเวลาซ่อมเกิน 120% ของเกณฑ์แถวในเพจ 4 จะขึ้นไฟแจ้งเตือนสีแดง</p>
+                  <p className="text-slate-500 dark:text-slate-400 text-[10px] mt-0.5">ใช้ระบุค่าเกณฑ์ประเมิน Std.MTTR (นาที) หากเวลาซ่อมเกิน 120% ของเกณฑ์แถวในเพจ 4 จะขึ้นไฟแจ้งเตือนสีแดง</p>
                 </div>
 
-                <div className="border border-slate-700/60 rounded-xl overflow-hidden max-h-[280px] overflow-y-auto">
+                <div className="border border-border dark:border-slate-700/60 rounded-xl overflow-hidden max-h-[280px] overflow-y-auto">
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
-                      <tr className="bg-slate-900 border-b border-slate-700 text-slate-400 font-semibold uppercase text-[10px]">
+                      <tr className="bg-slate-100 dark:bg-slate-900 border-b border-border dark:border-slate-700 text-slate-600 dark:text-slate-400 font-semibold uppercase text-[10px]">
                         <th className="py-2.5 px-4">กลุ่มจำพวกอักษรย่อ</th>
                         <th className="py-2.5 px-4">ชื่อประเภทเครื่องสากล</th>
                         <th className="py-2.5 px-4 text-center w-28">Std.MTTR (นาที)</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-700/40 text-slate-310">
+                    <tbody className="divide-y divide-border dark:divide-slate-700/40 text-slate-700 dark:text-slate-310">
                       {[
                         { prefix: "RIM", label: "MIXER VERTICAL / RICE MIXER" },
                         { prefix: "TOC", label: "RICE TAKE-OUT CONVEYOR / CONVEYOR" },
@@ -510,16 +510,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                         { prefix: "CDU", label: "UTILITIES / CONDENSING UNITS" },
                         { prefix: "TLP", label: "THERMAL LABEL PRINTERS" }
                       ].map(item => (
-                        <tr key={item.prefix} className="hover:bg-slate-900/40">
-                          <td className="py-2 px-4 font-mono font-bold text-rose-400">{item.prefix}</td>
-                          <td className="py-2 px-4 text-slate-300 font-sans">{item.label}</td>
+                        <tr key={item.prefix} className="hover:bg-slate-50 dark:hover:bg-slate-900/40">
+                          <td className="py-2 px-4 font-mono font-bold text-rose-600 dark:text-rose-400">{item.prefix}</td>
+                          <td className="py-2 px-4 text-slate-700 dark:text-slate-300 font-sans">{item.label}</td>
                           <td className="py-2 px-4 text-center">
                             <input
                               type="number"
                               min={1}
                               value={tempStdMttr[item.prefix] || 60}
                               onChange={(e) => handleStdMttrChange(item.prefix, e.target.value)}
-                              className="w-16 bg-slate-950 border border-slate-700 rounded text-center text-xs text-slate-100 font-mono p-1"
+                              className="w-16 bg-white dark:bg-slate-950 border border-border dark:border-slate-700 rounded text-center text-xs text-fg dark:text-slate-100 font-mono p-1"
                             />
                           </td>
                         </tr>
@@ -528,10 +528,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                   </table>
                 </div>
 
-                <div className="pt-2 border-t border-slate-850 flex items-center justify-end">
+                <div className="pt-2 border-t border-border dark:border-slate-850 flex items-center justify-end">
                   <button
                     onClick={handleSaveStdMttr}
-                    className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold px-5 py-2 rounded-xl transition shadow"
+                    className="bg-cyan-600 hover:bg-cyan-500 text-white font-bold px-5 py-2 rounded-xl transition shadow cursor-pointer"
                   >
                     บันทึกเกณฑ์ซ่อม Std.MTTR
                   </button>
@@ -543,40 +543,40 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
             {subTab === 'export-import' && (
               <div className="space-y-4">
                 <div>
-                  <h4 className="text-sm font-bold text-slate-205 flex items-center gap-1.5">
-                    <FileJson size={15} className="text-cyan-400" />
+                  <h4 className="text-sm font-bold text-fg dark:text-slate-205 flex items-center gap-1.5">
+                    <FileJson size={15} className="text-cyan-600 dark:text-cyan-400" />
                     ระบบสากลสำรองฐานข้อมูล & ดึงกู้ข้อมูล (Export/Import Local Database)
                   </h4>
-                  <p className="text-slate-400 text-[10px] mt-0.5 font-sans">ส่งออกเพื่อกระจายงาน หรือวางโค้ดกู้ประวัติตะแกรงเวลาได้ทันทีโดยไม่ต้องเชื่อมต่อคลาวด์</p>
+                  <p className="text-slate-500 dark:text-slate-400 text-[10px] mt-0.5 font-sans">ส่งออกเพื่อกระจายงาน หรือวางโค้ดกู้ประวัติตะแกรงเวลาได้ทันทีโดยไม่ต้องเชื่อมต่อคลาวด์</p>
                 </div>
 
                 {/* Database Backup Trigger */}
-                <div className="bg-slate-900 p-4 rounded-xl border border-slate-700/80 space-y-3">
-                  <p className="text-xs font-bold text-slate-200">1. ส่งออกสำรองฐานข้อมูลทั้งหมด (JSON Export)</p>
-                  <p className="text-[10px] text-slate-400 font-sans">บันทึกทั้งประวัติการแจ้งซ่อม, งาน PM ค้าง, ชาร์ตบอร์ดยอดสะสม, พิกัดช่าง ตระเตรียมเป็นไฟล์เซฟฟิสิกส์</p>
+                <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border border-border dark:border-slate-700/80 space-y-3">
+                  <p className="text-xs font-bold text-fg dark:text-slate-200">1. ส่งออกสำรองฐานข้อมูลทั้งหมด (JSON Export)</p>
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400 font-sans">บันทึกทั้งประวัติการแจ้งซ่อม, งาน PM ค้าง, ชาร์ตบอร์ดยอดสะสม, พิกัดช่าง ตระเตรียมเป็นไฟล์เซฟฟิสิกส์</p>
                   <button
                     type="button"
                     onClick={triggerDownloadJson}
-                    className="flex items-center gap-1.5 bg-cyan-500/10 hover:bg-cyan-455 border border-cyan-500/20 text-cyan-400 hover:text-slate-950 font-bold px-4 py-2 rounded-lg transition"
+                    className="flex items-center gap-1.5 bg-cyan-50 hover:bg-cyan-600 border border-cyan-300 dark:border-cyan-500/20 text-cyan-700 dark:text-cyan-400 hover:text-white font-bold px-4 py-2 rounded-lg transition cursor-pointer"
                   >
                     ดาวน์โหลดไฟล์แบ็คอัพ .json
                   </button>
                 </div>
 
                 {/* Data Restoration panel */}
-                <div className="bg-slate-900 p-4 rounded-xl border border-slate-700/80 space-y-3">
-                  <p className="text-xs font-bold text-slate-200">2. นำเข้ากู้คืนระบบ (JSON Import / Restoration)</p>
+                <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border border-border dark:border-slate-700/80 space-y-3">
+                  <p className="text-xs font-bold text-fg dark:text-slate-200">2. นำเข้ากู้คืนระบบ (JSON Import / Restoration)</p>
                   
                   {importStatus.type !== 'idle' && (
                     <div className={`p-2.5 rounded border text-[10px] ${
-                      importStatus.type === 'success' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-rose-500/10 border-rose-500/30 text-rose-400'
+                      importStatus.type === 'success' ? 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-300 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-400' : 'bg-rose-50 dark:bg-rose-500/10 border-rose-300 dark:border-rose-500/30 text-rose-800 dark:text-rose-400'
                     }`}>
                       {importStatus.msg}
                     </div>
                   )}
 
-                  <div className="flex flex-col gap-2 bg-slate-950/40 p-3 rounded-lg border border-slate-800">
-                    <p className="text-[10px] text-slate-400 font-sans">
+                  <div className="flex flex-col gap-2 bg-white dark:bg-slate-950/40 p-3 rounded-lg border border-border dark:border-slate-800">
+                    <p className="text-[10px] text-slate-600 dark:text-slate-400 font-sans">
                       💡 <strong>วิธีที่ 1 (แนะนำ):</strong> เลือกไฟล์ .json สำรองโดยตรงจากคอมพิวเตอร์ของคุณ
                     </p>
                     <input
@@ -589,7 +589,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                     <button
                       type="button"
                       onClick={() => modalFileRef.current?.click()}
-                      className="flex items-center justify-center gap-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-fg font-bold text-xs py-2 px-4 rounded-xl shadow transition"
+                      className="flex items-center justify-center gap-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-border dark:border-slate-700 text-fg font-bold text-xs py-2 px-4 rounded-xl shadow transition cursor-pointer"
                     >
                       <Upload size={13} />
                       <span>เลือกไฟล์สำรองข้อมูล (.json) เพื่อกู้คืน</span>
@@ -597,7 +597,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                   </div>
 
                   <div className="space-y-2 pt-1">
-                    <p className="text-[10px] text-slate-400 font-sans">
+                    <p className="text-[10px] text-slate-600 dark:text-slate-400 font-sans">
                       💡 <strong>วิธีที่ 2:</strong> วางเนื้อหาโค้ด JSON สำรองทั้งหมดในกล่องด้านล่างนี้
                     </p>
                     <textarea
@@ -605,13 +605,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                       placeholder="วางโค้ด JSON สำรองทั้งหมดที่นี่..."
                       value={jsonImportStr}
                       onChange={(e) => setJsonImportStr(e.target.value)}
-                      className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-[10px] text-slate-300 font-mono focus:outline-none"
+                      className="w-full bg-white dark:bg-slate-950 border border-border dark:border-slate-700 rounded-lg p-2.5 text-[10px] text-fg dark:text-slate-300 font-mono focus:outline-none"
                     />
 
                     <button
                       type="button"
                       onClick={handleImportJson}
-                      className="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-4 py-2 rounded-lg transition shadow-md"
+                      className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-lg transition shadow cursor-pointer"
                     >
                       เริ่มกระบวนการกู้ประวัติระบบ (จากโค้ดที่วาง)
                     </button>
@@ -624,21 +624,21 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
             {subTab === 'line-notify' && (
               <div className="space-y-4">
                 <div>
-                  <h4 className="text-sm font-bold text-slate-205 flex items-center gap-1.5 font-sans">
-                    <Bell size={15} className="text-cyan-400" />
+                  <h4 className="text-sm font-bold text-fg dark:text-slate-205 flex items-center gap-1.5 font-sans">
+                    <Bell size={15} className="text-cyan-600 dark:text-cyan-400" />
                     ตั้งค่าการแจ้งเตือนผ่าน LINE Group (LINE Notify Integration)
                   </h4>
-                  <p className="text-slate-400 text-[10px] mt-0.5 font-sans">
+                  <p className="text-slate-500 dark:text-slate-400 text-[10px] mt-0.5 font-sans">
                     ส่งข้อความแจ้งเตือนเข้ากลุ่ม LINE อัตโนมัติเมื่อเกิดเหตุการณ์ในโรงงาน เช่น แจ้งซ่อมเครื่องจักร ทำใบงานซ่อมสำเร็จ หรือยืนยันการตั้งเครื่อง
                   </p>
                 </div>
 
                 {/* Status Toggle & Explanation */}
-                <div className="bg-slate-900 p-4 rounded-xl border border-slate-700/80 space-y-4">
+                <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border border-border dark:border-slate-700/80 space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <span className="text-xs font-bold text-slate-200">เปิดใช้งานการแจ้งเตือน LINE</span>
-                      <p className="text-[10px] text-slate-400">ส่งแจ้งเตือนด่วนสากลเมื่อแจ้งซ่อม ปิดใบงาน หรือเริ่มบำรุงรักษา</p>
+                      <span className="text-xs font-bold text-fg dark:text-slate-200">เปิดใช้งานการแจ้งเตือน LINE</span>
+                      <p className="text-[10px] text-slate-500 dark:text-slate-400">ส่งแจ้งเตือนด่วนสากลเมื่อแจ้งซ่อม ปิดใบงาน หรือเริ่มบำรุงรักษา</p>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer select-none">
                       <input 
@@ -647,7 +647,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                         onChange={(e) => setLineEnabled(e.target.checked)}
                         className="sr-only peer"
                       />
-                      <div className="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyan-500"></div>
+                      <div className="w-11 h-6 bg-slate-300 dark:bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyan-600"></div>
                     </label>
                   </div>
 
@@ -655,19 +655,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                   {lineEnabled && (
                     <div className="space-y-2 animate-in fade-in duration-200">
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-300 mb-1">LINE Notify Token ของกลุ่มคุณ</label>
+                        <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">LINE Notify Token ของกลุ่มคุณ</label>
                         <input
                           type="password"
                           placeholder="วาง Token ของคุณที่นี่ (เช่น L2q7Y...)"
                           value={lineToken}
                           onChange={(e) => setLineToken(e.target.value)}
-                          className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-200 font-mono focus:outline-none focus:border-cyan-500"
+                          className="w-full bg-white dark:bg-slate-950 border border-border dark:border-slate-700 rounded-lg p-2.5 text-xs text-fg dark:text-slate-200 font-mono focus:outline-none focus:border-cyan-500"
                         />
                       </div>
-                      <div className="bg-slate-950/40 p-3 rounded-lg border border-slate-800 space-y-1 text-slate-400 font-sans text-[10px] leading-relaxed">
-                        <p className="font-bold text-slate-300">💡 วิธีรับ Token ฟรีใน 3 ขั้นตอน:</p>
+                      <div className="bg-white dark:bg-slate-950/40 p-3 rounded-lg border border-border dark:border-slate-800 space-y-1 text-slate-600 dark:text-slate-400 font-sans text-[10px] leading-relaxed">
+                        <p className="font-bold text-slate-800 dark:text-slate-300">💡 วิธีรับ Token ฟรีใน 3 ขั้นตอน:</p>
                         <ol className="list-decimal pl-4 space-y-1">
-                          <li>เข้าไปที่เว็บ <a href="https://notify-bot.line.me/" target="_blank" rel="noreferrer" className="text-cyan-400 underline hover:text-cyan-300">notify-bot.line.me</a> แล้วเข้าสู่ระบบด้วยบัญชี LINE ของคุณ</li>
+                          <li>เข้าไปที่เว็บ <a href="https://notify-bot.line.me/" target="_blank" rel="noreferrer" className="text-cyan-600 dark:text-cyan-400 underline hover:text-cyan-500">notify-bot.line.me</a> แล้วเข้าสู่ระบบด้วยบัญชี LINE ของคุณ</li>
                           <li>ไปที่หน้า "หน้าของฉัน" (My Page) แล้วคลิกปุ่ม "ออก Token" (Generate Token)</li>
                           <li>ตั้งชื่อแจ้งเตือน เลือกกลุ่ม LINE ที่ต้องการรับแจ้ง แล้วคัดลอก Token มาวางในช่องด้านบนนี้ (และอย่าลืมดึง LINE Notify บอทเข้ากลุ่มด้วยนะ)</li>
                         </ol>
@@ -678,12 +678,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
 
                 {/* Test Notification Section */}
                 {lineEnabled && (
-                  <div className="bg-slate-900 p-4 rounded-xl border border-slate-700/80 space-y-3">
-                    <span className="text-xs font-bold text-slate-200 block">ทดสอบส่งแจ้งเตือน (Test Connection)</span>
+                  <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border border-border dark:border-slate-700/80 space-y-3">
+                    <span className="text-xs font-bold text-fg dark:text-slate-200 block">ทดสอบส่งแจ้งเตือน (Test Connection)</span>
                     
                     {testStatus.type !== 'idle' && (
                       <div className={`p-2.5 rounded border text-[10px] ${
-                        testStatus.type === 'success' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-rose-500/10 border-rose-500/30 text-rose-400'
+                        testStatus.type === 'success' ? 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-300 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-400' : 'bg-rose-50 dark:bg-rose-500/10 border-rose-300 dark:border-rose-500/30 text-rose-800 dark:text-rose-400'
                       }`}>
                         {testStatus.msg}
                       </div>
@@ -694,14 +694,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                         type="text"
                         value={testMessage}
                         onChange={(e) => setTestMessage(e.target.value)}
-                        className="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500"
+                        className="flex-1 bg-white dark:bg-slate-950 border border-border dark:border-slate-700 rounded-lg px-3 py-2 text-xs text-fg dark:text-slate-200 focus:outline-none focus:border-cyan-500"
                         placeholder="ข้อความทดสอบ..."
                       />
                       <button
                         type="button"
                         onClick={handleTestLineNotify}
                         disabled={isTesting}
-                        className="bg-cyan-500/10 hover:bg-cyan-500 border border-cyan-500/30 text-cyan-400 hover:text-slate-950 font-bold px-4 rounded-lg transition disabled:opacity-50 text-xs shrink-0"
+                        className="bg-cyan-50 hover:bg-cyan-600 border border-cyan-300 dark:border-cyan-500/30 text-cyan-700 dark:text-cyan-400 hover:text-white font-bold px-4 rounded-lg transition disabled:opacity-50 text-xs shrink-0 cursor-pointer"
                       >
                         {isTesting ? 'กำลังส่ง...' : 'ทดสอบส่ง'}
                       </button>
@@ -709,10 +709,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                   </div>
                 )}
 
-                <div className="pt-2 border-t border-slate-850 flex items-center justify-end">
+                <div className="pt-2 border-t border-border dark:border-slate-850 flex items-center justify-end">
                   <button
                     onClick={handleSaveLineConfig}
-                    className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold px-5 py-2 rounded-xl transition shadow"
+                    className="bg-cyan-600 hover:bg-cyan-500 text-white font-bold px-5 py-2 rounded-xl transition shadow cursor-pointer"
                   >
                     บันทึกการตั้งค่าระบบแจ้งเตือน
                   </button>

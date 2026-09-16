@@ -978,11 +978,11 @@ export const TimeBreakPage: React.FC = () => {
               <div>
                 <h1 className="text-xl sm:text-2xl font-bold text-fg tracking-tight flex items-center gap-2.5">
                   เปลี่ยนอะไหล่ Time-Break
-                  <span className="text-xs px-2.5 py-0.5 rounded-full font-medium bg-cyan-100 dark:bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 border border-cyan-300 dark:border-cyan-500/30">
+                  <span className="text-xs px-2.5 py-0.5 rounded-full font-bold bg-sky-100 dark:bg-cyan-500/20 text-sky-900 dark:text-cyan-200 border border-sky-300 dark:border-cyan-500/40">
                     Time-Based Replacement
                   </span>
                 </h1>
-                <p className="text-xs sm:text-sm text-fg-muted mt-0.5">
+                <p className="text-xs sm:text-sm text-slate-700 dark:text-fg-muted mt-0.5 font-medium">
                   ตารางระบุเครื่องในเดือนปัจจุบัน ครบเวลาเปลี่ยนอะไหล่ และจำนวนรอบการเปลี่ยน (ครั้ง/เวลา)
                 </p>
               </div>
@@ -1087,52 +1087,52 @@ export const TimeBreakPage: React.FC = () => {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <div className="p-4 rounded-xl bg-surface dark:bg-slate-900/90 border border-border dark:border-slate-800/80 flex items-center justify-between">
               <div>
-                <span className="text-xs text-fg-muted dark:text-fg-muted-on-dark block mb-1">เครื่องที่มีระบบ Time-Break</span>
-                <div className="text-2xl font-bold text-fg dark:text-fg-on-dark tracking-tight">
-                  {monthKpis.totalMachinesWithParts} <span className="text-xs text-fg-muted dark:text-fg-muted-on-dark font-normal">เครื่อง</span>
+                <span className="text-xs text-slate-800 dark:text-slate-200 block mb-1 font-bold">เครื่องที่มีระบบ Time-Break</span>
+                <div className="text-2xl font-black text-slate-950 dark:text-white tracking-tight">
+                  {monthKpis.totalMachinesWithParts} <span className="text-xs text-slate-600 dark:text-slate-300 font-medium">เครื่อง</span>
                 </div>
-                <span className="text-[11px] text-cyan-600 dark:text-cyan-400 font-medium">จากทั้งหมด {machines.length} เครื่อง</span>
+                <span className="text-[11px] text-cyan-800 dark:text-cyan-300 font-bold">จากทั้งหมด {machines.length} เครื่อง</span>
               </div>
-              <div className="w-10 h-10 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-600 dark:text-cyan-400">
+              <div className="w-10 h-10 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-700 dark:text-cyan-400">
                 <Cpu className="w-5 h-5" />
               </div>
             </div>
 
             <div className="p-4 rounded-xl bg-surface dark:bg-slate-900/90 border border-red-200 dark:border-red-900/40 flex items-center justify-between">
               <div>
-                <span className="text-xs text-red-600 dark:text-red-300 block mb-1 font-medium">ครบเวลาเปลี่ยน / เกินกำหนด</span>
-                <div className="text-2xl font-bold text-red-600 dark:text-red-400 tracking-tight">
-                  {monthKpis.overduePartsCount} <span className="text-xs text-red-600/80 dark:text-red-300/80 font-normal">รายการ</span>
+                <span className="text-xs text-red-800 dark:text-red-300 block mb-1 font-bold">ครบเวลาเปลี่ยน / เกินกำหนด</span>
+                <div className="text-2xl font-black text-red-700 dark:text-red-400 tracking-tight">
+                  {monthKpis.overduePartsCount} <span className="text-xs text-red-800/90 dark:text-red-300/80 font-medium">รายการ</span>
                 </div>
-                <span className="text-[11px] text-red-600 dark:text-red-300/90 font-medium">ต้องรีบเปลี่ยนด่วน</span>
+                <span className="text-[11px] text-red-800 dark:text-red-300/90 font-bold">ต้องรีบเปลี่ยนด่วน</span>
               </div>
-              <div className="w-10 h-10 rounded-lg bg-red-500/15 border border-red-500/30 flex items-center justify-center text-red-500 dark:text-red-400">
+              <div className="w-10 h-10 rounded-lg bg-red-500/15 border border-red-500/30 flex items-center justify-center text-red-600 dark:text-red-400">
                 <AlertTriangle className="w-5 h-5" />
               </div>
             </div>
 
             <div className="p-4 rounded-xl bg-surface dark:bg-slate-900/90 border border-amber-200 dark:border-amber-900/40 flex items-center justify-between">
               <div>
-                <span className="text-xs text-amber-700 dark:text-amber-300 block mb-1 font-medium">ครบกำหนดในเดือนนี้ ({selectedMonth})</span>
-                <div className="text-2xl font-bold text-amber-600 dark:text-amber-400 tracking-tight">
-                  {monthKpis.dueThisMonthPartsCount} <span className="text-xs text-amber-700/80 dark:text-amber-300/80 font-normal">รายการ</span>
+                <span className="text-xs text-amber-900 dark:text-amber-300 block mb-1 font-bold">ครบกำหนดในเดือนนี้ ({selectedMonth})</span>
+                <div className="text-2xl font-black text-amber-800 dark:text-amber-400 tracking-tight">
+                  {monthKpis.dueThisMonthPartsCount} <span className="text-xs text-amber-900/90 dark:text-amber-300/80 font-medium">รายการ</span>
                 </div>
-                <span className="text-[11px] text-amber-700 dark:text-amber-300/90 font-medium">เตรียมอะไหล่และช่าง</span>
+                <span className="text-[11px] text-amber-900 dark:text-amber-300/90 font-bold">เตรียมอะไหล่และช่าง</span>
               </div>
-              <div className="w-10 h-10 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-500 dark:text-amber-400">
+              <div className="w-10 h-10 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-600 dark:text-amber-400">
                 <Clock className="w-5 h-5" />
               </div>
             </div>
 
             <div className="p-4 rounded-xl bg-surface dark:bg-slate-900/90 border border-border dark:border-slate-800/80 flex items-center justify-between">
               <div>
-                <span className="text-xs text-fg-muted dark:text-fg-muted-on-dark block mb-1">จำนวนรอบที่เปลี่ยนแล้วสะสม</span>
-                <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 tracking-tight">
-                  {monthKpis.totalCompletedCycles} <span className="text-xs text-fg-muted dark:text-fg-muted-on-dark font-normal">รอบ</span>
+                <span className="text-xs text-slate-800 dark:text-slate-200 block mb-1 font-bold">จำนวนรอบที่เปลี่ยนแล้วสะสม</span>
+                <div className="text-2xl font-black text-emerald-700 dark:text-emerald-400 tracking-tight">
+                  {monthKpis.totalCompletedCycles} <span className="text-xs text-slate-600 dark:text-slate-300 font-medium">รอบ</span>
                 </div>
-                <span className="text-[11px] text-emerald-600 dark:text-emerald-400/90 font-medium">จาก {monthKpis.totalParts} อะไหล่ที่ควบคุม</span>
+                <span className="text-[11px] text-emerald-800 dark:text-emerald-300 font-bold">จาก {monthKpis.totalParts} อะไหล่ที่ควบคุม</span>
               </div>
-              <div className="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+              <div className="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-700 dark:text-emerald-400">
                 <RefreshCw className="w-5 h-5" />
               </div>
             </div>
@@ -1212,15 +1212,15 @@ export const TimeBreakPage: React.FC = () => {
             {/* View Mode: Grouped duplicate names vs Flat List */}
             <div className="pt-2.5 border-t border-border dark:border-slate-800/80 flex items-center justify-between flex-wrap gap-2.5">
               <div className="flex items-center gap-2">
-                <span className="text-xs text-fg-muted dark:text-slate-400 font-medium">รูปแบบแสดงตาราง:</span>
-                <div className="flex items-center bg-slate-100 dark:bg-slate-950 p-0.5 rounded-lg border border-border dark:border-slate-800">
+                <span className="text-xs text-slate-800 dark:text-slate-200 font-semibold">รูปแบบแสดงตาราง:</span>
+                <div className="flex items-center bg-white dark:bg-slate-950 p-0.5 rounded-lg border border-slate-300 dark:border-slate-800 shadow-xs">
                   <button
                     id="btn-view-mode-grouped"
                     onClick={() => setViewMode('grouped')}
-                    className={`px-3 py-1.5 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                    className={`px-3 py-1.5 rounded-md text-xs font-bold flex items-center gap-1.5 transition-all ${
                       viewMode === 'grouped'
-                        ? 'bg-cyan-600 text-white shadow-sm'
-                        : 'text-fg-muted dark:text-slate-400 hover:text-fg'
+                        ? 'bg-cyan-600 text-white shadow-xs'
+                        : 'text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-fg'
                     }`}
                     title="รวมเครื่องชื่อซ้ำไว้ที่เดียวกัน และกดแยกดูได้"
                   >
@@ -1230,10 +1230,10 @@ export const TimeBreakPage: React.FC = () => {
                   <button
                     id="btn-view-mode-flat"
                     onClick={() => setViewMode('flat')}
-                    className={`px-3 py-1.5 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                    className={`px-3 py-1.5 rounded-md text-xs font-bold flex items-center gap-1.5 transition-all ${
                       viewMode === 'flat'
-                        ? 'bg-cyan-600 text-white shadow-sm'
-                        : 'text-fg-muted dark:text-slate-400 hover:text-fg'
+                        ? 'bg-cyan-600 text-white shadow-xs'
+                        : 'text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-fg'
                     }`}
                     title="แสดงแยกเรียงทีละเครื่องจักรทุกเครื่อง"
                   >
@@ -1248,7 +1248,7 @@ export const TimeBreakPage: React.FC = () => {
                   <button
                     id="btn-expand-all-groups"
                     onClick={handleExpandAll}
-                    className="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-cyan-700 dark:text-cyan-300 border border-slate-200 dark:border-slate-700 text-xs font-medium flex items-center gap-1 transition-colors"
+                    className="px-2.5 py-1.5 rounded-lg bg-white hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-cyan-800 dark:text-cyan-300 border border-slate-300 dark:border-slate-700 text-xs font-semibold flex items-center gap-1 transition-colors shadow-xs"
                     title="กดแยกดูทุกกลุ่มเครื่องจักร"
                   >
                     <ChevronDown className="w-3.5 h-3.5" />
@@ -1257,7 +1257,7 @@ export const TimeBreakPage: React.FC = () => {
                   <button
                     id="btn-collapse-all-groups"
                     onClick={handleCollapseAll}
-                    className="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-xs font-medium flex items-center gap-1 transition-colors"
+                    className="px-2.5 py-1.5 rounded-lg bg-white hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-300 border border-slate-300 dark:border-slate-700 text-xs font-semibold flex items-center gap-1 transition-colors shadow-xs"
                     title="ยุบรวมทุกกลุ่มเครื่องจักร"
                   >
                     <ChevronUp className="w-3.5 h-3.5" />
@@ -1283,7 +1283,7 @@ export const TimeBreakPage: React.FC = () => {
                   </span>
                 </h2>
               </div>
-              <div className="text-xs text-fg-muted dark:text-slate-400 flex items-center gap-3">
+              <div className="text-xs text-slate-700 dark:text-slate-300 font-medium flex items-center gap-3">
                 <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500"></span> ครบเวลาเปลี่ยน</span>
                 <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-500"></span> ถึงรอบในเดือนนี้</span>
                 <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500"></span> ปกติ</span>
@@ -1293,14 +1293,14 @@ export const TimeBreakPage: React.FC = () => {
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
-                  <tr className="bg-slate-50 dark:bg-slate-950/80 border-b border-border dark:border-slate-800 text-fg-muted dark:text-slate-400">
-                    <th className="py-3 px-4 font-semibold w-24">รหัสเครื่อง</th>
-                    <th className="py-3 px-4 font-semibold min-w-[200px]">ชื่อเครื่องจักร / ไลน์ผลิต</th>
-                    <th className="py-3 px-4 font-semibold min-w-[280px]">อะไหล่ Time-Break & ส่วนที่ต้องเปลี่ยน</th>
-                    <th className="py-3 px-4 font-semibold min-w-[140px]">วันครบเวลาเปลี่ยน</th>
-                    <th className="py-3 px-4 font-semibold min-w-[150px]">จำนวนรอบการเปลี่ยน (ครั้ง/เวลา)</th>
-                    <th className="py-3 px-4 font-semibold min-w-[120px]">สถานะ</th>
-                    <th className="py-3 px-4 font-semibold text-right min-w-[160px]">การดำเนินการ</th>
+                  <tr className="bg-slate-50 dark:bg-slate-950/80 border-b border-border dark:border-slate-800 text-slate-800 dark:text-slate-200">
+                    <th className="py-3 px-4 font-bold w-24">รหัสเครื่อง</th>
+                    <th className="py-3 px-4 font-bold min-w-[200px]">ชื่อเครื่องจักร / ไลน์ผลิต</th>
+                    <th className="py-3 px-4 font-bold min-w-[280px]">อะไหล่ Time-Break & ส่วนที่ต้องเปลี่ยน</th>
+                    <th className="py-3 px-4 font-bold min-w-[140px]">วันครบเวลาเปลี่ยน</th>
+                    <th className="py-3 px-4 font-bold min-w-[150px]">จำนวนรอบการเปลี่ยน (ครั้ง/เวลา)</th>
+                    <th className="py-3 px-4 font-bold min-w-[120px]">สถานะ</th>
+                    <th className="py-3 px-4 font-bold text-right min-w-[160px]">การดำเนินการ</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border dark:divide-slate-800/70">
@@ -1322,7 +1322,7 @@ export const TimeBreakPage: React.FC = () => {
                             id={`row-group-${group.groupName.replace(/[^a-zA-Z0-9]/g, '-')}`}
                             className={`transition-colors border-b border-border dark:border-slate-800 cursor-pointer ${
                               isExpanded 
-                                ? 'bg-slate-100 dark:bg-slate-800/70 hover:bg-slate-200/70 dark:hover:bg-slate-800/90' 
+                                ? 'bg-cyan-50/80 dark:bg-slate-800/80 hover:bg-cyan-100/80 dark:hover:bg-slate-800 text-fg dark:text-slate-100' 
                                 : 'hover:bg-slate-50 dark:hover:bg-slate-800/40 bg-surface dark:bg-slate-900/40'
                             }`}
                             onClick={() => toggleGroup(group.groupName)}
@@ -1339,7 +1339,7 @@ export const TimeBreakPage: React.FC = () => {
                                   className={`p-1 rounded transition-colors ${
                                     isExpanded 
                                       ? 'bg-cyan-600 text-white font-bold' 
-                                      : 'bg-slate-100 dark:bg-slate-800 text-cyan-700 dark:text-cyan-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+                                      : 'bg-white dark:bg-slate-800 text-cyan-800 dark:text-cyan-400 hover:bg-cyan-50 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 shadow-xs'
                                   }`}
                                   title={isExpanded ? 'ยุบรวม' : 'กดแยกดูรายเครื่อง'}
                                 >

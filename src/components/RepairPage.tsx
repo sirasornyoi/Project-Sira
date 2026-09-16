@@ -840,10 +840,10 @@ export const RepairPage: React.FC = () => {
               setImportPreview([]);
               setShowImportModal(true);
             }}
-            className="flex items-center gap-2 bg-gradient-to-r from-cyan-600 to-blue-700 hover:from-cyan-500 hover:to-blue-600 text-fg font-bold px-4 py-2.5 rounded-lg transition-all shadow-md focus:outline-none text-xs cursor-pointer"
+            className="flex items-center gap-2 bg-white dark:bg-cyan-900/60 hover:bg-cyan-50 dark:hover:bg-cyan-800/60 text-cyan-900 dark:text-cyan-200 border border-cyan-300 dark:border-cyan-500/40 font-bold px-4 py-2.5 rounded-lg transition-all shadow-xs focus:outline-none text-xs cursor-pointer"
             title="นำเข้าประวัติการซ่อมบำรุงจากไฟล์ Excel"
           >
-            <Upload size={16} />
+            <Upload size={16} className="text-cyan-700 dark:text-cyan-300" />
             นำเข้า Excel ประวัติซ่อม
           </button>
 
@@ -851,10 +851,10 @@ export const RepairPage: React.FC = () => {
             type="button"
             id="btn-export-repairs-excel"
             onClick={handleExportAllToExcel}
-            className="flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-fg font-bold px-4 py-2.5 rounded-lg transition-all shadow-md focus:outline-none text-xs cursor-pointer"
+            className="flex items-center gap-2 bg-white dark:bg-emerald-900/60 hover:bg-emerald-50 dark:hover:bg-emerald-800/60 text-emerald-900 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-500/40 font-bold px-4 py-2.5 rounded-lg transition-all shadow-xs focus:outline-none text-xs cursor-pointer"
             title="ส่งออกบันทึกการซ่อมด่วนไปเป็น Excel (CSV) สดประมวลข้อมูล Thai Language เรียบร้อย"
           >
-            <FileSpreadsheet size={16} />
+            <FileSpreadsheet size={16} className="text-emerald-700 dark:text-emerald-300" />
             ส่งออก Excel ประวัติซ่อม
           </button>
 
@@ -884,32 +884,32 @@ export const RepairPage: React.FC = () => {
       </div>
 
       {/* SEARCH FILTERS BLOCK */}
-      <div id="repair-filter-container" className="bg-slate-800 border border-slate-700/80 rounded-xl p-5 space-y-4">
-        <h3 className="text-xs font-bold uppercase text-slate-400 flex items-center gap-1.5 mb-2">
-          <SlidersHorizontal size={14} className="text-cyan-400" />
+      <div id="repair-filter-container" className="bg-surface dark:bg-slate-800 border border-border dark:border-slate-700/80 rounded-xl p-5 space-y-4">
+        <h3 className="text-xs font-bold uppercase text-slate-600 dark:text-slate-400 flex items-center gap-1.5 mb-2">
+          <SlidersHorizontal size={14} className="text-cyan-600 dark:text-cyan-400" />
           ตัวกรองตรวจสอบประวัติละเอียด
         </h3>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
           <div className="space-y-1.5">
-            <label className="text-[11px] font-semibold text-slate-400">ค้นหารหัสเครื่องจักร</label>
+            <label className="text-[11px] font-semibold text-slate-700 dark:text-slate-400">ค้นหารหัสเครื่องจักร</label>
             <input
               id="filter-rep-machine"
               type="text"
               placeholder="เช่น RIM01, FFS..."
               value={machineFilter}
               onChange={(e) => setMachineFilter(e.target.value)}
-              className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 font-mono focus:outline-none focus:border-cyan-500"
+              className="w-full bg-white dark:bg-slate-900 border border-border dark:border-slate-700 rounded-lg px-3 py-1.5 text-xs text-fg dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 font-mono focus:outline-none focus:border-cyan-500"
             />
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-[11px] font-semibold text-slate-400">ช่างผู้รับผิดชอบ</label>
+            <label className="text-[11px] font-semibold text-slate-700 dark:text-slate-400">ช่างผู้รับผิดชอบ</label>
             <select
               id="filter-rep-tech"
               value={techFilter}
               onChange={(e) => setTechFilter(e.target.value)}
-              className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-[#dee2e6] focus:outline-none focus:border-cyan-500"
+              className="w-full bg-white dark:bg-slate-900 border border-border dark:border-slate-700 rounded-lg px-3 py-1.5 text-xs text-fg dark:text-[#dee2e6] focus:outline-none focus:border-cyan-500"
             >
               <option value="">-- ทั้งหมด --</option>
               {technicians.map(t => (
@@ -919,23 +919,23 @@ export const RepairPage: React.FC = () => {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-[11px] font-semibold text-slate-400">ประจำเดือนปี</label>
+            <label className="text-[11px] font-semibold text-slate-700 dark:text-slate-400">ประจำเดือนปี</label>
             <input
               id="filter-rep-month"
               type="month"
               value={monthFilter}
               onChange={(e) => setMonthFilter(e.target.value)}
-              className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 font-mono focus:outline-none focus:border-cyan-500"
+              className="w-full bg-white dark:bg-slate-900 border border-border dark:border-slate-700 rounded-lg px-3 py-1.5 text-xs text-fg dark:text-slate-200 font-mono focus:outline-none focus:border-cyan-500"
             />
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-[11px] font-semibold text-slate-400">MTTR นานกว่า (นาที)</label>
+            <label className="text-[11px] font-semibold text-slate-700 dark:text-slate-400">MTTR นานกว่า (นาที)</label>
             <select
               id="filter-rep-mttr"
               value={mttrFilter}
               onChange={(e) => setMttrFilter(Number(e.target.value))}
-              className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-500"
+              className="w-full bg-white dark:bg-slate-900 border border-border dark:border-slate-700 rounded-lg px-3 py-1.5 text-xs text-fg dark:text-slate-200 focus:outline-none focus:border-cyan-500"
             >
               <option value={0}>-- ตารางทั้งหมด --</option>
               <option value={30}>&gt; 30 นาที</option>
@@ -946,12 +946,12 @@ export const RepairPage: React.FC = () => {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-[11px] font-semibold text-cyan-400">เรียงตาม (Sort by)</label>
+            <label className="text-[11px] font-semibold text-cyan-700 dark:text-cyan-400">เรียงตาม (Sort by)</label>
             <select
               id="filter-rep-sort"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as 'date' | 'duration')}
-              className="w-full bg-slate-900 border border-slate-750/90 rounded-lg px-3 py-1.5 text-xs text-cyan-300 font-bold focus:outline-none focus:border-cyan-500 cursor-pointer"
+              className="w-full bg-white dark:bg-slate-900 border border-border dark:border-slate-750/90 rounded-lg px-3 py-1.5 text-xs text-cyan-700 dark:text-cyan-300 font-bold focus:outline-none focus:border-cyan-500 cursor-pointer"
             >
               <option value="date">📅 วันที่เสียล่าสุดก่อน</option>
               <option value="duration">⏱ เวลากระทบเสียนานสุด (MTTR)</option>
@@ -961,19 +961,19 @@ export const RepairPage: React.FC = () => {
       </div>
 
       {/* Informational double-click guide */}
-      <div className="bg-cyan-950/40 border border-cyan-800/30 rounded-xl p-3.5 flex items-center justify-between text-xs text-cyan-300">
+      <div className="bg-white dark:bg-cyan-950/40 border border-cyan-300 dark:border-cyan-800/30 rounded-xl p-3.5 flex items-center justify-between text-xs text-cyan-950 dark:text-cyan-300 shadow-xs">
         <div className="flex items-center gap-2.5">
-          <span className="flex h-2 w-2 rounded-full bg-cyan-400 animate-pulse"></span>
+          <span className="flex h-2 w-2 rounded-full bg-cyan-600 dark:bg-cyan-400 animate-pulse"></span>
           <span>💡 <strong>คำแนะนำการใช้งาน:</strong> สามารถ <strong>ดับเบิ้ลคลิก (Double-click)</strong> แถวรายการซ่อมบำรุงในตารางด้านล่าง เพื่อเรียกดูหน้าต่างรายละเอียดเชิงลึก วิเคราะห์ Why-Why พร้อมรูปถ่าย หรือเลือก ลบ/แก้ไขข้อมูล ได้ทันที</span>
         </div>
       </div>
 
       {/* REPAIR HISTORICAL LOGS TABLE */}
-      <div id="repair-table-container" className="bg-slate-800 border border-slate-700 rounded-xl overflow-hidden shadow-lg">
+      <div id="repair-table-container" className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden shadow-xs">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs" id="repairs-history-table">
             <thead>
-              <tr className="bg-slate-800/90 border-b border-slate-700 text-slate-300 font-medium tracking-wide uppercase py-4">
+              <tr className="bg-slate-50 dark:bg-slate-800/90 border-b border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-300 font-semibold tracking-wide uppercase py-4">
                 <th className="py-4 px-4 w-28">วันที่เสีย</th>
                 <th className="py-4 px-3 w-28 font-mono">เครื่อง (ID)</th>
                 <th className="py-4 px-4">ชื่อเครื่องจักร</th>
@@ -983,13 +983,13 @@ export const RepairPage: React.FC = () => {
                 <th className="py-4 px-4">Why 1 (วิเคราะห์แรกพบ)</th>
                 <th className="py-4 px-3 text-right">ค่าซ่อมทั้งหมด</th>
                 <th className="py-4 px-3 text-center">ช่างซ่อม</th>
-                <th className="py-4 px-3 text-center w-24 font-semibold text-slate-350">จัดการ</th>
+                <th className="py-4 px-3 text-center w-24 font-semibold text-slate-500 dark:text-slate-350">จัดการ</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-700/50">
+            <tbody className="divide-y divide-border dark:divide-slate-700/50">
               {filteredRepairs.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="py-12 text-center text-slate-500 bg-slate-900/10">
+                  <td colSpan={10} className="py-12 text-center text-slate-500 bg-slate-50 dark:bg-slate-900/10">
                     ไม่พบข้อมูลแจ้งซ่อมสำหรับตัวกรองที่เลือก
                   </td>
                 </tr>
@@ -1004,61 +1004,61 @@ export const RepairPage: React.FC = () => {
                     <tr 
                       key={r.id}
                       id={`repair-row-${r.id}`}
-                      className={`hover:bg-slate-750/90 transition-colors cursor-pointer select-none ${
-                        isRedRow ? 'bg-red-500/10 border-l-4 border-l-red-500' : ''
+                      className={`hover:bg-slate-50 dark:hover:bg-slate-750/90 transition-colors cursor-pointer select-none ${
+                        isRedRow ? 'bg-red-50 dark:bg-red-500/10 border-l-4 border-l-red-500' : ''
                       }`}
                       onDoubleClick={() => setSelectedRepairDetail(r)}
                       title="ดับเบิ้ลคลิก (Double-click) เพื่อดูรายละเอียด Why-Why เชิงลึก"
                     >
-                      <td className="py-4 px-4 text-slate-400 font-mono">
+                      <td className="py-4 px-4 text-slate-600 dark:text-slate-400 font-mono">
                         <div className="flex flex-col gap-1">
                           <span>{r.date}</span>
                           {r.status === 'กำลังซ่อม' ? (
-                            <span className="bg-amber-500/10 text-amber-400 border border-amber-500/20 px-1 py-0.5 rounded text-[9px] font-bold text-center animate-pulse">
+                            <span className="bg-amber-100 dark:bg-amber-500/10 text-amber-800 dark:text-amber-400 border border-amber-300 dark:border-amber-500/20 px-1 py-0.5 rounded text-[9px] font-bold text-center animate-pulse">
                               กำลังซ่อม
                             </span>
                           ) : (
-                            <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1 py-0.5 rounded text-[9px] font-bold text-center">
+                            <span className="bg-emerald-100 dark:bg-emerald-500/10 text-emerald-800 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-500/20 px-1 py-0.5 rounded text-[9px] font-bold text-center">
                               ปิดสำเร็จ
                             </span>
                           )}
                         </div>
                       </td>
-                      <td className="py-4 px-3 font-mono font-bold text-red-400">
+                      <td className="py-4 px-3 font-mono font-bold text-red-600 dark:text-red-400">
                         {r.machineId}
                       </td>
-                      <td className="py-4 px-4 font-medium text-slate-200">
+                      <td className="py-4 px-4 font-medium text-fg dark:text-slate-200">
                         {mach?.name || 'เครื่องจักรทั่วไป'}
                       </td>
                       <td className="py-4 px-3 text-center font-mono font-bold">
-                        <span className={isExceed120Percent ? "text-rose-400 font-extrabold" : "text-slate-300"}>
+                        <span className={isExceed120Percent ? "text-rose-600 dark:text-rose-400 font-extrabold" : "text-slate-700 dark:text-slate-300"}>
                           {r.duration} นาที
                         </span>
                       </td>
-                      <td className="py-4 px-3 text-center font-mono text-slate-450 text-[11px]">
+                      <td className="py-4 px-3 text-center font-mono text-slate-500 dark:text-slate-450 text-[11px]">
                         {std} นาที
                       </td>
                       <td className="py-4 px-4 max-w-[160px] truncate" title={r.symptoms}>
                         <div className="flex flex-col gap-1">
                           <span className="truncate">{r.symptoms}</span>
                           {r.excelFile && (
-                            <span className="inline-flex items-center gap-1 text-[9px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded font-medium self-start font-sans">
+                            <span className="inline-flex items-center gap-1 text-[9px] text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-500/10 border border-emerald-300 dark:border-emerald-500/20 px-1.5 py-0.5 rounded font-medium self-start font-sans">
                               <FileSpreadsheet size={11} />
                               แนบไฟล์ Excel
                             </span>
                           )}
                         </div>
                       </td>
-                      <td className="py-4 px-4 max-w-[180px] truncate text-slate-350 italic" title={r.why1}>
+                      <td className="py-4 px-4 max-w-[180px] truncate text-slate-600 dark:text-slate-350 italic" title={r.why1}>
                         {r.why1 || "-"}
                       </td>
-                      <td className="py-4 px-3 text-right font-mono font-semibold text-cyan-400 whitespace-nowrap">
+                      <td className="py-4 px-3 text-right font-mono font-semibold text-cyan-700 dark:text-cyan-400 whitespace-nowrap">
                         {((r.usedParts?.reduce((sum, item) => sum + item.totalCost, 0) || 0) + (r.otherCost || 0)).toLocaleString()} ฿
                       </td>
                       <td className="py-4 px-3 text-center">
                         <div className="flex flex-wrap gap-1 justify-center max-w-[140px] mx-auto">
                           {(r.technicians && r.technicians.length > 0 ? r.technicians : [r.technician]).map(tech => (
-                            <span key={tech} className="bg-slate-900 text-slate-300 px-2 py-0.5 rounded border border-slate-750 text-[10.5px] whitespace-nowrap">
+                            <span key={tech} className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-300 px-2 py-0.5 rounded border border-slate-300 dark:border-slate-750 text-[10.5px] whitespace-nowrap font-medium shadow-xs">
                               {tech}
                             </span>
                           ))}
@@ -1069,7 +1069,7 @@ export const RepairPage: React.FC = () => {
                           <button
                             id={`btn-edit-rep-${r.id}`}
                             onClick={() => handleEditClick(r)}
-                            className="text-slate-500 hover:text-cyan-400 p-1 rounded-md transition hover:bg-slate-900"
+                            className="text-slate-400 hover:text-cyan-600 dark:hover:text-cyan-400 p-1 rounded-md transition hover:bg-slate-100 dark:hover:bg-slate-900 cursor-pointer"
                             title="แก้ไขประวัติงานซ่อม"
                           >
                             <Edit size={14} />
@@ -1077,7 +1077,7 @@ export const RepairPage: React.FC = () => {
                           <button
                             id={`btn-delete-rep-${r.id}`}
                             onClick={() => handleDeleteRepair(r.id)}
-                            className="text-slate-500 hover:text-rose-400 p-1 rounded-md transition hover:bg-slate-900"
+                            className="text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 p-1 rounded-md transition hover:bg-slate-100 dark:hover:bg-slate-900 cursor-pointer"
                             title="ลบ"
                           >
                             <Trash2 size={14} />
@@ -1095,23 +1095,23 @@ export const RepairPage: React.FC = () => {
 
       {/* [+ บันทึกงานซ่อม] FORM MODAL DIALOG */}
       {showFormModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4">
-          <div id="repair-form-modal" className="bg-slate-800 border border-slate-700 rounded-2xl max-w-xl w-full max-h-[85vh] flex flex-col overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-155">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 dark:bg-slate-950/80 backdrop-blur-sm p-4">
+          <div id="repair-form-modal" className="bg-surface dark:bg-slate-800 border border-border dark:border-slate-700 rounded-2xl max-w-xl w-full max-h-[85vh] flex flex-col overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-155">
             {/* Header info */}
-            <div className="bg-gradient-to-r from-slate-800 to-slate-900 border-b border-slate-700/85 p-5 shrink-0 flex justify-between items-center">
+            <div className="bg-slate-50 dark:bg-gradient-to-r dark:from-slate-800 dark:to-slate-900 border-b border-border dark:border-slate-700/85 p-5 shrink-0 flex justify-between items-center">
               <div>
-                <h3 className="text-sm font-semibold text-rose-400 flex items-center gap-1.5">
+                <h3 className="text-sm font-semibold text-rose-600 dark:text-rose-400 flex items-center gap-1.5">
                   {editingId ? "✏️ แก้ไขประวัติงานซ่อมด่วนและการวิเคราะห์หน้างาน" : "🚨 บันทึกซ่อมด่วนและการวิเคราะห์หน้างาน"}
                 </h3>
-                <p className="text-slate-450 text-[11px] mt-0.5">
+                <p className="text-slate-500 dark:text-slate-450 text-[11px] mt-0.5">
                   {editingId ? "ปรับปรุงข้อมูลรายงานการทำงานซ่อมบำรุงและวิเคราะห์รากเหง้าแฝง" : "กรอกข้อมูลให้ประณีตเพื่อการคำนวณและวิเคราะห์ที่ถูกต้อง"}
                 </p>
               </div>
 
               {/* Live MTTR badge */}
-              <div className="bg-slate-950 border border-slate-700 px-3.5 py-1.5 rounded-lg text-right h-12 flex flex-col justify-center shrink-0">
-                <span className="text-[8px] text-slate-400 uppercase tracking-widest font-bold">LIVE MTTR:</span>
-                <span className="text-sm font-mono font-bold text-rose-450">{getLiveMttr()} นาที</span>
+              <div className="bg-white dark:bg-slate-950 border border-border dark:border-slate-700 px-3.5 py-1.5 rounded-lg text-right h-12 flex flex-col justify-center shrink-0">
+                <span className="text-[8px] text-slate-500 dark:text-slate-400 uppercase tracking-widest font-bold">LIVE MTTR:</span>
+                <span className="text-sm font-mono font-bold text-rose-600 dark:text-rose-450">{getLiveMttr()} นาที</span>
               </div>
             </div>
 
@@ -1120,13 +1120,13 @@ export const RepairPage: React.FC = () => {
               
               {/* Row 1: Machine Select */}
               <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-slate-300">เลือกเครื่องจักร*</label>
+                <label className="text-[11px] font-semibold text-slate-700 dark:text-slate-300">เลือกเครื่องจักร*</label>
                 <select
                   id="frm-rep-machine"
                   required
                   value={formMachine}
                   onChange={(e) => setFormMachine(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 font-mono focus:outline-none focus:border-cyan-500"
+                  className="w-full bg-white dark:bg-slate-900 border border-border dark:border-slate-700 rounded-lg px-3 py-2 text-fg dark:text-slate-200 font-mono focus:outline-none focus:border-cyan-500"
                 >
                   {machines.map(m => (
                     <option key={m.id} value={m.id}>{m.id} : {m.name}</option>
@@ -1135,14 +1135,14 @@ export const RepairPage: React.FC = () => {
               </div>
 
               {/* Row 1.5: Multi-Technician Select Checkboxes */}
-              <div className="space-y-1.5 bg-slate-900/40 p-3 rounded-xl border border-slate-700">
+              <div className="space-y-1.5 bg-slate-50 dark:bg-slate-900/40 p-3 rounded-xl border border-border dark:border-slate-700">
                 <div className="flex justify-between items-center text-[11px] font-semibold">
-                  <span className="text-slate-300">ช่างเทคนิคผู้รับผิดชอบงานซ่อม (รับผิดชอบงานได้หลายคน)*</span>
-                  <span className="text-cyan-400 font-bold font-mono">เลือกแล้ว: {formTechnicians.length} คน</span>
+                  <span className="text-slate-700 dark:text-slate-300">ช่างเทคนิคผู้รับผิดชอบงานซ่อม (รับผิดชอบงานได้หลายคน)*</span>
+                  <span className="text-cyan-700 dark:text-cyan-400 font-bold font-mono">เลือกแล้ว: {formTechnicians.length} คน</span>
                 </div>
                 
                 {/* Scrollable grid area */}
-                <div className="mt-1.5 max-h-[140px] overflow-y-auto border border-slate-750 bg-slate-950 rounded-lg p-2.5 grid grid-cols-2 sm:grid-cols-3 gap-2">
+                <div className="mt-1.5 max-h-[140px] overflow-y-auto border border-border dark:border-slate-750 bg-white dark:bg-slate-950 rounded-lg p-2.5 grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {technicians.map(t => {
                     const isChecked = formTechnicians.includes(t);
                     return (
@@ -1150,8 +1150,8 @@ export const RepairPage: React.FC = () => {
                         key={t} 
                         className={`flex items-center gap-1.5 p-1.5 rounded-md border cursor-pointer select-none transition-all ${
                           isChecked 
-                            ? 'bg-cyan-500/10 border-cyan-500/30 text-cyan-300 font-bold' 
-                            : 'bg-slate-900/50 border-slate-800 text-slate-400 hover:text-slate-300 hover:border-slate-750'
+                            ? 'bg-cyan-50 dark:bg-cyan-500/10 border-cyan-400 dark:border-cyan-500/30 text-cyan-800 dark:text-cyan-300 font-bold' 
+                            : 'bg-slate-50 dark:bg-slate-900/50 border-border dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-fg dark:hover:text-slate-300 hover:border-slate-300 dark:hover:border-slate-750'
                         }`}
                       >
                         <input
@@ -1170,33 +1170,33 @@ export const RepairPage: React.FC = () => {
               {/* Row 2: Breakdown time -> Done time */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-[11px] font-semibold text-slate-300">วันเวลาที่เกิดแจ้งเสีย (Breakdown Time)*</label>
+                  <label className="text-[11px] font-semibold text-slate-700 dark:text-slate-300">วันเวลาที่เกิดแจ้งเสีย (Breakdown Time)*</label>
                   <input
                     id="frm-rep-breakdown"
                     type="datetime-local"
                     required
                     value={formBreakdown}
                     onChange={(e) => setFormBreakdown(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 font-mono text-center focus:outline-none focus:border-cyan-500"
+                    className="w-full bg-white dark:bg-slate-900 border border-border dark:border-slate-700 rounded-lg px-3 py-2 text-fg dark:text-slate-200 font-mono text-center focus:outline-none focus:border-cyan-500"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-[11px] font-semibold text-slate-300">วันเวลาที่ซ่อมเสร็จเดินเครื่องได้ (Done)*</label>
+                  <label className="text-[11px] font-semibold text-slate-700 dark:text-slate-300">วันเวลาที่ซ่อมเสร็จเดินเครื่องได้ (Done)*</label>
                   <input
                     id="frm-rep-done"
                     type="datetime-local"
                     required
                     value={formDone}
                     onChange={(e) => setFormDone(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 font-mono text-center focus:outline-none focus:border-cyan-500"
+                    className="w-full bg-white dark:bg-slate-900 border border-border dark:border-slate-700 rounded-lg px-3 py-2 text-fg dark:text-slate-200 font-mono text-center focus:outline-none focus:border-cyan-500"
                   />
                 </div>
               </div>
 
               {/* Row 3: Symptoms */}
               <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-slate-300">รายละเอียดอาการเสียที่พบ*</label>
+                <label className="text-[11px] font-semibold text-slate-700 dark:text-slate-300">รายละเอียดอาการเสียที่พบ*</label>
                 <input
                   id="frm-rep-symptoms"
                   type="text"
@@ -1204,21 +1204,21 @@ export const RepairPage: React.FC = () => {
                   placeholder="เช่น ลูกปืนพัดลมฝืดจัดและหน้าจอละลายควันขึ้น"
                   value={formSymptoms}
                   onChange={(e) => setFormSymptoms(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-slate-200 focus:outline-none"
+                  className="w-full bg-white dark:bg-slate-900 border border-border dark:border-slate-700 rounded-lg px-3.5 py-2 text-fg dark:text-slate-200 focus:outline-none"
                 />
               </div>
 
               {/* Row 4: Why-Why analysis 1-5 (Cascading dynamic display) */}
-              <div className="bg-slate-900/40 p-4 border border-slate-700 rounded-xl space-y-3">
-                <div className="flex justify-between items-center select-none pb-1.5 border-b border-slate-700/50">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">
+              <div className="bg-slate-50 dark:bg-slate-900/40 p-4 border border-border dark:border-slate-700 rounded-xl space-y-3">
+                <div className="flex justify-between items-center select-none pb-1.5 border-b border-border dark:border-slate-700/50">
+                  <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide">
                     ❓ วิเคราะห์ Why-Why หาปัจจัยรากเหง้าแฝง
                   </span>
                   <button
                     type="button"
                     onClick={() => setWhyCount(prev => Math.min(5, prev + 1))}
                     disabled={whyCount === 5}
-                    className="text-[10px] font-bold bg-cyan-500/10 hover:bg-cyan-550 border border-cyan-550/20 text-cyan-400 hover:text-slate-950 px-2.5 py-1 rounded transition disabled:opacity-40"
+                    className="text-[10px] font-bold bg-cyan-50 dark:bg-cyan-500/10 hover:bg-cyan-100 dark:hover:bg-cyan-550 border border-cyan-300 dark:border-cyan-550/20 text-cyan-800 dark:text-cyan-400 hover:text-cyan-900 dark:hover:text-slate-950 px-2.5 py-1 rounded transition disabled:opacity-40 cursor-pointer"
                   >
                     + เพิ่มคำถาม Why ({whyCount}/5)
                   </button>
@@ -1227,61 +1227,61 @@ export const RepairPage: React.FC = () => {
                 <div className="space-y-2 pt-1" id="why-cascading-inputs">
                   {whyCount >= 1 && (
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-bold text-red-400 w-12 shrink-0">Why 1 :</span>
+                      <span className="text-[10px] font-bold text-red-600 dark:text-red-400 w-12 shrink-0">Why 1 :</span>
                       <input
                         type="text"
                         placeholder="ทำไมจึงแจ้งเสีย? (เช่น ตัวเซ็นเซอร์ไม่ตัดรอบแกนลูกถ้วย)"
                         value={why1}
                         onChange={(e) => setWhy1(e.target.value)}
-                        className="flex-1 bg-slate-900 border border-slate-700 rounded px-2 py-1 text-slate-300 focus:outline-none"
+                        className="flex-1 bg-white dark:bg-slate-900 border border-border dark:border-slate-700 rounded px-2 py-1 text-fg dark:text-slate-300 focus:outline-none"
                       />
                     </div>
                   )}
                   {whyCount >= 2 && (
                     <div className="flex items-center gap-2 animate-in fade-in slide-in-from-top-1">
-                      <span className="text-[10px] font-bold text-red-400 w-12 shrink-0">Why 2 :</span>
+                      <span className="text-[10px] font-bold text-red-600 dark:text-red-400 w-12 shrink-0">Why 2 :</span>
                       <input
                         type="text"
                         placeholder="ทำไมไม่ตัดรอบ? (เช่น คราบจาระบีเกาะแห้งหนาก็เลยบังลำแสง)"
                         value={why2}
                         onChange={(e) => setWhy2(e.target.value)}
-                        className="flex-1 bg-slate-900 border border-slate-700 rounded px-2 py-1 text-slate-300 focus:outline-none"
+                        className="flex-1 bg-white dark:bg-slate-900 border border-border dark:border-slate-700 rounded px-2 py-1 text-fg dark:text-slate-300 focus:outline-none"
                       />
                     </div>
                   )}
                   {whyCount >= 3 && (
                     <div className="flex items-center gap-2 animate-in fade-in slide-in-from-top-1">
-                      <span className="text-[10px] font-bold text-red-400 w-12 shrink-0">Why 3 :</span>
+                      <span className="text-[10px] font-bold text-red-600 dark:text-red-400 w-12 shrink-0">Why 3 :</span>
                       <input
                         type="text"
                         placeholder="ทำไมมีคราบบังแสง? (เช่น ฝาครอบเซ็นเซอร์บิดตัวเปิดกว้างออก)"
                         value={why3}
                         onChange={(e) => setWhy3(e.target.value)}
-                        className="flex-1 bg-slate-900 border border-slate-700 rounded px-2 py-1 text-slate-300 focus:outline-none"
+                        className="flex-1 bg-white dark:bg-slate-900 border border-border dark:border-slate-700 rounded px-2 py-1 text-fg dark:text-slate-300 focus:outline-none"
                       />
                     </div>
                   )}
                   {whyCount >= 4 && (
                     <div className="flex items-center gap-2 animate-in fade-in slide-in-from-top-1">
-                      <span className="text-[10px] font-bold text-red-400 w-12 shrink-0">Why 4 :</span>
+                      <span className="text-[10px] font-bold text-red-600 dark:text-red-400 w-12 shrink-0">Why 4 :</span>
                       <input
                         type="text"
                         placeholder="ทำไมฝาบิดตัว? (เช่น ช่างซ่อมคนก่อนยึดสลักเกลียวแค่ตัวเดียวเวลาขันเกลียว)"
                         value={why4}
                         onChange={(e) => setWhy4(e.target.value)}
-                        className="flex-1 bg-slate-900 border border-slate-700 rounded px-2 py-1 text-slate-300 focus:outline-none"
+                        className="flex-1 bg-white dark:bg-slate-900 border border-border dark:border-slate-700 rounded px-2 py-1 text-fg dark:text-slate-300 focus:outline-none"
                       />
                     </div>
                   )}
                   {whyCount >= 5 && (
                     <div className="flex items-center gap-2 animate-in fade-in slide-in-from-top-1">
-                      <span className="text-[10px] font-bold text-red-400 w-12 shrink-0">Why 5 :</span>
+                      <span className="text-[10px] font-bold text-red-600 dark:text-red-400 w-12 shrink-0">Why 5 :</span>
                       <input
                         type="text"
                         placeholder="ทำไมช่างไม่ตรวจ? (เช่น ขอบเขตการยึดน็อตเซ็นเซอร์ไม่มีระบุในขั้นตอนมาตรฐาน)"
                         value={why5}
                         onChange={(e) => setWhy5(e.target.value)}
-                        className="flex-1 bg-slate-900 border border-slate-700 rounded px-2 py-1 text-slate-300 focus:outline-none"
+                        className="flex-1 bg-white dark:bg-slate-900 border border-border dark:border-slate-700 rounded px-2 py-1 text-fg dark:text-slate-300 focus:outline-none"
                       />
                     </div>
                   )}
@@ -1290,7 +1290,7 @@ export const RepairPage: React.FC = () => {
 
               {/* Row 5: Corrective action */}
               <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-slate-300">มาตรการแก้ไขแนวทางป้องกันถาวร*</label>
+                <label className="text-[11px] font-semibold text-slate-700 dark:text-slate-300">มาตรการแก้ไขแนวทางป้องกันถาวร*</label>
                 <textarea
                   id="frm-rep-correction"
                   required
@@ -1298,17 +1298,17 @@ export const RepairPage: React.FC = () => {
                   placeholder="เช่น ทำความสะอาดหัวจิกและซีลขั้วด้วยเทปยืดพิเศษ พร้อมบันทึกแผนขันสลักให้ครบ 2 ตัวลงใบ PM สากล"
                   value={formCorrection}
                   onChange={(e) => setFormCorrection(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-slate-205 focus:outline-none focus:border-cyan-500"
+                  className="w-full bg-white dark:bg-slate-900 border border-border dark:border-slate-700 rounded-lg px-3.5 py-2 text-fg dark:text-slate-205 focus:outline-none focus:border-cyan-500"
                 />
               </div>
 
               {/* Row 5.5: Status of Ticket */}
               <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-slate-300">สถานะใบงานซ่อมบำรุง*</label>
+                <label className="text-[11px] font-semibold text-slate-700 dark:text-slate-300">สถานะใบงานซ่อมบำรุง*</label>
                 <select
                   value={formStatus}
                   onChange={(e) => setFormStatus(e.target.value as 'กำลังซ่อม' | 'ปิดงาน')}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-xs text-slate-250 focus:outline-none focus:border-cyan-500"
+                  className="w-full bg-white dark:bg-slate-900 border border-border dark:border-slate-700 rounded-lg px-3.5 py-2 text-xs text-fg dark:text-slate-250 focus:outline-none focus:border-cyan-500"
                 >
                   <option value="ปิดงาน">ปิดสำเร็จ (การดำเนินการเสร็จสิ้นเรียบร้อย)</option>
                   <option value="กำลังซ่อม">กำลังซ่อม (อยู่ระหว่างซ่อม/งานยังค้างอยู่)</option>
@@ -1316,21 +1316,21 @@ export const RepairPage: React.FC = () => {
               </div>
 
               {/* SPARE PARTS AND REPAIR COSTS SECTION */}
-              <div className="bg-slate-900/50 p-4 border border-slate-700/80 rounded-xl space-y-3">
-                <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-wide flex items-center gap-1 select-none">
+              <div className="bg-slate-50 dark:bg-slate-900/50 p-4 border border-border dark:border-slate-700/80 rounded-xl space-y-3">
+                <span className="text-[10px] font-bold text-cyan-700 dark:text-cyan-400 uppercase tracking-wide flex items-center gap-1 select-none">
                   🛠️ อะไหล่ที่ใช้และค่าใช้จ่าย (Spare Parts & Repair Costs)
                 </span>
                 
                 {/* Add spare part widget */}
                 <div className="grid grid-cols-1 sm:grid-cols-12 gap-2 pt-1">
                   <div className="sm:col-span-7 space-y-1">
-                    <label className="text-[10px] text-slate-400 font-bold flex justify-between items-center">
+                    <label className="text-[10px] text-slate-700 dark:text-slate-400 font-bold flex justify-between items-center">
                       <span>เลือกรายการอะไหล่ในคลัง</span>
                       {partSearchQuery && (
                         <button 
                           type="button" 
                           onClick={() => setPartSearchQuery('')} 
-                          className="text-[9px] text-cyan-400 hover:underline"
+                          className="text-[9px] text-cyan-700 dark:text-cyan-400 hover:underline cursor-pointer"
                         >
                           ล้างค้นหา ✕
                         </button>
@@ -1342,7 +1342,7 @@ export const RepairPage: React.FC = () => {
                         placeholder="🔍 พิมพ์ค้นหาอะไหล่ (ชื่อ หรือ รหัส)..."
                         value={partSearchQuery}
                         onChange={(e) => setPartSearchQuery(e.target.value)}
-                        className="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-[10.5px] text-slate-200 focus:outline-none focus:border-cyan-500 placeholder-slate-500 font-sans"
+                        className="w-full bg-white dark:bg-slate-950 border border-border dark:border-slate-800 rounded px-2 py-1 text-[10.5px] text-fg dark:text-slate-200 focus:outline-none focus:border-cyan-500 placeholder-slate-400 dark:placeholder-slate-500 font-sans"
                       />
                       <select
                         value={selectedPartId}
@@ -1356,7 +1356,7 @@ export const RepairPage: React.FC = () => {
                             setSelectedPartPrice(0);
                           }
                         }}
-                        className="w-full bg-slate-950 border border-slate-800 rounded p-1.5 text-[11px] text-slate-200 focus:outline-none focus:border-cyan-500 font-sans"
+                        className="w-full bg-white dark:bg-slate-950 border border-border dark:border-slate-800 rounded p-1.5 text-[11px] text-fg dark:text-slate-200 focus:outline-none focus:border-cyan-500 font-sans"
                       >
                         <option value="">
                           {partSearchQuery ? `-- อะไหล่ที่ตรงค้นหา (${spareParts.filter(sp => sp.name.toLowerCase().includes(partSearchQuery.toLowerCase()) || sp.id.toLowerCase().includes(partSearchQuery.toLowerCase())).length} รายการ) --` : "-- เลือกอะไหล่ --"}
@@ -1381,13 +1381,13 @@ export const RepairPage: React.FC = () => {
                   </div>
 
                   <div className="sm:col-span-3 space-y-1">
-                    <label className="text-[10px] text-slate-400 text-center block">จำนวน</label>
+                    <label className="text-[10px] text-slate-700 dark:text-slate-400 text-center block">จำนวน</label>
                     <input
                       type="number"
                       min="1"
                       value={selectedPartQty}
                       onChange={(e) => setSelectedPartQty(Math.max(1, parseInt(e.target.value) || 1))}
-                      className="w-full bg-slate-950 border border-slate-800 rounded p-1.5 text-[11px] text-slate-200 focus:outline-none focus:border-cyan-500 text-center font-mono"
+                      className="w-full bg-white dark:bg-slate-950 border border-border dark:border-slate-800 rounded p-1.5 text-[11px] text-fg dark:text-slate-200 focus:outline-none focus:border-cyan-500 text-center font-mono"
                     />
                   </div>
 
@@ -1395,7 +1395,7 @@ export const RepairPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={handleAddPartToForm}
-                      className="w-full bg-cyan-500/20 hover:bg-cyan-500 border border-cyan-500/30 hover:text-slate-950 text-cyan-400 font-bold text-[11px] py-1.5 rounded transition flex items-center justify-center"
+                      className="w-full bg-cyan-100 hover:bg-cyan-200 dark:bg-cyan-500/20 dark:hover:bg-cyan-500 border border-cyan-300 dark:border-cyan-500/30 text-cyan-800 dark:text-cyan-400 dark:hover:text-slate-950 font-bold text-[11px] py-1.5 rounded transition flex items-center justify-center cursor-pointer"
                     >
                       เพิ่ม
                     </button>
@@ -1404,9 +1404,9 @@ export const RepairPage: React.FC = () => {
 
                 {/* Used spare parts list */}
                 {formUsedParts.length > 0 ? (
-                  <div className="border border-slate-800 rounded-lg overflow-hidden bg-slate-950">
-                    <table className="w-full text-left text-[10px] text-slate-350">
-                      <thead className="bg-slate-900 text-slate-400 text-[9px] uppercase border-b border-slate-800 select-none">
+                  <div className="border border-border dark:border-slate-800 rounded-lg overflow-hidden bg-white dark:bg-slate-950">
+                    <table className="w-full text-left text-[10px] text-slate-700 dark:text-slate-350">
+                      <thead className="bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-400 text-[9px] uppercase border-b border-border dark:border-slate-800 select-none">
                         <tr>
                           <th className="p-2 pl-3">รายการอะไหล่</th>
                           <th className="p-2 text-center w-16">จำนวน</th>
@@ -1415,23 +1415,23 @@ export const RepairPage: React.FC = () => {
                           <th className="p-2 text-center w-10">ลบ</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-850">
+                      <tbody className="divide-y divide-border dark:divide-slate-850">
                         {formUsedParts.map(item => {
                           const originalPart = spareParts.find(p => p.id === item.partId);
                           return (
-                            <tr key={item.partId} className="hover:bg-slate-900/50">
+                            <tr key={item.partId} className="hover:bg-slate-50 dark:hover:bg-slate-900/50">
                               <td className="p-2 pl-3">
-                                <p className="font-semibold text-slate-200">{originalPart?.name || item.partId}</p>
+                                <p className="font-semibold text-fg dark:text-slate-200">{originalPart?.name || item.partId}</p>
                                 <p className="text-[8px] text-slate-500 font-mono">{item.partId}</p>
                               </td>
-                              <td className="p-2 text-center font-mono text-slate-300">{item.quantity} {originalPart?.unit}</td>
-                              <td className="p-2 text-right font-mono text-slate-350">{item.pricePerUnit.toLocaleString()} ฿</td>
-                              <td className="p-2 text-right font-mono text-cyan-400 font-semibold">{item.totalCost.toLocaleString()} ฿</td>
+                              <td className="p-2 text-center font-mono text-slate-700 dark:text-slate-300">{item.quantity} {originalPart?.unit}</td>
+                              <td className="p-2 text-right font-mono text-slate-600 dark:text-slate-350">{item.pricePerUnit.toLocaleString()} ฿</td>
+                              <td className="p-2 text-right font-mono text-cyan-700 dark:text-cyan-400 font-semibold">{item.totalCost.toLocaleString()} ฿</td>
                               <td className="p-2 text-center">
                                 <button
                                   type="button"
                                   onClick={() => handleRemovePartFromForm(item.partId)}
-                                  className="text-slate-500 hover:text-rose-400 p-0.5 rounded hover:bg-slate-900"
+                                  className="text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 p-0.5 rounded hover:bg-slate-100 dark:hover:bg-slate-900 cursor-pointer"
                                 >
                                   ✕
                                 </button>
@@ -1443,28 +1443,28 @@ export const RepairPage: React.FC = () => {
                     </table>
                   </div>
                 ) : (
-                  <p className="text-[10px] text-slate-500 italic text-center py-2 bg-slate-950/30 rounded border border-slate-850/60 select-none">
+                  <p className="text-[10px] text-slate-500 italic text-center py-2 bg-slate-100 dark:bg-slate-950/30 rounded border border-border dark:border-slate-850/60 select-none">
                     ยังไม่มีการใช้อะไหล่ในใบงานนี้
                   </p>
                 )}
 
                 {/* Other costs like labor, contractor */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-800/60">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-border dark:border-slate-800/60">
                   <div className="space-y-1">
-                    <label className="text-[10px] text-slate-300 font-semibold">ค่าแรง/ค่าบริการอื่นๆ (บาท)</label>
+                    <label className="text-[10px] text-slate-700 dark:text-slate-300 font-semibold">ค่าแรง/ค่าบริการอื่นๆ (บาท)</label>
                     <input
                       type="number"
                       min="0"
                       value={formOtherCost || ""}
                       onChange={(e) => setFormOtherCost(Math.max(0, parseFloat(e.target.value) || 0))}
                       placeholder="เช่น 0"
-                      className="w-full bg-slate-950 border border-slate-800 rounded px-2.5 py-1.5 text-[11px] text-slate-200 focus:outline-none focus:border-cyan-500 font-mono"
+                      className="w-full bg-white dark:bg-slate-950 border border-border dark:border-slate-800 rounded px-2.5 py-1.5 text-[11px] text-fg dark:text-slate-200 focus:outline-none focus:border-cyan-500 font-mono"
                     />
                   </div>
 
                   <div className="flex flex-col justify-center items-end pr-2">
-                    <span className="text-[9px] text-slate-400 uppercase font-bold tracking-wider">รวมค่าซ่อมทั้งสิ้น</span>
-                    <span className="text-sm font-black font-mono text-cyan-400 mt-1">
+                    <span className="text-[9px] text-slate-600 dark:text-slate-400 uppercase font-bold tracking-wider">รวมค่าซ่อมทั้งสิ้น</span>
+                    <span className="text-sm font-black font-mono text-cyan-700 dark:text-cyan-400 mt-1">
                       {(formUsedParts.reduce((sum, item) => sum + item.totalCost, 0) + Number(formOtherCost || 0)).toLocaleString()} บาท
                     </span>
                   </div>
@@ -1473,8 +1473,8 @@ export const RepairPage: React.FC = () => {
 
               {/* Row 6: Photo Attachment base64 */}
               <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-slate-300">แนบรูปภาพรายงานชำรุดเครื่องจักร (ถ้าต้องการ)</label>
-                <div className="border border-dashed border-slate-700/60 hover:border-cyan-500/50 p-4 rounded-xl flex items-center justify-center bg-slate-900/10 cursor-pointer text-center relative group">
+                <label className="text-[11px] font-semibold text-slate-700 dark:text-slate-300">แนบรูปภาพรายงานชำรุดเครื่องจักร (ถ้าต้องการ)</label>
+                <div className="border border-dashed border-border dark:border-slate-700/60 hover:border-cyan-500/50 p-4 rounded-xl flex items-center justify-center bg-slate-50 dark:bg-slate-900/10 cursor-pointer text-center relative group">
                   <input
                     type="file"
                     accept="image/*"
@@ -1487,14 +1487,14 @@ export const RepairPage: React.FC = () => {
                       <img 
                       src={photoBase64} 
                       alt="breakdown attachment" 
-                      className="w-24 h-24 object-cover rounded border border-slate-700" 
+                      className="w-24 h-24 object-cover rounded border border-border dark:border-slate-700" 
                       referrerPolicy="no-referrer"
                       />
-                      <span className="text-[10px] text-emerald-400 font-bold">✓ อัปโหลดสำเร็จแล้ว (รูปภาพบันทึกเรียบร้อย)</span>
+                      <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">✓ อัปโหลดสำเร็จแล้ว (รูปภาพบันทึกเรียบร้อย)</span>
                     </div>
                   ) : (
-                    <div className="flex flex-col items-center space-y-1 text-slate-400 group-hover:text-slate-300">
-                      <ImageIcon size={22} className="text-slate-500" />
+                    <div className="flex flex-col items-center space-y-1 text-slate-500 dark:text-slate-400 group-hover:text-fg dark:group-hover:text-slate-300">
+                      <ImageIcon size={22} className="text-slate-400 dark:text-slate-500" />
                       <p className="font-sans font-medium text-[11px]">คลิก หรือ ลากวางเพื่อแนบรูปภาพหน้างานจริง</p>
                       <p className="text-[9px] text-slate-500">รองรับระบบประจักษ์หลักฐานซ่อม JPG, PNG (.base64)</p>
                     </div>
@@ -1504,11 +1504,11 @@ export const RepairPage: React.FC = () => {
 
               {/* Row 6.5: Excel Attachment */}
               <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-slate-300 flex items-center gap-1.5">
-                  <FileSpreadsheet size={15} className="text-emerald-400" />
+                <label className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                  <FileSpreadsheet size={15} className="text-emerald-600 dark:text-emerald-400" />
                   แนบไฟล์ตาราง Excel / เอกสารประกอบใบงาน (ถ้าต้องการ)
                 </label>
-                <div className="border border-dashed border-slate-700/60 hover:border-emerald-500/50 p-4 rounded-xl flex items-center justify-center bg-slate-900/10 cursor-pointer text-center relative group">
+                <div className="border border-dashed border-border dark:border-slate-700/60 hover:border-emerald-500/50 p-4 rounded-xl flex items-center justify-center bg-slate-50 dark:bg-slate-900/10 cursor-pointer text-center relative group">
                   <input
                     type="file"
                     accept=".xlsx, .xls, .csv, .pdf, .doc, .docx"
@@ -1518,15 +1518,15 @@ export const RepairPage: React.FC = () => {
                   
                   {formExcelName ? (
                     <div className="flex flex-col items-center space-y-2">
-                      <div className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-bold text-xs p-2.5 rounded-lg flex items-center gap-2 font-mono">
+                      <div className="bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-300 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-400 font-bold text-xs p-2.5 rounded-lg flex items-center gap-2 font-mono">
                         <FileSpreadsheet size={16} />
                         <span>{formExcelName}</span>
                       </div>
-                      <span className="text-[10px] text-emerald-400 font-bold">✓ แนบไฟล์สำเร็จแล้ว</span>
+                      <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">✓ แนบไฟล์สำเร็จแล้ว</span>
                     </div>
                   ) : (
-                    <div className="flex flex-col items-center space-y-1 text-slate-400 group-hover:text-slate-300">
-                      <Upload size={22} className="text-slate-500" />
+                    <div className="flex flex-col items-center space-y-1 text-slate-500 dark:text-slate-400 group-hover:text-fg dark:group-hover:text-slate-300">
+                      <Upload size={22} className="text-slate-400 dark:text-slate-500" />
                       <p className="font-sans font-medium text-[11px]">คลิก หรือ ลากวางเพื่อแนบไฟล์ Excel (.xlsx, .xls, .csv)</p>
                       <p className="text-[9px] text-slate-500">รองรับไฟล์ตารางคำนวณหรือแผนงานเพื่อแนบเข้าบันทึกซ่อม</p>
                     </div>
@@ -1535,18 +1535,18 @@ export const RepairPage: React.FC = () => {
               </div>
 
               {/* Controls */}
-              <div className="pt-4 border-t border-slate-700 flex items-center justify-end gap-3 shrink-0">
+              <div className="pt-4 border-t border-border dark:border-slate-700 flex items-center justify-end gap-3 shrink-0">
                 <button
                   type="button"
                   onClick={() => setShowFormModal(false)}
-                  className="border border-slate-700 hover:bg-slate-700/80 text-slate-300 text-xs px-4 py-2.5 rounded-lg transition"
+                  className="border border-border dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-300 text-xs px-4 py-2.5 rounded-lg transition cursor-pointer"
                 >
                   ยกเลิก
                 </button>
                 <button
                   id="frm-btn-save-repair"
                   type="submit"
-                  className="bg-rose-500 hover:bg-rose-400 text-fg font-bold text-xs px-5 py-2.5 rounded-lg transition shadow-md"
+                  className="bg-rose-600 hover:bg-rose-500 text-fg font-bold text-xs px-5 py-2.5 rounded-lg transition shadow-md cursor-pointer"
                 >
                   {editingId ? "บันทึกการแก้ไข" : "อนุมัติรายงานวิเคราะห์ซ่อม"}
                 </button>
@@ -1558,49 +1558,49 @@ export const RepairPage: React.FC = () => {
 
       {/* View Details modal */}
       {selectedRepairDetail && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4">
-          <div id="repair-detail-modal" className="bg-slate-800 border border-slate-700 rounded-2xl max-w-2xl w-full max-h-[85vh] flex flex-col overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-150">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 dark:bg-slate-950/80 backdrop-blur-sm p-4">
+          <div id="repair-detail-modal" className="bg-surface dark:bg-slate-800 border border-border dark:border-slate-700 rounded-2xl max-w-2xl w-full max-h-[85vh] flex flex-col overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-150">
             {/* Header */}
-            <div className="bg-gradient-to-r from-slate-900 to-slate-850 border-b border-slate-700 p-5 shrink-0 flex justify-between items-center">
+            <div className="bg-slate-50 dark:bg-gradient-to-r dark:from-slate-900 dark:to-slate-850 border-b border-border dark:border-slate-700 p-5 shrink-0 flex justify-between items-center">
               <div className="flex items-center gap-2">
-                <span className="p-1 px-2.5 bg-rose-500/10 border border-rose-500/20 rounded-full text-[10px] font-extrabold text-rose-400 font-mono">
+                <span className="p-1 px-2.5 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 rounded-full text-[10px] font-extrabold text-rose-700 dark:text-rose-400 font-mono">
                   BREAKDOWN LOG DETAILS
                 </span>
-                <span className="text-slate-400 text-xs">| รหัสใบงาน: {selectedRepairDetail.id}</span>
+                <span className="text-slate-600 dark:text-slate-400 text-xs">| รหัสใบงาน: {selectedRepairDetail.id}</span>
               </div>
               <button 
                 onClick={() => setSelectedRepairDetail(null)}
-                className="text-slate-400 hover:text-slate-200 bg-slate-900 hover:bg-slate-700/60 w-7 h-7 flex items-center justify-center rounded-lg transition"
+                className="text-slate-500 hover:text-fg dark:text-slate-400 dark:hover:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-700/60 w-7 h-7 flex items-center justify-center rounded-lg transition cursor-pointer"
               >
                 ✕
               </button>
             </div>
 
             {/* Content Body */}
-            <div className="p-6 space-y-6 overflow-y-auto flex-1 text-slate-200 text-xs">
+            <div className="p-6 space-y-6 overflow-y-auto flex-1 text-fg dark:text-slate-200 text-xs">
               
               {/* Machine & Status */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-900/50 p-4 rounded-xl border border-slate-750">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-border dark:border-slate-750">
                 <div>
-                  <p className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">เครื่องจักรที่เกิดอาการเสีย</p>
-                  <p className="text-sm font-bold text-cyan-450 mt-1 font-mono">
+                  <p className="text-slate-600 dark:text-slate-400 text-[10px] uppercase font-bold tracking-wider">เครื่องจักรที่เกิดอาการเสีย</p>
+                  <p className="text-sm font-bold text-cyan-700 dark:text-cyan-450 mt-1 font-mono">
                     {selectedRepairDetail.machineId} : {machines.find(m => m.id === selectedRepairDetail.machineId)?.name || 'เครื่องจักรทั่วไป'}
                   </p>
-                  <p className="text-[11px] text-slate-400 mt-0.5">
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                     แผนก/กลุ่มสายผลิต: {machines.find(m => m.id === selectedRepairDetail.machineId)?.lineGroup || '-'}
                   </p>
                 </div>
                 <div>
-                  <p className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">สถานะใบงานซ่อม</p>
+                  <p className="text-slate-600 dark:text-slate-400 text-[10px] uppercase font-bold tracking-wider">สถานะใบงานซ่อม</p>
                   <div className="mt-1">
                     {selectedRepairDetail.status === 'กำลังซ่อม' ? (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-full font-bold">
-                        <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-ping"></span>
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-300 dark:border-amber-500/20 rounded-full font-bold">
+                        <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-ping"></span>
                         อยู่ระหว่างดำเนินการซ่อม
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full font-bold">
-                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-500/20 rounded-full font-bold">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
                         ปิดประวัติซ่อมสำเร็จแล้ว
                       </span>
                     )}
@@ -1609,101 +1609,101 @@ export const RepairPage: React.FC = () => {
               </div>
 
               {/* Time Indicators */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-slate-900/30 p-4 rounded-xl border border-slate-755 text-center">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-slate-50 dark:bg-slate-900/30 p-4 rounded-xl border border-border dark:border-slate-755 text-center">
                 <div>
-                  <p className="text-slate-400 text-[10px] uppercase font-bold">เวลาที่เกิดแจ้งเสีย (Breakdown)</p>
-                  <p className="text-xs font-mono font-bold text-rose-400 mt-1">
+                  <p className="text-slate-600 dark:text-slate-400 text-[10px] uppercase font-bold">เวลาที่เกิดแจ้งเสีย (Breakdown)</p>
+                  <p className="text-xs font-mono font-bold text-rose-600 dark:text-rose-400 mt-1">
                     {selectedRepairDetail.breakdownTime ? selectedRepairDetail.breakdownTime.replace('T', ' ') : selectedRepairDetail.date}
                   </p>
                 </div>
                 <div>
-                  <p className="text-slate-400 text-[10px] uppercase font-bold">เวลาซ่อมเดินเครื่องได้ (Done)</p>
-                  <p className="text-xs font-mono font-bold text-emerald-400 mt-1">
+                  <p className="text-slate-600 dark:text-slate-400 text-[10px] uppercase font-bold">เวลาซ่อมเดินเครื่องได้ (Done)</p>
+                  <p className="text-xs font-mono font-bold text-emerald-700 dark:text-emerald-400 mt-1">
                     {selectedRepairDetail.repairDoneTime ? selectedRepairDetail.repairDoneTime.replace('T', ' ') : '-'}
                   </p>
                 </div>
                 <div>
-                  <p className="text-slate-400 text-[10px] uppercase font-bold">รวมเวลายึดเครื่อง (MTTR)</p>
-                  <p className="text-xs font-mono font-bold text-slate-100 mt-1">
-                    <span className="text-rose-450 font-extrabold">{selectedRepairDetail.duration} นาที</span>
-                    <span className="text-slate-450 font-normal"> (เป้าหมาย: {getStandardMttr(selectedRepairDetail.machineId)} นาที)</span>
+                  <p className="text-slate-600 dark:text-slate-400 text-[10px] uppercase font-bold">รวมเวลายึดเครื่อง (MTTR)</p>
+                  <p className="text-xs font-mono font-bold text-slate-900 dark:text-slate-100 mt-1">
+                    <span className="text-rose-600 dark:text-rose-450 font-extrabold">{selectedRepairDetail.duration} นาที</span>
+                    <span className="text-slate-500 dark:text-slate-450 font-normal"> (เป้าหมาย: {getStandardMttr(selectedRepairDetail.machineId)} นาที)</span>
                   </p>
                 </div>
               </div>
 
               {/* Problem Symptoms & Corrective Action */}
               <div className="space-y-4">
-                <div className="bg-slate-900/20 p-4 rounded-xl border border-slate-750">
-                  <h4 className="text-[11px] font-bold text-slate-300 flex items-center gap-1.5 mb-2">
+                <div className="bg-slate-50 dark:bg-slate-900/20 p-4 rounded-xl border border-border dark:border-slate-750">
+                  <h4 className="text-[11px] font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 mb-2">
                     🚨 อาการเสียชำรุดที่พบหน้างานจริง
                   </h4>
-                  <p className="text-slate-200 leading-relaxed pl-4 border-l-2 border-red-500 bg-slate-950/40 p-2.5 rounded-r-lg">{selectedRepairDetail.symptoms}</p>
+                  <p className="text-fg dark:text-slate-200 leading-relaxed pl-4 border-l-2 border-red-500 bg-white dark:bg-slate-950/40 p-2.5 rounded-r-lg">{selectedRepairDetail.symptoms}</p>
                 </div>
 
-                <div className="bg-slate-900/20 p-4 rounded-xl border border-slate-750">
-                  <h4 className="text-[11px] font-bold text-slate-300 flex items-center gap-1.5 mb-2">
+                <div className="bg-slate-50 dark:bg-slate-900/20 p-4 rounded-xl border border-border dark:border-slate-750">
+                  <h4 className="text-[11px] font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 mb-2">
                     🛠 มาตรการซ่อมแซมและป้องกันถาวร (Action Taken)
                   </h4>
-                  <p className="text-slate-200 leading-relaxed pl-4 border-l-2 border-cyan-500 bg-slate-950/40 p-2.5 rounded-r-lg">{selectedRepairDetail.correctiveAction}</p>
+                  <p className="text-fg dark:text-slate-200 leading-relaxed pl-4 border-l-2 border-cyan-500 bg-white dark:bg-slate-950/40 p-2.5 rounded-r-lg">{selectedRepairDetail.correctiveAction}</p>
                 </div>
               </div>
 
               {/* Why Why Analysis */}
-              <div className="bg-slate-900/40 p-4 rounded-xl border border-slate-750 space-y-3">
-                <h4 className="text-[11px] font-bold text-slate-300 tracking-wide uppercase flex items-center gap-1.5 border-b border-slate-700/60 pb-2">
+              <div className="bg-slate-50 dark:bg-slate-900/40 p-4 rounded-xl border border-border dark:border-slate-750 space-y-3">
+                <h4 className="text-[11px] font-bold text-slate-700 dark:text-slate-300 tracking-wide uppercase flex items-center gap-1.5 border-b border-border dark:border-slate-700/60 pb-2">
                   ❓ ลำดับการวิเคราะห์หาสาเหตุรากเหง้าแฝง (Why-Why Analysis)
                 </h4>
                 
                 <div className="space-y-2.5 pl-2 font-mono">
                   {selectedRepairDetail.why1 ? (
                     <div className="flex items-start gap-2.5">
-                      <span className="text-[11px] font-bold text-red-400 shrink-0 w-14">Why 1 :</span>
-                      <p className="text-slate-300 italic">{selectedRepairDetail.why1}</p>
+                      <span className="text-[11px] font-bold text-red-600 dark:text-red-400 shrink-0 w-14">Why 1 :</span>
+                      <p className="text-slate-700 dark:text-slate-300 italic">{selectedRepairDetail.why1}</p>
                     </div>
                   ) : (
                     <p className="text-slate-500 italic text-[11px]">ไม่ได้บันทึกข้อมูลวิเคราะห์ Why 1</p>
                   )}
 
                   {selectedRepairDetail.why2 && (
-                    <div className="flex items-start gap-2.5 border-t border-slate-800/65 pt-2">
-                      <span className="text-[11px] font-bold text-red-400 shrink-0 w-14">Why 2 :</span>
-                      <p className="text-slate-300 italic">{selectedRepairDetail.why2}</p>
+                    <div className="flex items-start gap-2.5 border-t border-border dark:border-slate-800/65 pt-2">
+                      <span className="text-[11px] font-bold text-red-600 dark:text-red-400 shrink-0 w-14">Why 2 :</span>
+                      <p className="text-slate-700 dark:text-slate-300 italic">{selectedRepairDetail.why2}</p>
                     </div>
                   )}
 
                   {selectedRepairDetail.why3 && (
-                    <div className="flex items-start gap-2.5 border-t border-slate-800/65 pt-2">
-                      <span className="text-[11px] font-bold text-red-400 shrink-0 w-14">Why 3 :</span>
-                      <p className="text-slate-300 italic">{selectedRepairDetail.why3}</p>
+                    <div className="flex items-start gap-2.5 border-t border-border dark:border-slate-800/65 pt-2">
+                      <span className="text-[11px] font-bold text-red-600 dark:text-red-400 shrink-0 w-14">Why 3 :</span>
+                      <p className="text-slate-700 dark:text-slate-300 italic">{selectedRepairDetail.why3}</p>
                     </div>
                   )}
 
                   {selectedRepairDetail.why4 && (
-                    <div className="flex items-start gap-2.5 border-t border-slate-800/65 pt-2">
-                      <span className="text-[11px] font-bold text-red-400 shrink-0 w-14">Why 4 :</span>
-                      <p className="text-slate-300 italic">{selectedRepairDetail.why4}</p>
+                    <div className="flex items-start gap-2.5 border-t border-border dark:border-slate-800/65 pt-2">
+                      <span className="text-[11px] font-bold text-red-600 dark:text-red-400 shrink-0 w-14">Why 4 :</span>
+                      <p className="text-slate-700 dark:text-slate-300 italic">{selectedRepairDetail.why4}</p>
                     </div>
                   )}
 
                   {selectedRepairDetail.why5 && (
-                    <div className="flex items-start gap-2.5 border-t border-slate-800/65 pt-2">
-                      <span className="text-[11px] font-bold text-red-400 shrink-0 w-14">Why 5 :</span>
-                      <p className="text-slate-300 italic">{selectedRepairDetail.why5}</p>
+                    <div className="flex items-start gap-2.5 border-t border-border dark:border-slate-800/65 pt-2">
+                      <span className="text-[11px] font-bold text-red-600 dark:text-red-400 shrink-0 w-14">Why 5 :</span>
+                      <p className="text-slate-700 dark:text-slate-300 italic">{selectedRepairDetail.why5}</p>
                     </div>
                   )}
                 </div>
               </div>
 
               {/* Used Spare Parts & Cost breakdown in Detail Modal */}
-              <div className="bg-slate-900/30 border border-slate-750 p-4 rounded-xl space-y-3">
-                <h4 className="text-[11px] font-bold text-slate-300 flex items-center gap-1.5 border-b border-slate-800 pb-2 select-none">
+              <div className="bg-slate-50 dark:bg-slate-900/30 border border-border dark:border-slate-750 p-4 rounded-xl space-y-3">
+                <h4 className="text-[11px] font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 border-b border-border dark:border-slate-800 pb-2 select-none">
                   🛠️ รายการอะไหล่ที่เปลี่ยนและมูลค่าซ่อมบำรุง
                 </h4>
                 
                 {selectedRepairDetail.usedParts && selectedRepairDetail.usedParts.length > 0 ? (
-                  <div className="border border-slate-800 rounded-lg overflow-hidden bg-slate-950/80">
+                  <div className="border border-border dark:border-slate-800 rounded-lg overflow-hidden bg-white dark:bg-slate-950/80">
                     <table className="w-full text-left text-[11px]">
-                      <thead className="bg-slate-900/80 text-slate-400 text-[10px] uppercase border-b border-slate-800 select-none">
+                      <thead className="bg-slate-100 dark:bg-slate-900/80 text-slate-700 dark:text-slate-400 text-[10px] uppercase border-b border-border dark:border-slate-800 select-none">
                         <tr>
                           <th className="p-2.5 pl-3">ชื่ออะไหล่ / SKU</th>
                           <th className="p-2.5 text-center w-20">จำนวน</th>
@@ -1711,18 +1711,18 @@ export const RepairPage: React.FC = () => {
                           <th className="p-2.5 text-right w-24">ราคารวม</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-850">
+                      <tbody className="divide-y divide-border dark:divide-slate-850">
                         {selectedRepairDetail.usedParts.map(item => {
                           const partInfo = spareParts.find(p => p.id === item.partId);
                           return (
-                            <tr key={item.partId} className="hover:bg-slate-900/40 text-slate-300">
+                            <tr key={item.partId} className="hover:bg-slate-50 dark:hover:bg-slate-900/40 text-slate-700 dark:text-slate-300">
                               <td className="p-2.5 pl-3">
-                                <p className="font-semibold">{partInfo?.name || item.partId}</p>
+                                <p className="font-semibold text-fg dark:text-slate-200">{partInfo?.name || item.partId}</p>
                                 <p className="text-[9px] text-slate-500 font-mono">{item.partId}</p>
                               </td>
                               <td className="p-2.5 text-center font-mono">{item.quantity} {partInfo?.unit}</td>
                               <td className="p-2.5 text-right font-mono">{item.pricePerUnit.toLocaleString()} ฿</td>
-                              <td className="p-2.5 text-right font-mono text-cyan-400 font-bold">{item.totalCost.toLocaleString()} ฿</td>
+                              <td className="p-2.5 text-right font-mono text-cyan-700 dark:text-cyan-400 font-bold">{item.totalCost.toLocaleString()} ฿</td>
                             </tr>
                           );
                         })}
@@ -1730,21 +1730,21 @@ export const RepairPage: React.FC = () => {
                     </table>
                   </div>
                 ) : (
-                  <p className="text-[11px] text-slate-500 italic text-center py-2 bg-slate-950/20 rounded border border-slate-850 select-none">
+                  <p className="text-[11px] text-slate-500 italic text-center py-2 bg-slate-100 dark:bg-slate-950/20 rounded border border-border dark:border-slate-850 select-none">
                     ไม่มีรายงานการเบิกเปลี่ยนอะไหล่สำหรับประวัติซ่อมนี้
                   </p>
                 )}
 
                 <div className="grid grid-cols-2 gap-4 pt-1.5 text-xs">
                   <div className="flex flex-col">
-                    <span className="text-[10px] text-slate-400 font-bold">ค่าแรง / ค่าซ่อมบำรุงอื่นๆ</span>
-                    <span className="font-mono text-slate-200 mt-0.5 font-bold">
+                    <span className="text-[10px] text-slate-600 dark:text-slate-400 font-bold">ค่าแรง / ค่าซ่อมบำรุงอื่นๆ</span>
+                    <span className="font-mono text-fg dark:text-slate-200 mt-0.5 font-bold">
                       {(selectedRepairDetail.otherCost || 0).toLocaleString()} บาท
                     </span>
                   </div>
                   <div className="flex flex-col items-end pr-2">
-                    <span className="text-[10px] text-slate-400 font-bold">รวมค่าใช้จ่ายทั้งสิ้น</span>
-                    <span className="text-sm font-black text-cyan-400 font-mono mt-0.5">
+                    <span className="text-[10px] text-slate-600 dark:text-slate-400 font-bold">รวมค่าใช้จ่ายทั้งสิ้น</span>
+                    <span className="text-sm font-black text-cyan-700 dark:text-cyan-400 font-mono mt-0.5">
                       {((selectedRepairDetail.usedParts?.reduce((sum, i) => sum + i.totalCost, 0) || 0) + (selectedRepairDetail.otherCost || 0)).toLocaleString()} บาท
                     </span>
                   </div>
@@ -1752,15 +1752,15 @@ export const RepairPage: React.FC = () => {
               </div>
 
               {/* Technicians & Image attachment */}
-              <div className="flex flex-col sm:flex-row gap-5 bg-slate-900/20 p-4 rounded-xl border border-slate-750">
+              <div className="flex flex-col sm:flex-row gap-5 bg-slate-50 dark:bg-slate-900/20 p-4 rounded-xl border border-border dark:border-slate-750">
                 <div className="flex-1">
-                  <p className="text-slate-400 text-[10px] uppercase font-bold mb-2">👥 ทีมช่างเทคนิคผู้เข้าปฏิบัติการณ์</p>
+                  <p className="text-slate-600 dark:text-slate-400 text-[10px] uppercase font-bold mb-2">👥 ทีมช่างเทคนิคผู้เข้าปฏิบัติการณ์</p>
                   <div className="flex flex-wrap gap-2">
                     {(selectedRepairDetail.technicians && selectedRepairDetail.technicians.length > 0 
                       ? selectedRepairDetail.technicians 
                       : [selectedRepairDetail.technician]
                     ).map(t => (
-                      <span key={t} className="bg-slate-950 border border-slate-750 text-slate-300 px-3 py-1.5 rounded-lg font-semibold text-xs">
+                      <span key={t} className="bg-white dark:bg-slate-950 border border-border dark:border-slate-750 text-slate-700 dark:text-slate-300 px-3 py-1.5 rounded-lg font-semibold text-xs">
                         🔧 {t}
                       </span>
                     ))}
@@ -1769,11 +1769,11 @@ export const RepairPage: React.FC = () => {
 
                 {selectedRepairDetail.photo && (
                   <div className="shrink-0 flex flex-col items-center">
-                    <p className="text-slate-400 text-[10px] uppercase font-bold mb-2 text-center">หลักฐานแนบการซ่อม</p>
+                    <p className="text-slate-600 dark:text-slate-400 text-[10px] uppercase font-bold mb-2 text-center">หลักฐานแนบการซ่อม</p>
                     <img 
                       src={selectedRepairDetail.photo} 
                       alt="breakdown" 
-                      className="w-24 h-24 object-cover rounded-lg border border-slate-700 hover:scale-[1.05] transition cursor-zoom-in" 
+                      className="w-24 h-24 object-cover rounded-lg border border-border dark:border-slate-700 hover:scale-[1.05] transition cursor-zoom-in" 
                       referrerPolicy="no-referrer"
                     />
                   </div>
@@ -1781,12 +1781,12 @@ export const RepairPage: React.FC = () => {
               </div>
 
               {selectedRepairDetail.excelFile && (
-                <div className="bg-emerald-950/20 border border-emerald-900/40 p-4 rounded-xl flex items-center justify-between">
+                <div className="bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/40 p-4 rounded-xl flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <FileSpreadsheet className="text-emerald-400 shrink-0" size={24} />
+                    <FileSpreadsheet className="text-emerald-600 dark:text-emerald-400 shrink-0" size={24} />
                     <div className="text-left">
-                      <p className="text-[11px] font-bold text-emerald-300">ไฟล์แนบประกอบใบงาน</p>
-                      <p className="text-[10px] text-slate-400 font-mono truncate max-w-[280px]" title={selectedRepairDetail.excelFile.name}>
+                      <p className="text-[11px] font-bold text-emerald-800 dark:text-emerald-300">ไฟล์แนบประกอบใบงาน</p>
+                      <p className="text-[10px] text-slate-600 dark:text-slate-400 font-mono truncate max-w-[280px]" title={selectedRepairDetail.excelFile.name}>
                         {selectedRepairDetail.excelFile.name}
                       </p>
                     </div>
@@ -1805,7 +1805,7 @@ export const RepairPage: React.FC = () => {
             </div>
 
             {/* Footer control buttons */}
-            <div className="p-5 bg-slate-900/80 border-t border-slate-700/80 flex justify-between items-center shrink-0">
+            <div className="p-5 bg-slate-50 dark:bg-slate-900/80 border-t border-border dark:border-slate-700/80 flex justify-between items-center shrink-0">
               <button
                 type="button"
                 id={`detail-delete-btn-${selectedRepairDetail.id}`}
@@ -1814,7 +1814,7 @@ export const RepairPage: React.FC = () => {
                   setSelectedRepairDetail(null);
                   handleDeleteRepair(targetId);
                 }}
-                className="flex items-center gap-1.5 border border-rose-500/30 hover:bg-rose-600 hover:border-rose-500 hover:text-fg text-rose-400 font-bold text-xs px-4 py-2 my-1 rounded-lg transition"
+                className="flex items-center gap-1.5 border border-rose-300 dark:border-rose-500/30 hover:bg-rose-600 hover:border-rose-600 hover:text-fg text-rose-600 dark:text-rose-400 font-bold text-xs px-4 py-2 my-1 rounded-lg transition cursor-pointer"
               >
                 <Trash2 size={13} />
                 ลบบันทึกประวัตินี้
@@ -1839,7 +1839,7 @@ export const RepairPage: React.FC = () => {
                     setSelectedRepairDetail(null);
                     handleEditClick(currentLog);
                   }}
-                  className="flex items-center gap-1.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs px-4.5 py-2 rounded-lg transition shadow-md"
+                  className="flex items-center gap-1.5 bg-cyan-600 hover:bg-cyan-500 dark:bg-cyan-500 dark:hover:bg-cyan-400 text-fg dark:text-slate-950 font-bold text-xs px-4.5 py-2 rounded-lg transition shadow-md cursor-pointer"
                 >
                   <Edit size={13} />
                   แก้ไขประวัติซ่อม
@@ -1847,7 +1847,7 @@ export const RepairPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setSelectedRepairDetail(null)}
-                  className="border border-slate-700 hover:bg-slate-700/90 text-slate-300 text-xs px-4 py-2 rounded-lg transition"
+                  className="border border-border dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700/90 text-slate-700 dark:text-slate-300 text-xs px-4 py-2 rounded-lg transition cursor-pointer"
                 >
                   ปิดหน้าต่าง
                 </button>
@@ -1859,23 +1859,23 @@ export const RepairPage: React.FC = () => {
 
       {/* EXCEL IMPORT MODAL */}
       {showImportModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4 overflow-y-auto">
-          <div id="repair-import-modal" className="bg-slate-900 border border-slate-750 rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-150 text-slate-100">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 dark:bg-slate-950/80 backdrop-blur-sm p-4 overflow-y-auto">
+          <div id="repair-import-modal" className="bg-surface dark:bg-slate-900 border border-border dark:border-slate-750 rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-150 text-fg dark:text-slate-100">
             {/* Modal Header */}
-            <div className="bg-gradient-to-r from-slate-800 to-slate-950 border-b border-slate-750 p-5 shrink-0 flex justify-between items-center">
+            <div className="bg-slate-50 dark:bg-gradient-to-r dark:from-slate-800 dark:to-slate-950 border-b border-border dark:border-slate-750 p-5 shrink-0 flex justify-between items-center">
               <div>
-                <h3 className="text-base font-bold text-cyan-400 flex items-center gap-2">
-                  <Upload size={20} className="text-cyan-400" />
+                <h3 className="text-base font-bold text-cyan-700 dark:text-cyan-400 flex items-center gap-2">
+                  <Upload size={20} className="text-cyan-600 dark:text-cyan-400" />
                   นำเข้าประวัติงานซ่อมด่วนจากไฟล์ Excel (.xlsx, .xls, .csv)
                 </h3>
-                <p className="text-slate-400 text-xs mt-0.5">
+                <p className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">
                   อัพโหลดไฟล์ตารางบันทึกการแจ้งซ่อมเพื่อนำเข้าประวัติปริมาณมากเข้าระบบได้ทันที
                 </p>
               </div>
               <button 
                 type="button" 
                 onClick={() => setShowImportModal(false)}
-                className="text-slate-400 hover:text-fg bg-slate-800 hover:bg-slate-750 p-1.5 rounded-lg transition shrink-0"
+                className="text-slate-400 hover:text-fg dark:text-slate-400 dark:hover:text-fg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-750 p-1.5 rounded-lg transition shrink-0 cursor-pointer"
               >
                 <X size={18} />
               </button>
@@ -1885,10 +1885,10 @@ export const RepairPage: React.FC = () => {
             <div className="p-6 overflow-y-auto space-y-6 flex-1">
               {/* Template Download & Drag-drop Section */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                <div className="md:col-span-1 bg-slate-950/40 border border-slate-800 rounded-xl p-4 flex flex-col justify-between space-y-4">
+                <div className="md:col-span-1 bg-slate-50 dark:bg-slate-950/40 border border-border dark:border-slate-800 rounded-xl p-4 flex flex-col justify-between space-y-4">
                   <div>
-                    <h4 className="text-xs font-bold text-slate-350 uppercase tracking-wider mb-2">ขั้นตอนนำเข้าข้อมูล</h4>
-                    <ul className="text-xs text-slate-400 space-y-2 list-decimal list-inside leading-relaxed">
+                    <h4 className="text-xs font-bold text-slate-700 dark:text-slate-350 uppercase tracking-wider mb-2">ขั้นตอนนำเข้าข้อมูล</h4>
+                    <ul className="text-xs text-slate-600 dark:text-slate-400 space-y-2 list-decimal list-inside leading-relaxed">
                       <li>ดาวน์โหลดไฟล์ฟอร์แมตมาตรฐาน</li>
                       <li>กรอกข้อมูลประวัติการซ่อมบำรุง</li>
                       <li>อัปโหลดไฟล์เข้าระบบ</li>
@@ -1899,23 +1899,23 @@ export const RepairPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={downloadImportTemplate}
-                    className="w-full flex items-center justify-center gap-1.8 bg-slate-800 hover:bg-slate-750 border border-slate-700 text-slate-200 hover:text-fg font-bold py-2 rounded-lg transition text-xs cursor-pointer shadow-sm"
+                    className="w-full flex items-center justify-center gap-1.8 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-750 border border-border dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:text-fg font-bold py-2 rounded-lg transition text-xs cursor-pointer shadow-sm"
                   >
-                    <FileSpreadsheet size={15} className="text-emerald-400" />
+                    <FileSpreadsheet size={15} className="text-emerald-600 dark:text-emerald-400" />
                     ดาวน์โหลดไฟล์ตัวอย่าง (.xlsx)
                   </button>
                 </div>
 
                 <div 
                   className={`md:col-span-2 border-2 border-dashed rounded-xl p-6 flex flex-col items-center justify-center transition ${
-                    isDragging ? 'border-cyan-500 bg-cyan-950/10' : 'border-slate-800 bg-slate-950/20 hover:border-slate-700'
+                    isDragging ? 'border-cyan-500 bg-cyan-50 dark:bg-cyan-950/10' : 'border-border dark:border-slate-800 bg-slate-50 dark:bg-slate-950/20 hover:border-slate-300 dark:hover:border-slate-700'
                   }`}
                   onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
                   onDragLeave={() => setIsDragging(false)}
                   onDrop={(e) => { setIsDragging(false); handleExcelUpload(e, true); }}
                 >
-                  <Upload size={38} className="text-slate-500 mb-2.5" />
-                  <span className="text-xs font-bold text-slate-200">
+                  <Upload size={38} className="text-slate-400 dark:text-slate-500 mb-2.5" />
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-200">
                     {fileName ? `ไฟล์ที่เลือก: ${fileName}` : 'ลากไฟล์ Excel มาวางที่นี่ หรือ คลิกเพื่อเลือกไฟล์'}
                   </span>
                   <span className="text-[10px] text-slate-500 mt-1 block">
@@ -1936,17 +1936,17 @@ export const RepairPage: React.FC = () => {
 
               {/* Column Mapping Section */}
               {excelHeaders.length > 0 && (
-                <div className="bg-slate-950/35 border border-slate-800 rounded-xl p-5 space-y-4">
-                  <div className="flex justify-between items-center border-b border-slate-800 pb-2">
-                    <h4 className="text-xs font-extrabold text-cyan-400 uppercase tracking-wide flex items-center gap-1.5">
+                <div className="bg-slate-50 dark:bg-slate-950/35 border border-border dark:border-slate-800 rounded-xl p-5 space-y-4">
+                  <div className="flex justify-between items-center border-b border-border dark:border-slate-800 pb-2">
+                    <h4 className="text-xs font-extrabold text-cyan-700 dark:text-cyan-400 uppercase tracking-wide flex items-center gap-1.5">
                       ⚙️ ตรวจจับคอลัมน์อัจฉริยะ (Column Mapping)
                     </h4>
-                    <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded font-mono">
+                    <span className="text-[10px] bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded font-mono border border-emerald-200 dark:border-emerald-500/20">
                       พบคอลัมน์ในไฟล์: {excelHeaders.length}
                     </span>
                   </div>
                   
-                  <p className="text-[10.5px] text-slate-400">
+                  <p className="text-[10.5px] text-slate-600 dark:text-slate-400">
                     ระบบพยายามเดาจับคู่คอลัมน์ให้อัตโนมัติ โปรดตรวจทานหรือปรับเปลี่ยนให้ตรงกับตาราง Excel ของคุณ
                   </p>
 
@@ -1967,14 +1967,14 @@ export const RepairPage: React.FC = () => {
                       { key: 'status', label: 'สถานะใบงาน', required: false }
                     ].map(field => (
                       <div key={field.key} className="space-y-1">
-                        <label className="text-[11px] font-semibold text-slate-300 flex items-center gap-1">
+                        <label className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1">
                           {field.label}
                           {field.required && <span className="text-rose-500 font-extrabold">*</span>}
                         </label>
                         <select
                           value={columnMap[field.key] || ''}
                           onChange={(e) => setColumnMap(prev => ({ ...prev, [field.key]: e.target.value }))}
-                          className="w-full bg-slate-900 border border-slate-750 text-xs text-slate-200 px-2.5 py-1.5 rounded-lg focus:outline-none focus:border-cyan-500"
+                          className="w-full bg-white dark:bg-slate-900 border border-border dark:border-slate-750 text-xs text-fg dark:text-slate-200 px-2.5 py-1.5 rounded-lg focus:outline-none focus:border-cyan-500"
                         >
                           <option value="">-- ไม่ระบุ --</option>
                           {excelHeaders.map(h => (
@@ -1990,14 +1990,14 @@ export const RepairPage: React.FC = () => {
               {/* Import Preview Section */}
               {importPreview.length > 0 && (
                 <div className="space-y-3">
-                  <h4 className="text-xs font-extrabold text-slate-250 uppercase tracking-wide flex items-center gap-1.5">
+                  <h4 className="text-xs font-extrabold text-slate-700 dark:text-slate-250 uppercase tracking-wide flex items-center gap-1.5">
                     👀 พรีวิวตัวอย่างข้อมูลนำเข้า (แรกเริ่ม {Math.min(5, importPreview.length)} จาก {importPreview.length} รายการ)
                   </h4>
                   
-                  <div className="border border-slate-800 rounded-xl overflow-hidden bg-slate-950/20">
+                  <div className="border border-border dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-950/20">
                     <table className="w-full text-left border-collapse">
                       <thead>
-                        <tr className="bg-slate-900 text-[10px] text-slate-400 border-b border-slate-800 uppercase tracking-wider font-mono">
+                        <tr className="bg-slate-100 dark:bg-slate-900 text-[10px] text-slate-700 dark:text-slate-400 border-b border-border dark:border-slate-800 uppercase tracking-wider font-mono">
                           <th className="py-2.5 px-3">วันที่ / เวลาเสีย</th>
                           <th className="py-2.5 px-3">รหัสเครื่องจักร</th>
                           <th className="py-2.5 px-3">อาการเสียชำรุด</th>
@@ -2006,32 +2006,32 @@ export const RepairPage: React.FC = () => {
                           <th className="py-2.5 px-3 text-center">สถานะ</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-850 text-xs">
+                      <tbody className="divide-y divide-border dark:divide-slate-850 text-xs">
                         {importPreview.slice(0, 5).map((preview, idx) => {
                           const machineObj = machines.find(m => m.id.toLowerCase() === preview.machineId.toLowerCase());
                           return (
-                            <tr key={idx} className="hover:bg-slate-800/20 text-slate-300">
-                              <td className="py-2 px-3 font-mono text-[11px] text-slate-400">
+                            <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-slate-800/20 text-slate-700 dark:text-slate-300">
+                              <td className="py-2 px-3 font-mono text-[11px] text-slate-600 dark:text-slate-400">
                                 {preview.breakdownTime.replace('T', ' ')}
                               </td>
                               <td className="py-2 px-3">
-                                <span className="font-mono text-cyan-400 font-bold">{preview.machineId}</span>
-                                <span className="text-[10px] text-slate-400 block">{machineObj?.name || 'ไม่พบในทะเบียน'}</span>
+                                <span className="font-mono text-cyan-700 dark:text-cyan-400 font-bold">{preview.machineId}</span>
+                                <span className="text-[10px] text-slate-500 dark:text-slate-400 block">{machineObj?.name || 'ไม่พบในทะเบียน'}</span>
                               </td>
                               <td className="py-2 px-3 truncate max-w-[180px]" title={preview.symptoms}>
                                 {preview.symptoms}
                               </td>
-                              <td className="py-2 px-3 text-slate-350">
+                              <td className="py-2 px-3 text-slate-700 dark:text-slate-350">
                                 {preview.technician}
                               </td>
-                              <td className="py-2 px-3 font-mono text-center text-slate-400">
+                              <td className="py-2 px-3 font-mono text-center text-slate-600 dark:text-slate-400">
                                 {preview.status === 'ปิดงาน' ? `${preview.duration} นาที` : '-'}
                               </td>
                               <td className="py-2 px-3 text-center">
                                 <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold ${
                                   preview.status === 'กำลังซ่อม' 
-                                    ? 'bg-rose-500/10 text-rose-450 border border-rose-500/20' 
-                                    : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                                    ? 'bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-450 border border-rose-300 dark:border-rose-500/20' 
+                                    : 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-500/20'
                                 }`}>
                                   {preview.status}
                                 </span>
@@ -2047,11 +2047,11 @@ export const RepairPage: React.FC = () => {
             </div>
 
             {/* Modal Footer */}
-            <div className="bg-slate-950 border-t border-slate-750 p-4 shrink-0 flex gap-3 justify-end items-center">
+            <div className="bg-slate-50 dark:bg-slate-950 border-t border-border dark:border-slate-750 p-4 shrink-0 flex gap-3 justify-end items-center">
               <button
                 type="button"
                 onClick={() => setShowImportModal(false)}
-                className="border border-slate-700 hover:bg-slate-850 text-slate-300 font-bold text-xs px-5 py-2.5 rounded-lg transition"
+                className="border border-border dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-850 text-slate-700 dark:text-slate-300 font-bold text-xs px-5 py-2.5 rounded-lg transition cursor-pointer"
               >
                 ยกเลิก
               </button>
@@ -2063,7 +2063,7 @@ export const RepairPage: React.FC = () => {
                 className={`flex items-center gap-1.5 font-bold text-xs px-6 py-2.5 rounded-lg transition shadow-md ${
                   importPreview.length > 0 
                     ? 'bg-gradient-to-r from-cyan-600 to-blue-700 hover:from-cyan-500 hover:to-blue-600 text-fg cursor-pointer' 
-                    : 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-750'
+                    : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed border border-border dark:border-slate-750'
                 }`}
               >
                 <CheckCircle size={15} />
@@ -2076,20 +2076,20 @@ export const RepairPage: React.FC = () => {
 
       {/* Custom Delete Confirmation Modal */}
       {deleteConfirmId && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/85 backdrop-blur-sm p-4 animate-in fade-in duration-100">
-          <div id="repair-delete-modal" className="bg-slate-900 border border-slate-750 p-6 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl animate-in zoom-in-95 duration-100">
-            <div className="flex items-center gap-3 text-rose-500 border-b border-slate-800 pb-3">
-              <AlertTriangle size={24} className="text-rose-500 shrink-0" />
-              <h3 className="text-sm font-extrabold text-slate-100">🚨 ยืนยันการลบประวัติงานซ่อม</h3>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 dark:bg-slate-950/85 backdrop-blur-sm p-4 animate-in fade-in duration-100">
+          <div id="repair-delete-modal" className="bg-surface dark:bg-slate-900 border border-border dark:border-slate-750 p-6 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl animate-in zoom-in-95 duration-100">
+            <div className="flex items-center gap-3 text-rose-600 dark:text-rose-500 border-b border-border dark:border-slate-800 pb-3">
+              <AlertTriangle size={24} className="text-rose-600 dark:text-rose-500 shrink-0" />
+              <h3 className="text-sm font-extrabold text-fg dark:text-slate-100">🚨 ยืนยันการลบประวัติงานซ่อม</h3>
             </div>
-            <p className="text-xs text-slate-300 leading-relaxed font-sans">
+            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-sans">
               คุณต้องการลบบันทึกวิเคราะห์งานซ่อมด่วนนี้ ใช่หรือไม่? ประวัติอาการเกิดเหตุและวิเคราะห์ Why-Why ทั้งหมดจะสูญหายอย่างถาวร
             </p>
             <div className="flex gap-2.5 justify-end pt-2">
               <button
                 type="button"
                 onClick={() => setDeleteConfirmId(null)}
-                className="border border-slate-700 hover:bg-slate-850 text-slate-300 text-xs px-4 py-2 rounded-lg transition"
+                className="border border-border dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-850 text-slate-700 dark:text-slate-300 text-xs px-4 py-2 rounded-lg transition cursor-pointer"
               >
                 ยกเลิก
               </button>
@@ -2113,7 +2113,7 @@ export const RepairPage: React.FC = () => {
                   setRepairs(prev => prev.filter(r => r.id !== deleteConfirmId));
                   setDeleteConfirmId(null);
                 }}
-                className="bg-rose-600 hover:bg-rose-500 text-fg font-extrabold text-xs px-4.5 py-2 rounded-lg transition"
+                className="bg-rose-600 hover:bg-rose-500 text-fg font-extrabold text-xs px-4.5 py-2 rounded-lg transition cursor-pointer"
               >
                 ยืนยันลบเด็ดขาด
               </button>

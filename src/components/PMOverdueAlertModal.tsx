@@ -101,53 +101,53 @@ export const PMOverdueAlertModal: React.FC<PMOverdueAlertModalProps> = ({
         onClick={onClose}
       >
         <div 
-          className="w-full max-w-3xl bg-[#0b1222] border border-rose-500/30 rounded-2xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-150 text-slate-100 my-6 flex flex-col max-h-[90vh]"
+          className="w-full max-w-3xl bg-surface dark:bg-[#0b1222] border border-border dark:border-rose-500/30 rounded-2xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-150 text-fg dark:text-slate-100 my-6 flex flex-col max-h-[90vh]"
           onClick={(e) => e.stopPropagation()}
           id="pm-overdue-alert-modal-container"
         >
           {/* Header */}
-          <div className="p-4 bg-[#080d1a] border-b border-slate-800 flex justify-between items-center shrink-0">
+          <div className="p-4 bg-slate-50 dark:bg-[#080d1a] border-b border-border dark:border-slate-800 flex justify-between items-center shrink-0">
             <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-rose-500/15 rounded-xl border border-rose-500/30 text-rose-400">
+              <div className="p-2.5 bg-rose-500/15 rounded-xl border border-rose-500/30 text-rose-500 dark:text-rose-400">
                 <ShieldAlert size={22} className="animate-pulse" />
               </div>
               <div>
                 <h2 className="text-sm font-black tracking-wide text-fg flex items-center gap-2">
                   ศูนย์ตรวจเช็คและแจ้งเตือนงาน PM เลยกำหนด / เลื่อนแผน
                   {totalOverdueCount > 0 && (
-                    <span className="px-2 py-0.5 bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-full text-xs font-mono font-bold">
+                    <span className="px-2 py-0.5 bg-rose-100 dark:bg-rose-500/20 text-rose-700 dark:text-rose-400 border border-rose-300 dark:border-rose-500/30 rounded-full text-xs font-mono font-bold">
                       {totalOverdueCount} งานค้าง
                     </span>
                   )}
                 </h2>
-                <p className="text-[10.5px] text-slate-400 mt-0.5">
+                <p className="text-[10.5px] text-slate-500 dark:text-slate-400 mt-0.5">
                   ตรวจสอบแผนบำรุงรักษาเชิงป้องกันที่เลยกำหนดวันนัดหมาย จัดการเลื่อนแผน หรือส่งแจ้งเตือนทีมช่าง
                 </p>
               </div>
             </div>
             <button 
               onClick={onClose}
-              className="p-1.5 text-slate-500 hover:text-fg bg-slate-900 hover:bg-slate-800 rounded-lg transition cursor-pointer"
+              className="p-1.5 text-slate-500 hover:text-slate-800 dark:hover:text-fg bg-slate-200 dark:bg-slate-900 hover:bg-slate-300 dark:hover:bg-slate-800 rounded-lg transition cursor-pointer"
             >
               <X size={16} />
             </button>
           </div>
 
           {/* Quick Stats Banner Bar */}
-          <div className="grid grid-cols-3 gap-3 p-4 bg-slate-900/50 border-b border-slate-800 shrink-0">
+          <div className="grid grid-cols-3 gap-3 p-4 bg-slate-50 dark:bg-slate-900/50 border-b border-border dark:border-slate-800 shrink-0">
             <div 
               onClick={() => setActiveTab('overdue')}
               className={`p-3 rounded-xl border cursor-pointer transition ${
                 activeTab === 'overdue' 
-                  ? 'bg-rose-500/10 border-rose-500/40 text-rose-300' 
-                  : 'bg-slate-900/40 border-slate-800 text-slate-400 hover:bg-slate-800/50'
+                  ? 'bg-rose-50 dark:bg-rose-500/10 border-rose-300 dark:border-rose-500/40 text-rose-800 dark:text-rose-300' 
+                  : 'bg-white dark:bg-slate-900/40 border-border dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50'
               }`}
             >
               <div className="flex justify-between items-center">
                 <span className="text-[10px] uppercase font-bold tracking-wider">🚨 งานเลยกำหนดแผน (Overdue)</span>
-                <span className="text-lg font-black font-mono text-rose-400">{totalOverdueCount}</span>
+                <span className="text-lg font-black font-mono text-rose-600 dark:text-rose-400">{totalOverdueCount}</span>
               </div>
-              <p className="text-[9px] text-slate-400 mt-1">
+              <p className="text-[9px] text-slate-500 dark:text-slate-400 mt-1">
                 {criticalCount > 0 ? `⚠️ มี ${criticalCount} งานเลยกำหนดเกิน 7 วัน` : 'ต้องดำเนินการหรือเลื่อนแผน'}
               </p>
             </div>
@@ -156,31 +156,31 @@ export const PMOverdueAlertModal: React.FC<PMOverdueAlertModalProps> = ({
               onClick={() => setActiveTab('rescheduled')}
               className={`p-3 rounded-xl border cursor-pointer transition ${
                 activeTab === 'rescheduled' 
-                  ? 'bg-cyan-500/10 border-cyan-500/40 text-cyan-300' 
-                  : 'bg-slate-900/40 border-slate-800 text-slate-400 hover:bg-slate-800/50'
+                  ? 'bg-cyan-50 dark:bg-cyan-500/10 border-cyan-300 dark:border-cyan-500/40 text-cyan-800 dark:text-cyan-300' 
+                  : 'bg-white dark:bg-slate-900/40 border-border dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50'
               }`}
             >
               <div className="flex justify-between items-center">
                 <span className="text-[10px] uppercase font-bold tracking-wider">🔄 งานที่เคยเลื่อนแผน</span>
-                <span className="text-lg font-black font-mono text-cyan-400">{totalRescheduledCount}</span>
+                <span className="text-lg font-black font-mono text-cyan-600 dark:text-cyan-400">{totalRescheduledCount}</span>
               </div>
-              <p className="text-[9px] text-slate-400 mt-1">มีการบันทึกสาเหตุการเลื่อนแล้ว</p>
+              <p className="text-[9px] text-slate-500 dark:text-slate-400 mt-1">มีการบันทึกสาเหตุการเลื่อนแล้ว</p>
             </div>
 
-            <div className="p-3 bg-slate-900/40 border border-slate-800 rounded-xl flex flex-col justify-between">
+            <div className="p-3 bg-white dark:bg-slate-900/40 border border-border dark:border-slate-800 rounded-xl flex flex-col justify-between">
               <div className="flex justify-between items-center">
-                <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">📱 แจ้งเตือน LINE</span>
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold tracking-wider">📱 แจ้งเตือน LINE</span>
                 <button
                   onClick={handleBroadcastLineAlert}
                   disabled={isSendingLine || totalOverdueCount === 0}
-                  className="flex items-center gap-1 px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-black rounded-lg text-[10px] transition cursor-pointer disabled:opacity-50"
+                  className="flex items-center gap-1 px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-lg text-[10px] transition cursor-pointer disabled:opacity-50 shadow-xs"
                   title="ส่งสรุปงานที่เลยกำหนดเข้า LINE Notify"
                 >
                   <Send size={11} />
                   <span>{isSendingLine ? 'กำลังส่ง...' : 'แจ้งเตือนช่าง'}</span>
                 </button>
               </div>
-              <p className="text-[9px] text-slate-400 mt-1">
+              <p className="text-[9px] text-slate-500 dark:text-slate-400 mt-1">
                 {settings.lineNotifyEnabled ? 'เปิดใช้งาน LINE Notify แล้ว' : 'ตั้งค่าในเมนูการตั้งค่า'}
               </p>
             </div>
@@ -188,13 +188,13 @@ export const PMOverdueAlertModal: React.FC<PMOverdueAlertModalProps> = ({
 
           {/* Status message after broadcast */}
           {lineStatusMessage && (
-            <div className="p-2.5 bg-slate-900 text-center text-xs font-bold text-cyan-300 border-b border-slate-800">
+            <div className="p-2.5 bg-slate-100 dark:bg-slate-900 text-center text-xs font-bold text-cyan-700 dark:text-cyan-300 border-b border-border dark:border-slate-800">
               {lineStatusMessage}
             </div>
           )}
 
           {/* Filter Toolbar */}
-          <div className="p-3 bg-[#080d1a] border-b border-slate-800 flex flex-wrap items-center justify-between gap-3 shrink-0">
+          <div className="p-3 bg-slate-50 dark:bg-[#080d1a] border-b border-border dark:border-slate-800 flex flex-wrap items-center justify-between gap-3 shrink-0">
             <div className="flex items-center gap-2 flex-1 min-w-[200px]">
               <div className="relative flex-1">
                 <input
@@ -202,15 +202,15 @@ export const PMOverdueAlertModal: React.FC<PMOverdueAlertModalProps> = ({
                   placeholder="ค้นหาเครื่องจักร, แผน PM..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-[#050a14] border border-slate-700 rounded-xl pl-8 pr-3 py-1.5 text-xs text-fg placeholder-slate-500 focus:outline-hidden focus:border-cyan-500"
+                  className="w-full bg-white dark:bg-[#050a14] border border-border dark:border-slate-700 rounded-xl pl-8 pr-3 py-1.5 text-xs text-fg placeholder-slate-400 focus:outline-hidden focus:border-cyan-500"
                 />
-                <Search className="absolute left-2.5 top-2 text-slate-500" size={13} />
+                <Search className="absolute left-2.5 top-2 text-slate-400" size={13} />
               </div>
 
               <select
                 value={selectedTech}
                 onChange={(e) => setSelectedTech(e.target.value)}
-                className="bg-[#050a14] border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-fg focus:outline-hidden focus:border-cyan-500"
+                className="bg-white dark:bg-[#050a14] border border-border dark:border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-fg focus:outline-hidden focus:border-cyan-500"
               >
                 <option value="">-- ช่างทั้งหมด --</option>
                 {technicians.map((t, idx) => (
@@ -226,7 +226,7 @@ export const PMOverdueAlertModal: React.FC<PMOverdueAlertModalProps> = ({
                     onClose();
                     onNavigateToPMHistory();
                   }}
-                  className="flex items-center gap-1 text-[11px] font-bold text-cyan-400 hover:text-cyan-300 cursor-pointer"
+                  className="flex items-center gap-1 text-[11px] font-bold text-cyan-600 dark:text-cyan-400 hover:text-cyan-500 cursor-pointer"
                 >
                   <span>เปิดหน้าประวัติ PM ทั้งหมด</span>
                   <ChevronRight size={13} />
@@ -238,9 +238,9 @@ export const PMOverdueAlertModal: React.FC<PMOverdueAlertModalProps> = ({
           {/* Jobs List Body */}
           <div className="p-4 overflow-y-auto flex-1 space-y-3">
             {filteredList.length === 0 ? (
-              <div className="py-12 text-center text-slate-500">
+              <div className="py-12 text-center text-slate-400">
                 <CheckCircle2 size={40} className="mx-auto block text-emerald-500 mb-2" />
-                <p className="text-sm font-bold text-slate-300">
+                <p className="text-sm font-bold text-slate-700 dark:text-slate-300">
                   {activeTab === 'overdue' 
                     ? 'ยอดเยี่ยม! ไม่พบงาน PM ที่เลยกำหนดในระบบ' 
                     : 'ไม่พบรายการงาน PM ที่มีการเลื่อนแผน'}
@@ -262,21 +262,21 @@ export const PMOverdueAlertModal: React.FC<PMOverdueAlertModalProps> = ({
                     className={`p-4 rounded-xl border transition ${
                       isItemOverdue 
                         ? overdueDays >= 7 
-                          ? 'bg-rose-950/20 border-rose-500/40 hover:border-rose-500/60' 
-                          : 'bg-amber-950/15 border-amber-500/30 hover:border-amber-500/50'
-                        : 'bg-slate-900/60 border-slate-800 hover:border-slate-700'
+                          ? 'bg-rose-50 dark:bg-rose-950/20 border-rose-300 dark:border-rose-500/40 hover:border-rose-400' 
+                          : 'bg-amber-50 dark:bg-amber-950/15 border-amber-300 dark:border-amber-500/30 hover:border-amber-400'
+                        : 'bg-white dark:bg-slate-900/60 border-border dark:border-slate-800 hover:border-slate-400 dark:hover:border-slate-700'
                     }`}
                   >
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                       <div className="space-y-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="px-2 py-0.5 bg-slate-800 border border-slate-700 rounded text-xs font-mono font-bold text-cyan-400">
+                          <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 border border-border dark:border-slate-700 rounded text-xs font-mono font-bold text-cyan-700 dark:text-cyan-400">
                             {job.machineId}
                           </span>
                           <span className="font-bold text-fg text-xs">
                             {planObj?.title || 'งานบำรุงรักษา PM'}
                           </span>
-                          <span className="text-[10px] text-slate-400 px-1.5 py-0.2 bg-slate-800/80 rounded font-sans">
+                          <span className="text-[10px] text-slate-600 dark:text-slate-400 px-1.5 py-0.2 bg-slate-200/60 dark:bg-slate-800/80 rounded font-sans">
                             {machObj?.name || ''}
                           </span>
                           
@@ -284,8 +284,8 @@ export const PMOverdueAlertModal: React.FC<PMOverdueAlertModalProps> = ({
                           {isItemOverdue && (
                             <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold flex items-center gap-1 ${
                               overdueDays >= 7 
-                                ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30 animate-pulse' 
-                                : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                                ? 'bg-rose-100 dark:bg-rose-500/20 text-rose-700 dark:text-rose-300 border border-rose-300 dark:border-rose-500/30 animate-pulse' 
+                                : 'bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-500/30'
                             }`}>
                               <AlertTriangle size={10} />
                               <span>เลยกำหนด {overdueDays} วัน</span>
@@ -294,35 +294,35 @@ export const PMOverdueAlertModal: React.FC<PMOverdueAlertModalProps> = ({
 
                           {/* Rescheduled Badge */}
                           {(job.rescheduledCount || 0) > 0 && (
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-sans font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 flex items-center gap-1">
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-sans font-bold bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-500/30 flex items-center gap-1">
                               <RefreshCw size={9} />
                               <span>เลื่อนแผน {job.rescheduledCount} ครั้ง (เดิม: {job.rescheduledFromDate})</span>
                             </span>
                           )}
                         </div>
 
-                        <div className="flex flex-wrap items-center gap-3 text-[11px] text-slate-400 mt-1">
+                        <div className="flex flex-wrap items-center gap-3 text-[11px] text-slate-500 dark:text-slate-400 mt-1">
                           <span className="flex items-center gap-1">
-                            <Calendar size={12} className="text-slate-500" />
-                            <span>วันที่ตามแผน: <b className="font-mono text-slate-200">{job.date}</b></span>
+                            <Calendar size={12} className="text-slate-400" />
+                            <span>วันที่ตามแผน: <b className="font-mono text-slate-700 dark:text-slate-200">{job.date}</b></span>
                           </span>
 
                           <span className="flex items-center gap-1">
-                            <Clock size={12} className="text-slate-500" />
-                            <span>มาตรฐาน: <b className="font-mono text-slate-200">{job.duration} นาที</b></span>
+                            <Clock size={12} className="text-slate-400" />
+                            <span>มาตรฐาน: <b className="font-mono text-slate-700 dark:text-slate-200">{job.duration} นาที</b></span>
                           </span>
 
                           <span className="flex items-center gap-1">
-                            <User size={12} className="text-slate-500" />
-                            <span>ผู้รับผิดชอบ: <b className="text-slate-200">{job.technician}</b></span>
+                            <User size={12} className="text-slate-400" />
+                            <span>ผู้รับผิดชอบ: <b className="text-slate-700 dark:text-slate-200">{job.technician}</b></span>
                           </span>
                         </div>
 
                         {/* Reschedule reason text */}
                         {job.rescheduledReason && (
-                          <div className="mt-2 p-2 bg-slate-950/60 rounded-lg border border-slate-800/80 text-[10.5px]">
-                            <span className="text-amber-400 font-bold">📌 สาเหตุที่เลื่อนแผน: </span>
-                            <span className="text-slate-300">{job.rescheduledReason}</span>
+                          <div className="mt-2 p-2 bg-slate-100 dark:bg-slate-950/60 rounded-lg border border-border dark:border-slate-800/80 text-[10.5px]">
+                            <span className="text-amber-700 dark:text-amber-400 font-bold">📌 สาเหตุที่เลื่อนแผน: </span>
+                            <span className="text-slate-700 dark:text-slate-300">{job.rescheduledReason}</span>
                           </div>
                         )}
                       </div>
@@ -331,7 +331,7 @@ export const PMOverdueAlertModal: React.FC<PMOverdueAlertModalProps> = ({
                       <div className="flex items-center gap-2 shrink-0 self-end sm:self-center mt-2 sm:mt-0">
                         <button
                           onClick={() => setReschedulingJob(job)}
-                          className="flex items-center gap-1 px-3 py-1.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 rounded-xl text-xs font-black transition cursor-pointer shadow-md shadow-cyan-500/10"
+                          className="flex items-center gap-1 px-3 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-xs font-bold transition cursor-pointer shadow-md"
                           title="เลื่อนแผนและนัดหมายวันใหม่"
                         >
                           <RefreshCw size={13} />
@@ -346,13 +346,13 @@ export const PMOverdueAlertModal: React.FC<PMOverdueAlertModalProps> = ({
           </div>
 
           {/* Footer */}
-          <div className="p-3.5 bg-[#080d1a] border-t border-slate-800 flex justify-between items-center text-xs text-slate-400 shrink-0">
+          <div className="p-3.5 bg-slate-50 dark:bg-[#080d1a] border-t border-border dark:border-slate-800 flex justify-between items-center text-xs text-slate-600 dark:text-slate-400 shrink-0">
             <span className="text-[11px]">
               แสดง {filteredList.length} จากทั้งหมด {currentList.length} รายการ
             </span>
             <button
               onClick={onClose}
-              className="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-bold transition cursor-pointer"
+              className="px-4 py-1.5 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-xl text-xs font-bold transition cursor-pointer"
             >
               ปิดหน้าต่าง
             </button>

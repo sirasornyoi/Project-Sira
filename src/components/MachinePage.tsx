@@ -824,23 +824,23 @@ export const MachinePage: React.FC = () => {
     const fullLocation = [m.locationZone, m.locationRoom].filter(Boolean).join(' > ') || '-';
 
     return (
-      <div className="border-l-4 border-cyan-500 bg-slate-900/90 p-4 sm:p-5 space-y-4 rounded-r-xl">
-        <div className="flex items-center justify-between border-b border-slate-700/60 pb-3 flex-wrap gap-2.5">
+      <div className="border-l-4 border-cyan-500 bg-surface dark:bg-slate-900/90 p-4 sm:p-5 space-y-4 rounded-r-xl border-y border-r border-border dark:border-slate-800">
+        <div className="flex items-center justify-between border-b border-border dark:border-slate-700/60 pb-3 flex-wrap gap-2.5">
           <div className="flex items-center gap-2.5 flex-wrap">
-            <h4 className="text-sm font-bold text-slate-100 flex items-center gap-2">
-              <Settings size={16} className="text-cyan-400" />
+            <h4 className="text-sm font-bold text-fg dark:text-slate-100 flex items-center gap-2">
+              <Settings size={16} className="text-cyan-600 dark:text-cyan-400" />
               <span>รายละเอียด {unitLabel ? `${unitLabel}: ` : ''}</span>
-              <span className="text-cyan-400 font-mono">{m.id}</span>
-              <span className="text-slate-200">- {m.name}</span>
+              <span className="text-cyan-600 dark:text-cyan-400 font-mono">{m.id}</span>
+              <span className="text-fg-muted dark:text-slate-200">- {m.name}</span>
             </h4>
             {/* Prominent Duty Badge in Header */}
             <span 
               id={`detail-duty-badge-${m.id}`}
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold bg-amber-500/20 border border-amber-500/50 text-amber-300 shadow-sm"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold bg-amber-100 dark:bg-amber-500/20 border border-amber-300 dark:border-amber-500/50 text-amber-900 dark:text-amber-300 shadow-sm"
               title={`หน้าที่การทำงาน / Line Group: ${m.lineGroup || 'ทั่วไป'}`}
             >
-              <Briefcase size={13} className="text-amber-400 shrink-0" />
-              <span className="text-[11px] text-amber-400/80 font-normal">หน้าที่:</span>
+              <Briefcase size={13} className="text-amber-700 dark:text-amber-400 shrink-0" />
+              <span className="text-[11px] text-amber-800 dark:text-amber-400/80 font-normal">หน้าที่:</span>
               <span className="tracking-wide font-extrabold">{m.lineGroup || 'ทั่วไป'}</span>
             </span>
           </div>
@@ -848,10 +848,10 @@ export const MachinePage: React.FC = () => {
           <div className="flex items-center gap-2">
             <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${
               stats.status === 'ปกติ' 
-                ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400' 
-                : 'bg-rose-500/15 border-rose-500/30 text-rose-400'
+                ? 'bg-emerald-50 dark:bg-emerald-500/15 border-emerald-200 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-400' 
+                : 'bg-rose-50 dark:bg-rose-500/15 border-rose-200 dark:border-rose-500/30 text-rose-800 dark:text-rose-400'
             }`}>
-              <span className={`w-2 h-2 rounded-full ${stats.status === 'ปกติ' ? 'bg-emerald-400 animate-pulse' : 'bg-rose-400 animate-pulse'}`}></span>
+              <span className={`w-2 h-2 rounded-full ${stats.status === 'ปกติ' ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500 animate-pulse'}`}></span>
               สถานะ: {stats.status === 'ปกติ' ? 'ปกติ / Normal' : 'เสีย-ซ่อม / Breakdown'}
             </span>
           </div>
@@ -862,46 +862,46 @@ export const MachinePage: React.FC = () => {
           {/* 1. หน้าที่ (Duty / Line Group) - Very Prominent and Conspicuous */}
           <div 
             id={`detail-duty-card-${m.id}`}
-            className="bg-gradient-to-r from-amber-950/60 via-slate-900 to-slate-900 border-2 border-amber-500/60 rounded-xl p-3 shadow-md flex items-center gap-3"
+            className="bg-amber-50 dark:bg-gradient-to-r dark:from-amber-950/60 dark:via-slate-900 dark:to-slate-900 border-2 border-amber-300 dark:border-amber-500/60 rounded-xl p-3 shadow-sm flex items-center gap-3"
           >
-            <div className="w-10 h-10 rounded-lg bg-amber-500/25 border border-amber-500/50 flex items-center justify-center text-amber-400 shrink-0 shadow-inner">
+            <div className="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-500/25 border border-amber-300 dark:border-amber-500/50 flex items-center justify-center text-amber-700 dark:text-amber-400 shrink-0 shadow-inner">
               <Briefcase size={19} />
             </div>
             <div className="min-w-0">
-              <div className="text-[10px] uppercase font-bold text-amber-400 tracking-wider flex items-center gap-1.5">
+              <div className="text-[10px] uppercase font-bold text-amber-800 dark:text-amber-400 tracking-wider flex items-center gap-1.5">
                 <span>หน้าที่ (Duty / Line Group)</span>
               </div>
-              <div className="text-base font-extrabold text-amber-100 tracking-wide truncate mt-0.5" title={m.lineGroup}>
+              <div className="text-base font-extrabold text-amber-950 dark:text-amber-100 tracking-wide truncate mt-0.5" title={m.lineGroup}>
                 {m.lineGroup || 'ทั่วไป'}
               </div>
             </div>
           </div>
 
           {/* 2. โซน (Location Zone) */}
-          <div className="bg-slate-950/70 border border-cyan-500/40 rounded-xl p-3 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shrink-0">
+          <div className="bg-sky-50 dark:bg-slate-950/70 border border-sky-200 dark:border-cyan-500/40 rounded-xl p-3 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-sky-100 dark:bg-cyan-500/15 border border-sky-200 dark:border-cyan-500/30 flex items-center justify-center text-sky-700 dark:text-cyan-400 shrink-0">
               <MapPin size={19} />
             </div>
             <div className="min-w-0">
-              <div className="text-[10px] uppercase font-bold text-cyan-400 tracking-wider">
+              <div className="text-[10px] uppercase font-bold text-sky-800 dark:text-cyan-400 tracking-wider">
                 โซน (Zone)
               </div>
-              <div className="text-sm font-bold text-cyan-100 truncate mt-0.5" title={m.locationZone}>
+              <div className="text-sm font-bold text-slate-900 dark:text-cyan-100 truncate mt-0.5" title={m.locationZone}>
                 {m.locationZone || '-'}
               </div>
             </div>
           </div>
 
           {/* 3. ห้องที่ติดตั้ง (Room) */}
-          <div className="bg-slate-950/70 border border-emerald-500/40 rounded-xl p-3 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
+          <div className="bg-emerald-50 dark:bg-slate-950/70 border border-emerald-200 dark:border-emerald-500/40 rounded-xl p-3 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 flex items-center justify-center text-emerald-700 dark:text-emerald-400 shrink-0">
               <Layers size={19} />
             </div>
             <div className="min-w-0">
-              <div className="text-[10px] uppercase font-bold text-emerald-400 tracking-wider">
+              <div className="text-[10px] uppercase font-bold text-emerald-800 dark:text-emerald-400 tracking-wider">
                 ห้องที่ติดตั้ง (Room)
               </div>
-              <div className="text-sm font-bold text-emerald-100 truncate mt-0.5" title={m.locationRoom}>
+              <div className="text-sm font-bold text-slate-900 dark:text-emerald-100 truncate mt-0.5" title={m.locationRoom}>
                 {m.locationRoom || '-'}
               </div>
             </div>
@@ -909,32 +909,32 @@ export const MachinePage: React.FC = () => {
         </div>
 
         {/* Technical Specs Details Card */}
-        <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-3.5 space-y-2.5">
+        <div className="bg-slate-50 dark:bg-slate-950/70 border border-border dark:border-slate-800 rounded-xl p-3.5 space-y-2.5">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
             <div>
-              <span className="text-[10px] uppercase font-bold text-slate-400 block">Model (รุ่น)</span>
-              <span className="text-slate-200 font-medium">{m.model || '-'}</span>
+              <span className="text-[10px] uppercase font-bold text-slate-600 dark:text-slate-400 block">Model (รุ่น)</span>
+              <span className="text-slate-900 dark:text-slate-200 font-medium">{m.model || '-'}</span>
             </div>
             <div>
-              <span className="text-[10px] uppercase font-bold text-slate-400 block">แรงดัน/กำลังไฟ</span>
-              <span className="text-amber-400 font-mono font-medium">{m.powerVoltage ? `⚡ ${m.powerVoltage}` : '-'}</span>
+              <span className="text-[10px] uppercase font-bold text-slate-600 dark:text-slate-400 block">แรงดัน/กำลังไฟ</span>
+              <span className="text-amber-700 dark:text-amber-400 font-mono font-medium">{m.powerVoltage ? `⚡ ${m.powerVoltage}` : '-'}</span>
             </div>
             <div>
-              <span className="text-[10px] uppercase font-bold text-slate-400 block">Serial Number (S/N)</span>
-              <span className="text-cyan-300 font-mono text-[11px]">{m.serialNumber || '-'}</span>
+              <span className="text-[10px] uppercase font-bold text-slate-600 dark:text-slate-400 block">Serial Number (S/N)</span>
+              <span className="text-cyan-700 dark:text-cyan-300 font-mono text-[11px]">{m.serialNumber || '-'}</span>
             </div>
             <div>
-              <span className="text-[10px] uppercase font-bold text-slate-400 block">วันที่ติดตั้ง / ผู้ขาย</span>
-              <span className="text-slate-300">{m.installDate || '-'} {m.vendor ? `(${m.vendor})` : ''}</span>
+              <span className="text-[10px] uppercase font-bold text-slate-600 dark:text-slate-400 block">วันที่ติดตั้ง / ผู้ขาย</span>
+              <span className="text-slate-800 dark:text-slate-300">{m.installDate || '-'} {m.vendor ? `(${m.vendor})` : ''}</span>
             </div>
           </div>
 
           {m.notes && (
-            <div className="pt-2 border-t border-slate-800/80 text-xs text-slate-300 flex items-start gap-2 bg-slate-900/40 p-2 rounded-lg">
-              <FileText size={14} className="text-slate-400 mt-0.5 shrink-0" />
+            <div className="pt-2 border-t border-border dark:border-slate-800/80 text-xs text-slate-700 dark:text-slate-300 flex items-start gap-2 bg-slate-100 dark:bg-slate-900/40 p-2 rounded-lg">
+              <FileText size={14} className="text-slate-500 dark:text-slate-400 mt-0.5 shrink-0" />
               <div>
-                <span className="font-semibold text-slate-400 text-[11px]">หมายเหตุ: </span>
-                <span className="text-slate-300 italic">{m.notes}</span>
+                <span className="font-semibold text-slate-600 dark:text-slate-400 text-[11px]">หมายเหตุ: </span>
+                <span className="text-slate-800 dark:text-slate-300 italic">{m.notes}</span>
               </div>
             </div>
           )}
@@ -942,19 +942,19 @@ export const MachinePage: React.FC = () => {
 
         {/* PM Form and Checklist Section */}
         <div className="space-y-4 pt-1">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-slate-950/80 border border-slate-800 rounded-xl p-3.5 shadow-sm">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-slate-50 dark:bg-slate-950/80 border border-border dark:border-slate-800 rounded-xl p-3.5 shadow-sm">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shrink-0">
+              <div className="w-8 h-8 rounded-lg bg-cyan-50 dark:bg-cyan-500/15 border border-cyan-200 dark:border-cyan-500/30 flex items-center justify-center text-cyan-600 dark:text-cyan-400 shrink-0">
                 <FileSpreadsheet size={17} />
               </div>
               <div>
-                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-200 flex items-center gap-2">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200 flex items-center gap-2">
                   <span>ฟอร์ม Preventive Maintenance (PM)</span>
-                  <span className="text-[10px] text-cyan-400 font-mono bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20 lowercase">
+                  <span className="text-[10px] text-cyan-700 dark:text-cyan-400 font-mono bg-cyan-100 dark:bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-300 dark:border-cyan-500/20 lowercase">
                     {stats.linkedPlans.length} แผน
                   </span>
                 </h4>
-                <p className="text-[11px] text-slate-400 mt-0.5">
+                <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5">
                   ระบบฟอร์มตรวจเช็ก PM แบบ 3 สถานะ (ปกติ / ไม่ปกติ / ยังไม่ตรวจ) พร้อม Export/Import Excel SheetJS
                 </p>
               </div>
@@ -974,7 +974,7 @@ export const MachinePage: React.FC = () => {
 
               <label
                 htmlFor={`input-import-pm-form-${m.id}`}
-                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-cyan-300 hover:text-cyan-200 transition border border-cyan-500/40 cursor-pointer shadow-sm"
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-cyan-700 hover:text-cyan-800 dark:text-cyan-300 dark:hover:text-cyan-200 transition border border-cyan-300 dark:border-cyan-500/40 cursor-pointer shadow-sm"
                 title={`Import ฟอร์ม PM เครื่อง ${m.id} จากไฟล์ Excel (.xlsx)`}
               >
                 <Upload size={13} />
@@ -997,22 +997,22 @@ export const MachinePage: React.FC = () => {
           </div>
 
           {stats.linkedPlans.length === 0 ? (
-            <div className="bg-slate-950/60 border border-slate-800/90 rounded-xl p-5 text-center space-y-3">
-              <p className="text-xs text-slate-400">
-                ยังไม่มีการระบุแผนบำรุงรักษาเชิงป้องกัน (PM) สำหรับเครื่องจักร <span className="text-cyan-300 font-bold">{m.id} ({m.name})</span>
+            <div className="bg-slate-50 dark:bg-slate-950/60 border border-border dark:border-slate-800/90 rounded-xl p-5 text-center space-y-3">
+              <p className="text-xs text-slate-600 dark:text-slate-400">
+                ยังไม่มีการระบุแผนบำรุงรักษาเชิงป้องกัน (PM) สำหรับเครื่องจักร <span className="text-cyan-600 dark:text-cyan-300 font-bold">{m.id} ({m.name})</span>
               </p>
               <div className="flex items-center justify-center gap-2.5 flex-wrap">
                 <button
                   type="button"
                   onClick={() => handleExportPM(m)}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600/25 hover:bg-emerald-600/40 text-emerald-300 border border-emerald-500/40 transition cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-100 hover:bg-emerald-200 dark:bg-emerald-600/25 dark:hover:bg-emerald-600/40 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/40 transition cursor-pointer"
                 >
                   <Download size={14} />
                   <span>สร้าง &amp; Export ฟอร์ม PM ตัวอย่าง</span>
                 </button>
                 <label
                   htmlFor={`input-import-pm-empty-${m.id}`}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-cyan-600/25 hover:bg-cyan-600/40 text-cyan-300 border border-cyan-500/40 transition cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-cyan-100 hover:bg-cyan-200 dark:bg-cyan-600/25 dark:hover:bg-cyan-600/40 text-cyan-800 dark:text-cyan-300 border border-cyan-300 dark:border-cyan-500/40 transition cursor-pointer"
                 >
                   <Upload size={14} />
                   <span>นำเข้าไฟล์ฟอร์ม PM (.xlsx)</span>
@@ -1040,28 +1040,28 @@ export const MachinePage: React.FC = () => {
                 const uncheckedCount = plan.steps.length - normalCount - abnormalCount;
 
                 return (
-                  <div key={plan.id} className="bg-slate-950/70 border border-slate-800 rounded-xl overflow-hidden shadow-inner">
+                  <div key={plan.id} className="bg-surface dark:bg-slate-950/70 border border-border dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
                     {/* Plan Top Info Bar */}
-                    <div className="bg-slate-900/90 border-b border-slate-800 p-3.5 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                    <div className="bg-slate-100 dark:bg-slate-900/90 border-b border-border dark:border-slate-800 p-3.5 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
                       <div>
                         <div className="flex items-center gap-2 flex-wrap">
-                          <h5 className="text-xs font-bold text-slate-100">{plan.title}</h5>
-                          <span className="text-[10px] bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 font-semibold px-2 py-0.5 rounded">
+                          <h5 className="text-xs font-bold text-slate-900 dark:text-slate-100">{plan.title}</h5>
+                          <span className="text-[10px] bg-cyan-100 dark:bg-cyan-500/10 border border-cyan-300 dark:border-cyan-500/30 text-cyan-800 dark:text-cyan-400 font-semibold px-2 py-0.5 rounded">
                             {plan.frequency}
                           </span>
-                          <span className="text-[10px] text-slate-400 font-mono">
+                          <span className="text-[10px] text-slate-600 dark:text-slate-400 font-mono">
                             {plan.steps.length} ขั้นตอน (TTM: {plan.ttm} นาที)
                           </span>
                         </div>
                         {/* Result summary tags */}
                         <div className="flex items-center gap-2 mt-1.5 text-[11px]">
-                          <span className="inline-flex items-center gap-1 text-emerald-400 bg-emerald-950/40 border border-emerald-500/30 px-2 py-0.5 rounded">
+                          <span className="inline-flex items-center gap-1 text-emerald-800 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-500/30 px-2 py-0.5 rounded">
                             <Check size={11} /> ปกติ: {normalCount}
                           </span>
-                          <span className="inline-flex items-center gap-1 text-rose-400 bg-rose-950/40 border border-rose-500/30 px-2 py-0.5 rounded">
+                          <span className="inline-flex items-center gap-1 text-rose-800 dark:text-rose-400 bg-rose-100 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-500/30 px-2 py-0.5 rounded">
                             <X size={11} /> ไม่ปกติ: {abnormalCount}
                           </span>
-                          <span className="inline-flex items-center gap-1 text-slate-400 bg-slate-900 border border-slate-700/60 px-2 py-0.5 rounded">
+                          <span className="inline-flex items-center gap-1 text-slate-700 dark:text-slate-400 bg-slate-200 dark:bg-slate-900 border border-slate-300 dark:border-slate-700/60 px-2 py-0.5 rounded">
                             ยังไม่ตรวจ: {uncheckedCount}
                           </span>
                         </div>
@@ -1071,7 +1071,7 @@ export const MachinePage: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => handleExportPM(m, plan)}
-                          className="inline-flex items-center gap-1 text-[11px] font-semibold bg-emerald-600/20 hover:bg-emerald-600/35 text-emerald-300 border border-emerald-500/40 px-2.5 py-1.5 rounded-lg transition cursor-pointer"
+                          className="inline-flex items-center gap-1 text-[11px] font-semibold bg-emerald-100 hover:bg-emerald-200 dark:bg-emerald-600/20 dark:hover:bg-emerald-600/35 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/40 px-2.5 py-1.5 rounded-lg transition cursor-pointer"
                           title="Export แผนนี้เป็น Excel"
                         >
                           <Download size={12} />
@@ -1079,7 +1079,7 @@ export const MachinePage: React.FC = () => {
                         </button>
                         <label
                           htmlFor={`input-import-plan-${plan.id}`}
-                          className="inline-flex items-center gap-1 text-[11px] font-semibold bg-cyan-600/20 hover:bg-cyan-600/35 text-cyan-300 border border-cyan-500/40 px-2.5 py-1.5 rounded-lg transition cursor-pointer"
+                          className="inline-flex items-center gap-1 text-[11px] font-semibold bg-cyan-100 hover:bg-cyan-200 dark:bg-cyan-600/20 dark:hover:bg-cyan-600/35 text-cyan-800 dark:text-cyan-300 border border-cyan-300 dark:border-cyan-500/40 px-2.5 py-1.5 rounded-lg transition cursor-pointer"
                           title="Import ไฟล์ Excel อัปเดตแผนนี้"
                         >
                           <Upload size={12} />
@@ -1105,7 +1105,7 @@ export const MachinePage: React.FC = () => {
                     <div className="overflow-x-auto">
                       <table className="w-full text-left text-xs border-collapse">
                         <thead>
-                          <tr className="bg-slate-900/60 text-slate-400 border-b border-slate-800 text-[11px] uppercase tracking-wider font-semibold">
+                          <tr className="bg-slate-100 dark:bg-slate-900/60 text-slate-700 dark:text-slate-400 border-b border-border dark:border-slate-800 text-[11px] uppercase tracking-wider font-semibold">
                             <th className="py-2.5 px-3 w-14 text-center">ลำดับ</th>
                             <th className="py-2.5 px-3 min-w-[200px]">หัวข้อ PM &amp; เกณฑ์มาตรฐาน</th>
                             <th className="py-2.5 px-3 w-28">วิธีการ</th>
@@ -1114,7 +1114,7 @@ export const MachinePage: React.FC = () => {
                             <th className="py-2.5 px-3 min-w-[180px]">รายละเอียดความผิดปกติ / หมายเหตุ</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-800/60">
+                        <tbody className="divide-y divide-border dark:divide-slate-800/60">
                           {plan.steps.map((step, sIdx) => {
                             const isNormal = step.result === 'ปกติ';
                             const isAbnormal = step.result === 'ไม่ปกติ';
@@ -1123,38 +1123,40 @@ export const MachinePage: React.FC = () => {
                             return (
                               <tr 
                                 key={step.id || `step-${sIdx}`}
-                                className={`transition-colors hover:bg-slate-900/50 ${
+                                className={`transition-colors hover:bg-slate-50 dark:hover:bg-slate-900/50 ${
                                   isAbnormal 
-                                    ? 'bg-rose-950/20' 
+                                    ? 'bg-rose-50 dark:bg-rose-950/20' 
                                     : isNormal 
-                                    ? 'bg-emerald-950/10' 
+                                    ? 'bg-emerald-50 dark:bg-emerald-950/10' 
                                     : ''
                                 }`}
                               >
                                 {/* ลำดับ (itemNo) */}
-                                <td className="py-2.5 px-3 text-center font-mono font-bold text-slate-300">
+                                <td className="py-2.5 px-3 text-center font-mono font-bold text-slate-800 dark:text-slate-300">
                                   {step.itemNo !== undefined && step.itemNo !== null ? step.itemNo : (sIdx + 1)}
                                 </td>
 
                                 {/* หัวข้อ PM & มาตรฐาน */}
                                 <td className="py-2.5 px-3">
-                                  <div className="font-semibold text-slate-100">{step.title}</div>
+                                  <div className="font-semibold text-slate-900 dark:text-slate-100">{step.title}</div>
                                   {step.standard && (
-                                    <div className="text-[11px] text-cyan-300/90 mt-0.5 leading-relaxed">
-                                      <span className="text-slate-400 font-medium">มาตรฐาน: </span>
+                                    <div className="text-[11px] text-cyan-700 dark:text-cyan-300 mt-0.5 leading-relaxed">
+                                      <span className="text-slate-700 dark:text-slate-300 font-semibold">มาตรฐาน: </span>
                                       {step.standard}
                                     </div>
                                   )}
                                 </td>
 
                                 {/* วิธีการ */}
-                                <td className="py-2.5 px-3 text-slate-300 text-[11px]">
-                                  {step.method || '-'}
+                                <td className="py-2.5 px-3 text-[11px]">
+                                  <span className="inline-block px-2 py-0.5 rounded font-medium bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100">
+                                    {step.method || 'ดูด้วยสายตา'}
+                                  </span>
                                 </td>
 
                                 {/* ความถี่ */}
                                 <td className="py-2.5 px-3 text-center">
-                                  <span className="inline-block text-[10px] bg-slate-900 border border-slate-700/80 text-slate-300 px-2 py-0.5 rounded font-mono">
+                                  <span className="inline-block text-[10px] bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 text-slate-800 dark:text-slate-200 px-2 py-0.5 rounded font-mono">
                                     {step.frequency || plan.frequency}
                                   </span>
                                 </td>
@@ -1169,12 +1171,12 @@ export const MachinePage: React.FC = () => {
                                       onClick={() => handleToggleStepResult(plan.id, sIdx, 'ปกติ')}
                                       className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold transition border cursor-pointer ${
                                         isNormal
-                                          ? 'bg-emerald-600 text-fg border-emerald-400 shadow-sm ring-1 ring-emerald-400/40'
-                                          : 'bg-slate-900 hover:bg-emerald-950/50 text-slate-400 hover:text-emerald-300 border-slate-700 hover:border-emerald-500/40'
+                                          ? 'bg-emerald-600 text-white border-emerald-400 shadow-sm ring-1 ring-emerald-400/40'
+                                          : 'bg-slate-100 dark:bg-slate-900 hover:bg-emerald-100 dark:hover:bg-emerald-950/50 text-slate-800 dark:text-slate-100 hover:text-emerald-900 dark:hover:text-white border-slate-300 dark:border-slate-700 hover:border-emerald-400'
                                       }`}
                                       title={isNormal ? 'คลิกซ้ำเพื่อยกเลิก (เปลี่ยนกลับเป็นยังไม่ตรวจ)' : 'เลือกผลการตรวจ: ปกติ'}
                                     >
-                                      <Check size={13} className={isNormal ? 'text-fg' : 'text-emerald-400'} />
+                                      <Check size={13} className={isNormal ? 'text-white' : 'text-emerald-600 dark:text-emerald-400'} />
                                       <span>ปกติ</span>
                                     </button>
 
@@ -1185,12 +1187,12 @@ export const MachinePage: React.FC = () => {
                                       onClick={() => handleToggleStepResult(plan.id, sIdx, 'ไม่ปกติ')}
                                       className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold transition border cursor-pointer ${
                                         isAbnormal
-                                          ? 'bg-rose-600 text-fg border-rose-400 shadow-sm ring-1 ring-rose-400/40'
-                                          : 'bg-slate-900 hover:bg-rose-950/50 text-slate-400 hover:text-rose-300 border-slate-700 hover:border-rose-500/40'
+                                          ? 'bg-rose-600 text-white border-rose-400 shadow-sm ring-1 ring-rose-400/40'
+                                          : 'bg-slate-100 dark:bg-slate-900 hover:bg-rose-100 dark:hover:bg-rose-950/50 text-slate-800 dark:text-slate-100 hover:text-rose-900 dark:hover:text-white border-slate-300 dark:border-slate-700 hover:border-rose-400'
                                       }`}
                                       title={isAbnormal ? 'คลิกซ้ำเพื่อยกเลิก (เปลี่ยนกลับเป็นยังไม่ตรวจ)' : 'เลือกผลการตรวจ: ไม่ปกติ'}
                                     >
-                                      <X size={13} className={isAbnormal ? 'text-fg' : 'text-rose-400'} />
+                                      <X size={13} className={isAbnormal ? 'text-white' : 'text-rose-600 dark:text-rose-400'} />
                                       <span>ไม่ปกติ</span>
                                     </button>
 
@@ -1211,14 +1213,14 @@ export const MachinePage: React.FC = () => {
                                       placeholder={isAbnormal ? 'ระบุสิ่งผิดปกติ / ค่าที่วัดได้*' : 'รายละเอียด/ค่าที่วัดได้'}
                                       value={step.abnormalDetail || ''}
                                       onChange={(e) => handleUpdateStepNote(plan.id, sIdx, 'abnormalDetail', e.target.value)}
-                                      className={`w-full bg-slate-900/90 text-xs px-2.5 py-1 rounded border focus:outline-none transition ${
+                                      className={`w-full bg-white dark:bg-slate-900/90 text-xs px-2.5 py-1 rounded border focus:outline-none transition ${
                                         isAbnormal 
-                                          ? 'border-rose-500/60 text-rose-200 placeholder-rose-400/50 focus:border-rose-400' 
-                                          : 'border-slate-800 text-slate-200 placeholder-slate-600 focus:border-cyan-500'
+                                          ? 'border-rose-400 dark:border-rose-500/60 text-rose-800 dark:text-rose-200 placeholder-rose-400 focus:border-rose-500' 
+                                          : 'border-slate-300 dark:border-slate-800 text-slate-900 dark:text-slate-200 placeholder-slate-400 focus:border-cyan-500'
                                       }`}
                                     />
                                     {step.remark && (
-                                      <div className="text-[10px] text-slate-400 truncate" title={step.remark}>
+                                      <div className="text-[10px] text-slate-600 dark:text-slate-400 truncate" title={step.remark}>
                                         หมายเหตุ: {step.remark}
                                       </div>
                                     )}
@@ -1238,22 +1240,22 @@ export const MachinePage: React.FC = () => {
         </div>
 
         {/* Historical repair overview */}
-        <div className="space-y-2 pt-2 border-t border-slate-800/80">
-          <h4 className="text-xs font-semibold uppercase text-slate-400 tracking-wider flex items-center gap-1.5">
+        <div className="space-y-2 pt-2 border-t border-border dark:border-slate-800/80">
+          <h4 className="text-xs font-semibold uppercase text-slate-700 dark:text-slate-400 tracking-wider flex items-center gap-1.5">
             <span className="w-2 h-2 rounded bg-rose-500"></span>
             ประวัติการซ่อมบำรุง (ยอดสะสมล่าสุด)
           </h4>
-          <div className="bg-slate-800/80 border border-slate-700 rounded-lg p-4 grid grid-cols-2 gap-4">
-            <div className="text-center p-2 bg-slate-900/60 rounded">
-              <p className="text-[10px] text-slate-400 uppercase">ยอดซ่อมสะสมทั้งหมด</p>
-              <p className="text-lg font-mono font-extrabold text-rose-400 mt-1">
+          <div className="bg-slate-50 dark:bg-slate-800/80 border border-border dark:border-slate-700 rounded-lg p-4 grid grid-cols-2 gap-4">
+            <div className="text-center p-2 bg-white dark:bg-slate-900/60 rounded border border-border dark:border-transparent">
+              <p className="text-[10px] text-slate-600 dark:text-slate-400 uppercase">ยอดซ่อมสะสมทั้งหมด</p>
+              <p className="text-lg font-mono font-extrabold text-rose-600 dark:text-rose-400 mt-1">
                 {repairs.filter(r => r.machineId === m.id).length} ครั้ง
               </p>
             </div>
 
-            <div className="text-center p-2 bg-slate-900/60 rounded">
-              <p className="text-[10px] text-slate-400 uppercase">เวลารอซ่อมเฉลี่ย MTTR</p>
-              <p className="text-lg font-mono font-extrabold text-amber-400 mt-1">
+            <div className="text-center p-2 bg-white dark:bg-slate-900/60 rounded border border-border dark:border-transparent">
+              <p className="text-[10px] text-slate-600 dark:text-slate-400 uppercase">เวลารอซ่อมเฉลี่ย MTTR</p>
+              <p className="text-lg font-mono font-extrabold text-amber-700 dark:text-amber-400 mt-1">
                 {(() => {
                   const machReps = repairs.filter(r => r.machineId === m.id);
                   if (machReps.length === 0) return "-";
@@ -1286,10 +1288,10 @@ export const MachinePage: React.FC = () => {
           <button
             id="btn-export-machines-excel"
             onClick={handleExportMachinesExcel}
-            className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-fg font-semibold px-3.5 py-2 rounded-lg transition-all shadow-md text-xs cursor-pointer border border-emerald-500/40"
+            className="flex items-center gap-2 bg-white dark:bg-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-500 text-emerald-800 dark:text-fg font-semibold px-3.5 py-2 rounded-lg transition-all shadow-xs text-xs cursor-pointer border border-emerald-300 dark:border-emerald-500/40"
             title="ส่งออกข้อมูลเครื่องจักรเป็นไฟล์ Excel ตามมาตรฐานคอลัมน์ A-K"
           >
-            <Download size={15} />
+            <Download size={15} className="text-emerald-700 dark:text-fg" />
             <span>Export Excel</span>
           </button>
 
@@ -1297,10 +1299,10 @@ export const MachinePage: React.FC = () => {
           <button
             id="btn-import-machines-excel"
             onClick={() => setShowImportModal(true)}
-            className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-cyan-300 font-semibold px-3.5 py-2 rounded-lg transition-all shadow-md text-xs cursor-pointer border border-cyan-500/40 hover:border-cyan-400"
+            className="flex items-center gap-2 bg-white dark:bg-slate-800 hover:bg-cyan-50 dark:hover:bg-slate-700 text-cyan-900 dark:text-cyan-300 font-semibold px-3.5 py-2 rounded-lg transition-all shadow-xs text-xs cursor-pointer border border-cyan-300 dark:border-cyan-500/40 hover:border-cyan-400"
             title="นำเข้าไฟล์ Excel เข้าสู่ทะเบียนเครื่องจักร"
           >
-            <Upload size={15} />
+            <Upload size={15} className="text-cyan-700 dark:text-cyan-300" />
             <span>Import Excel</span>
           </button>
 
@@ -1308,10 +1310,10 @@ export const MachinePage: React.FC = () => {
           <button
             id="btn-manage-zones-rooms"
             onClick={() => setShowZoneManagerModal(true)}
-            className="flex items-center gap-2 bg-indigo-50 dark:bg-indigo-950/80 hover:bg-indigo-100 dark:hover:bg-indigo-900/80 text-indigo-700 dark:text-indigo-300 font-semibold px-3.5 py-2 rounded-lg transition-all shadow-sm text-xs cursor-pointer border border-indigo-200 dark:border-indigo-500/50 hover:border-indigo-300 dark:hover:border-indigo-400"
+            className="flex items-center gap-2 bg-white dark:bg-indigo-950/80 hover:bg-indigo-50 dark:hover:bg-indigo-900/80 text-indigo-900 dark:text-indigo-300 font-semibold px-3.5 py-2 rounded-lg transition-all shadow-xs text-xs cursor-pointer border border-indigo-300 dark:border-indigo-500/50 hover:border-indigo-400"
             title="จัดการโครงสร้างโซนและห้อง (เพิ่มโซน/ห้อง เปลี่ยนชื่อ หรือลบ)"
           >
-            <Layers size={15} className="text-indigo-600 dark:text-indigo-400" />
+            <Layers size={15} className="text-indigo-700 dark:text-indigo-400" />
             <span>จัดการโซน/ห้อง</span>
           </button>
 
@@ -1386,7 +1388,7 @@ export const MachinePage: React.FC = () => {
           <div id="filter-zone-select-container" className="flex items-center gap-2 bg-surface dark:bg-slate-900/90 border border-border dark:border-slate-700 rounded-lg px-3 py-1.5 min-w-[190px]">
             <Building size={15} className="text-cyan-600 dark:text-cyan-400 shrink-0" />
             <div className="flex-1">
-              <label htmlFor="filter-zone-select" className="block text-[10px] text-fg-muted dark:text-slate-400 font-medium leading-tight">
+              <label htmlFor="filter-zone-select" className="block text-[10px] text-fg dark:text-slate-200 font-semibold leading-tight">
                 กรองโซน (Zone):
               </label>
               <select
@@ -1426,7 +1428,7 @@ export const MachinePage: React.FC = () => {
           <div id="filter-room-select-container" className="flex items-center gap-2 bg-surface dark:bg-slate-900/90 border border-border dark:border-slate-700 rounded-lg px-3 py-1.5 min-w-[190px]">
             <MapPin size={15} className="text-cyan-600 dark:text-cyan-400 shrink-0" />
             <div className="flex-1">
-              <label htmlFor="filter-room-select" className="block text-[10px] text-fg-muted dark:text-slate-400 font-medium leading-tight">
+              <label htmlFor="filter-room-select" className="block text-[10px] text-fg dark:text-slate-200 font-semibold leading-tight">
                 กรองห้อง (Room):
               </label>
               <select
@@ -1461,10 +1463,10 @@ export const MachinePage: React.FC = () => {
             type="button"
             id="btn-filter-manage-zones"
             onClick={() => setShowZoneManagerModal(true)}
-            className="text-xs text-indigo-700 dark:text-indigo-300 hover:text-indigo-800 dark:hover:text-indigo-200 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 border border-indigo-200 dark:border-indigo-700/50 px-3 py-2 rounded-lg transition shrink-0 flex items-center gap-1.5 cursor-pointer font-medium"
+            className="text-xs text-indigo-900 dark:text-indigo-300 hover:text-indigo-950 dark:hover:text-indigo-200 bg-white dark:bg-indigo-950/60 hover:bg-indigo-50 dark:hover:bg-indigo-900/60 border border-indigo-300 dark:border-indigo-700/50 px-3 py-2 rounded-lg transition shrink-0 flex items-center gap-1.5 cursor-pointer font-semibold shadow-xs"
             title="เปิดตัวจัดการโซน/ห้อง (เพิ่ม/ลบ/แก้ไข)"
           >
-            <Settings size={13} className="text-indigo-600 dark:text-indigo-400" />
+            <Settings size={13} className="text-indigo-700 dark:text-indigo-400" />
             <span>จัดการโครงสร้างโซน/ห้อง</span>
           </button>
 
@@ -1477,7 +1479,7 @@ export const MachinePage: React.FC = () => {
                 setSelectedRoom('');
                 setSearchTerm('');
               }}
-              className="text-xs text-rose-300 hover:text-rose-200 bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 px-3 py-2 rounded-lg transition shrink-0 flex items-center gap-1.5 cursor-pointer font-semibold shadow-sm"
+              className="text-xs text-rose-800 dark:text-rose-300 hover:text-rose-900 dark:hover:text-rose-200 bg-white dark:bg-rose-500/15 hover:bg-rose-50 dark:hover:bg-rose-500/25 border border-rose-300 dark:border-rose-500/30 px-3 py-2 rounded-lg transition shrink-0 flex items-center gap-1.5 cursor-pointer font-semibold shadow-xs"
               title="ล้างตัวกรองและคำค้นหาทั้งหมด"
             >
               <X size={14} />
@@ -1487,11 +1489,11 @@ export const MachinePage: React.FC = () => {
         </div>
 
         {/* Row 2: Display Checkboxes (Show Zone, Show Room, or Both) + View Mode switcher */}
-        <div className="flex flex-col lg:flex-row gap-3 items-start lg:items-center justify-between pt-2.5 border-t border-slate-700/60">
+        <div className="flex flex-col lg:flex-row gap-3 items-start lg:items-center justify-between pt-2.5 border-t border-slate-200 dark:border-slate-700/60">
           {/* Checkboxes to toggle Zone / Room columns visibility */}
           <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs">
-            <span className="text-slate-400 font-medium flex items-center gap-1.5 mr-1">
-              <Eye size={14} className="text-cyan-400" />
+            <span className="text-slate-600 dark:text-slate-400 font-semibold flex items-center gap-1.5 mr-1">
+              <Eye size={14} className="text-cyan-600 dark:text-cyan-400" />
               <span>แสดงคอลัมน์:</span>
             </span>
 
@@ -1500,8 +1502,8 @@ export const MachinePage: React.FC = () => {
               htmlFor="checkbox-show-zone"
               className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg border cursor-pointer transition select-none ${
                 showZoneColumn
-                  ? 'bg-cyan-950/60 border-cyan-500/60 text-cyan-300 font-semibold shadow-sm'
-                  : 'bg-slate-900/60 border-slate-700 text-slate-400 hover:border-slate-600'
+                  ? 'bg-white dark:bg-cyan-950/60 border-cyan-500 dark:border-cyan-500/60 text-cyan-950 dark:text-cyan-300 font-bold shadow-xs'
+                  : 'bg-white dark:bg-slate-900/60 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-400 hover:border-slate-400'
               }`}
             >
               <input
@@ -1509,7 +1511,7 @@ export const MachinePage: React.FC = () => {
                 type="checkbox"
                 checked={showZoneColumn}
                 onChange={(e) => setShowZoneColumn(e.target.checked)}
-                className="w-4 h-4 rounded border-slate-600 text-cyan-500 focus:ring-cyan-400 focus:ring-offset-slate-900 bg-slate-800 cursor-pointer"
+                className="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-cyan-600 dark:text-cyan-500 focus:ring-cyan-500 bg-white dark:bg-slate-800 cursor-pointer"
               />
               <span>โซน (Zone)</span>
             </label>
@@ -1519,8 +1521,8 @@ export const MachinePage: React.FC = () => {
               htmlFor="checkbox-show-room"
               className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg border cursor-pointer transition select-none ${
                 showRoomColumn
-                  ? 'bg-cyan-950/60 border-cyan-500/60 text-cyan-300 font-semibold shadow-sm'
-                  : 'bg-slate-900/60 border-slate-700 text-slate-400 hover:border-slate-600'
+                  ? 'bg-white dark:bg-cyan-950/60 border-cyan-500 dark:border-cyan-500/60 text-cyan-950 dark:text-cyan-300 font-bold shadow-xs'
+                  : 'bg-white dark:bg-slate-900/60 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-400 hover:border-slate-400'
               }`}
             >
               <input
@@ -1528,14 +1530,14 @@ export const MachinePage: React.FC = () => {
                 type="checkbox"
                 checked={showRoomColumn}
                 onChange={(e) => setShowRoomColumn(e.target.checked)}
-                className="w-4 h-4 rounded border-slate-600 text-cyan-500 focus:ring-cyan-400 focus:ring-offset-slate-900 bg-slate-800 cursor-pointer"
+                className="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-cyan-600 dark:text-cyan-500 focus:ring-cyan-500 bg-white dark:bg-slate-800 cursor-pointer"
               />
               <span>ห้อง (Room)</span>
             </label>
 
             {/* Quick Presets: Both, Zone only, Room only */}
-            <div className="flex items-center gap-1 pl-1 sm:pl-2 sm:border-l sm:border-slate-700">
-              <span className="text-[11px] text-slate-500 mr-1 hidden sm:inline">เลือกด่วน:</span>
+            <div className="flex items-center gap-1 pl-1 sm:pl-2 sm:border-l sm:border-slate-200 dark:sm:border-slate-700">
+              <span className="text-[11px] text-slate-500 mr-1 hidden sm:inline font-medium">เลือกด่วน:</span>
               <button
                 type="button"
                 id="btn-show-both-columns"
@@ -1543,10 +1545,10 @@ export const MachinePage: React.FC = () => {
                   setShowZoneColumn(true);
                   setShowRoomColumn(true);
                 }}
-                className={`text-[11px] px-2.5 py-1 rounded-md transition cursor-pointer font-medium ${
+                className={`text-[11px] px-2.5 py-1 rounded-md transition cursor-pointer font-semibold ${
                   showZoneColumn && showRoomColumn
-                    ? 'bg-cyan-500/25 text-cyan-300 font-bold border border-cyan-500/50 shadow-sm'
-                    : 'text-slate-400 hover:text-slate-200 bg-slate-900/80 border border-slate-800'
+                    ? 'bg-cyan-50 dark:bg-cyan-500/25 text-cyan-900 dark:text-cyan-300 font-bold border border-cyan-400 dark:border-cyan-500/50 shadow-xs'
+                    : 'text-slate-700 dark:text-slate-400 hover:text-slate-950 dark:hover:text-slate-200 bg-white dark:bg-slate-900/80 border border-slate-300 dark:border-slate-800'
                 }`}
                 title="แสดงทั้งคอลัมน์โซนและห้อง"
               >
@@ -1559,10 +1561,10 @@ export const MachinePage: React.FC = () => {
                   setShowZoneColumn(true);
                   setShowRoomColumn(false);
                 }}
-                className={`text-[11px] px-2.5 py-1 rounded-md transition cursor-pointer font-medium ${
+                className={`text-[11px] px-2.5 py-1 rounded-md transition cursor-pointer font-semibold ${
                   showZoneColumn && !showRoomColumn
-                    ? 'bg-cyan-500/25 text-cyan-300 font-bold border border-cyan-500/50 shadow-sm'
-                    : 'text-slate-400 hover:text-slate-200 bg-slate-900/80 border border-slate-800'
+                    ? 'bg-cyan-50 dark:bg-cyan-500/25 text-cyan-900 dark:text-cyan-300 font-bold border border-cyan-400 dark:border-cyan-500/50 shadow-xs'
+                    : 'text-slate-700 dark:text-slate-400 hover:text-slate-950 dark:hover:text-slate-200 bg-white dark:bg-slate-900/80 border border-slate-300 dark:border-slate-800'
                 }`}
                 title="แสดงเฉพาะคอลัมน์โซน"
               >
@@ -1575,10 +1577,10 @@ export const MachinePage: React.FC = () => {
                   setShowZoneColumn(false);
                   setShowRoomColumn(true);
                 }}
-                className={`text-[11px] px-2.5 py-1 rounded-md transition cursor-pointer font-medium ${
+                className={`text-[11px] px-2.5 py-1 rounded-md transition cursor-pointer font-semibold ${
                   !showZoneColumn && showRoomColumn
-                    ? 'bg-cyan-500/25 text-cyan-300 font-bold border border-cyan-500/50 shadow-sm'
-                    : 'text-slate-400 hover:text-slate-200 bg-slate-900/80 border border-slate-800'
+                    ? 'bg-cyan-50 dark:bg-cyan-500/25 text-cyan-900 dark:text-cyan-300 font-bold border border-cyan-400 dark:border-cyan-500/50 shadow-xs'
+                    : 'text-slate-700 dark:text-slate-400 hover:text-slate-950 dark:hover:text-slate-200 bg-white dark:bg-slate-900/80 border border-slate-300 dark:border-slate-800'
                 }`}
                 title="แสดงเฉพาะคอลัมน์ห้อง"
               >
@@ -1590,13 +1592,13 @@ export const MachinePage: React.FC = () => {
           {/* View mode & expand controls */}
           <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto justify-between lg:justify-end">
             {/* Mode Switcher */}
-            <div className="flex items-center bg-slate-900/90 border border-slate-700 rounded-lg p-1 text-xs">
+            <div className="flex items-center bg-white dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700 rounded-lg p-1 text-xs shadow-xs">
               <button
                 onClick={() => setViewMode('grouped')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-semibold transition cursor-pointer ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-bold transition cursor-pointer ${
                   viewMode === 'grouped'
-                    ? 'bg-cyan-500 text-slate-950 shadow-sm'
-                    : 'text-slate-400 hover:text-slate-200'
+                    ? 'bg-cyan-600 text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs'
+                    : 'text-slate-700 dark:text-slate-400 hover:text-slate-950 dark:hover:text-slate-200'
                 }`}
               >
                 <Layers size={14} />
@@ -1604,10 +1606,10 @@ export const MachinePage: React.FC = () => {
               </button>
               <button
                 onClick={() => setViewMode('flat')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-semibold transition cursor-pointer ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-bold transition cursor-pointer ${
                   viewMode === 'flat'
-                    ? 'bg-cyan-500 text-slate-950 shadow-sm'
-                    : 'text-slate-400 hover:text-slate-200'
+                    ? 'bg-cyan-600 text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs'
+                    : 'text-slate-700 dark:text-slate-400 hover:text-slate-950 dark:hover:text-slate-200'
                 }`}
               >
                 <ListFilter size={14} />
@@ -1620,7 +1622,7 @@ export const MachinePage: React.FC = () => {
               <div className="flex items-center gap-1.5">
                 <button
                   onClick={expandAllGroups}
-                  className="text-xs bg-slate-900 hover:bg-slate-700 border border-slate-700 text-slate-300 px-2.5 py-1.5 rounded-lg transition cursor-pointer flex items-center gap-1"
+                  className="text-xs bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-300 px-2.5 py-1.5 rounded-lg transition cursor-pointer flex items-center gap-1 font-semibold shadow-xs"
                   title="ขยายทุกกลุ่มเครื่องจักร"
                 >
                   <ChevronDown size={13} />
@@ -1628,7 +1630,7 @@ export const MachinePage: React.FC = () => {
                 </button>
                 <button
                   onClick={collapseAllGroups}
-                  className="text-xs bg-slate-900 hover:bg-slate-700 border border-slate-700 text-slate-300 px-2.5 py-1.5 rounded-lg transition cursor-pointer flex items-center gap-1"
+                  className="text-xs bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-300 px-2.5 py-1.5 rounded-lg transition cursor-pointer flex items-center gap-1 font-semibold shadow-xs"
                   title="ยุบทุกกลุ่มเครื่องจักร"
                 >
                   <ChevronUp size={13} />
@@ -1701,25 +1703,25 @@ export const MachinePage: React.FC = () => {
                           <div className="flex items-center gap-2.5">
                             <div className={`p-1.5 rounded-lg border transition shrink-0 ${
                               isExpanded 
-                                ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40' 
-                                : 'bg-slate-900 text-slate-400 border-slate-700 hover:text-cyan-300'
+                                ? 'bg-cyan-50 dark:bg-cyan-500/20 text-cyan-800 dark:text-cyan-300 border-cyan-300 dark:border-cyan-500/40' 
+                                : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-400 border-slate-300 dark:border-slate-700 hover:text-cyan-700 dark:hover:text-cyan-300'
                             }`}>
                               {isExpanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
                             </div>
                             <div>
                               <div className="flex items-center gap-2 flex-wrap">
-                                <span className="font-extrabold text-slate-100 text-sm tracking-wide">
+                                <span className="font-extrabold text-slate-900 dark:text-slate-100 text-sm tracking-wide">
                                   {group.name}
                                 </span>
                                 <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold border ${
                                   group.machines.length > 1
-                                    ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40'
-                                    : 'bg-slate-700/60 text-slate-300 border-slate-600'
+                                    ? 'bg-cyan-50 dark:bg-cyan-500/20 text-cyan-900 dark:text-cyan-300 border-cyan-300 dark:border-cyan-500/40'
+                                    : 'bg-white dark:bg-slate-700/60 text-slate-800 dark:text-slate-300 border-slate-300 dark:border-slate-600 shadow-xs'
                                 }`}>
                                   {group.machines.length} เครื่อง
                                 </span>
                               </div>
-                              <span className="text-[11px] text-slate-400">
+                              <span className="text-[11px] text-slate-500 dark:text-slate-400">
                                 {isExpanded ? 'คลิกเพื่อย่อรายการ' : 'คลิกเพื่อคลี่ดูเครื่องที่ 1, 2, 3...'}
                               </span>
                             </div>
@@ -1732,7 +1734,7 @@ export const MachinePage: React.FC = () => {
                             {group.machines.map((m, mIdx) => (
                               <span 
                                 key={m.id}
-                                className="font-mono text-xs px-2 py-0.5 bg-slate-900/90 border border-slate-700 text-cyan-400 font-semibold rounded"
+                                className="font-mono text-xs px-2 py-0.5 bg-slate-100 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700 text-cyan-900 dark:text-cyan-300 font-bold rounded"
                                 title={`เครื่องที่ ${mIdx + 1}: ${m.id} | Model: ${m.model || '-'} | ห้อง: ${m.locationRoom || '-'}`}
                               >
                                 #{mIdx + 1}: {m.id}
@@ -2151,15 +2153,15 @@ export const MachinePage: React.FC = () => {
 
       {/* Add Machine Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4" id="machine-add-modal-overlay">
-          <div className="bg-slate-800 border border-slate-700 rounded-2xl max-w-2xl w-full overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-155 max-h-[90vh] flex flex-col" id="machine-add-modal">
-            <div className="bg-gradient-to-r from-slate-800 to-slate-900 border-b border-slate-700/80 p-5 flex justify-between items-center shrink-0">
-              <h3 className="text-base font-semibold text-cyan-400 flex items-center gap-2">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 dark:bg-slate-950/80 backdrop-blur-sm p-4" id="machine-add-modal-overlay">
+          <div className="bg-surface dark:bg-slate-800 border border-border dark:border-slate-700 rounded-2xl max-w-2xl w-full overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-155 max-h-[90vh] flex flex-col" id="machine-add-modal">
+            <div className="bg-slate-50 dark:bg-gradient-to-r dark:from-slate-800 dark:to-slate-900 border-b border-border dark:border-slate-700/80 p-5 flex justify-between items-center shrink-0">
+              <h3 className="text-base font-semibold text-cyan-600 dark:text-cyan-400 flex items-center gap-2">
                 ➕ เพิ่มข้อมูลทะเบียนเครื่องจักรใหม่
               </h3>
               <button 
                 onClick={() => setShowAddModal(false)}
-                className="text-slate-400 hover:text-slate-200 text-xl font-medium focus:outline-none cursor-pointer"
+                className="text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 text-xl font-medium focus:outline-none cursor-pointer"
               >
                 &times;
               </button>
@@ -2167,8 +2169,8 @@ export const MachinePage: React.FC = () => {
             
             <form onSubmit={handleAddMachine} className="p-6 space-y-4 overflow-y-auto flex-1">
               {errorMsg && (
-                <div className="bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs p-3 rounded-lg flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-rose-400"></span>
+                <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 text-rose-700 dark:text-rose-400 text-xs p-3 rounded-lg flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
                   {errorMsg}
                 </div>
               )}
@@ -2176,7 +2178,7 @@ export const MachinePage: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Column B: รหัสอุปกรณ์ */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-300">รหัสอุปกรณ์ (Machine ID)*</label>
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">รหัสอุปกรณ์ (Machine ID)*</label>
                   <input
                     id="modal-machine-id"
                     type="text"
@@ -2184,13 +2186,13 @@ export const MachinePage: React.FC = () => {
                     placeholder="ตัวอย่างเช่น RIM01, FFS04, BCF07"
                     value={newId}
                     onChange={(e) => setNewId(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-slate-200 uppercase placeholder-slate-500 font-mono text-sm focus:outline-none focus:border-cyan-500"
+                    className="w-full bg-white dark:bg-slate-900 border border-border dark:border-slate-700 rounded-lg px-3.5 py-2 text-fg dark:text-slate-200 uppercase placeholder-slate-400 dark:placeholder-slate-500 font-mono text-sm focus:outline-none focus:border-cyan-500"
                   />
                 </div>
 
                 {/* Column C: รายชื่อเครื่องจักร */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-300">รายชื่อเครื่องจักร (Machine Name)*</label>
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">รายชื่อเครื่องจักร (Machine Name)*</label>
                   <input
                     id="modal-machine-name"
                     type="text"
@@ -2198,14 +2200,14 @@ export const MachinePage: React.FC = () => {
                     placeholder="ตัวอย่างเช่น RICE MIXER, BANDING, INK JET"
                     value={newName}
                     onChange={(e) => setNewName(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-slate-200 uppercase placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-500"
+                    className="w-full bg-white dark:bg-slate-900 border border-border dark:border-slate-700 rounded-lg px-3.5 py-2 text-fg dark:text-slate-200 uppercase placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-500"
                   />
                 </div>
 
                 {/* หน้าที่ (Duty / Line Group) - Prominent and easy to find */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-amber-300 flex items-center gap-1.5">
-                    <Briefcase size={13} className="text-amber-400" />
+                  <label className="text-xs font-semibold text-amber-700 dark:text-amber-300 flex items-center gap-1.5">
+                    <Briefcase size={13} className="text-amber-600 dark:text-amber-400" />
                     <span>หน้าที่ (Duty / Line Group)*</span>
                   </label>
                   <input
@@ -2214,58 +2216,58 @@ export const MachinePage: React.FC = () => {
                     placeholder="ตัวอย่างเช่น LINE A, PACKING, UTILITY, SEALER"
                     value={newLineGroup}
                     onChange={(e) => setNewLineGroup(e.target.value)}
-                    className="w-full bg-slate-900 border border-amber-500/50 rounded-lg px-3.5 py-2 text-amber-200 placeholder-slate-500 text-sm focus:outline-none focus:border-amber-400"
+                    className="w-full bg-white dark:bg-slate-900 border border-amber-400 dark:border-amber-500/50 rounded-lg px-3.5 py-2 text-amber-900 dark:text-amber-200 placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-none focus:border-amber-500"
                   />
                 </div>
 
                 {/* Column D: Model (รุ่น) */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-300">Model (รุ่น)</label>
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Model (รุ่น)</label>
                   <input
                     id="modal-machine-model"
                     type="text"
                     placeholder="ตัวอย่างเช่น RM-500X, VC-120-Pro"
                     value={newModel}
                     onChange={(e) => setNewModel(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-slate-200 placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-500"
+                    className="w-full bg-white dark:bg-slate-900 border border-border dark:border-slate-700 rounded-lg px-3.5 py-2 text-fg dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-500"
                   />
                 </div>
 
                 {/* Column E: แรงดัน/กำลังไฟ */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-300">แรงดัน / กำลังไฟ</label>
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">แรงดัน / กำลังไฟ</label>
                   <input
                     id="modal-machine-voltage"
                     type="text"
                     placeholder="ตัวอย่างเช่น 380V 3P 7.5kW, 220V 1P 1.5kW"
                     value={newPowerVoltage}
                     onChange={(e) => setNewPowerVoltage(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-slate-200 placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-500"
+                    className="w-full bg-white dark:bg-slate-900 border border-border dark:border-slate-700 rounded-lg px-3.5 py-2 text-fg dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-500"
                   />
                 </div>
 
                 {/* Column F: วันที่ติดตั้ง */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-300">วันที่ติดตั้ง</label>
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">วันที่ติดตั้ง</label>
                   <input
                     id="modal-machine-install-date"
                     type="date"
                     value={newInstallDate}
                     onChange={(e) => setNewInstallDate(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-slate-200 placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-500"
+                    className="w-full bg-white dark:bg-slate-900 border border-border dark:border-slate-700 rounded-lg px-3.5 py-2 text-fg dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-500"
                   />
                 </div>
 
                 {/* Column G: บริษัทผู้ขาย */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-300">บริษัทผู้ขาย (Vendor)</label>
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">บริษัทผู้ขาย (Vendor)</label>
                   <input
                     id="modal-machine-vendor"
                     type="text"
                     placeholder="ตัวอย่างเช่น Kanto Machinery Co., Ltd."
                     value={newVendor}
                     onChange={(e) => setNewVendor(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-slate-200 placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-500"
+                    className="w-full bg-white dark:bg-slate-900 border border-border dark:border-slate-700 rounded-lg px-3.5 py-2 text-fg dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-500"
                   />
                 </div>
 
@@ -2284,43 +2286,43 @@ export const MachinePage: React.FC = () => {
 
                 {/* Column J: Serial Number */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-300">Serial Number</label>
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Serial Number</label>
                   <input
                     id="modal-machine-serial"
                     type="text"
                     placeholder="ตัวอย่างเช่น SN-RM-2024-001"
                     value={newSerialNumber}
                     onChange={(e) => setNewSerialNumber(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-slate-200 placeholder-slate-500 font-mono text-sm focus:outline-none focus:border-cyan-500"
+                    className="w-full bg-white dark:bg-slate-900 border border-border dark:border-slate-700 rounded-lg px-3.5 py-2 text-fg dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 font-mono text-sm focus:outline-none focus:border-cyan-500"
                   />
                 </div>
               </div>
 
               {/* Column K: หมายเหตุ */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300">หมายเหตุ</label>
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">หมายเหตุ</label>
                 <textarea
                   id="modal-machine-notes"
                   rows={2}
                   placeholder="หมายเหตุเพิ่มเติม ข้อควรระวัง หรือประวัติการซ่อมบำรุง"
                   value={newNotes}
                   onChange={(e) => setNewNotes(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-slate-200 placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-500 resize-none"
+                  className="w-full bg-white dark:bg-slate-900 border border-border dark:border-slate-700 rounded-lg px-3.5 py-2 text-fg dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-500 resize-none"
                 />
               </div>
 
-              <div className="pt-4 border-t border-slate-700/60 flex items-center justify-end gap-3 shrink-0">
+              <div className="pt-4 border-t border-border dark:border-slate-700/60 flex items-center justify-end gap-3 shrink-0">
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="border border-slate-700 hover:bg-slate-700 text-slate-300 text-xs tracking-wide px-4 py-2.5 rounded-lg transition cursor-pointer"
+                  className="border border-border dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs tracking-wide px-4 py-2.5 rounded-lg transition cursor-pointer"
                 >
                   ยกเลิก
                 </button>
                 <button
                   id="modal-btn-save-machine"
                   type="submit"
-                  className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs tracking-wide px-5 py-2.5 rounded-lg transition cursor-pointer"
+                  className="bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs tracking-wide px-5 py-2.5 rounded-lg transition cursor-pointer"
                 >
                   บันทึกทะเบียน
                 </button>
@@ -2332,10 +2334,10 @@ export const MachinePage: React.FC = () => {
 
       {/* Edit Machine Modal */}
       {showEditModal && editingMachine && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4" id="machine-edit-modal-overlay">
-          <div className="bg-slate-800 border border-slate-700 rounded-2xl max-w-2xl w-full overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-155 max-h-[90vh] flex flex-col" id="machine-edit-modal">
-            <div className="bg-gradient-to-r from-slate-800 to-slate-900 border-b border-slate-700/80 p-5 flex justify-between items-center shrink-0">
-              <h3 className="text-base font-semibold text-amber-400 flex items-center gap-2">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 dark:bg-slate-950/80 backdrop-blur-sm p-4" id="machine-edit-modal-overlay">
+          <div className="bg-surface dark:bg-slate-800 border border-border dark:border-slate-700 rounded-2xl max-w-2xl w-full overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-155 max-h-[90vh] flex flex-col" id="machine-edit-modal">
+            <div className="bg-slate-50 dark:bg-gradient-to-r dark:from-slate-800 dark:to-slate-900 border-b border-border dark:border-slate-700/80 p-5 flex justify-between items-center shrink-0">
+              <h3 className="text-base font-semibold text-amber-600 dark:text-amber-400 flex items-center gap-2">
                 ✏️ แก้ไขข้อมูลทะเบียนเครื่องจักร
               </h3>
               <button 
@@ -2343,7 +2345,7 @@ export const MachinePage: React.FC = () => {
                   setShowEditModal(false);
                   setEditingMachine(null);
                 }}
-                className="text-slate-400 hover:text-slate-200 text-xl font-medium focus:outline-none cursor-pointer"
+                className="text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 text-xl font-medium focus:outline-none cursor-pointer"
               >
                 &times;
               </button>
@@ -2351,8 +2353,8 @@ export const MachinePage: React.FC = () => {
             
             <form onSubmit={handleEditMachine} className="p-6 space-y-4 overflow-y-auto flex-1">
               {editErrorMsg && (
-                <div className="bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs p-3 rounded-lg flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-rose-400"></span>
+                <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 text-rose-700 dark:text-rose-400 text-xs p-3 rounded-lg flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
                   {editErrorMsg}
                 </div>
               )}
@@ -2360,8 +2362,8 @@ export const MachinePage: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Column B: Machine ID */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-400">รหัสอุปกรณ์ (Machine ID)</label>
-                  <div className="bg-slate-900 border border-slate-700/50 rounded-lg px-3.5 py-2 font-mono text-sm text-cyan-400 font-bold select-none">
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-400">รหัสอุปกรณ์ (Machine ID)</label>
+                  <div className="bg-slate-100 dark:bg-slate-900 border border-border dark:border-slate-700/50 rounded-lg px-3.5 py-2 font-mono text-sm text-cyan-700 dark:text-cyan-400 font-bold select-none">
                     {editingMachine.id}
                   </div>
                   <p className="text-[10px] text-slate-500">
@@ -2371,7 +2373,7 @@ export const MachinePage: React.FC = () => {
 
                 {/* Column C: Machine Name */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-300">รายชื่อเครื่องจักร (Machine Name)*</label>
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">รายชื่อเครื่องจักร (Machine Name)*</label>
                   <input
                     id="modal-edit-machine-name"
                     type="text"
@@ -2379,14 +2381,14 @@ export const MachinePage: React.FC = () => {
                     placeholder="ตัวอย่างเช่น RICE MIXER, BANDING, INK JET"
                     value={editName}
                     onChange={(e) => setEditName(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-slate-200 uppercase placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-500"
+                    className="w-full bg-white dark:bg-slate-900 border border-border dark:border-slate-700 rounded-lg px-3.5 py-2 text-fg dark:text-slate-200 uppercase placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-500"
                   />
                 </div>
 
                 {/* หน้าที่ (Duty / Line Group) - Prominent and easy to find */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-amber-300 flex items-center gap-1.5">
-                    <Briefcase size={13} className="text-amber-400" />
+                  <label className="text-xs font-semibold text-amber-700 dark:text-amber-300 flex items-center gap-1.5">
+                    <Briefcase size={13} className="text-amber-600 dark:text-amber-400" />
                     <span>หน้าที่ (Duty / Line Group)*</span>
                   </label>
                   <input
@@ -2395,58 +2397,58 @@ export const MachinePage: React.FC = () => {
                     placeholder="ตัวอย่างเช่น LINE A, PACKING, ROBOT, UTILITY"
                     value={editLineGroup}
                     onChange={(e) => setEditLineGroup(e.target.value)}
-                    className="w-full bg-slate-900 border border-amber-500/50 rounded-lg px-3.5 py-2 text-amber-200 placeholder-slate-500 text-sm focus:outline-none focus:border-amber-400"
+                    className="w-full bg-white dark:bg-slate-900 border border-amber-400 dark:border-amber-500/50 rounded-lg px-3.5 py-2 text-amber-900 dark:text-amber-200 placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-none focus:border-amber-500"
                   />
                 </div>
 
                 {/* Column D: Model */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-300">Model (รุ่น)</label>
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Model (รุ่น)</label>
                   <input
                     id="modal-edit-machine-model"
                     type="text"
                     placeholder="ตัวอย่างเช่น RM-500X, VC-120-Pro"
                     value={editModel}
                     onChange={(e) => setEditModel(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-slate-200 placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-500"
+                    className="w-full bg-white dark:bg-slate-900 border border-border dark:border-slate-700 rounded-lg px-3.5 py-2 text-fg dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-500"
                   />
                 </div>
 
                 {/* Column E: แรงดัน/กำลังไฟ */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-300">แรงดัน / กำลังไฟ</label>
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">แรงดัน / กำลังไฟ</label>
                   <input
                     id="modal-edit-machine-voltage"
                     type="text"
                     placeholder="ตัวอย่างเช่น 380V 3P 7.5kW"
                     value={editPowerVoltage}
                     onChange={(e) => setEditPowerVoltage(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-slate-200 placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-500"
+                    className="w-full bg-white dark:bg-slate-900 border border-border dark:border-slate-700 rounded-lg px-3.5 py-2 text-fg dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-500"
                   />
                 </div>
 
                 {/* Column F: วันที่ติดตั้ง */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-300">วันที่ติดตั้ง</label>
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">วันที่ติดตั้ง</label>
                   <input
                     id="modal-edit-machine-install-date"
                     type="date"
                     value={editInstallDate}
                     onChange={(e) => setEditInstallDate(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-slate-200 placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-500"
+                    className="w-full bg-white dark:bg-slate-900 border border-border dark:border-slate-700 rounded-lg px-3.5 py-2 text-fg dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-500"
                   />
                 </div>
 
                 {/* Column G: บริษัทผู้ขาย */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-300">บริษัทผู้ขาย (Vendor)</label>
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">บริษัทผู้ขาย (Vendor)</label>
                   <input
                     id="modal-edit-machine-vendor"
                     type="text"
                     placeholder="ตัวอย่างเช่น Kanto Machinery Co., Ltd."
                     value={editVendor}
                     onChange={(e) => setEditVendor(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-slate-200 placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-500"
+                    className="w-full bg-white dark:bg-slate-900 border border-border dark:border-slate-700 rounded-lg px-3.5 py-2 text-fg dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-500"
                   />
                 </div>
 
@@ -2462,24 +2464,24 @@ export const MachinePage: React.FC = () => {
 
                 {/* Column J: Serial Number */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-300">Serial Number</label>
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Serial Number</label>
                   <input
                     id="modal-edit-machine-serial"
                     type="text"
                     placeholder="ตัวอย่างเช่น SN-RM-2024-001"
                     value={editSerialNumber}
                     onChange={(e) => setEditSerialNumber(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-slate-200 placeholder-slate-500 font-mono text-sm focus:outline-none focus:border-cyan-500"
+                    className="w-full bg-white dark:bg-slate-900 border border-border dark:border-slate-700 rounded-lg px-3.5 py-2 text-fg dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 font-mono text-sm focus:outline-none focus:border-cyan-500"
                   />
                 </div>
 
                 {/* Line Group and Status */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-300">สถานะของเครื่องจักร</label>
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">สถานะของเครื่องจักร</label>
                   <select
                     value={editStatus}
                     onChange={(e) => setEditStatus(e.target.value as 'ปกติ' | 'เสีย/ซ่อม')}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-slate-200 text-sm focus:outline-none focus:border-cyan-500"
+                    className="w-full bg-white dark:bg-slate-900 border border-border dark:border-slate-700 rounded-lg px-3.5 py-2 text-fg dark:text-slate-200 text-sm focus:outline-none focus:border-cyan-500"
                   >
                     <option value="ปกติ">ปกติ (Normal)</option>
                     <option value="เสีย/ซ่อม">เสีย / ซ่อม (Breakdown)</option>
@@ -2489,32 +2491,32 @@ export const MachinePage: React.FC = () => {
 
               {/* Column K: หมายเหตุ */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300">หมายเหตุ</label>
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">หมายเหตุ</label>
                 <textarea
                   id="modal-edit-machine-notes"
                   rows={2}
                   placeholder="หมายเหตุเพิ่มเติม ข้อควรระวัง หรือประวัติการซ่อมบำรุง"
                   value={editNotes}
                   onChange={(e) => setEditNotes(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-slate-200 placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-500 resize-none"
+                  className="w-full bg-white dark:bg-slate-900 border border-border dark:border-slate-700 rounded-lg px-3.5 py-2 text-fg dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-500 resize-none"
                 />
               </div>
 
-              <div className="pt-4 border-t border-slate-700/60 flex items-center justify-end gap-3 shrink-0">
+              <div className="pt-4 border-t border-border dark:border-slate-700/60 flex items-center justify-end gap-3 shrink-0">
                 <button
                   type="button"
                   onClick={() => {
                     setShowEditModal(false);
                     setEditingMachine(null);
                   }}
-                  className="border border-slate-700 hover:bg-slate-700 text-slate-300 text-xs tracking-wide px-4 py-2.5 rounded-lg transition cursor-pointer"
+                  className="border border-border dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs tracking-wide px-4 py-2.5 rounded-lg transition cursor-pointer"
                 >
                   ยกเลิก
                 </button>
                 <button
                   id="modal-btn-update-machine"
                   type="submit"
-                  className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs tracking-wide px-5 py-2.5 rounded-lg transition cursor-pointer"
+                  className="bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs tracking-wide px-5 py-2.5 rounded-lg transition cursor-pointer"
                 >
                   อัปเดตข้อมูล
                 </button>
@@ -2526,42 +2528,42 @@ export const MachinePage: React.FC = () => {
 
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && machineToDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4" id="machine-delete-modal-overlay">
-          <div className="bg-slate-800 border border-slate-700/80 rounded-2xl max-w-md w-full overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-155 text-xs text-slate-200" id="machine-delete-modal">
-            <div className="bg-slate-900 border-b border-slate-700/80 p-5 flex items-center gap-2.5">
-              <AlertTriangle className="text-rose-450 shrink-0" size={20} />
-              <h3 className="text-sm font-bold text-slate-100">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 dark:bg-slate-950/80 backdrop-blur-sm p-4" id="machine-delete-modal-overlay">
+          <div className="bg-surface dark:bg-slate-800 border border-border dark:border-slate-700/80 rounded-2xl max-w-md w-full overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-155 text-xs text-fg dark:text-slate-200" id="machine-delete-modal">
+            <div className="bg-slate-50 dark:bg-slate-900 border-b border-border dark:border-slate-700/80 p-5 flex items-center gap-2.5">
+              <AlertTriangle className="text-rose-600 dark:text-rose-450 shrink-0" size={20} />
+              <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
                 ยืนยันการลบข้อมูลเครื่องจักรอย่างถาวร?
               </h3>
             </div>
             
             <div className="p-6 space-y-4">
-              <p className="text-slate-300 font-sans leading-relaxed text-[13px]">
-                คุณแน่ใจหรือไม่ว่าต้องการลบเครื่องจักร <span className="text-rose-400 font-mono font-bold">{machineToDelete.id}</span> ({machineToDelete.name}) ออกจากระบบทะเบียน?
+              <p className="text-slate-700 dark:text-slate-300 font-sans leading-relaxed text-[13px]">
+                คุณแน่ใจหรือไม่ว่าต้องการลบเครื่องจักร <span className="text-rose-600 dark:text-rose-400 font-mono font-bold">{machineToDelete.id}</span> ({machineToDelete.name}) ออกจากระบบทะเบียน?
               </p>
 
-              <div className="bg-[#10080a] border border-rose-500/15 p-4.5 rounded-xl space-y-2">
-                <span className="text-[10px] text-rose-400 font-black tracking-wider uppercase block">⚠️ คำเตือนผลกระทบ:</span>
-                <p className="text-slate-400 text-[11px] leading-relaxed font-sans">
+              <div className="bg-rose-50 dark:bg-[#10080a] border border-rose-200 dark:border-rose-500/15 p-4.5 rounded-xl space-y-2">
+                <span className="text-[10px] text-rose-700 dark:text-rose-400 font-black tracking-wider uppercase block">⚠️ คำเตือนผลกระทบ:</span>
+                <p className="text-slate-600 dark:text-slate-400 text-[11px] leading-relaxed font-sans">
                   การลบทะเบียนนี้จะลบสัญลักษณ์ไอคอนและข้อมูลเครื่องพิกัดนี้ออก โดยเครื่องจักรดังกล่าวมีแผนบำรุงรักษา PM พ่วงอยู่จำนวน <b className="text-fg font-mono">{pmPlans.filter(p => p.machineId === machineToDelete.id).length} แผนงาน</b>
                 </p>
               </div>
               
-              <div className="pt-4 border-t border-slate-700/60 flex items-center justify-end gap-3">
+              <div className="pt-4 border-t border-border dark:border-slate-700/60 flex items-center justify-end gap-3">
                 <button
                   type="button"
                   onClick={() => {
                     setShowDeleteConfirm(false);
                     setMachineToDelete(null);
                   }}
-                  className="border border-slate-700 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-lg transition font-medium cursor-pointer"
+                  className="border border-border dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 px-4 py-2 rounded-lg transition font-medium cursor-pointer"
                 >
                   ยกเลิก
                 </button>
                 <button
                   id="modal-btn-delete-machine-confirm"
                   onClick={executeDeleteMachine}
-                  className="bg-rose-500 hover:bg-rose-600 text-fg font-bold px-5 py-2 rounded-lg transition cursor-pointer"
+                  className="bg-rose-600 hover:bg-rose-700 text-white font-bold px-5 py-2 rounded-lg transition cursor-pointer"
                 >
                   ยืนยันลบข้อมูล
                 </button>
