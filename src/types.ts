@@ -164,6 +164,15 @@ export interface SystemSettings {
   stdMttr: Record<string, number>; // machine ID prefix or type -> standard MTTR (mins)
   lineNotifyEnabled?: boolean;
   lineNotifyToken?: string;
+  lineTargetId?: string;
+  lineAutoEvents?: {
+    breakdown?: boolean;
+    morningSummary?: boolean;
+    repairClosed?: boolean;
+    pmDispatched?: boolean;
+    setupLogged?: boolean;
+  };
+  lastMorningSummaryDate?: string;
 }
 
 export interface SetupStepLog {

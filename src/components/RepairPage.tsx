@@ -4,7 +4,7 @@ import { RepairLog } from '../types';
 import { 
   Plus, Search, SlidersHorizontal, Image as ImageIcon, 
   Trash2, AlertTriangle, CheckCircle, HelpCircle, ArrowUpDown,
-  Edit, FileSpreadsheet, Upload, X
+  Edit, FileSpreadsheet, Upload, X, Send
 } from 'lucide-react';
 import { notifyRepairOpened, notifyRepairClosed, sendLineNotification } from '../utils/lineNotify';
 import { compressImageFile } from '../utils/imageUtils';
@@ -259,7 +259,8 @@ export const RepairPage: React.FC = () => {
 
       setRepairs(prev => prev.map(r => r.id === editingId ? updatedRepair : r));
 
-      if (isStatusChangedToClosed) {
+      const autoRepairClosed = settings.lineAutoEvents?.repairClosed === true;
+      if (isStatusChangedToClosed && autoRepairClosed) {
         const machineObj = machines.find(m => m.id === formMachine);
         const prefix = formMachine.substring(0, 3);
         const stdMttr = settings.stdMttr?.[prefix] || 60;
@@ -293,12 +294,19 @@ export const RepairPage: React.FC = () => {
 
       // Notify LINE if enabled
       const machineObj = machines.find(m => m.id === formMachine);
+      const autoBreakdown = settings.lineAutoEvents?.breakdown !== false;
+      const autoRepairClosed = settings.lineAutoEvents?.repairClosed === true;
+
       if (formStatus === 'กำลังซ่อม') {
-        notifyRepairOpened(newLog, machineObj?.name || '').catch(console.error);
+        if (autoBreakdown) {
+          notifyRepairOpened(newLog, machineObj?.name || '').catch(console.error);
+        }
       } else {
-        const prefix = formMachine.substring(0, 3);
-        const stdMttr = settings.stdMttr?.[prefix] || 60;
-        notifyRepairClosed(newLog, machineObj?.name || '', stdMttr).catch(console.error);
+        if (autoRepairClosed) {
+          const prefix = formMachine.substring(0, 3);
+          const stdMttr = settings.stdMttr?.[prefix] || 60;
+          notifyRepairClosed(newLog, machineObj?.name || '', stdMttr).catch(console.error);
+        }
       }
     }
 
@@ -1067,6 +1075,26 @@ export const RepairPage: React.FC = () => {
                       <td className="py-4 px-3 text-center">
                         <div className="flex items-center justify-center gap-2">
                           <button
+                            id={`btn-line-notify-rep-${r.id}`}
+                            onClick={async () => {
+                              const machineObj = machines.find(m => m.id === r.machineId);
+                              const prefix = r.machineId.substring(0, 3);
+                              const stdMttr = settings.stdMttr?.[prefix] || 60;
+                              const res = r.status === 'กำลังซ่อม'
+                                ? await notifyRepairOpened(r, machineObj?.name || '')
+                                : await notifyRepairClosed(r, machineObj?.name || '', stdMttr);
+                              if (res?.success) {
+                                alert("ส่งข้อความแจ้งเตือนเข้า LINE สำเร็จแล้ว!");
+                              } else {
+                                alert(res?.message || "ส่งข้อความไม่สำเร็จ");
+                              }
+                            }}
+                            className="text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 p-1 rounded-md transition hover:bg-slate-100 dark:hover:bg-slate-900 cursor-pointer"
+                            title="ส่งแจ้งเตือน LINE"
+                          >
+                            <Send size={14} />
+                          </button>
+                          <button
                             id={`btn-edit-rep-${r.id}`}
                             onClick={() => handleEditClick(r)}
                             className="text-slate-400 hover:text-cyan-600 dark:hover:text-cyan-400 p-1 rounded-md transition hover:bg-slate-100 dark:hover:bg-slate-900 cursor-pointer"
@@ -1821,6 +1849,28 @@ export const RepairPage: React.FC = () => {
               </button>
 
               <div className="flex flex-wrap gap-2.5">
+                <button
+                  type="button"
+                  id={`detail-line-btn-${selectedRepairDetail.id}`}
+                  onClick={async () => {
+                    const machineObj = machines.find(m => m.id === selectedRepairDetail.machineId);
+                    const prefix = selectedRepairDetail.machineId.substring(0, 3);
+                    const stdMttr = settings.stdMttr?.[prefix] || 60;
+                    const res = selectedRepairDetail.status === 'กำลังซ่อม'
+                      ? await notifyRepairOpened(selectedRepairDetail, machineObj?.name || '')
+                      : await notifyRepairClosed(selectedRepairDetail, machineObj?.name || '', stdMttr);
+                    if (res?.success) {
+                      alert("ส่งข้อความแจ้งเตือนเข้า LINE สำเร็จแล้ว!");
+                    } else {
+                      alert(res?.message || "ส่งข้อความไม่สำเร็จ");
+                    }
+                  }}
+                  className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-4 py-2 rounded-lg transition shadow-md cursor-pointer"
+                  title="ส่งข้อความแจ้งเตือนสถานะงานซ่อมนี้เข้าสู่ระบบ LINE"
+                >
+                  <Send size={13} />
+                  ส่งแจ้งเตือน LINE
+                </button>
                 <button
                   type="button"
                   id={`detail-export-single-excel-${selectedRepairDetail.id}`}

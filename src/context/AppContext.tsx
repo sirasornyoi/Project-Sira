@@ -9,6 +9,7 @@ import {
   PRELOADED_REPAIRS, PRELOADED_IMPROVEMENTS, PRELOADED_SCHEDULES, PRELOADED_SETUPS,
   PRELOADED_SPARE_PARTS, PRELOADED_CD5_PROJECTS, PRELOADED_TIME_BREAK_PARTS
 } from '../data/preloaded';
+import { sendMorningSummary } from '../utils/lineNotify';
 
 interface AppContextType {
   machines: Machine[];
@@ -147,6 +148,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     workingHoursPerDay: 8, // 8 hours * 60 = 480 mins
     lineNotifyEnabled: false,
     lineNotifyToken: '',
+    lineAutoEvents: {
+      breakdown: true,
+      morningSummary: true,
+      repairClosed: false,
+      pmDispatched: false,
+      setupLogged: false,
+    },
     stdMttr: {
       "RIM": 60,
       "TOC": 45,
@@ -332,6 +340,56 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     initDb();
   }, []);
+
+  // Morning PM Summary auto-push via LINE Messaging API
+  useEffect(() => {
+    if (!isLoaded) return;
+
+    const checkAndSendMorningSummary = async () => {
+      try {
+        const isEnabled = !!settings.lineNotifyEnabled;
+        const autoMorning = settings.lineAutoEvents?.morningSummary !== false; // default true
+        if (!isEnabled || !autoMorning) return;
+
+        const today = new Date().toISOString().split('T')[0];
+        if (settings.lastMorningSummaryDate === today) return;
+
+        // Double check localStorage in case state was initialized before update
+        try {
+          const stored = localStorage.getItem('maint_settings');
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            if (parsed.lastMorningSummaryDate === today) return;
+          }
+        } catch {}
+
+        // Filter PM schedules for today that are not completed
+        const todayPMs = schedules.filter(
+          s => s.type === 'PM' && s.date === today && s.status !== 'เสร็จสิ้น'
+        ) as PMScheduleItem[];
+
+        if (todayPMs.length === 0) return;
+
+        const res = await sendMorningSummary(
+          todayPMs,
+          machines,
+          settings.lineNotifyToken,
+          settings.lineTargetId
+        );
+
+        if (res && res.success) {
+          setSettings(prev => ({
+            ...prev,
+            lastMorningSummaryDate: today
+          }));
+        }
+      } catch (err) {
+        console.warn("Silent morning summary LINE push error:", err);
+      }
+    };
+
+    checkAndSendMorningSummary();
+  }, [isLoaded]);
 
   // Save changes to LocalStorage and Server only AFTER initial load is done
   useEffect(() => {

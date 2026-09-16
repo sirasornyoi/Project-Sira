@@ -223,9 +223,12 @@ export const DispatchPage: React.FC = () => {
       setSchedules(prev => [...prev, newPM]);
       showFeedback('success', `บันทึกแบบสั่งการใบงาน PM เรื่อง: [${plan.title}] ถ่ายทอดไปยัง [${techDisplayNames}] เรียบร้อยแล้ว`);
       
-      // Notify LINE if enabled
-      const machineObj = machines.find(m => m.id === pmMachine);
-      notifyPMDispatched(newPM, machineObj?.name || '', plan.title).catch(console.error);
+      // Notify LINE if enabled and auto-push configured
+      const autoPMDispatched = settings.lineAutoEvents?.pmDispatched === true;
+      if (autoPMDispatched) {
+        const machineObj = machines.find(m => m.id === pmMachine);
+        notifyPMDispatched(newPM, machineObj?.name || '', plan.title).catch(console.error);
+      }
 
     } else if (activeFormTab === 'Repair') {
       // 3. Dispatched Emergency Repair
@@ -282,16 +285,23 @@ export const DispatchPage: React.FC = () => {
         return m;
       }));
 
-      // Notify LINE if enabled
+      // Notify LINE if enabled and auto-push configured
       const machineObj = machines.find(m => m.id === repMachine);
+      const autoBreakdown = settings.lineAutoEvents?.breakdown !== false;
+      const autoRepairClosed = settings.lineAutoEvents?.repairClosed === true;
+
       if (isPendingCase) {
         showFeedback('success', `เปิดเคสแจ้งซ่อมด่วนฉุกเฉินสเตตัส [กำลังซ่อม] ของอุปกรณ์ [${repMachine}] มอบหมาย [${techDisplayNames}] เรียบร้อยแล้ว`);
-        notifyRepairOpened(newRep, machineObj?.name || '').catch(console.error);
+        if (autoBreakdown) {
+          notifyRepairOpened(newRep, machineObj?.name || '').catch(console.error);
+        }
       } else {
         showFeedback('success', `จ่ายงานซ่อมด่วนฉุกเฉินและปิดประวัติซ่อม (MTTR) ของอุปกรณ์ [${repMachine}] มอบหมาย [${techDisplayNames}] เรียบร้อยแล้ว`);
-        const prefix = repMachine.substring(0, 3);
-        const stdMttr = settings.stdMttr[prefix] || 60;
-        notifyRepairClosed(newRep, machineObj?.name || '', stdMttr).catch(console.error);
+        if (autoRepairClosed) {
+          const prefix = repMachine.substring(0, 3);
+          const stdMttr = settings.stdMttr[prefix] || 60;
+          notifyRepairClosed(newRep, machineObj?.name || '', stdMttr).catch(console.error);
+        }
       }
 
     } else if (activeFormTab === 'Improvement') {
@@ -1763,6 +1773,21 @@ export const DispatchPage: React.FC = () => {
                               🔵 PM PLAN
                             </span>
                             <div className="flex gap-1 items-center">
+                              <button 
+                                onClick={async () => {
+                                  const machineObj = machines.find(m => m.id === pm.machineId);
+                                  const res = await notifyPMDispatched(pm, machineObj?.name || '', plan?.title || 'PM Plan');
+                                  if (res?.success) {
+                                    showFeedback('success', `ส่งใบงาน PM เครื่อง [${pm.machineId}] เข้า LINE สำเร็จแล้ว`);
+                                  } else {
+                                    showFeedback('error', res?.message || 'ส่งข้อความไม่สำเร็จ');
+                                  }
+                                }}
+                                className="text-slate-500 hover:text-emerald-400 p-0.5 transition"
+                                title="ส่งใบงาน PM เข้า LINE"
+                              >
+                                <Send size={13} />
+                              </button>
                               <button 
                                 onClick={() => handleTogglePMStatus(pm.id, pm.status)}
                                 className="text-[9.5px] bg-slate-950 text-slate-350 hover:bg-slate-850 px-2 py-0.5 border border-slate-800 rounded font-bold transition"

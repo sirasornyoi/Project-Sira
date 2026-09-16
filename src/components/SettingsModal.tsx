@@ -21,6 +21,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
   // LINE Notify state
   const [lineEnabled, setLineEnabled] = useState<boolean>(settings.lineNotifyEnabled || false);
   const [lineToken, setLineToken] = useState<string>(settings.lineNotifyToken || '');
+  const [lineTargetId, setLineTargetId] = useState<string>(settings.lineTargetId || '');
+  const [autoEvents, setAutoEvents] = useState({
+    breakdown: settings.lineAutoEvents?.breakdown !== false,
+    morningSummary: settings.lineAutoEvents?.morningSummary !== false,
+    repairClosed: !!settings.lineAutoEvents?.repairClosed,
+    pmDispatched: !!settings.lineAutoEvents?.pmDispatched,
+    setupLogged: !!settings.lineAutoEvents?.setupLogged,
+  });
   const [testMessage, setTestMessage] = useState<string>('🚨 ทดสอบระบบแจ้งเตือน LINE จากระบบ FoodFab Maintenance!');
   const [testStatus, setTestStatus] = useState<{ type: 'idle' | 'success' | 'error'; msg: string }>({ type: 'idle', msg: '' });
   const [isTesting, setIsTesting] = useState<boolean>(false);
@@ -213,12 +221,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
     }
   };
 
-  // Save LINE Notify configuration
+  // Save LINE configuration
   const handleSaveLineConfig = () => {
     setSettings(prev => ({
       ...prev,
       lineNotifyEnabled: lineEnabled,
-      lineNotifyToken: lineToken
+      lineNotifyToken: lineToken,
+      lineTargetId: lineTargetId,
+      lineAutoEvents: autoEvents
     }));
     alert("บันทึกการตั้งค่าระบบแจ้งเตือน LINE เรียบร้อยแล้ว");
   };
@@ -226,16 +236,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
   // Test LINE Notify call
   const handleTestLineNotify = async () => {
     if (!lineToken.trim()) {
-      setTestStatus({ type: 'error', msg: 'กรุณาระบุ LINE Notify Token ก่อนทำการทดสอบ' });
+      setTestStatus({ type: 'error', msg: 'กรุณาระบุ LINE Channel Access Token ก่อนทำการทดสอบ' });
       return;
     }
     setIsTesting(true);
     setTestStatus({ type: 'idle', msg: '' });
     
     try {
-      const res = await sendLineNotification(testMessage, lineToken);
+      const res = await sendLineNotification(testMessage, lineToken, lineTargetId);
       if (res.success) {
-        setTestStatus({ type: 'success', msg: 'ส่งข้อความแจ้งเตือนทดสอบสำเร็จ! โปรดตรวจสอบในกลุ่ม LINE ของคุณ' });
+        setTestStatus({ type: 'success', msg: 'ส่งข้อความแจ้งเตือนทดสอบสำเร็จ! โปรดตรวจสอบใน LINE หรือกลุ่ม LINE ของคุณ' });
       } else {
         setTestStatus({ type: 'error', msg: res.message || 'เกิดข้อผิดพลาดไม่ทราบสาเหตุ' });
       }
@@ -651,26 +661,118 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                     </label>
                   </div>
 
-                  {/* Token input */}
+                  {/* Token & Target ID inputs */}
                   {lineEnabled && (
-                    <div className="space-y-2 animate-in fade-in duration-200">
-                      <div>
-                        <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">LINE Notify Token ของกลุ่มคุณ</label>
-                        <input
-                          type="password"
-                          placeholder="วาง Token ของคุณที่นี่ (เช่น L2q7Y...)"
-                          value={lineToken}
-                          onChange={(e) => setLineToken(e.target.value)}
-                          className="w-full bg-white dark:bg-slate-950 border border-border dark:border-slate-700 rounded-lg p-2.5 text-xs text-fg dark:text-slate-200 font-mono focus:outline-none focus:border-cyan-500"
-                        />
+                    <div className="space-y-3 animate-in fade-in duration-200">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">LINE Channel Access Token</label>
+                          <input
+                            type="password"
+                            placeholder="วาง Channel Access Token ของคุณ..."
+                            value={lineToken}
+                            onChange={(e) => setLineToken(e.target.value)}
+                            className="w-full bg-white dark:bg-slate-950 border border-border dark:border-slate-700 rounded-lg p-2.5 text-xs text-fg dark:text-slate-200 font-mono focus:outline-none focus:border-cyan-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">LINE Target ID (Group ID / User ID)</label>
+                          <input
+                            type="text"
+                            placeholder="เช่น C12345... หรือ U12345..."
+                            value={lineTargetId}
+                            onChange={(e) => setLineTargetId(e.target.value)}
+                            className="w-full bg-white dark:bg-slate-950 border border-border dark:border-slate-700 rounded-lg p-2.5 text-xs text-fg dark:text-slate-200 font-mono focus:outline-none focus:border-cyan-500"
+                          />
+                        </div>
                       </div>
+
+                      {/* Auto-Push Events Selector */}
+                      <div className="bg-white dark:bg-slate-950/40 p-3.5 rounded-lg border border-border dark:border-slate-800 space-y-2.5">
+                        <div className="flex items-center justify-between border-b border-border dark:border-slate-800 pb-1.5">
+                          <span className="text-xs font-bold text-fg dark:text-slate-200">
+                            ⚙️ เลือกเหตุการณ์ที่ต้องการให้ส่งแจ้งเตือนอัตโนมัติ (Auto-Push Events)
+                          </span>
+                          <span className="text-[10px] text-slate-500 font-sans">
+                            *เหตุการณ์ที่ปิด Auto จะมีปุ่มให้กดส่งเองในแต่ละหน้า
+                          </span>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                          <label className="flex items-center gap-2 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-900/60 cursor-pointer border border-transparent hover:border-slate-300 dark:hover:border-slate-800 transition">
+                            <input
+                              type="checkbox"
+                              checked={autoEvents.breakdown}
+                              onChange={(e) => setAutoEvents(prev => ({ ...prev, breakdown: e.target.checked }))}
+                              className="rounded border-slate-300 text-cyan-600 focus:ring-cyan-500"
+                            />
+                            <div>
+                              <p className="font-bold text-slate-800 dark:text-slate-200">🚨 แจ้งเครื่องจักรเสีย (Breakdown)</p>
+                              <p className="text-[10px] text-slate-500">เปิดเคสฉุกเฉินสถานะกำลังซ่อม (ค่าเริ่มต้น: เปิด)</p>
+                            </div>
+                          </label>
+
+                          <label className="flex items-center gap-2 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-900/60 cursor-pointer border border-transparent hover:border-slate-300 dark:hover:border-slate-800 transition">
+                            <input
+                              type="checkbox"
+                              checked={autoEvents.morningSummary}
+                              onChange={(e) => setAutoEvents(prev => ({ ...prev, morningSummary: e.target.checked }))}
+                              className="rounded border-slate-300 text-cyan-600 focus:ring-cyan-500"
+                            />
+                            <div>
+                              <p className="font-bold text-slate-800 dark:text-slate-200">🌅 สรุปงาน PM เช้า (Morning Summary)</p>
+                              <p className="text-[10px] text-slate-500">สรุปงาน PM ประจำวันอัตโนมัติ (ค่าเริ่มต้น: เปิด)</p>
+                            </div>
+                          </label>
+
+                          <label className="flex items-center gap-2 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-900/60 cursor-pointer border border-transparent hover:border-slate-300 dark:hover:border-slate-800 transition">
+                            <input
+                              type="checkbox"
+                              checked={autoEvents.repairClosed}
+                              onChange={(e) => setAutoEvents(prev => ({ ...prev, repairClosed: e.target.checked }))}
+                              className="rounded border-slate-300 text-cyan-600 focus:ring-cyan-500"
+                            />
+                            <div>
+                              <p className="font-bold text-slate-800 dark:text-slate-200">✅ ปิดใบงานซ่อม (Repair Closed)</p>
+                              <p className="text-[10px] text-slate-500">สรุปมาตรการแก้ไขและ MTTR (ค่าเริ่มต้น: ปิด)</p>
+                            </div>
+                          </label>
+
+                          <label className="flex items-center gap-2 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-900/60 cursor-pointer border border-transparent hover:border-slate-300 dark:hover:border-slate-800 transition">
+                            <input
+                              type="checkbox"
+                              checked={autoEvents.pmDispatched}
+                              onChange={(e) => setAutoEvents(prev => ({ ...prev, pmDispatched: e.target.checked }))}
+                              className="rounded border-slate-300 text-cyan-600 focus:ring-cyan-500"
+                            />
+                            <div>
+                              <p className="font-bold text-slate-800 dark:text-slate-200">📋 สั่งการงาน PM (PM Dispatched)</p>
+                              <p className="text-[10px] text-slate-500">ส่งใบงาน PM เมื่อจ่ายงานช่าง (ค่าเริ่มต้น: ปิด)</p>
+                            </div>
+                          </label>
+
+                          <label className="flex items-center gap-2 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-900/60 cursor-pointer border border-transparent hover:border-slate-300 dark:hover:border-slate-800 transition">
+                            <input
+                              type="checkbox"
+                              checked={autoEvents.setupLogged}
+                              onChange={(e) => setAutoEvents(prev => ({ ...prev, setupLogged: e.target.checked }))}
+                              className="rounded border-slate-300 text-cyan-600 focus:ring-cyan-500"
+                            />
+                            <div>
+                              <p className="font-bold text-slate-800 dark:text-slate-200">⚙️ บันทึกการตั้งเครื่อง (Setup Log)</p>
+                              <p className="text-[10px] text-slate-500">สรุปเวลา Setup และขั้นตอน (ค่าเริ่มต้น: ปิด)</p>
+                            </div>
+                          </label>
+                        </div>
+                      </div>
+
                       <div className="bg-white dark:bg-slate-950/40 p-3 rounded-lg border border-border dark:border-slate-800 space-y-1 text-slate-600 dark:text-slate-400 font-sans text-[10px] leading-relaxed">
-                        <p className="font-bold text-slate-800 dark:text-slate-300">💡 วิธีรับ Token ฟรีใน 3 ขั้นตอน:</p>
-                        <ol className="list-decimal pl-4 space-y-1">
-                          <li>เข้าไปที่เว็บ <a href="https://notify-bot.line.me/" target="_blank" rel="noreferrer" className="text-cyan-600 dark:text-cyan-400 underline hover:text-cyan-500">notify-bot.line.me</a> แล้วเข้าสู่ระบบด้วยบัญชี LINE ของคุณ</li>
-                          <li>ไปที่หน้า "หน้าของฉัน" (My Page) แล้วคลิกปุ่ม "ออก Token" (Generate Token)</li>
-                          <li>ตั้งชื่อแจ้งเตือน เลือกกลุ่ม LINE ที่ต้องการรับแจ้ง แล้วคัดลอก Token มาวางในช่องด้านบนนี้ (และอย่าลืมดึง LINE Notify บอทเข้ากลุ่มด้วยนะ)</li>
-                        </ol>
+                        <p className="font-bold text-slate-800 dark:text-slate-300">💡 การเชื่อมต่อ LINE Messaging API:</p>
+                        <ul className="list-disc pl-4 space-y-0.5">
+                          <li>ใช้ Channel Access Token จาก LINE Developers Console (Messaging API channel)</li>
+                          <li>ระบุ LINE Target ID (ID กลุ่ม หรือ User ID) ที่ต้องการให้บอทส่งข้อความถึง</li>
+                          <li>ระบบจะตรวจสอบโควตาข้อความฟรีก่อนส่งทุกครั้ง เพื่อป้องกันข้อความส่วนเกิน</li>
+                        </ul>
                       </div>
                     </div>
                   )}

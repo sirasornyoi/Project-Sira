@@ -1,16 +1,17 @@
 import { RepairLog, PMScheduleItem, OperationScheduleItem, SetupLog, Machine, PMPlan } from '../types';
 
 /**
- * Send a notification to LINE Notify via our server-side proxy
+ * Send a notification to LINE via our server-side proxy
  */
-export async function sendLineNotification(message: string, token?: string): Promise<{ success: boolean; message?: string }> {
+export async function sendLineNotification(message: string, token?: string, to?: string): Promise<{ success: boolean; message?: string }> {
   try {
     const activeToken = token || getSavedToken();
+    const activeTarget = to || getSavedTargetId();
     const isEnabled = isNotificationEnabled();
 
     // If explicit token isn't provided, and notifications aren't enabled or token is missing, skip silently
     if (!token && (!isEnabled || !activeToken)) {
-      return { success: false, message: "LINE Notify ไม่ได้เปิดใช้งานหรือไม่มี Token ในระบบ" };
+      return { success: false, message: "ระบบแจ้งเตือน LINE ไม่ได้เปิดใช้งานหรือไม่มี Token ในระบบ" };
     }
 
     const response = await fetch("/api/line-notify", {
@@ -18,7 +19,7 @@ export async function sendLineNotification(message: string, token?: string): Pro
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ message, token: activeToken }),
+      body: JSON.stringify({ message, token: activeToken, to: activeTarget }),
     });
 
     const data = await response.json();
@@ -40,6 +41,19 @@ function getSavedToken(): string {
     if (stored) {
       const parsed = JSON.parse(stored);
       return parsed.lineNotifyToken || "";
+    }
+  } catch (e) {
+    console.error(e);
+  }
+  return "";
+}
+
+function getSavedTargetId(): string {
+  try {
+    const stored = localStorage.getItem('maint_settings');
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      return parsed.lineTargetId || "";
     }
   } catch (e) {
     console.error(e);
@@ -153,3 +167,43 @@ ${stepsSummary}
 
   return sendLineNotification(message);
 }
+
+/**
+ * Build Morning PM Summary Message (returns null if empty list)
+ */
+export function buildMorningSummaryMessage(pmItemsToday: PMScheduleItem[], machines: Machine[]): string | null {
+  if (!pmItemsToday || pmItemsToday.length === 0) return null;
+  const machineMap = new Map(machines.map(m => [m.id, m.name]));
+  const lines = pmItemsToday.map((pm, idx) => {
+    const mName = machineMap.get(pm.machineId) || pm.machineId;
+    const techs = pm.technicians && pm.technicians.length > 0 ? pm.technicians.join(', ') : (pm.technician || 'ยังไม่ระบุช่าง');
+    return `${idx + 1}. [${pm.machineId}] ${mName} - ${pm.title || 'บำรุงรักษา PM'}\n   👤 ช่าง: ${techs} | ⏱️ ${pm.duration} นาที | 🎯 สถานะ: ${pm.status}`;
+  }).join('\n');
+
+  const dateStr = pmItemsToday[0]?.date || new Date().toISOString().split('T')[0];
+  return `
+🌅 [สรุปแผนงาน PM ประจำวัน - ${dateStr}]
+📋 รวมทั้งหมด: ${pmItemsToday.length} รายการ
+--------------------------------
+${lines}
+--------------------------------
+💪 ขอให้ทุกคนทำงานด้วยความปลอดภัยและราบรื่นครับ!
+  `.trim();
+}
+
+/**
+ * Send Morning PM Summary via LINE
+ */
+export async function sendMorningSummary(
+  pmItemsToday: PMScheduleItem[], 
+  machines: Machine[], 
+  token?: string, 
+  to?: string
+): Promise<{ success: boolean; message?: string }> {
+  const message = buildMorningSummaryMessage(pmItemsToday, machines);
+  if (!message) {
+    return { success: false, message: "ไม่มีงาน PM ที่ต้องปฏิบัติการในวันนี้" };
+  }
+  return sendLineNotification(message, token, to);
+}
+

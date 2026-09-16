@@ -36,30 +36,63 @@ async function startServer() {
     }
   });
 
-  // API Route: Save Database
+  // API Route: Save Database (Atomic write with automatic backup)
   app.post("/api/db", (req, res) => {
+    const tmpFile = `${DB_FILE}.tmp`;
+    const backupFile = path.join(process.cwd(), "db.json.bak");
+
     try {
       const data = req.body;
-      fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), "utf-8");
+      if (!data || typeof data !== "object" || Array.isArray(data)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid payload: req.body must be a valid JSON object."
+        });
+      }
+
+      // 1. Write atomically to temporary file first
+      fs.writeFileSync(tmpFile, JSON.stringify(data, null, 2), "utf-8");
+
+      // 2. Backup existing database if it exists
+      if (fs.existsSync(DB_FILE)) {
+        fs.copyFileSync(DB_FILE, backupFile);
+      }
+
+      // 3. Atomically replace db.json with the temporary file
+      fs.renameSync(tmpFile, DB_FILE);
+
       return res.json({ success: true, message: "Database saved successfully." });
     } catch (error) {
       console.error("Error writing db.json:", error);
+      if (fs.existsSync(tmpFile)) {
+        try {
+          fs.unlinkSync(tmpFile);
+        } catch {}
+      }
       return res.status(500).json({ success: false, message: "Failed to save database file on server." });
     }
   });
 
-  // API Route: LINE Notify Proxy (Bypasses CORS and keeps token secure)
+  // API Route: LINE Messaging API Push Proxy (Replaces discontinued LINE Notify)
   app.post("/api/line-notify", async (req, res) => {
     try {
-      const { message, token } = req.body;
+      const { message, token, to, targetId: bodyTargetId } = req.body;
       
-      // Use the user-submitted token or the server-side environment variable
-      const activeToken = token || process.env.LINE_NOTIFY_TOKEN;
+      // Use the user-submitted token or the server-side environment variables
+      const channelAccessToken = token || process.env.LINE_CHANNEL_ACCESS_TOKEN || process.env.LINE_NOTIFY_TOKEN;
+      const targetId = to || bodyTargetId || process.env.LINE_TARGET_ID;
       
-      if (!activeToken) {
+      if (!channelAccessToken) {
         return res.status(400).json({ 
           success: false, 
-          message: "ไม่พบ LINE Notify Token กรุณาเปิดใช้งานและตั้งค่าในโมดูลตั้งค่า" 
+          message: "ไม่พบ LINE Channel Access Token กรุณาเปิดใช้งานและตั้งค่าในโมดูลตั้งค่า หรือกำหนด LINE_CHANNEL_ACCESS_TOKEN" 
+        });
+      }
+
+      if (!targetId) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "ไม่พบ LINE Target ID (User ID / Group ID) กรุณากำหนด LINE_TARGET_ID หรือส่งฟิลด์ to ใน payload" 
         });
       }
 
@@ -70,18 +103,60 @@ async function startServer() {
         });
       }
 
-      // Call LINE Notify API using standard fetch
-      const response = await fetch("https://notify-api.line.me/api/notify", {
+      // Check LINE messaging quota before pushing
+      try {
+        const [quotaRes, consumptionRes] = await Promise.all([
+          fetch("https://api.line.me/v2/bot/message/quota", {
+            headers: { Authorization: `Bearer ${channelAccessToken}` }
+          }),
+          fetch("https://api.line.me/v2/bot/message/quota/consumption", {
+            headers: { Authorization: `Bearer ${channelAccessToken}` }
+          })
+        ]);
+
+        if (quotaRes.ok && consumptionRes.ok) {
+          const quotaData = await quotaRes.json() as { type?: string; value?: number };
+          const consumptionData = await consumptionRes.json() as { totalUsage?: number };
+
+          if (quotaData.type === "limited" && typeof quotaData.value === "number" && typeof consumptionData.totalUsage === "number") {
+            if (consumptionData.totalUsage >= quotaData.value) {
+              return res.json({
+                success: false,
+                message: `โควตาข้อความ LINE ประจำเดือนเต็มแล้ว (${consumptionData.totalUsage}/${quotaData.value} ข้อความ) ไม่สามารถส่งข้อความได้`,
+                quotaExceeded: true
+              });
+            }
+          }
+        }
+      } catch (quotaErr) {
+        console.warn("Could not verify LINE quota, proceeding with push attempt:", quotaErr);
+      }
+
+      // Call LINE Messaging API push endpoint
+      const response = await fetch("https://api.line.me/v2/bot/message/push", {
         method: "POST",
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          "Authorization": `Bearer ${activeToken}`
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${channelAccessToken}`
         },
-        body: new URLSearchParams({ message })
+        body: JSON.stringify({
+          to: targetId,
+          messages: [
+            {
+              type: "text",
+              text: message
+            }
+          ]
+        })
       });
 
       if (response.ok) {
-        const result = await response.json();
+        let result: any = {};
+        try {
+          result = await response.json();
+        } catch {
+          result = {};
+        }
         return res.json({ success: true, data: result });
       } else {
         const errText = await response.text();
@@ -91,7 +166,7 @@ async function startServer() {
         });
       }
     } catch (error) {
-      console.error("LINE Notify Proxy Error:", error);
+      console.error("LINE Messaging API Proxy Error:", error);
       return res.status(500).json({ 
         success: false, 
         message: (error as Error).message 
