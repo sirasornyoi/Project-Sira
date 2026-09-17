@@ -114,19 +114,19 @@ function AppContent() {
 
   // List of sidebar navigation buttons
   const navigationItems = [
-    { id: 3, label: "📅 ตารางงาน", icon: CalendarDays, desc: "ปฏิทินงานประจำเดือน" },
-    { id: 1, label: "🏭 เครื่องจักร", icon: Activity, desc: "ทะเบียนระบบ/สถานะ" },
-    { id: 2, label: "⏱ แผน PM", icon: ClipboardList, desc: "ความถี่อิ่มกาก/กระบวน" },
-    { id: 4, label: "🔧 BD และ ประวัติการซ่อม", icon: Wrench, desc: "วิเคราะห์ Why-Why" },
-    { id: 11, label: "⏱ เปลี่ยนอะไหล่ Time-Break", icon: Clock, desc: "ระบุเครื่อง/รอบเปลี่ยนอะไหล่" },
-    { id: 5, label: "🔨 งานพัฒนา Kaizen", icon: PenTool, desc: "บอร์ดสเตตัสงาน" },
-    { id: 13, label: "💰 Cost Down 5 (CD5)", icon: TrendingDown, desc: "ยืดอายุอะไหล่/สั่งทำเอง" },
-    { id: 8, label: "⏱ งาน Setup เครื่อง", icon: Clock, desc: "เตรียมเครื่องก่อนและระหว่างวัน" },
-    { id: 7, label: "📋 ระบบจ่ายงาน", icon: Send, desc: "ศูนย์ควบคุมสั่งจ่ายงาน" },
-    { id: 10, label: "📦 คลังอะไหล่สำรอง", icon: Package, desc: "ควบคุมความปลอดภัยสต็อก" },
-    { id: 6, label: "📊 ระบบสถิติ", icon: BarChart3, desc: "Dashboard/MTTR" },
-    { id: 9, label: "📈 สรุปนำเสนอ", icon: Presentation, desc: "บอร์ดนำเสนอผู้บริหาร" },
-    { id: 12, label: "🏆 Portfolio ช่าง", icon: Award, desc: "ประวัติผลงาน Kaizen & ปรับปรุง" }
+    { id: 3, label: "ตารางงาน", icon: CalendarDays, desc: "ปฏิทินงานประจำเดือน" },
+    { id: 1, label: "เครื่องจักร", icon: Activity, desc: "ทะเบียนระบบ/สถานะ" },
+    { id: 2, label: "แผน PM", icon: ClipboardList, desc: "ความถี่อิ่มกาก/กระบวน" },
+    { id: 4, label: "BD และ ประวัติการซ่อม", icon: Wrench, desc: "วิเคราะห์ Why-Why" },
+    { id: 11, label: "เปลี่ยนอะไหล่ Time-Break", icon: Clock, desc: "ระบุเครื่อง/รอบเปลี่ยนอะไหล่" },
+    { id: 5, label: "งานพัฒนา Kaizen", icon: PenTool, desc: "บอร์ดสเตตัสงาน" },
+    { id: 13, label: "Cost Down 5 (CD5)", icon: TrendingDown, desc: "ยืดอายุอะไหล่/สั่งทำเอง" },
+    { id: 8, label: "งาน Setup เครื่อง", icon: Clock, desc: "เตรียมเครื่องก่อนและระหว่างวัน" },
+    { id: 7, label: "ระบบจ่ายงาน", icon: Send, desc: "ศูนย์ควบคุมสั่งจ่ายงาน" },
+    { id: 10, label: "คลังอะไหล่สำรอง", icon: Package, desc: "ควบคุมความปลอดภัยสต็อก" },
+    { id: 6, label: "ระบบสถิติ", icon: BarChart3, desc: "Dashboard/MTTR" },
+    { id: 9, label: "สรุปนำเสนอ", icon: Presentation, desc: "บอร์ดนำเสนอผู้บริหาร" },
+    { id: 12, label: "Portfolio ช่าง", icon: Award, desc: "ประวัติผลงาน Kaizen & ปรับปรุง" }
   ];
 
   return (
