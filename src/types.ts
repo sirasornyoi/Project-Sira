@@ -62,6 +62,7 @@ export interface PMScheduleItem {
   date: string; // YYYY-MM-DD
   machineId: string;
   pmPlanId: string;
+  title?: string; // Optional PM title / task description
   status: 'รอดำเนินการ' | 'กำลังทำ' | 'เสร็จสิ้น';
   duration: number; // TTM in minutes
   actualDuration?: number; // actual time spent on PM tasks in minutes
