@@ -7691,8 +7691,46 @@ body {
 }
 
 /* Expanded Row Content */
-.light-theme #machine-data-table tbody tr.bg-slate-900\/20 {
+.light-theme #machine-data-table tbody tr.bg-slate-900\/20,
+.light-theme #machine-data-table tbody tr.bg-slate-900\/40,
+.light-theme #machine-data-table tbody tr.bg-slate-900\/60,
+.light-theme #machine-data-table tbody tr.bg-slate-100\/70,
+.light-theme #machine-data-table tbody tr.bg-slate-50\/90,
+.light-theme #machine-data-table tbody tr[id^="expanded-group-row-"] {
   background-color: #f8fafc !important;
+}
+
+.light-theme #machine-data-table tbody tr[id^="expanded-group-row-"] td > div {
+  background-color: #f1f5f9 !important;
+  background-image: none !important;
+  border-top-color: #cbd5e1 !important;
+  border-bottom-color: #cbd5e1 !important;
+  border-right-color: #cbd5e1 !important;
+}
+
+.light-theme #machine-data-table tbody tr[id^="expanded-group-row-"] h4 {
+  color: #0f172a !important;
+}
+
+.light-theme #machine-data-table tbody tr[id^="expanded-group-row-"] h4 span {
+  color: #0284c7 !important;
+}
+
+.light-theme #machine-data-table tbody tr[id^="expanded-group-row-"] p {
+  color: #64748b !important;
+}
+
+.light-theme #machine-data-table tbody tr[id^="unit-row-"] {
+  background-color: #ffffff !important;
+  border-bottom-color: #e2e8f0 !important;
+}
+
+.light-theme #machine-data-table tbody tr[id^="unit-row-"]:hover {
+  background-color: #f8fafc !important;
+}
+
+.light-theme #machine-data-table tbody tr[id^="unit-row-"] td {
+  color: #1e293b !important;
 }
 
 .light-theme #machine-data-table tbody tr.bg-slate-900\/20 div.bg-slate-950\/40 {

@@ -1817,34 +1817,34 @@ export const MachinePage: React.FC = () => {
 
                       {/* Expanded Section showing each individual machine unit with specifications */}
                       {isExpanded && (
-                        <tr className="bg-slate-900/60">
+                        <tr className="bg-slate-100/70 dark:bg-slate-900/60" id={`expanded-group-row-${group.name}`}>
                           <td colSpan={6 + (showZoneColumn ? 1 : 0) + (showRoomColumn ? 1 : 0)} className="p-0">
-                            <div className="border-l-4 border-cyan-500 bg-gradient-to-r from-slate-900 via-slate-900/90 to-slate-900/70 p-4 sm:p-5 space-y-4">
+                            <div className="border-l-4 border-cyan-500 bg-slate-100/90 dark:bg-gradient-to-r dark:from-slate-900 dark:via-slate-900/90 dark:to-slate-900/70 p-4 sm:p-5 space-y-4 border-y border-r border-slate-200 dark:border-slate-800">
                               {/* Sub-header */}
-                              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-800 pb-3">
+                              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
                                 <div className="flex items-center gap-2">
-                                  <div className="p-1 bg-cyan-500/15 rounded text-cyan-400">
+                                  <div className="p-1.5 bg-cyan-100 dark:bg-cyan-500/15 rounded-lg text-cyan-600 dark:text-cyan-400">
                                     <Layers size={16} />
                                   </div>
                                   <div>
-                                    <h4 className="text-xs font-bold text-slate-200">
-                                      เครื่องจักรประเภท: <span className="text-cyan-400 font-extrabold">{group.name}</span>
+                                    <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                                      เครื่องจักรประเภท: <span className="text-cyan-600 dark:text-cyan-400 font-extrabold">{group.name}</span>
                                     </h4>
-                                    <p className="text-[11px] text-slate-400 mt-0.5">
+                                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                                       แยกแสดงรายการแต่ละเครื่องอย่างชัดเจน (ทั้งหมด {group.machines.length} เครื่อง ตั้งแต่เครื่องที่ 1 ถึงเครื่องที่ {group.machines.length})
                                     </p>
                                   </div>
                                 </div>
-                                <span className="text-[11px] text-slate-400 font-mono bg-slate-950/80 px-2.5 py-1 rounded border border-slate-800">
+                                <span className="text-[11px] text-slate-600 dark:text-slate-400 font-mono bg-white dark:bg-slate-950/80 px-2.5 py-1 rounded border border-slate-200 dark:border-slate-800 shadow-xs">
                                   {group.machines.length} เครื่องในกลุ่มนี้
                                 </span>
                               </div>
 
                               {/* Individual machines sub-table */}
-                              <div className="overflow-x-auto rounded-xl border border-slate-700/80 bg-slate-950/80 shadow-inner">
+                              <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950/80 shadow-xs">
                                 <table className="w-full text-left text-xs border-collapse">
                                   <thead>
-                                    <tr className="bg-slate-900/90 text-slate-400 border-b border-slate-800 uppercase tracking-wider font-semibold">
+                                    <tr className="bg-slate-50 dark:bg-slate-900/90 text-slate-600 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 uppercase tracking-wider font-semibold">
                                       <th className="py-3 px-3 w-24 text-center">ลำดับเครื่อง</th>
                                       <th className="py-3 px-3 w-28 font-mono font-medium">รหัส (ID)</th>
                                       <th className="py-3 px-3 font-medium">Model </th>
@@ -1857,7 +1857,7 @@ export const MachinePage: React.FC = () => {
                                       <th className="py-3 px-3 text-center w-36">การจัดการ</th>
                                     </tr>
                                   </thead>
-                                  <tbody className="divide-y divide-slate-800/80">
+                                  <tbody className="divide-y divide-slate-200 dark:divide-slate-800/80">
                                     {group.machines.map((m, mIndex) => {
                                       const stats = getMachineStats(m.id);
                                       const isDetailExpanded = expandedMachineId === m.id;
@@ -1868,30 +1868,30 @@ export const MachinePage: React.FC = () => {
                                         <React.Fragment key={m.id}>
                                           <tr 
                                             id={`unit-row-${m.id}`}
-                                            className={`hover:bg-slate-800/40 transition-colors ${
-                                              isDetailExpanded ? 'bg-slate-800/50' : ''
+                                            className={`hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors ${
+                                              isDetailExpanded ? 'bg-cyan-50/40 dark:bg-slate-800/50' : 'bg-white dark:bg-transparent'
                                             }`}
                                           >
                                             {/* Machine Unit Number Badge */}
                                             <td className="py-3 px-3 text-center">
-                                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-extrabold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
+                                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-extrabold bg-cyan-100 dark:bg-cyan-500/20 text-cyan-700 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-500/40">
                                                 เครื่องที่ {unitNumber}
                                               </span>
                                             </td>
 
                                             {/* ID */}
-                                            <td className="py-3 px-3 font-mono font-bold text-cyan-400 text-sm">
+                                            <td className="py-3 px-3 font-mono font-bold text-cyan-600 dark:text-cyan-400 text-sm">
                                               {m.id}
                                             </td>
 
                                             {/* Model & Duty */}
                                             <td className="py-3 px-3">
-                                              <div className="font-medium text-slate-200">
+                                              <div className="font-medium text-slate-800 dark:text-slate-200">
                                                 {m.model || '-'}
                                               </div>
                                               {m.lineGroup && (
-                                                <div className="text-[10px] text-amber-400 font-semibold mt-0.5 flex items-center gap-1">
-                                                  <Briefcase size={10} className="text-amber-400 shrink-0" />
+                                                <div className="text-[10px] text-amber-700 dark:text-amber-400 font-semibold mt-0.5 flex items-center gap-1">
+                                                  <Briefcase size={10} className="text-amber-700 dark:text-amber-400 shrink-0" />
                                                   <span>หน้าที่: {m.lineGroup}</span>
                                                 </div>
                                               )}
@@ -1899,11 +1899,11 @@ export const MachinePage: React.FC = () => {
                                              {/* Power */}
                                             <td className="py-3 px-3">
                                               {m.powerVoltage ? (
-                                                <div className="text-[11px] text-amber-400 font-mono">
+                                                <div className="text-[11px] text-amber-700 dark:text-amber-400 font-mono font-medium">
                                                   ⚡ {m.powerVoltage}
                                                 </div>
                                               ) : (
-                                                <span className="text-slate-500">-</span>
+                                                <span className="text-slate-400 dark:text-slate-500">-</span>
                                               )}
                                             </td>
 
@@ -1925,7 +1925,7 @@ export const MachinePage: React.FC = () => {
                                                   </span>
                                                 </div>
                                                 {m.serialNumber && (
-                                                  <div className="text-[10px] text-slate-400 font-mono mt-0.5">
+                                                  <div className="text-[10px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">
                                                     S/N: {m.serialNumber}
                                                   </div>
                                                 )}
@@ -1933,31 +1933,31 @@ export const MachinePage: React.FC = () => {
                                             )}  
                                             
                                             {/* PM Count */}
-                                            <td className="py-3 px-3 text-center font-bold text-cyan-300 font-mono">
+                                            <td className="py-3 px-3 text-center font-bold text-cyan-600 dark:text-cyan-300 font-mono">
                                               {stats.pmCount} งาน
                                             </td>
 
                                             {/* BD Count */}
                                             <td className="py-3 px-3 text-center font-mono font-bold">
                                               {stats.monthlyBdCount > 0 ? (
-                                                <span className="text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded border border-rose-500/20">
+                                                <span className="text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/10 px-2 py-0.5 rounded border border-rose-200 dark:border-rose-500/20">
                                                   {stats.monthlyBdCount} ครั้ง
                                                 </span>
                                               ) : (
-                                                <span className="text-slate-400">0</span>
+                                                <span className="text-slate-500 dark:text-slate-400">0</span>
                                               )}
                                             </td>
 
                                             {/* Status */}
                                             <td className="py-3 px-3 text-center">
                                               {stats.status === 'ปกติ' ? (
-                                                <span className="inline-flex items-center gap-1 bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[11px] px-2 py-0.5 rounded-full font-medium">
-                                                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                                <span className="inline-flex items-center gap-1 bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400 text-[11px] px-2 py-0.5 rounded-full font-medium">
+                                                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse"></span>
                                                   ปกติ
                                                 </span>
                                               ) : (
-                                                <span className="inline-flex items-center gap-1 bg-rose-500/15 border border-rose-500/30 text-rose-400 text-[11px] px-2 py-0.5 rounded-full font-medium">
-                                                  <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse"></span>
+                                                <span className="inline-flex items-center gap-1 bg-rose-50 dark:bg-rose-500/15 border border-rose-200 dark:border-rose-500/30 text-rose-700 dark:text-rose-400 text-[11px] px-2 py-0.5 rounded-full font-medium">
+                                                  <span className="w-1.5 h-1.5 rounded-full bg-rose-500 dark:bg-rose-400 animate-pulse"></span>
                                                   เสีย-ซ่อม
                                                 </span>
                                               )}
@@ -1969,26 +1969,26 @@ export const MachinePage: React.FC = () => {
                                                 <button
                                                   id={`btn-edit-${m.id}`}
                                                   onClick={() => handleEditClick(m)}
-                                                  className="bg-slate-900 hover:bg-slate-800 p-1.5 rounded-lg border border-slate-700/80 text-slate-300 hover:text-amber-400 hover:border-amber-500/40 transition cursor-pointer"
+                                                  className="bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 p-1.5 rounded-lg border border-slate-200 dark:border-slate-700/80 text-slate-600 dark:text-slate-300 hover:text-amber-600 dark:hover:text-amber-400 hover:border-amber-400 dark:hover:border-amber-500/40 transition cursor-pointer shadow-xs"
                                                   title={`แก้ไขข้อมูลเครื่องที่ ${unitNumber} (${m.id})`}
                                                 >
-                                                  <Edit3 size={14} className="text-amber-400" />
+                                                  <Edit3 size={14} className="text-amber-600 dark:text-amber-400" />
                                                 </button>
                                                 <button
                                                   id={`btn-delete-${m.id}`}
                                                   onClick={() => handleDeleteClick(m)}
-                                                  className="bg-slate-900 hover:bg-slate-800 p-1.5 rounded-lg border border-slate-700/80 text-slate-300 hover:text-rose-450 hover:border-rose-500/40 transition cursor-pointer"
+                                                  className="bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 p-1.5 rounded-lg border border-slate-200 dark:border-slate-700/80 text-slate-600 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-400 hover:border-rose-400 dark:hover:border-rose-500/40 transition cursor-pointer shadow-xs"
                                                   title={`ลบเครื่องที่ ${unitNumber} (${m.id})`}
                                                 >
-                                                  <Trash2 size={14} className="text-rose-400" />
+                                                  <Trash2 size={14} className="text-rose-600 dark:text-rose-400" />
                                                 </button>
                                                 <button
                                                   id={`btn-expand-${m.id}`}
                                                   onClick={() => toggleExpandRow(m.id)}
-                                                  className={`px-2 py-1 rounded-lg border transition cursor-pointer flex items-center gap-1 text-[11px] font-medium ${
+                                                  className={`px-2 py-1 rounded-lg border transition cursor-pointer flex items-center gap-1 text-[11px] font-medium shadow-xs ${
                                                     isDetailExpanded
-                                                      ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40'
-                                                      : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border-slate-700 hover:text-cyan-400'
+                                                      ? 'bg-cyan-100 dark:bg-cyan-500/20 text-cyan-800 dark:text-cyan-300 border-cyan-300 dark:border-cyan-500/40'
+                                                      : 'bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:text-cyan-600 dark:hover:text-cyan-400'
                                                   }`}
                                                   title={`ดูรายละเอียดสเปก แผน PM และสถิติของเครื่องที่ ${unitNumber}`}
                                                 >
@@ -2001,7 +2001,7 @@ export const MachinePage: React.FC = () => {
 
                                           {/* Deep Detail Section (Specs, PM plans & MTTR) for this exact machine */}
                                           {isDetailExpanded && (
-                                            <tr className="bg-slate-900/90">
+                                            <tr className="bg-slate-50/90 dark:bg-slate-900/90">
                                               <td colSpan={8 + (showZoneColumn ? 1 : 0) + (showRoomColumn ? 1 : 0)} className="p-3">
                                                 {renderMachineDetails(m, stats, `เครื่องที่ ${unitNumber}`)}
                                               </td>
@@ -2136,7 +2136,7 @@ export const MachinePage: React.FC = () => {
 
                       {/* Expanded Section */}
                       {isExpanded && (
-                        <tr className="bg-slate-900/40">
+                        <tr className="bg-slate-50/90 dark:bg-slate-900/40">
                           <td colSpan={7 + (showZoneColumn ? 1 : 0) + (showRoomColumn ? 1 : 0)} className="p-3">
                             {renderMachineDetails(m, stats)}
                           </td>
