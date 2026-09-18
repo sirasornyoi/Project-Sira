@@ -11,6 +11,7 @@ import {
   AlertTriangle, CheckCircle2, Shield, Calendar, X, User,
   FileText, Coffee, Sparkles, Wrench, Package
 } from 'lucide-react';
+import { getTodayDateString } from '../utils/pmAlerts';
 
 export const DashboardPage: React.FC = () => {
   const { machines, pmPlans, schedules, repairs, improvements, settings, technicians, leaves, spareParts } = useApp();
@@ -21,14 +22,14 @@ export const DashboardPage: React.FC = () => {
   // Tab control: 'overview' for the rich industrial analysis, 'live-control' for Live work / workload / TTM / MTTR
   const [activeTab, setActiveTab] = useState<'overview' | 'live-control'>('live-control');
 
-  // Selector for active analytical month (defaults to June 2026/2569)
-  const [selectedMonth, setSelectedMonth] = useState<string>("2026-06");
+  // Selector for active analytical month (defaults to current month YYYY-MM from getTodayDateString)
+  const [selectedMonth, setSelectedMonth] = useState<string>(() => getTodayDateString().slice(0, 7));
 
   // Search input for technician workload
   const [techSearch, setTechSearch] = useState<string>('');
 
-  // Target Date represent TODAY in context (defaults to "2026-06-10", tracks changes automatically)
-  const [todayStr, setTodayStr] = useState<string>("2026-06-10");
+  // Target Date represent TODAY in context (defaults to getTodayDateString(), tracks changes automatically)
+  const [todayStr, setTodayStr] = useState<string>(() => getTodayDateString());
 
   // Auto-update todayStr when repairs or schedules update, to make newly added items immediately visible
   React.useEffect(() => {
@@ -38,16 +39,20 @@ export const DashboardPage: React.FC = () => {
       const uniqueDates = Array.from(new Set(dates)).sort((a: string, b: string) => b.localeCompare(a));
       if (uniqueDates.length > 0) {
         const newestDate = uniqueDates[0];
-        // If the newest date is more recent than the default 2026-06-10, auto-switch to show it
-        if (newestDate > "2026-06-10") {
+        const currentToday = getTodayDateString();
+        // If the newest date is more recent than today, auto-switch to show it
+        if (newestDate > currentToday) {
           setTodayStr(newestDate);
         }
       }
     }
   }, [repairs]);
 
-  // Days of the month for formulas
-  const daysInMonth = 30;
+  // Days of the month for formulas based on active selectedMonth
+  const [selYear, selMonth] = selectedMonth.split('-').map(Number);
+  const daysInMonth = (selYear && selMonth)
+    ? new Date(selYear, selMonth, 0).getDate()
+    : 30;
   const operatingHoursFactor = daysInMonth * 16; // 2 shifts standard is 16 hours.
 
   // --- 1. CALCULATE TOP 4 KPIs FOR SELECTED MONTH (General) ---
@@ -394,17 +399,16 @@ export const DashboardPage: React.FC = () => {
 
   const pendingRepairsCount = repairs.filter(r => r.status === 'กำลังซ่อม').length;
 
-  // Compute upcoming PMs for the current week (next 7 days starting from a realistic/live reference point)
-  const refDateForWeek = new Date();
-  const refYearForWeek = refDateForWeek.getFullYear();
-  const refMonthForWeek = refDateForWeek.getMonth() + 1;
-  const isJune2026ForWeek = refYearForWeek === 2026 && refMonthForWeek === 6;
-  const weekAnchorDate = isJune2026ForWeek ? refDateForWeek : new Date("2026-06-21");
-
+  // Compute upcoming PMs for the current week (next 7 days starting forward from getTodayDateString())
+  const todayDateStr = getTodayDateString();
+  const [anchorYear, anchorMonth, anchorDay] = todayDateStr.split('-').map(Number);
   const next7DaysStr: string[] = [];
   for (let i = 0; i < 7; i++) {
-    const d = new Date(weekAnchorDate.getTime() + i * 24 * 60 * 60 * 1000);
-    next7DaysStr.push(d.toISOString().slice(0, 10));
+    const d = new Date(anchorYear, anchorMonth - 1, anchorDay + i);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    next7DaysStr.push(`${y}-${m}-${day}`);
   }
 
   const upcomingPmSchedules = schedules.filter(s => 
@@ -1306,6 +1310,17 @@ export const DashboardPage: React.FC = () => {
                 onChange={(e) => setSelectedMonth(e.target.value)}
                 className="bg-slate-900 border border-slate-705 rounded-md text-xs font-mono font-bold px-3 py-1 text-slate-200 focus:outline-none focus:border-cyan-500 cursor-pointer"
               >
+                {!["2026-05", "2026-06", "2026-07"].includes(selectedMonth) && (
+                  <option value={selectedMonth}>
+                    {(() => {
+                      const [y, m] = selectedMonth.split('-');
+                      const thMonths = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+                      const monthIdx = parseInt(m, 10) - 1;
+                      const thYear = parseInt(y, 10) + 543;
+                      return monthIdx >= 0 && monthIdx < 12 ? `${thMonths[monthIdx]} ${thYear}` : selectedMonth;
+                    })()}
+                  </option>
+                )}
                 <option value="2026-05">พฤษภาคม 2569</option>
                 <option value="2026-06">มิถุนายน 2569</option>
                 <option value="2026-07">กรกฎาคม 2569</option>
