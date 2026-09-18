@@ -590,7 +590,9 @@ body {
 .light-theme #app-body-container .bg-slate-900\/40,
 .light-theme #app-body-container .bg-slate-900\/50,
 .light-theme #app-body-container .bg-slate-900\/60,
+.light-theme #app-body-container .bg-slate-900\/70,
 .light-theme #app-body-container .bg-slate-900\/80,
+.light-theme #app-body-container .bg-slate-900\/90,
 .light-theme #app-body-container .bg-slate-950\/40,
 .light-theme #app-body-container .bg-slate-950\/30,
 .light-theme #app-body-container .bg-slate-950\/20,
@@ -903,6 +905,56 @@ body {
 .light-theme ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8 !important;
 }
+
+/* --- PM Plan Page (แผนงานบำรุงรักษา PM) Light Theme Polish --- */
+.light-theme #pm-left-machine-selector {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+.light-theme #pm-left-machine-selector #pm-machine-search {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+.light-theme #pm-machine-list > div {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #e2e8f0 !important;
+}
+
+.light-theme #pm-machine-list > div:hover {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+
+.light-theme #pm-machine-list > div p {
+  color: #0f172a !important;
+}
+
+.light-theme #pm-machine-list > div span.text-slate-500,
+.light-theme #pm-machine-list > div p.text-slate-500 {
+  color: #64748b !important;
+}
+
+/* Selected machine card in PM list - white background with black text and crisp cyan accent */
+.light-theme #pm-machine-list > div.border-cyan-500,
+.light-theme #pm-machine-list > div.border-cyan-600,
+.light-theme #pm-machine-list > div[class*="border-2"],
+.light-theme #pm-machine-list > div[class*="border-cyan"] {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #0891b2 !important;
+  box-shadow: 0 4px 12px -2px rgba(8, 145, 178, 0.18), 0 2px 4px -2px rgba(0, 0, 0, 0.05) !important;
+}
+
+.light-theme #pm-machine-list > div.border-cyan-500 span.font-mono,
+.light-theme #pm-machine-list > div.border-cyan-600 span.font-mono,
+.light-theme #pm-machine-list > div[class*="border-cyan"] span.font-mono {
+  color: #0891b2 !important;
+}
+
 
 /* --- SchedulePage (ตารางงานช่าง) Light Theme Polish --- */
 
@@ -1828,6 +1880,28 @@ body {
 .light-theme #pm-plan-container [id^="pm-plan-card-"] button[id^="btn-edit-plan-"]:hover {
   background-color: #e2e8f0 !important;
   color: #0f172a !important;
+}
+
+/* Widen / expand buttons in header and card */
+.light-theme #pm-right-machine-header #btn-toggle-pm-widen,
+.light-theme #pm-plan-container button[id^="btn-widen-plan-"] {
+  background-color: var(--surface) !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+.light-theme #pm-right-machine-header #btn-toggle-pm-widen:hover,
+.light-theme #pm-plan-container button[id^="btn-widen-plan-"]:hover {
+  background-color: #f1f5f9 !important;
+  border-color: #94a3b8 !important;
+  color: #0f172a !important;
+}
+
+.light-theme #pm-right-machine-header #btn-toggle-pm-widen[class*="bg-cyan-500"],
+.light-theme #pm-plan-container button[id^="btn-widen-plan-"][class*="bg-cyan-500"] {
+  background-color: #e0f2fe !important;
+  border-color: #38bdf8 !important;
+  color: #0369a1 !important;
 }
 
 /* PM Plan Page Modals - Form, Copy, Import */

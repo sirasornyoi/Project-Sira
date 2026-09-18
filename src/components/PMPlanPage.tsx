@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import * as XLSX from 'xlsx';
 import { useApp } from '../context/AppContext';
-import { PMPlan, PMFrequency, PMStep } from '../types';
+import { PMPlan, PMFrequency, PMStep, Machine } from '../types';
 import { 
   Search, Plus, Trash2, Edit3, CheckCircle, PackageOpen, 
   Clock, ClipboardList, Copy, Upload, Download, Check, AlertTriangle, 
   Sparkles, FileSpreadsheet, ArrowLeftRight, CheckSquare, Square, 
-  Calendar, User, Wrench, ShieldCheck, RefreshCw, FileText, ChevronDown, ChevronUp
+  Calendar, User, Wrench, ShieldCheck, RefreshCw, FileText, ChevronDown, ChevronUp,
+  Maximize2, Minimize2
 } from 'lucide-react';
 import { 
   exportPMReportToExcel, 
@@ -16,11 +17,22 @@ import {
 } from '../utils/pmExcelUtils';
 
 export const PMPlanPage: React.FC = () => {
-  const { machines, pmPlans, setPmPlans } = useApp();
+  const { machines, pmPlans, setPmPlans, pmMachineIds, setPmMachineIds } = useApp();
   
   // Selected machine filter
-  const [selectedMachineId, setSelectedMachineId] = useState<string>(machines[0]?.id || '');
+  const [selectedMachineId, setSelectedMachineId] = useState<string>(() => {
+    if (pmMachineIds && pmMachineIds.length > 0) return pmMachineIds[0];
+    return machines[0]?.id || '';
+  });
   const [machineSearch, setMachineSearch] = useState('');
+
+  // PM Machine List management states
+  const [showMachinePickerModal, setShowMachinePickerModal] = useState(false);
+  const [pickerSearch, setPickerSearch] = useState('');
+  const [machineToRemoveFromPM, setMachineToRemoveFromPM] = useState<Machine | null>(null);
+
+  // Widen detail panel toggle state
+  const [isWide, setIsWide] = useState(false);
 
   // Copy plans from another machine states
   const [showCopyModal, setShowCopyModal] = useState(false);
@@ -73,12 +85,73 @@ export const PMPlanPage: React.FC = () => {
   // Expanded plan cards for checklist view
   const [expandedPlanIds, setExpandedPlanIds] = useState<Record<string, boolean>>({});
 
-  // Searchable machine selection
-  const filteredMachines = machines.filter(m => 
-    m.id.toLowerCase().includes(machineSearch.toLowerCase()) ||
-    m.name.toLowerCase().includes(machineSearch.toLowerCase()) ||
-    (m.lineGroup && m.lineGroup.toLowerCase().includes(machineSearch.toLowerCase()))
-  );
+  // Machines enrolled in PM list (preserves order in pmMachineIds)
+  const pmMachines = useMemo(() => {
+    return pmMachineIds
+      .map(id => machines.find(m => m.id === id))
+      .filter((m): m is Machine => Boolean(m));
+  }, [pmMachineIds, machines]);
+
+  // Searchable machine selection in PM left column
+  const filteredPmMachines = useMemo(() => {
+    const term = machineSearch.trim().toLowerCase();
+    if (!term) return pmMachines;
+    return pmMachines.filter(m => 
+      m.id.toLowerCase().includes(term) ||
+      m.name.toLowerCase().includes(term) ||
+      (m.lineGroup && m.lineGroup.toLowerCase().includes(term)) ||
+      (m.locationZone && m.locationZone.toLowerCase().includes(term)) ||
+      (m.locationRoom && m.locationRoom.toLowerCase().includes(term))
+    );
+  }, [pmMachines, machineSearch]);
+
+  // Registry machines NOT yet enrolled in PM list (for the picker modal)
+  const availableRegistryMachines = useMemo(() => {
+    return machines.filter(m => !pmMachineIds.includes(m.id));
+  }, [machines, pmMachineIds]);
+
+  // Searchable registry machines inside the picker modal
+  const filteredAvailableMachines = useMemo(() => {
+    const term = pickerSearch.trim().toLowerCase();
+    if (!term) return availableRegistryMachines;
+    return availableRegistryMachines.filter(m =>
+      m.id.toLowerCase().includes(term) ||
+      m.name.toLowerCase().includes(term) ||
+      (m.lineGroup && m.lineGroup.toLowerCase().includes(term)) ||
+      (m.locationZone && m.locationZone.toLowerCase().includes(term)) ||
+      (m.locationRoom && m.locationRoom.toLowerCase().includes(term))
+    );
+  }, [availableRegistryMachines, pickerSearch]);
+
+  // Synchronize selectedMachineId if currently selected machine is removed or on list change
+  useEffect(() => {
+    if (pmMachines.length > 0) {
+      if (!selectedMachineId || !pmMachineIds.includes(selectedMachineId)) {
+        setSelectedMachineId(pmMachines[0].id);
+      }
+    } else if (selectedMachineId) {
+      setSelectedMachineId('');
+    }
+  }, [pmMachineIds, pmMachines, selectedMachineId]);
+
+  // Add machine to PM list (from machine registry)
+  const handleAddMachineToPM = (machineId: string) => {
+    if (pmMachineIds.includes(machineId)) return; // Prevent duplicate
+    setPmMachineIds(prev => [...prev, machineId]);
+    setSelectedMachineId(machineId);
+    setShowMachinePickerModal(false);
+    setPickerSearch('');
+  };
+
+  // Remove machine from PM list ONLY (registry record untouched)
+  const handleConfirmRemoveMachineFromPM = (machineId: string) => {
+    setPmMachineIds(prev => prev.filter(id => id !== machineId));
+    if (selectedMachineId === machineId) {
+      const remaining = pmMachines.filter(m => m.id !== machineId);
+      setSelectedMachineId(remaining[0]?.id || '');
+    }
+    setMachineToRemoveFromPM(null);
+  };
 
   const selectedMachine = machines.find(m => m.id === selectedMachineId);
 
@@ -205,10 +278,6 @@ export const PMPlanPage: React.FC = () => {
   const handleDeleteStepFromPlan = (planId: string, stepIndex: number) => {
     setPmPlans(prev => prev.map(plan => {
       if (plan.id !== planId) return plan;
-      if (plan.steps.length <= 1) {
-        alert('แผน PM ต้องมีขั้นตอนการบำรุงรักษาอย่างน้อย 1 รายการ');
-        return plan;
-      }
       const updatedSteps = plan.steps.filter((_, idx) => idx !== stepIndex);
       const newTtm = updatedSteps.reduce((sum, s) => sum + (s.stdTime || 0), 0);
       return {
@@ -486,14 +555,32 @@ export const PMPlanPage: React.FC = () => {
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6" id="pmplan-page-root">
       
       {/* LEFT COLUMN: Searchable machine select */}
-      <div id="pm-left-machine-selector" className="col-span-1 lg:col-span-4 bg-slate-800 border border-slate-700 rounded-2xl p-5 flex flex-col h-[750px]">
-        <div className="flex justify-between items-center mb-3">
-          <h3 className="text-sm font-bold text-slate-200 flex items-center gap-2">
-            🏭 รายการเครื่องจักร ({machines.length})
-          </h3>
-          <span className="text-[11px] text-cyan-400 font-mono">
-            {pmPlans.length} แผน PM ทั้งหมด
-          </span>
+      <div 
+        id="pm-left-machine-selector" 
+        className={`${isWide ? 'hidden' : 'col-span-1 lg:col-span-4'} bg-slate-800 border border-slate-700 rounded-2xl p-5 flex flex-col h-[750px] transition-all duration-200`}
+      >
+        <div className="flex justify-between items-center mb-3 gap-2">
+          <div className="min-w-0 flex-1">
+            <h3 className="text-sm font-bold text-slate-200 flex items-center gap-2 truncate">
+              🏭 รายการเครื่องจักร ({pmMachines.length})
+            </h3>
+            <span className="text-[11px] text-cyan-400 font-mono block truncate">
+              {pmPlans.filter(p => pmMachineIds.includes(p.machineId)).length} แผน PM ทั้งหมด
+            </span>
+          </div>
+          <button
+            id="btn-add-pm-machine"
+            type="button"
+            onClick={() => {
+              setShowMachinePickerModal(true);
+              setPickerSearch('');
+            }}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-fg text-xs font-bold rounded-xl shadow-md shadow-cyan-600/20 transition shrink-0 cursor-pointer"
+            title="+ เพิ่มเครื่องจักร"
+          >
+            <Plus size={14} />
+            <span>+ เพิ่มเครื่องจักร</span>
+          </button>
         </div>
         
         <div className="relative mb-3">
@@ -509,52 +596,90 @@ export const PMPlanPage: React.FC = () => {
         </div>
 
         <div className="flex-1 overflow-y-auto space-y-1.5 pr-1" id="pm-machine-list">
-          {filteredMachines.map(m => {
-            const planCount = pmPlans.filter(p => p.machineId === m.id).length;
-            const isSelected = selectedMachineId === m.id;
+          {filteredPmMachines.length === 0 ? (
+            <div className="p-6 text-center text-slate-500 text-xs flex flex-col items-center justify-center h-48 border border-dashed border-slate-700/60 rounded-xl">
+              <PackageOpen size={32} className="text-slate-600 mb-2" />
+              <p className="font-semibold text-slate-300">
+                {pmMachines.length === 0 ? 'ยังไม่มีเครื่องจักรในรายการ PM' : 'ไม่พบเครื่องจักรที่ตรงกับคำค้นหา'}
+              </p>
+              <p className="text-[11px] text-slate-400 mt-1">
+                {pmMachines.length === 0 ? 'กดปุ่ม "+ เพิ่มเครื่องจักร" ด้านบนเพื่อเลือกเครื่องจากทะเบียน' : 'ลองค้นหาด้วยรหัสหรือชื่ออื่น'}
+              </p>
+            </div>
+          ) : (
+            filteredPmMachines.map(m => {
+              const planCount = pmPlans.filter(p => p.machineId === m.id).length;
+              const isSelected = selectedMachineId === m.id;
 
-            return (
-              <button
-                key={m.id}
-                id={`pm-mach-btn-${m.id}`}
-                onClick={() => setSelectedMachineId(m.id)}
-                className={`w-full text-left p-3 rounded-xl border transition flex justify-between items-center ${
-                  isSelected 
-                    ? 'bg-slate-900/90 border-cyan-500 text-cyan-400 shadow-md shadow-cyan-500/10' 
-                    : 'bg-slate-900/30 border-slate-700/60 hover:border-slate-600 text-slate-300'
-                }`}
-              >
-                <div className="min-w-0 pr-2">
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="text-xs font-mono font-bold tracking-wider">{m.id}</span>
-                    {m.lineGroup && (
-                      <span className="text-[10px] bg-amber-500/15 border border-amber-500/30 text-amber-300 px-1.5 py-0.2 rounded font-bold">
-                        {m.lineGroup}
+              return (
+                <div
+                  key={m.id}
+                  id={`pm-mach-btn-${m.id}`}
+                  onClick={() => setSelectedMachineId(m.id)}
+                  className={`group relative w-full text-left p-3 rounded-xl border transition flex justify-between items-center cursor-pointer ${
+                    isSelected 
+                      ? 'bg-white border-2 border-cyan-600 text-slate-900 shadow-sm dark:bg-slate-900/90 dark:border-cyan-500 dark:text-cyan-400 dark:shadow-cyan-500/10' 
+                      : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-900 hover:border-slate-300 dark:bg-slate-900/30 dark:border-slate-700/60 dark:hover:border-slate-600 dark:text-slate-300'
+                  }`}
+                >
+                  <div className="min-w-0 pr-2 flex-1">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className={`text-xs font-mono font-bold tracking-wider ${
+                        isSelected 
+                          ? 'text-cyan-700 dark:text-cyan-400' 
+                          : 'text-slate-900 dark:text-slate-200'
+                      }`}>
+                        {m.id}
                       </span>
+                      {m.lineGroup && (
+                        <span className="text-[10px] bg-amber-50 dark:bg-amber-500/15 border border-amber-300 dark:border-amber-500/30 text-amber-800 dark:text-amber-300 px-1.5 py-0.2 rounded font-bold">
+                          {m.lineGroup}
+                        </span>
+                      )}
+                    </div>
+                    <p className={`text-xs font-semibold mt-1 truncate max-w-[160px] ${
+                      isSelected 
+                        ? 'text-slate-950 dark:text-slate-100' 
+                        : 'text-slate-800 dark:text-slate-200'
+                    }`}>
+                      {m.name}
+                    </p>
+                    {(m.locationZone || m.locationRoom) && (
+                      <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+                        {[m.locationZone, m.locationRoom].filter(Boolean).join(' • ')}
+                      </p>
                     )}
                   </div>
-                  <p className="text-xs font-medium mt-1 truncate max-w-[180px] text-slate-200">{m.name}</p>
-                  {(m.locationZone || m.locationRoom) && (
-                    <p className="text-[10px] text-slate-500 mt-0.5 truncate">
-                      {[m.locationZone, m.locationRoom].filter(Boolean).join(' • ')}
-                    </p>
-                  )}
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                      planCount > 0 
+                        ? 'bg-cyan-50 text-cyan-800 border border-cyan-300 dark:bg-cyan-500/20 dark:text-cyan-300 dark:border-cyan-500/30' 
+                        : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+                    }`}>
+                      {planCount} แผน
+                    </span>
+                    <button
+                      id={`btn-remove-pm-mach-${m.id}`}
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setMachineToRemoveFromPM(m);
+                      }}
+                      className="p-1 rounded-lg text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/15 cursor-pointer opacity-80 md:opacity-0 md:group-hover:opacity-100 transition"
+                      title={`นำเครื่อง ${m.id} ออกจากรายการ PM (ไม่ลบข้อมูลในทะเบียนเครื่องจักร)`}
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  </div>
                 </div>
-                <div className="text-right shrink-0">
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                    planCount > 0 ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30' : 'bg-slate-800 text-slate-500'
-                  }`}>
-                    {planCount} แผน
-                  </span>
-                </div>
-              </button>
-            );
-          })}
+              );
+            })
+          )}
         </div>
       </div>
 
       {/* RIGHT COLUMN: PM plans, interactive checklist, and actions */}
-      <div className="col-span-1 lg:col-span-8 flex flex-col space-y-4 h-[750px]">
+      <div className={`col-span-1 ${isWide ? 'lg:col-span-12' : 'lg:col-span-8'} flex flex-col space-y-4 h-[750px] transition-all duration-200`}>
         {/* Machine header display and top action buttons */}
         <div id="pm-right-machine-header" className="bg-slate-800 border border-slate-700 rounded-2xl p-4 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-3 shrink-0">
           <div>
@@ -580,6 +705,21 @@ export const PMPlanPage: React.FC = () => {
 
           {/* Action Toolbar */}
           <div className="flex flex-wrap items-center gap-2 w-full xl:w-auto">
+            {/* Widen / Expand Toggle */}
+            <button
+              id="btn-toggle-pm-widen"
+              onClick={() => setIsWide(!isWide)}
+              className={`flex items-center gap-1.5 px-3 py-2 border rounded-xl text-xs font-bold transition cursor-pointer ${
+                isWide
+                  ? 'bg-cyan-500/20 border-cyan-500 text-cyan-300 hover:bg-cyan-500/30'
+                  : 'bg-slate-900 border-slate-700 text-slate-300 hover:bg-slate-800'
+              }`}
+              title={isWide ? 'ย่อกลับเป็น 2 คอลัมน์ (แสดงรายการเครื่องจักร)' : 'ขยายเต็มความกว้าง (ซ่อนรายการเครื่องจักร)'}
+            >
+              {isWide ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
+              <span>{isWide ? 'ย่อมุมมอง' : 'ขยายตาราง'}</span>
+            </button>
+
             {/* 1. Import Excel */}
             <button
               id="btn-import-pm-excel"
@@ -739,6 +879,18 @@ export const PMPlanPage: React.FC = () => {
                       {/* Header quick buttons */}
                       <div className="flex items-center gap-1.5">
                         <button
+                          id={`btn-widen-plan-${plan.id}`}
+                          onClick={() => setIsWide(!isWide)}
+                          className={`p-1.5 border rounded-lg text-xs transition cursor-pointer ${
+                            isWide
+                              ? 'bg-cyan-500/20 border-cyan-500 text-cyan-300 hover:bg-cyan-500/30'
+                              : 'bg-slate-900 border-slate-700 hover:border-slate-600 text-slate-300'
+                          }`}
+                          title={isWide ? 'ย่อกลับเป็น 2 คอลัมน์ (แสดงรายการเครื่องจักร)' : 'ขยายเต็มความกว้าง (ซ่อนรายการเครื่องจักร)'}
+                        >
+                          {isWide ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
+                        </button>
+                        <button
                           onClick={() => exportPMReportToExcel(plan, selectedMachine)}
                           className="p-1.5 bg-slate-900 border border-slate-700 hover:border-cyan-500 text-cyan-300 rounded-lg text-xs transition"
                           title="ส่งออกใบร่างนี้เป็น Excel"
@@ -822,7 +974,25 @@ export const PMPlanPage: React.FC = () => {
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-border dark:divide-slate-800 text-fg dark:text-slate-300">
-                            {plan.steps.map((step, idx) => {
+                            {plan.steps.length === 0 ? (
+                              <tr>
+                                <td colSpan={9} className="py-8 text-center text-slate-400 dark:text-slate-500">
+                                  <div className="flex flex-col items-center justify-center gap-2">
+                                    <PackageOpen size={28} className="text-slate-400 dark:text-slate-600" />
+                                    <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">ยังไม่มีข้อตรวจในแผนนี้ (สามารถกดเพิ่มข้อตรวจใหม่ได้ตลอดเวลา)</p>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleOpenAddStepModal(plan.id)}
+                                      className="mt-1 inline-flex items-center gap-1.5 px-3 py-1.5 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg text-xs font-bold transition cursor-pointer"
+                                    >
+                                      <Plus size={13} strokeWidth={2.5} />
+                                      <span>+ เพิ่มข้อตรวจ PM ในแผนนี้</span>
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            ) : (
+                              plan.steps.map((step, idx) => {
                               const isDone = !!step.done;
                               const isNormal = step.result === 'ปกติ';
                               const isAbnormal = step.result === 'ไม่ปกติ';
@@ -959,7 +1129,7 @@ export const PMPlanPage: React.FC = () => {
                                       <button
                                         type="button"
                                         onClick={() => handleDeleteStepFromPlan(plan.id, idx)}
-                                        className="p-1 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded transition"
+                                        className="p-1 rounded text-slate-400 hover:text-rose-600 dark:text-slate-500 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 cursor-pointer transition"
                                         title="ลดการทำ PM (ลบข้อนี้ออกจากแผน)"
                                       >
                                         <Trash2 size={12} />
@@ -968,8 +1138,9 @@ export const PMPlanPage: React.FC = () => {
                                   </td>
                                 </tr>
                               );
-                            })}
-                          </tbody>
+                            })
+                          )}
+                        </tbody>
                         </table>
                       </div>
 
@@ -1443,12 +1614,9 @@ export const PMPlanPage: React.FC = () => {
                         </div>
                         <button
                           type="button"
-                          onClick={() => {
-                            if (planSteps.length === 1) return;
-                            setPlanSteps(prev => prev.filter((_, i) => i !== idx));
-                          }}
-                          disabled={planSteps.length === 1}
-                          className="p-1 text-slate-500 hover:text-rose-400 disabled:opacity-30"
+                          onClick={() => setPlanSteps(prev => prev.filter((_, i) => i !== idx))}
+                          className="p-1 text-slate-500 hover:text-rose-400 cursor-pointer transition"
+                          title="ลบขั้นตอนนี้"
                         >
                           <Trash2 size={13} />
                         </button>
@@ -1712,6 +1880,210 @@ export const PMPlanPage: React.FC = () => {
                   คัดลอกและบันทึก
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ---------------------------------------------------- */}
+      {/* MODAL 6: REMOVE MACHINE FROM PM CONFIRMATION         */}
+      {/* ---------------------------------------------------- */}
+      {machineToRemoveFromPM && (
+        <div 
+          id="modal-remove-pm-machine-confirm"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/85 backdrop-blur-sm p-4"
+        >
+          <div className="bg-slate-900 border border-slate-700 p-6 rounded-2xl max-w-md w-full space-y-4 shadow-2xl text-xs">
+            <div className="flex items-center gap-3 text-rose-500 border-b border-slate-800 pb-3">
+              <AlertTriangle size={22} className="shrink-0" />
+              <div>
+                <h3 className="text-sm font-extrabold text-slate-100">นำเครื่องจักรออกจากรายการ PM</h3>
+                <p className="text-[11px] text-slate-400 font-normal">นำออกจากรายการ PM เท่านั้น (ทะเบียนเครื่องจักรไม่ได้รับผลกระทบ)</p>
+              </div>
+            </div>
+            
+            <div className="space-y-3 text-slate-300">
+              <p className="leading-relaxed">
+                คุณแน่ใจหรือไม่ว่าต้องการนำเครื่องจักร <span className="font-mono font-bold text-cyan-400">{machineToRemoveFromPM.id}</span> ({machineToRemoveFromPM.name}) ออกจากรายการ PM หน้านี้?
+              </p>
+              <div className="p-3 bg-slate-950/60 border border-slate-800 rounded-xl space-y-1.5 text-[11px]">
+                <div className="flex items-center gap-2 text-emerald-400 font-medium">
+                  <Check size={14} className="shrink-0" />
+                  <span>ข้อมูลในทะเบียนเครื่องจักรจะยังคงอยู่สมบูรณ์ ไม่มีการลบ</span>
+                </div>
+                <div className="flex items-center gap-2 text-cyan-400 font-medium">
+                  <Check size={14} className="shrink-0" />
+                  <span>สามารถกด "+ เพิ่มเครื่องจักร" เพื่อนำกลับเข้ามาในรายการ PM ได้ตลอดเวลา</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-2.5 justify-end pt-2">
+              <button
+                type="button"
+                id="btn-cancel-remove-pm-machine"
+                onClick={() => setMachineToRemoveFromPM(null)}
+                className="border border-slate-700 hover:bg-slate-800 text-slate-300 px-4 py-2 rounded-xl transition cursor-pointer"
+              >
+                ยกเลิก
+              </button>
+              <button
+                type="button"
+                id="btn-confirm-remove-pm-machine"
+                onClick={() => handleConfirmRemoveMachineFromPM(machineToRemoveFromPM.id)}
+                className="bg-rose-600 hover:bg-rose-500 text-fg font-extrabold px-4.5 py-2 rounded-xl transition shadow-lg shadow-rose-600/20 cursor-pointer"
+              >
+                ยืนยันนำออก
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ---------------------------------------------------- */}
+      {/* MODAL 7: ADD MACHINE TO PM PICKER (FROM REGISTRY)    */}
+      {/* ---------------------------------------------------- */}
+      {showMachinePickerModal && (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/85 backdrop-blur-sm p-4">
+          <div id="modal-pm-machine-picker" className="bg-slate-850 border border-slate-700 rounded-2xl max-w-2xl w-full max-h-[85vh] flex flex-col overflow-hidden shadow-2xl text-xs text-slate-200">
+            {/* Header */}
+            <div className="bg-slate-900 border-b border-slate-700 p-4.5 flex justify-between items-center shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 bg-cyan-500/15 text-cyan-400 rounded-xl border border-cyan-500/20">
+                  <Plus size={18} />
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-100 text-sm flex items-center gap-2">
+                    เลือกเครื่องจักรเข้าสู่รายการ PM
+                    <span className="text-[10px] bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 px-2 py-0.5 rounded-full font-normal">
+                      เหลือให้เลือก {availableRegistryMachines.length} เครื่อง
+                    </span>
+                  </h3>
+                  <p className="text-[11px] text-slate-400 mt-0.5">
+                    เลือกจากทะเบียนเครื่องจักรในระบบ (แสดงเฉพาะเครื่องที่ยังไม่ได้อยู่ในรายการ PM)
+                  </p>
+                </div>
+              </div>
+              <button 
+                type="button"
+                id="btn-close-pm-machine-picker"
+                onClick={() => {
+                  setShowMachinePickerModal(false);
+                  setPickerSearch('');
+                }}
+                className="text-slate-400 hover:text-fg text-xl font-bold p-1 rounded-lg hover:bg-slate-800 transition cursor-pointer"
+              >
+                &times;
+              </button>
+            </div>
+
+            {/* Search filter */}
+            <div className="p-4 border-b border-slate-700/80 bg-slate-900/50 shrink-0">
+              <div className="relative">
+                <Search className="absolute left-3.5 top-2.5 text-slate-400" size={15} />
+                <input
+                  id="pm-picker-search"
+                  type="text"
+                  placeholder="ค้นหารหัสเครื่องจักร, ชื่อเครื่อง, ไลน์ผลิต, โซนที่ตั้ง..."
+                  value={pickerSearch}
+                  onChange={(e) => setPickerSearch(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-700 rounded-xl pl-10 pr-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+                  autoFocus
+                />
+              </div>
+            </div>
+
+            {/* List */}
+            <div className="p-4 overflow-y-auto space-y-2 flex-1 max-h-[50vh]">
+              {filteredAvailableMachines.length === 0 ? (
+                <div className="p-8 text-center text-slate-500 flex flex-col items-center justify-center">
+                  <PackageOpen size={36} className="text-slate-600 mb-2" />
+                  <p className="font-semibold text-slate-300">
+                    {availableRegistryMachines.length === 0 
+                      ? 'เครื่องจักรทั้งหมดในระบบทะเบียนถูกเพิ่มลงในรายการ PM ครบแล้ว' 
+                      : 'ไม่พบเครื่องจักรที่ตรงกับคำค้นหา'}
+                  </p>
+                  <p className="text-[11px] text-slate-400 mt-1">
+                    {availableRegistryMachines.length === 0 
+                      ? `มีเครื่องจักรในระบบทะเบียนทั้งหมด ${machines.length} เครื่อง และทั้งหมดอยู่ในรายการ PM แล้ว` 
+                      : 'ลองค้นหาด้วยรหัสเครื่อง หรือคำอื่น'}
+                  </p>
+                </div>
+              ) : (
+                filteredAvailableMachines.map(m => {
+                  const existingPlanCount = pmPlans.filter(p => p.machineId === m.id).length;
+                  return (
+                    <div
+                      key={m.id}
+                      id={`picker-mach-item-${m.id}`}
+                      onClick={() => handleAddMachineToPM(m.id)}
+                      className="p-3 bg-slate-900/60 hover:bg-slate-800/80 border border-slate-700/60 hover:border-cyan-500/60 rounded-xl flex items-center justify-between gap-3 cursor-pointer transition group"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-mono font-bold text-cyan-400 text-xs tracking-wider">{m.id}</span>
+                          {m.lineGroup && (
+                            <span className="text-[10px] bg-amber-500/15 border border-amber-500/30 text-amber-300 px-1.5 py-0.2 rounded font-bold">
+                              {m.lineGroup}
+                            </span>
+                          )}
+                          {m.status && (
+                            <span className="text-[10px] bg-slate-800 border border-slate-700 text-slate-400 px-1.5 py-0.2 rounded">
+                              {m.status}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs font-semibold text-slate-200 mt-1 truncate">{m.name}</p>
+                        <div className="flex items-center gap-3 text-[10px] text-slate-400 mt-0.5 truncate">
+                          {(m.locationZone || m.locationRoom) && (
+                            <span>{[m.locationZone, m.locationRoom].filter(Boolean).join(' • ')}</span>
+                          )}
+                          {m.model && <span>รุ่น: {m.model}</span>}
+                          {m.vendor && <span>ผู้ผลิต: {m.vendor}</span>}
+                        </div>
+                      </div>
+
+                      <div className="shrink-0 flex items-center gap-2">
+                        {existingPlanCount > 0 && (
+                          <span className="text-[10px] text-slate-400 bg-slate-800 px-2 py-0.5 rounded">
+                            มี {existingPlanCount} แผน
+                          </span>
+                        )}
+                        <button
+                          type="button"
+                          id={`btn-select-mach-${m.id}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddMachineToPM(m.id);
+                          }}
+                          className="px-3 py-1.5 bg-cyan-600 group-hover:bg-cyan-500 text-fg font-bold text-xs rounded-lg transition flex items-center gap-1 shadow-sm cursor-pointer"
+                        >
+                          <Plus size={13} />
+                          <span>เลือกเครื่องนี้</span>
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="bg-slate-900 border-t border-slate-700/80 p-4 flex justify-between items-center shrink-0">
+              <span className="text-slate-400 text-[11px]">
+                แสดง {filteredAvailableMachines.length} จาก {availableRegistryMachines.length} เครื่องที่สามารถเพิ่มได้
+              </span>
+              <button
+                type="button"
+                id="btn-close-picker-footer"
+                onClick={() => {
+                  setShowMachinePickerModal(false);
+                  setPickerSearch('');
+                }}
+                className="px-4 py-2 border border-slate-700 text-slate-300 hover:text-fg hover:bg-slate-800 rounded-xl transition cursor-pointer"
+              >
+                ปิดหน้าต่าง
+              </button>
             </div>
           </div>
         </div>

@@ -20,6 +20,8 @@ interface AppContextType {
   setEmployees: React.Dispatch<React.SetStateAction<Employee[]>>;
   pmPlans: PMPlan[];
   setPmPlans: React.Dispatch<React.SetStateAction<PMPlan[]>>;
+  pmMachineIds: string[];
+  setPmMachineIds: React.Dispatch<React.SetStateAction<string[]>>;
   schedules: ScheduleItem[];
   setSchedules: React.Dispatch<React.SetStateAction<ScheduleItem[]>>;
   repairs: RepairLog[];
@@ -133,6 +135,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [technicians, setTechnicians] = useState<string[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [pmPlans, setPmPlans] = useState<PMPlan[]>([]);
+  const [pmMachineIds, setPmMachineIds] = useState<string[]>(() => {
+    try {
+      const stored = localStorage.getItem('maint_pm_machine_ids');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) return parsed;
+      }
+      const storedMachines = localStorage.getItem('maint_machines');
+      if (storedMachines) {
+        const parsed = JSON.parse(storedMachines);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed.map((m: any) => m.id);
+      }
+    } catch {
+      // ignore
+    }
+    return PRELOADED_MACHINES.map(m => m.id);
+  });
   const [schedules, setSchedules] = useState<ScheduleItem[]>([]);
   const [repairs, setRepairs] = useState<RepairLog[]>([]);
   const [improvements, setImprovements] = useState<ImprovementProject[]>([]);
@@ -205,6 +224,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             setTechnicians(Array.from(new Set(serverData.technicians || PRELOADED_TECHNICIANS)));
             setEmployees(deduplicateById(serverData.employees || []));
             setPmPlans(deduplicateById(serverData.pmPlans || PRELOADED_PM_PLANS));
+            if (serverData.pmMachineIds && Array.isArray(serverData.pmMachineIds)) {
+              setPmMachineIds(serverData.pmMachineIds);
+            } else {
+              const stored = localStorage.getItem('maint_pm_machine_ids');
+              if (stored) {
+                try {
+                  const parsed = JSON.parse(stored);
+                  if (Array.isArray(parsed)) setPmMachineIds(parsed);
+                  else setPmMachineIds(enriched.map(m => m.id));
+                } catch {
+                  setPmMachineIds(enriched.map(m => m.id));
+                }
+              } else {
+                setPmMachineIds(enriched.map(m => m.id));
+              }
+            }
             setSchedules(deduplicateById(serverData.schedules || PRELOADED_SCHEDULES));
             setRepairs(deduplicateById(serverData.repairs || PRELOADED_REPAIRS));
             setImprovements(deduplicateById(serverData.improvements || PRELOADED_IMPROVEMENTS));
@@ -234,6 +269,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const storedMachines = localStorage.getItem('maint_machines');
         const storedTechs = localStorage.getItem('maint_technicians');
         const storedPlans = localStorage.getItem('maint_pm_plans');
+        const storedPmMachines = localStorage.getItem('maint_pm_machine_ids');
         const storedSchedules = localStorage.getItem('maint_schedule');
         const storedRepairs = localStorage.getItem('maint_repairs');
         const storedImprovements = localStorage.getItem('maint_improvements');
@@ -285,6 +321,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
         if (storedPlans) setPmPlans(deduplicateById(JSON.parse(storedPlans)));
         else setPmPlans(PRELOADED_PM_PLANS);
+
+        if (storedPmMachines) {
+          try {
+            const parsed = JSON.parse(storedPmMachines);
+            if (Array.isArray(parsed)) setPmMachineIds(parsed);
+            else setPmMachineIds(currentLoadedMachines.map(m => m.id));
+          } catch {
+            setPmMachineIds(currentLoadedMachines.map(m => m.id));
+          }
+        } else {
+          setPmMachineIds(currentLoadedMachines.map(m => m.id));
+        }
 
         if (storedSchedules) setSchedules(deduplicateById(JSON.parse(storedSchedules)));
         else setSchedules(PRELOADED_SCHEDULES);
@@ -411,6 +459,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       localStorage.setItem('maint_time_break_parts', JSON.stringify(timeBreakParts));
       localStorage.setItem('maint_settings', JSON.stringify(settings));
       localStorage.setItem('maint_zones', JSON.stringify(zones));
+      localStorage.setItem('maint_pm_machine_ids', JSON.stringify(pmMachineIds));
     } catch (e) {
       console.warn("LocalStorage quota warning:", e);
     }
@@ -420,6 +469,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       technicians: Array.from(new Set(technicians)),
       employees: deduplicateById(employees),
       pmPlans: deduplicateById(pmPlans),
+      pmMachineIds: Array.from(new Set(pmMachineIds)),
       schedules: deduplicateById(schedules),
       repairs: deduplicateById(repairs),
       improvements: deduplicateById(improvements),
@@ -449,7 +499,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const timerId = setTimeout(saveToServer, 500);
     return () => clearTimeout(timerId);
   }, [
-    machines, technicians, employees, pmPlans, schedules,
+    machines, technicians, employees, pmPlans, pmMachineIds, schedules,
     repairs, improvements, setupLogs, leaves, spareParts, cd5Projects, timeBreakParts, settings, zones, isLoaded
   ]);
 
@@ -478,6 +528,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             checkAndSet(technicians, serverData.technicians, setTechnicians);
             checkAndSet(employees, serverData.employees, setEmployees);
             checkAndSet(pmPlans, serverData.pmPlans, setPmPlans);
+            if (serverData.pmMachineIds && Array.isArray(serverData.pmMachineIds)) {
+              checkAndSet(pmMachineIds, serverData.pmMachineIds, setPmMachineIds);
+            }
             checkAndSet(schedules, serverData.schedules, setSchedules);
             checkAndSet(repairs, serverData.repairs, setRepairs);
             checkAndSet(improvements, serverData.improvements, setImprovements);
@@ -502,7 +555,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return () => clearInterval(intervalId);
   }, [
     isLoaded,
-    machines, technicians, employees, pmPlans, schedules,
+    machines, technicians, employees, pmPlans, pmMachineIds, schedules,
     repairs, improvements, setupLogs, leaves, spareParts, cd5Projects, timeBreakParts, settings, zones
   ]);
 
@@ -700,6 +753,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.setItem('maint_cd5_projects', JSON.stringify(PRELOADED_CD5_PROJECTS));
     localStorage.setItem('maint_time_break_parts', JSON.stringify(PRELOADED_TIME_BREAK_PARTS));
     localStorage.setItem('maint_zones', JSON.stringify(defZones));
+    localStorage.removeItem('maint_pm_machine_ids');
+    setPmMachineIds(PRELOADED_MACHINES.map(m => m.id));
     localStorage.removeItem('maint_settings');
   };
 
@@ -709,6 +764,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       technicians,
       employees,
       pmPlans,
+      pmMachineIds,
       schedules,
       repairs,
       improvements,
@@ -730,6 +786,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (dataObj.technicians) setTechnicians(dataObj.technicians);
       if (dataObj.employees) setEmployees(dataObj.employees);
       if (dataObj.pmPlans) setPmPlans(dataObj.pmPlans);
+      if (dataObj.pmMachineIds && Array.isArray(dataObj.pmMachineIds)) setPmMachineIds(dataObj.pmMachineIds);
       if (dataObj.schedules) setSchedules(dataObj.schedules);
       if (dataObj.repairs) setRepairs(dataObj.repairs);
       if (dataObj.improvements) setImprovements(dataObj.improvements);
@@ -754,6 +811,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       technicians, setTechnicians,
       employees, setEmployees,
       pmPlans, setPmPlans,
+      pmMachineIds, setPmMachineIds,
       schedules, setSchedules,
       repairs, setRepairs,
       improvements, setImprovements,
