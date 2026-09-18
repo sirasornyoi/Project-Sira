@@ -557,14 +557,14 @@ export const PMPlanPage: React.FC = () => {
       {/* LEFT COLUMN: Searchable machine select */}
       <div 
         id="pm-left-machine-selector" 
-        className={`${isWide ? 'hidden' : 'col-span-1 lg:col-span-4'} bg-slate-800 border border-slate-700 rounded-2xl p-5 flex flex-col h-[750px] transition-all duration-200`}
+        className={`${isWide ? 'hidden' : 'col-span-1 lg:col-span-4'} bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 flex flex-col h-[750px] shadow-sm transition-all duration-200`}
       >
         <div className="flex justify-between items-center mb-3 gap-2">
           <div className="min-w-0 flex-1">
-            <h3 className="text-sm font-bold text-slate-200 flex items-center gap-2 truncate">
+            <h3 className="text-sm font-bold text-slate-900 dark:text-slate-200 flex items-center gap-2 truncate">
               🏭 รายการเครื่องจักร ({pmMachines.length})
             </h3>
-            <span className="text-[11px] text-cyan-400 font-mono block truncate">
+            <span className="text-[11px] text-cyan-700 dark:text-cyan-400 font-mono block truncate">
               {pmPlans.filter(p => pmMachineIds.includes(p.machineId)).length} แผน PM ทั้งหมด
             </span>
           </div>
@@ -591,18 +591,18 @@ export const PMPlanPage: React.FC = () => {
             placeholder="ค้นหารหัส, ชื่อเครื่อง, หรือหน้าที่..."
             value={machineSearch}
             onChange={(e) => setMachineSearch(e.target.value)}
-            className="w-full bg-slate-900 border border-slate-700 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+            className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-900 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-cyan-500"
           />
         </div>
 
         <div className="flex-1 overflow-y-auto space-y-1.5 pr-1" id="pm-machine-list">
           {filteredPmMachines.length === 0 ? (
-            <div className="p-6 text-center text-slate-500 text-xs flex flex-col items-center justify-center h-48 border border-dashed border-slate-700/60 rounded-xl">
-              <PackageOpen size={32} className="text-slate-600 mb-2" />
-              <p className="font-semibold text-slate-300">
+            <div className="p-6 text-center text-slate-400 dark:text-slate-500 text-xs flex flex-col items-center justify-center h-48 border border-dashed border-slate-300 dark:border-slate-700/60 rounded-xl">
+              <PackageOpen size={32} className="text-slate-400 dark:text-slate-600 mb-2" />
+              <p className="font-semibold text-slate-700 dark:text-slate-300">
                 {pmMachines.length === 0 ? 'ยังไม่มีเครื่องจักรในรายการ PM' : 'ไม่พบเครื่องจักรที่ตรงกับคำค้นหา'}
               </p>
-              <p className="text-[11px] text-slate-400 mt-1">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
                 {pmMachines.length === 0 ? 'กดปุ่ม "+ เพิ่มเครื่องจักร" ด้านบนเพื่อเลือกเครื่องจากทะเบียน' : 'ลองค้นหาด้วยรหัสหรือชื่ออื่น'}
               </p>
             </div>
@@ -681,24 +681,24 @@ export const PMPlanPage: React.FC = () => {
       {/* RIGHT COLUMN: PM plans, interactive checklist, and actions */}
       <div className={`col-span-1 ${isWide ? 'lg:col-span-12' : 'lg:col-span-8'} flex flex-col space-y-4 h-[750px] transition-all duration-200`}>
         {/* Machine header display and top action buttons */}
-        <div id="pm-right-machine-header" className="bg-slate-800 border border-slate-700 rounded-2xl p-4 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-3 shrink-0">
+        <div id="pm-right-machine-header" className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-3 shrink-0 shadow-sm">
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="bg-cyan-500/15 border border-cyan-500/30 text-cyan-400 text-xs font-mono font-bold px-2.5 py-0.5 rounded-lg">
+              <span className="bg-cyan-50 dark:bg-cyan-500/15 border border-cyan-300 dark:border-cyan-500/30 text-cyan-800 dark:text-cyan-400 text-xs font-mono font-bold px-2.5 py-0.5 rounded-lg">
                 {selectedMachine?.id || selectedMachineId}
               </span>
               {selectedMachine?.lineGroup && (
-                <span className="bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-bold px-2 py-0.5 rounded-lg">
+                <span className="bg-amber-50 dark:bg-amber-500/15 border border-amber-300 dark:border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs font-bold px-2 py-0.5 rounded-lg">
                   หน้าที่: {selectedMachine.lineGroup}
                 </span>
               )}
               {selectedMachine?.locationZone && (
-                <span className="text-slate-400 text-xs">
+                <span className="text-slate-600 dark:text-slate-400 text-xs">
                   📍 {selectedMachine.locationZone} {selectedMachine.locationRoom ? `/ ${selectedMachine.locationRoom}` : ''}
                 </span>
               )}
             </div>
-            <h2 className="text-base font-bold text-slate-100 mt-1">
+            <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 mt-1">
               {selectedMachine?.name || 'กรุณาเลือกเครื่องจักร'}
             </h2>
           </div>
@@ -711,8 +711,8 @@ export const PMPlanPage: React.FC = () => {
               onClick={() => setIsWide(!isWide)}
               className={`flex items-center gap-1.5 px-3 py-2 border rounded-xl text-xs font-bold transition cursor-pointer ${
                 isWide
-                  ? 'bg-cyan-500/20 border-cyan-500 text-cyan-300 hover:bg-cyan-500/30'
-                  : 'bg-slate-900 border-slate-700 text-slate-300 hover:bg-slate-800'
+                  ? 'bg-cyan-100 border-cyan-500 text-cyan-800 hover:bg-cyan-200 dark:bg-cyan-500/20 dark:border-cyan-500 dark:text-cyan-300 dark:hover:bg-cyan-500/30'
+                  : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-100 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800'
               }`}
               title={isWide ? 'ย่อกลับเป็น 2 คอลัมน์ (แสดงรายการเครื่องจักร)' : 'ขยายเต็มความกว้าง (ซ่อนรายการเครื่องจักร)'}
             >
@@ -729,10 +729,10 @@ export const PMPlanPage: React.FC = () => {
                 setImportError('');
                 setShowImportModal(true);
               }}
-              className="flex items-center gap-1.5 px-3 py-2 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 rounded-xl text-xs font-bold transition cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-600/20 dark:hover:bg-emerald-600/30 dark:text-emerald-300 dark:border-emerald-500/30 rounded-xl text-xs font-bold transition cursor-pointer"
               title="นำเข้าไฟล์ Excel ใบรายงาน PM ตามโครงสร้างตารางมาตรฐาน"
             >
-              <Upload size={14} className="text-emerald-400" />
+              <Upload size={14} className="text-emerald-600 dark:text-emerald-400" />
               <span>นำเข้า Excel (ใบรายงาน PM)</span>
             </button>
 
@@ -740,10 +740,10 @@ export const PMPlanPage: React.FC = () => {
             <button
               id="btn-download-pm-template"
               onClick={() => exportPMTemplateExcel(selectedMachine)}
-              className="flex items-center gap-1.5 px-3 py-2 bg-slate-700/50 hover:bg-slate-700 text-slate-300 border border-slate-600 rounded-xl text-xs font-bold transition cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 dark:bg-slate-700/50 dark:hover:bg-slate-700 dark:text-slate-300 dark:border-slate-600 rounded-xl text-xs font-bold transition cursor-pointer"
               title="ดาวน์โหลดไฟล์แม่แบบ Excel สำหรับนำไปกรอกหรือแก้ไขแล้วนำเข้ากลับมา"
             >
-              <FileSpreadsheet size={14} className="text-amber-400" />
+              <FileSpreadsheet size={14} className="text-amber-500 dark:text-amber-400" />
               <span>ดาวน์โหลดแม่แบบ Excel</span>
             </button>
 
@@ -758,10 +758,10 @@ export const PMPlanPage: React.FC = () => {
                 // Export first or primary plan
                 exportPMReportToExcel(activeMachinePlans[0], selectedMachine);
               }}
-              className="flex items-center gap-1.5 px-3 py-2 bg-slate-900 border border-slate-700 text-cyan-300 hover:bg-slate-750 hover:border-slate-600 rounded-xl text-xs font-bold transition cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-300 text-cyan-800 hover:bg-slate-50 hover:border-cyan-400 dark:bg-slate-900 dark:border-slate-700 dark:text-cyan-300 dark:hover:bg-slate-750 dark:hover:border-slate-600 rounded-xl text-xs font-bold transition cursor-pointer"
               title="ส่งออกใบรายงาน PM เป็นไฟล์ Excel (.xlsx) ตามแบบฟอร์ม"
             >
-              <Download size={14} className="text-cyan-400" />
+              <Download size={14} className="text-cyan-600 dark:text-cyan-400" />
               <span>ส่งออกใบรายงาน (Excel)</span>
             </button>
 
@@ -773,10 +773,10 @@ export const PMPlanPage: React.FC = () => {
                 setSelectedPlansToCopy([]);
                 setShowCopyModal(true);
               }}
-              className="flex items-center gap-1.5 px-3 py-2 bg-slate-900 border border-slate-700 text-slate-300 hover:bg-slate-800 rounded-xl text-xs font-bold transition cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 hover:border-slate-400 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 rounded-xl text-xs font-bold transition cursor-pointer"
               title="คัดลอกแผน PM จากเครื่องจักรอื่นมาที่เครื่องนี้"
             >
-              <Copy size={14} className="text-indigo-400" />
+              <Copy size={14} className="text-indigo-600 dark:text-indigo-400" />
               <span>คัดลอกแผน</span>
             </button>
 
@@ -795,10 +795,10 @@ export const PMPlanPage: React.FC = () => {
         {/* List of plans with Interactive Checklist */}
         <div className="flex-1 overflow-y-auto space-y-4 pr-1" id="pm-plan-container">
           {activeMachinePlans.length === 0 ? (
-            <div className="bg-slate-800 border border-slate-700 rounded-2xl p-12 text-center text-slate-500 h-full flex flex-col justify-center items-center">
-              <PackageOpen size={48} className="text-slate-600 mb-3" />
-              <p className="text-sm font-semibold text-slate-300">ยังไม่มีแผนบำรุงรักษาเชิงป้องกัน (PM) สำหรับเครื่องนี้</p>
-              <p className="text-xs text-slate-400 mt-1 max-w-md">
+            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-12 text-center text-slate-400 dark:text-slate-500 h-full flex flex-col justify-center items-center shadow-sm">
+              <PackageOpen size={48} className="text-slate-400 dark:text-slate-600 mb-3" />
+              <p className="text-sm font-semibold text-slate-800 dark:text-slate-300">ยังไม่มีแผนบำรุงรักษาเชิงป้องกัน (PM) สำหรับเครื่องนี้</p>
+              <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 max-w-md">
                 คุณสามารถกด <b>"+ เพิ่มงานแผน PM ใหม่"</b> หรือกด <b>"นำเข้า Excel"</b> เพื่อนำเข้าใบรายงาน PM ที่มีเช็คลิสต์และเกณฑ์มาตรฐานได้ทันที
               </p>
             </div>
@@ -814,14 +814,14 @@ export const PMPlanPage: React.FC = () => {
                 <div 
                   key={plan.id} 
                   id={`pm-plan-card-${plan.id}`}
-                  className="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden shadow-lg transition-all"
+                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden shadow-sm dark:shadow-lg transition-all"
                 >
                   {/* Card Header */}
-                  <div className="p-4 bg-slate-850 border-b border-slate-700/80 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                  <div className="p-4 bg-slate-50 dark:bg-slate-850 border-b border-slate-200 dark:border-slate-700/80 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
                     <div className="flex items-start gap-3 flex-1 min-w-0">
                       <button 
                         onClick={() => togglePlanExpanded(plan.id)}
-                        className="mt-1 p-1 hover:bg-slate-700 rounded-lg text-slate-400 hover:text-fg transition"
+                        className="mt-1 p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-fg transition"
                         title={expanded ? 'ยุบมุมมอง' : 'ขยายเช็คลิสต์'}
                       >
                         {expanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
@@ -837,22 +837,22 @@ export const PMPlanPage: React.FC = () => {
                           }`}>
                             รอบ: {plan.frequency}
                           </span>
-                          <span className="text-[11px] text-slate-400 font-mono flex items-center gap-1">
-                            <Clock size={12} className="text-cyan-400" /> รวม {plan.ttm || 0} นาที
+                          <span className="text-[11px] text-slate-500 dark:text-slate-400 font-mono flex items-center gap-1">
+                            <Clock size={12} className="text-cyan-600 dark:text-cyan-400" /> รวม {plan.ttm || 0} นาที
                           </span>
                           {plan.lastCheckedDate && (
-                            <span className="text-[11px] text-slate-400 font-mono flex items-center gap-1">
-                              <Calendar size={12} className="text-emerald-400" /> ตรวจล่าสุด: {plan.lastCheckedDate}
+                            <span className="text-[11px] text-slate-500 dark:text-slate-400 font-mono flex items-center gap-1">
+                              <Calendar size={12} className="text-emerald-600 dark:text-emerald-400" /> ตรวจล่าสุด: {plan.lastCheckedDate}
                             </span>
                           )}
                           {plan.inspectorTech && (
-                            <span className="text-[11px] text-slate-400 flex items-center gap-1">
-                              <User size={12} className="text-cyan-400" /> ช่าง: {plan.inspectorTech}
+                            <span className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                              <User size={12} className="text-cyan-600 dark:text-cyan-400" /> ช่าง: {plan.inspectorTech}
                             </span>
                           )}
                         </div>
 
-                        <h3 className="text-sm font-bold text-slate-100 truncate" title={plan.title}>
+                        <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate" title={plan.title}>
                           {plan.title}
                         </h3>
                       </div>
@@ -863,12 +863,12 @@ export const PMPlanPage: React.FC = () => {
                       {/* Progress bar */}
                       <div className="flex flex-col items-end min-w-[130px]">
                         <div className="flex items-center gap-1.5 text-xs">
-                          <span className="text-slate-400 text-[11px]">เช็คลิสต์:</span>
-                          <span className={`font-mono font-bold ${percentDone === 100 ? 'text-emerald-400' : 'text-cyan-400'}`}>
+                          <span className="text-slate-500 dark:text-slate-400 text-[11px]">เช็คลิสต์:</span>
+                          <span className={`font-mono font-bold ${percentDone === 100 ? 'text-emerald-600 dark:text-emerald-400' : 'text-cyan-700 dark:text-cyan-400'}`}>
                             {completedSteps}/{totalSteps} ({percentDone}%)
                           </span>
                         </div>
-                        <div className="w-full bg-slate-900 h-2 rounded-full overflow-hidden mt-1 border border-slate-700/60">
+                        <div className="w-full bg-slate-200 dark:bg-slate-900 h-2 rounded-full overflow-hidden mt-1 border border-slate-300 dark:border-slate-700/60">
                           <div 
                             className={`h-full transition-all duration-300 ${percentDone === 100 ? 'bg-emerald-500' : 'bg-cyan-500'}`}
                             style={{ width: `${percentDone}%` }}
@@ -883,8 +883,8 @@ export const PMPlanPage: React.FC = () => {
                           onClick={() => setIsWide(!isWide)}
                           className={`p-1.5 border rounded-lg text-xs transition cursor-pointer ${
                             isWide
-                              ? 'bg-cyan-500/20 border-cyan-500 text-cyan-300 hover:bg-cyan-500/30'
-                              : 'bg-slate-900 border-slate-700 hover:border-slate-600 text-slate-300'
+                              ? 'bg-cyan-100 border-cyan-500 text-cyan-800 hover:bg-cyan-200 dark:bg-cyan-500/20 dark:border-cyan-500 dark:text-cyan-300 dark:hover:bg-cyan-500/30'
+                              : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-100 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800'
                           }`}
                           title={isWide ? 'ย่อกลับเป็น 2 คอลัมน์ (แสดงรายการเครื่องจักร)' : 'ขยายเต็มความกว้าง (ซ่อนรายการเครื่องจักร)'}
                         >
@@ -892,21 +892,21 @@ export const PMPlanPage: React.FC = () => {
                         </button>
                         <button
                           onClick={() => exportPMReportToExcel(plan, selectedMachine)}
-                          className="p-1.5 bg-slate-900 border border-slate-700 hover:border-cyan-500 text-cyan-300 rounded-lg text-xs transition"
+                          className="p-1.5 bg-white border border-slate-300 hover:border-cyan-500 text-cyan-700 dark:bg-slate-900 dark:border-slate-700 dark:text-cyan-300 rounded-lg text-xs transition cursor-pointer"
                           title="ส่งออกใบร่างนี้เป็น Excel"
                         >
                           <Download size={14} />
                         </button>
                         <button
                           onClick={() => handleOpenEditForm(plan)}
-                          className="p-1.5 bg-slate-900 border border-slate-700 hover:border-slate-600 text-slate-300 rounded-lg text-xs transition"
+                          className="p-1.5 bg-white border border-slate-300 hover:border-slate-400 text-slate-700 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300 rounded-lg text-xs transition cursor-pointer"
                           title="แก้ไขรายละเอียดแผน"
                         >
                           <Edit3 size={14} />
                         </button>
                         <button
                           onClick={() => setDeleteConfirmId(plan.id)}
-                          className="p-1.5 bg-rose-500/10 border border-rose-500/30 hover:bg-rose-500 text-rose-400 hover:text-fg rounded-lg text-xs transition"
+                          className="p-1.5 bg-rose-50 border border-rose-200 hover:bg-rose-100 text-rose-600 dark:bg-rose-500/10 dark:border-rose-500/30 dark:hover:bg-rose-500 dark:text-rose-400 dark:hover:text-fg rounded-lg text-xs transition cursor-pointer"
                           title="ลบแผนงาน PM นี้"
                         >
                           <Trash2 size={14} />
@@ -920,19 +920,19 @@ export const PMPlanPage: React.FC = () => {
                     <div className="p-4 space-y-4">
                       
                       {/* Top Checklist Controls */}
-                      <div className="flex flex-wrap items-center justify-between gap-2 bg-slate-900/80 p-2.5 rounded-xl border border-slate-700/60 text-xs">
+                      <div className="flex flex-wrap items-center justify-between gap-2 bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700/60 text-xs">
                         <div className="flex items-center gap-2">
-                          <span className="text-slate-400 font-medium">การจัดการเช็คลิสต์:</span>
+                          <span className="text-slate-600 dark:text-slate-400 font-medium">การจัดการเช็คลิสต์:</span>
                           <button
                             onClick={() => handleMarkAllDone(plan.id)}
-                            className="flex items-center gap-1 px-2.5 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/30 rounded-lg text-[11px] font-bold transition"
+                            className="flex items-center gap-1 px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-500/20 dark:hover:bg-emerald-500/30 dark:text-emerald-300 dark:border-emerald-500/30 rounded-lg text-[11px] font-bold transition cursor-pointer"
                           >
                             <Check size={12} />
                             <span>ติ๊กทำแล้วทั้งหมด</span>
                           </button>
                           <button
                             onClick={() => handleResetChecklist(plan.id)}
-                            className="flex items-center gap-1 px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-slate-200 border border-slate-700 rounded-lg text-[11px] transition"
+                            className="flex items-center gap-1 px-2.5 py-1 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-200 dark:border-slate-700 rounded-lg text-[11px] transition cursor-pointer"
                           >
                             <RefreshCw size={11} />
                             <span>รีเซ็ตติ๊ก</span>
@@ -942,13 +942,13 @@ export const PMPlanPage: React.FC = () => {
                         {/* Add Step Button (+ เพิ่มการทำ PM) */}
                         <div className="flex items-center gap-2">
                           {abnormalSteps > 0 && (
-                            <span className="text-[11px] font-bold text-rose-400 bg-rose-500/15 border border-rose-500/30 px-2 py-0.5 rounded-lg flex items-center gap-1">
+                            <span className="text-[11px] font-bold text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/15 border border-rose-300 dark:border-rose-500/30 px-2 py-0.5 rounded-lg flex items-center gap-1">
                               <AlertTriangle size={12} /> พบผิดปกติ {abnormalSteps} รายการ
                             </span>
                           )}
                           <button
                             onClick={() => handleOpenAddStepModal(plan.id)}
-                            className="flex items-center gap-1 px-3 py-1 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/30 rounded-lg text-[11px] font-bold transition cursor-pointer"
+                            className="flex items-center gap-1 px-3 py-1 bg-cyan-50 hover:bg-cyan-100 text-cyan-800 border border-cyan-300 dark:bg-cyan-500/20 dark:hover:bg-cyan-500/30 dark:text-cyan-300 dark:border-cyan-500/30 rounded-lg text-[11px] font-bold transition cursor-pointer"
                             title="เพิ่มหัวข้อ/ขั้นตอนการบำรุงรักษาในแผนนี้"
                           >
                             <Plus size={12} strokeWidth={2.5} />
@@ -1147,41 +1147,41 @@ export const PMPlanPage: React.FC = () => {
                       {/* Footer Info of the Plan (Spare parts, Signatures) */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 text-xs">
                         {/* Spare parts */}
-                        <div className="bg-slate-900/60 border border-slate-700/60 rounded-xl p-3 space-y-1">
+                        <div className="bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/60 rounded-xl p-3 space-y-1">
                           <div className="flex justify-between items-center">
-                            <span className="text-[10px] font-bold uppercase text-slate-400 flex items-center gap-1">
-                              <Wrench size={12} className="text-amber-400" />
+                            <span className="text-[10px] font-bold uppercase text-slate-600 dark:text-slate-400 flex items-center gap-1">
+                              <Wrench size={12} className="text-amber-500 dark:text-amber-400" />
                               รายการอะไหล่ที่เตรียมแก้ไข:
                             </span>
                             {plan.sparePartsQty && (
-                              <span className="text-[10px] text-amber-300 font-mono font-bold">
+                              <span className="text-[10px] text-amber-700 dark:text-amber-300 font-mono font-bold">
                                 จำนวน: {plan.sparePartsQty}
                               </span>
                             )}
                           </div>
-                          <p className="text-slate-200">
-                            {plan.spareParts || <span className="text-slate-500 italic">ไม่มีระบุอะไหล่ล่วงหน้า</span>}
+                          <p className="text-slate-800 dark:text-slate-200">
+                            {plan.spareParts || <span className="text-slate-400 dark:text-slate-500 italic">ไม่มีระบุอะไหล่ล่วงหน้า</span>}
                           </p>
                         </div>
 
                         {/* Signatures */}
-                        <div className="bg-slate-900/60 border border-slate-700/60 rounded-xl p-3 space-y-1">
-                          <span className="text-[10px] font-bold uppercase text-slate-400 flex items-center gap-1">
-                            <ShieldCheck size={12} className="text-cyan-400" />
+                        <div className="bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/60 rounded-xl p-3 space-y-1">
+                          <span className="text-[10px] font-bold uppercase text-slate-600 dark:text-slate-400 flex items-center gap-1">
+                            <ShieldCheck size={12} className="text-cyan-600 dark:text-cyan-400" />
                             ผู้ตรวจรับรองการทำ PM:
                           </span>
                           <div className="grid grid-cols-3 gap-2 text-[11px] pt-1">
                             <div>
                               <span className="text-slate-500 block text-[9.5px]">ผู้ทำการ PM:</span>
-                              <span className="text-slate-200 font-medium">{plan.inspectorTech || '-'}</span>
+                              <span className="text-slate-800 dark:text-slate-200 font-medium">{plan.inspectorTech || '-'}</span>
                             </div>
                             <div>
                               <span className="text-slate-500 block text-[9.5px]">ผู้รับทราบ (ฝ่ายผลิต):</span>
-                              <span className="text-slate-200 font-medium">{plan.acknowledgingDept || '-'}</span>
+                              <span className="text-slate-800 dark:text-slate-200 font-medium">{plan.acknowledgingDept || '-'}</span>
                             </div>
                             <div>
                               <span className="text-slate-500 block text-[9.5px]">ผู้ตรวจสอบ (หัวหน้า):</span>
-                              <span className="text-slate-200 font-medium">{plan.supervisorName || '-'}</span>
+                              <span className="text-slate-800 dark:text-slate-200 font-medium">{plan.supervisorName || '-'}</span>
                             </div>
                           </div>
                         </div>
@@ -1201,20 +1201,20 @@ export const PMPlanPage: React.FC = () => {
       {/* MODAL 1: EXCEL IMPORT MODAL                          */}
       {/* ---------------------------------------------------- */}
       {showImportModal && (
-        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/85 backdrop-blur-sm p-4 animate-in fade-in duration-150">
-          <div id="pm-excel-import-modal" className="bg-slate-850 border border-slate-700 rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl text-xs text-slate-200">
+        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/70 dark:bg-slate-950/85 backdrop-blur-sm p-4 animate-in fade-in duration-150">
+          <div id="pm-excel-import-modal" className="bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-700 rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl text-xs text-slate-900 dark:text-slate-200">
             
             {/* Header */}
-            <div className="bg-slate-900 border-b border-slate-700 p-4.5 flex justify-between items-center shrink-0">
+            <div className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 p-4.5 flex justify-between items-center shrink-0">
               <div className="flex items-center gap-2">
-                <FileSpreadsheet className="text-emerald-400" size={18} />
-                <h3 className="font-bold text-slate-100 text-sm">
+                <FileSpreadsheet className="text-emerald-600 dark:text-emerald-400" size={18} />
+                <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm">
                   📥 นำเข้าใบรายงาน PM จากไฟล์ Excel (.xlsx / .xls)
                 </h3>
               </div>
               <button 
                 onClick={() => setShowImportModal(false)}
-                className="px-2.5 py-1 text-slate-400 hover:text-fg bg-slate-800 hover:bg-slate-700 rounded-lg font-bold"
+                className="px-2.5 py-1 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-fg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-lg font-bold transition"
               >
                 &times; ปิด
               </button>
@@ -1224,27 +1224,27 @@ export const PMPlanPage: React.FC = () => {
             <div className="p-5 overflow-y-auto space-y-4 flex-1">
               
               {/* Instructions banner */}
-              <div className="bg-[#050a14] border border-slate-700 p-4 rounded-xl space-y-2">
+              <div className="bg-emerald-50/50 dark:bg-[#050a14] border border-emerald-200 dark:border-slate-700 p-4 rounded-xl space-y-2">
                 <div className="flex justify-between items-center">
-                  <h4 className="font-bold text-emerald-400 flex items-center gap-1.5 text-xs">
-                    <Sparkles size={14} className="text-emerald-400" />
+                  <h4 className="font-bold text-emerald-800 dark:text-emerald-400 flex items-center gap-1.5 text-xs">
+                    <Sparkles size={14} className="text-emerald-600 dark:text-emerald-400" />
                     รองรับโครงสร้างตารางตามแบบฟอร์ม "ใบรายงาน Preventive Maintenance (PM)"
                   </h4>
                   <button
                     type="button"
                     onClick={() => exportPMTemplateExcel(selectedMachine)}
-                    className="text-[11px] text-cyan-400 hover:text-cyan-300 underline flex items-center gap-1"
+                    className="text-[11px] text-cyan-700 hover:text-cyan-800 dark:text-cyan-400 dark:hover:text-cyan-300 underline flex items-center gap-1 font-semibold"
                   >
                     <Download size={11} /> ดาวน์โหลดแม่แบบตัวอย่าง (.xlsx)
                   </button>
                 </div>
-                <p className="text-slate-400 text-[11.5px] leading-relaxed">
+                <p className="text-slate-700 dark:text-slate-400 text-[11.5px] leading-relaxed">
                   ระบบสามารถอ่านหัวข้อ, วิธีการ, เกณฑ์มาตรฐาน, ความถี่, ผลการตรวจ (ปกติ/ไม่ปกติ), รายละเอียดสิ่งที่ผิดปกติ/ค่าที่วัดได้, หมายเหตุ, รายการอะไหล่ และผู้ทำการ PM ได้โดยอัตโนมัติ
                 </p>
               </div>
 
               {/* Upload Input */}
-              <div className="border-2 border-dashed border-slate-700 hover:border-emerald-500/60 rounded-xl p-6 text-center bg-slate-900/40 transition">
+              <div className="border-2 border-dashed border-slate-300 hover:border-emerald-500 dark:border-slate-700 dark:hover:border-emerald-500/60 rounded-xl p-6 text-center bg-slate-50/80 dark:bg-slate-900/40 transition">
                 <input
                   type="file"
                   id="excel-file-upload-input"
@@ -1256,24 +1256,24 @@ export const PMPlanPage: React.FC = () => {
                   htmlFor="excel-file-upload-input" 
                   className="cursor-pointer flex flex-col items-center justify-center gap-2"
                 >
-                  <Upload size={32} className="text-emerald-400 animate-bounce" />
-                  <span className="text-sm font-bold text-slate-200">
+                  <Upload size={32} className="text-emerald-600 dark:text-emerald-400 animate-bounce" />
+                  <span className="text-sm font-bold text-slate-800 dark:text-slate-200">
                     คลิกเพื่อเลือกไฟล์ Excel หรือลากไฟล์มาวางที่นี่
                   </span>
-                  <span className="text-[11px] text-slate-500">
+                  <span className="text-[11px] text-slate-500 dark:text-slate-400">
                     รองรับไฟล์ .xlsx, .xls, .csv (เช่น ใบรายงาน PM เครื่องหั่นผัก, มอเตอร์ ฯลฯ)
                   </span>
                 </label>
 
                 {importFileName && (
-                  <div className="mt-3 inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-lg text-xs font-mono">
+                  <div className="mt-3 inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/30 rounded-lg text-xs font-mono font-bold">
                     <FileText size={13} /> {importFileName}
                   </div>
                 )}
               </div>
 
               {importError && (
-                <div className="bg-rose-500/15 border border-rose-500/30 text-rose-300 p-3 rounded-xl text-xs flex items-center gap-2">
+                <div className="bg-rose-50 dark:bg-rose-500/15 border border-rose-200 dark:border-rose-500/30 text-rose-700 dark:text-rose-300 p-3 rounded-xl text-xs flex items-center gap-2">
                   <AlertTriangle size={15} /> {importError}
                 </div>
               )}
@@ -1281,7 +1281,7 @@ export const PMPlanPage: React.FC = () => {
               {/* Machine Assignment Options */}
               <div 
                 id="pm-import-machine-assignment-box" 
-                className="bg-slate-100 dark:bg-slate-900 p-3.5 rounded-xl border border-slate-300 dark:border-slate-800 space-y-2"
+                className="bg-slate-50 dark:bg-slate-900 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2"
               >
                 <div className="flex items-center gap-2">
                   <input
@@ -1304,18 +1304,18 @@ export const PMPlanPage: React.FC = () => {
               {importedDataPreview && (
                 <div className="space-y-2">
                   <div className="flex justify-between items-center text-xs">
-                    <span className="font-bold text-slate-200">
-                      พรีวิวข้อมูลที่จะนำเข้า: <span className="text-cyan-400 font-mono">{importedDataPreview.steps.length} ขั้นตอน</span>
+                    <span className="font-bold text-slate-900 dark:text-slate-200">
+                      พรีวิวข้อมูลที่จะนำเข้า: <span className="text-cyan-700 dark:text-cyan-400 font-mono font-bold">{importedDataPreview.steps.length} ขั้นตอน</span>
                     </span>
-                    <span className="text-emerald-400 font-bold text-[11px]">
+                    <span className="text-emerald-700 dark:text-emerald-400 font-bold text-[11px]">
                       เครื่องจักรในไฟล์: {importedDataPreview.machineId} ({importedDataPreview.machineName})
                     </span>
                   </div>
 
-                  <div className="max-h-60 overflow-y-auto rounded-xl border border-slate-700 bg-[#050a14]">
+                  <div className="max-h-60 overflow-y-auto rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#050a14]">
                     <table className="w-full text-left text-[11px] border-collapse">
                       <thead>
-                        <tr className="bg-slate-900 text-slate-400 border-b border-slate-700 sticky top-0">
+                        <tr className="bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700 sticky top-0">
                           <th className="py-2 px-2.5 text-center w-10">ลำดับ</th>
                           <th className="py-2 px-3">หัวข้อ PM</th>
                           <th className="py-2 px-2.5">วิธีการ</th>
@@ -1325,26 +1325,26 @@ export const PMPlanPage: React.FC = () => {
                           <th className="py-2 px-2.5">หมายเหตุ</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-800 text-slate-300">
+                      <tbody className="divide-y divide-slate-200 dark:divide-slate-800 text-slate-800 dark:text-slate-300">
                         {importedDataPreview.steps.map((step, sIdx) => (
-                          <tr key={sIdx} className="hover:bg-slate-900/50">
-                            <td className="py-1.5 px-2.5 text-center font-mono text-slate-400">
+                          <tr key={sIdx} className="hover:bg-slate-50 dark:hover:bg-slate-900/50">
+                            <td className="py-1.5 px-2.5 text-center font-mono text-slate-600 dark:text-slate-400">
                               {step.itemNo !== undefined && step.itemNo !== '' ? step.itemNo : ''}
                             </td>
-                            <td className="py-1.5 px-3 font-medium text-slate-200">{step.title}</td>
-                            <td className="py-1.5 px-2.5 text-slate-400">{step.method}</td>
-                            <td className="py-1.5 px-3 text-slate-300">{step.standard}</td>
+                            <td className="py-1.5 px-3 font-medium text-slate-900 dark:text-slate-200">{step.title}</td>
+                            <td className="py-1.5 px-2.5 text-slate-700 dark:text-slate-400">{step.method}</td>
+                            <td className="py-1.5 px-3 text-slate-700 dark:text-slate-300">{step.standard}</td>
                             <td className="py-1.5 px-2.5 text-center">
                               {step.result === 'ปกติ' ? (
-                                <span className="px-1.5 py-0.2 bg-emerald-500/20 text-emerald-400 rounded text-[10px] font-bold">ปกติ</span>
+                                <span className="px-1.5 py-0.2 bg-emerald-50 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-400 border border-emerald-200 dark:border-transparent rounded text-[10px] font-bold">ปกติ</span>
                               ) : step.result === 'ไม่ปกติ' ? (
-                                <span className="px-1.5 py-0.2 bg-rose-500/20 text-rose-400 rounded text-[10px] font-bold">ไม่ปกติ</span>
+                                <span className="px-1.5 py-0.2 bg-rose-50 dark:bg-rose-500/20 text-rose-800 dark:text-rose-400 border border-rose-200 dark:border-transparent rounded text-[10px] font-bold">ไม่ปกติ</span>
                               ) : (
-                                <span className="text-slate-500">-</span>
+                                <span className="text-slate-400 dark:text-slate-500">-</span>
                               )}
                             </td>
-                            <td className="py-1.5 px-3 text-slate-400">{step.abnormalDetail || '-'}</td>
-                            <td className="py-1.5 px-2.5 text-slate-400">{step.remark || '-'}</td>
+                            <td className="py-1.5 px-3 text-slate-700 dark:text-slate-400">{step.abnormalDetail || '-'}</td>
+                            <td className="py-1.5 px-2.5 text-slate-700 dark:text-slate-400">{step.remark || '-'}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -1352,7 +1352,7 @@ export const PMPlanPage: React.FC = () => {
                   </div>
 
                   {importedDataPreview.spareParts && (
-                    <div className="text-[11px] text-amber-300 bg-amber-500/10 border border-amber-500/20 p-2.5 rounded-lg">
+                    <div className="text-[11px] text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 p-2.5 rounded-lg">
                       <b>รายการอะไหล่:</b> {importedDataPreview.spareParts} {importedDataPreview.sparePartsQty ? `(${importedDataPreview.sparePartsQty})` : ''}
                     </div>
                   )}
@@ -1362,8 +1362,8 @@ export const PMPlanPage: React.FC = () => {
             </div>
 
             {/* Footer */}
-            <div className="bg-slate-900 border-t border-slate-700/80 p-4 flex justify-between items-center">
-              <span className="text-[11px] text-slate-500">
+            <div className="bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700/80 p-4 flex justify-between items-center">
+              <span className="text-[11px] text-slate-600 dark:text-slate-400">
                 {importedDataPreview ? `พร้อมนำเข้า ${importedDataPreview.steps.length} รายการ` : 'กรุณาอัปโหลดไฟล์ Excel'}
               </span>
 
@@ -1371,7 +1371,7 @@ export const PMPlanPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowImportModal(false)}
-                  className="px-4 py-2 border border-slate-700 text-slate-400 hover:text-fg rounded-lg transition text-xs"
+                  className="px-4 py-2 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition text-xs font-semibold"
                 >
                   ยกเลิก
                 </button>
@@ -1379,7 +1379,7 @@ export const PMPlanPage: React.FC = () => {
                   type="button"
                   onClick={handleConfirmImport}
                   disabled={!importedDataPreview}
-                  className="px-5 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 disabled:from-slate-700 disabled:to-slate-700 disabled:text-slate-500 text-slate-950 font-black rounded-lg transition shadow-lg shadow-emerald-500/10 text-xs cursor-pointer"
+                  className="px-5 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 disabled:from-slate-200 disabled:to-slate-200 dark:disabled:from-slate-700 dark:disabled:to-slate-700 disabled:text-slate-400 dark:disabled:text-slate-500 text-slate-950 font-black rounded-lg transition shadow-lg shadow-emerald-500/10 text-xs cursor-pointer"
                 >
                   📥 บันทึกนำเข้าสู่ระบบ
                 </button>
@@ -1394,15 +1394,15 @@ export const PMPlanPage: React.FC = () => {
       {/* MODAL 2: ADD / EDIT SINGLE STEP MODAL (เพิ่ม/ลด PM)   */}
       {/* ---------------------------------------------------- */}
       {stepModalPlanId && (
-        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-950/85 backdrop-blur-sm p-4 animate-in fade-in duration-100">
-          <div className="bg-slate-850 border border-slate-700 rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl text-xs text-slate-200">
-            <div className="bg-slate-900 border-b border-slate-700 p-4 flex justify-between items-center">
-              <h3 className="font-bold text-cyan-400 text-sm">
+        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-950/70 dark:bg-slate-950/85 backdrop-blur-sm p-4 animate-in fade-in duration-100">
+          <div className="bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-700 rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl text-xs text-slate-900 dark:text-slate-200">
+            <div className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 p-4 flex justify-between items-center">
+              <h3 className="font-bold text-cyan-800 dark:text-cyan-400 text-sm">
                 {editingStepIndex !== null ? '✏️ แก้ไขข้อตรวจวัด PM' : '➕ เพิ่มข้อตรวจวัด PM (เพิ่มการทำ PM)'}
               </h3>
               <button 
                 onClick={() => setStepModalPlanId(null)}
-                className="text-slate-400 hover:text-fg font-bold"
+                className="text-slate-400 hover:text-slate-700 dark:hover:text-fg font-bold"
               >
                 &times;
               </button>
@@ -1411,94 +1411,94 @@ export const PMPlanPage: React.FC = () => {
             <form onSubmit={handleSaveStepModal} className="p-5 space-y-3.5">
               <div className="grid grid-cols-3 gap-3">
                 <div className="col-span-1 space-y-1">
-                  <label className="text-slate-400 text-[11px] font-bold">ลำดับที่</label>
+                  <label className="text-slate-700 dark:text-slate-400 text-[11px] font-bold">ลำดับที่</label>
                   <input
                     type="number"
                     value={stepForm.itemNo || ''}
                     onChange={(e) => setStepForm(prev => ({ ...prev, itemNo: Number(e.target.value) || 1 }))}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-fg font-mono focus:outline-none focus:border-cyan-500"
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-1.5 text-slate-900 dark:text-fg font-mono focus:outline-none focus:border-cyan-500"
                   />
                 </div>
                 <div className="col-span-2 space-y-1">
-                  <label className="text-slate-400 text-[11px] font-bold">วิธีการตรวจ</label>
+                  <label className="text-slate-700 dark:text-slate-400 text-[11px] font-bold">วิธีการตรวจ</label>
                   <input
                     type="text"
                     placeholder="เช่น ดูด้วยสายตา, เครื่องมือวัด, มือ สายตา"
                     value={stepForm.method || ''}
                     onChange={(e) => setStepForm(prev => ({ ...prev, method: e.target.value }))}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-fg focus:outline-none focus:border-cyan-500"
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-1.5 text-slate-900 dark:text-fg focus:outline-none focus:border-cyan-500"
                   />
                 </div>
               </div>
 
               <div className="space-y-1">
-                <label className="text-slate-400 text-[11px] font-bold">หัวข้อ PM / สิ่งที่ต้องตรวจ*</label>
+                <label className="text-slate-700 dark:text-slate-400 text-[11px] font-bold">หัวข้อ PM / สิ่งที่ต้องตรวจ*</label>
                 <input
                   type="text"
                   required
                   placeholder="เช่น ตรวจเช็คสภาพใบมีด, ตรวจวัดค่าแรงดัน"
                   value={stepForm.title || ''}
                   onChange={(e) => setStepForm(prev => ({ ...prev, title: e.target.value }))}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-fg focus:outline-none focus:border-cyan-500"
+                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-1.5 text-slate-900 dark:text-fg focus:outline-none focus:border-cyan-500"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-slate-400 text-[11px] font-bold">มาตรฐาน (เกณฑ์ที่ยอมรับได้)</label>
+                <label className="text-slate-700 dark:text-slate-400 text-[11px] font-bold">มาตรฐาน (เกณฑ์ที่ยอมรับได้)</label>
                 <textarea
                   rows={2}
                   placeholder="เช่น โครงสร้างสมบูรณ์ ไม่ชำรุด, แรงดัน 200-240V 3 เฟส สมดุล"
                   value={stepForm.standard || ''}
                   onChange={(e) => setStepForm(prev => ({ ...prev, standard: e.target.value }))}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-fg focus:outline-none focus:border-cyan-500"
+                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-1.5 text-slate-900 dark:text-fg focus:outline-none focus:border-cyan-500"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-slate-400 text-[11px] font-bold">เวลามาตรฐาน (นาที)</label>
+                  <label className="text-slate-700 dark:text-slate-400 text-[11px] font-bold">เวลามาตรฐาน (นาที)</label>
                   <input
                     type="number"
                     min={1}
                     value={stepForm.stdTime || 10}
                     onChange={(e) => setStepForm(prev => ({ ...prev, stdTime: Number(e.target.value) || 10 }))}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-fg font-mono focus:outline-none focus:border-cyan-500"
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-1.5 text-slate-900 dark:text-fg font-mono focus:outline-none focus:border-cyan-500"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-slate-400 text-[11px] font-bold">ความถี่</label>
+                  <label className="text-slate-700 dark:text-slate-400 text-[11px] font-bold">ความถี่</label>
                   <input
                     type="text"
                     placeholder="เช่น 1 เดือน/ครั้ง, 1 สัปดาห์/ครั้ง"
                     value={stepForm.frequency || '1 เดือน/ครั้ง'}
                     onChange={(e) => setStepForm(prev => ({ ...prev, frequency: e.target.value }))}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-fg focus:outline-none focus:border-cyan-500"
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-1.5 text-slate-900 dark:text-fg focus:outline-none focus:border-cyan-500"
                   />
                 </div>
               </div>
 
               <div className="space-y-1">
-                <label className="text-slate-400 text-[11px] font-bold">หมายเหตุ (เช่น เบอร์ลูกปืน, ข้อควรระวัง)</label>
+                <label className="text-slate-700 dark:text-slate-400 text-[11px] font-bold">หมายเหตุ (เช่น เบอร์ลูกปืน, ข้อควรระวัง)</label>
                 <input
                   type="text"
                   placeholder="เช่น ลูกปืนมีด 6006 2 ตลับ"
                   value={stepForm.remark || ''}
                   onChange={(e) => setStepForm(prev => ({ ...prev, remark: e.target.value }))}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-fg focus:outline-none focus:border-cyan-500"
+                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-1.5 text-slate-900 dark:text-fg focus:outline-none focus:border-cyan-500"
                 />
               </div>
 
-              <div className="pt-3 border-t border-slate-700 flex justify-end gap-2">
+              <div className="pt-3 border-t border-slate-200 dark:border-slate-700 flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setStepModalPlanId(null)}
-                  className="px-4 py-2 border border-slate-700 text-slate-400 hover:text-fg rounded-lg transition"
+                  className="px-4 py-2 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition"
                 >
                   ยกเลิก
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-lg transition"
+                  className="px-5 py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-lg transition"
                 >
                   บันทึกข้อตรวจ PM
                 </button>
@@ -1512,16 +1512,16 @@ export const PMPlanPage: React.FC = () => {
       {/* MODAL 3: FULL ADD / EDIT PM PLAN MODAL               */}
       {/* ---------------------------------------------------- */}
       {showFormModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 backdrop-blur-sm p-4">
-          <div id="pm-form-modal" className="bg-slate-850 border border-slate-700 rounded-2xl max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 dark:bg-slate-950/85 backdrop-blur-sm p-4">
+          <div id="pm-form-modal" className="bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-700 rounded-2xl max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl text-xs text-slate-900 dark:text-slate-200">
             {/* Header */}
-            <div className="bg-slate-900 border-b border-slate-700 p-4.5 flex justify-between items-center shrink-0">
-              <h3 className="text-sm font-bold text-cyan-400">
+            <div className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 p-4.5 flex justify-between items-center shrink-0">
+              <h3 className="text-sm font-bold text-cyan-800 dark:text-cyan-400">
                 {editingPlanId ? '📝 แก้ไขข้อมูลแผน PM' : '➕ เพิ่มแผนและใบรายงาน PM ใหม่'}
               </h3>
               <button 
                 onClick={() => setShowFormModal(false)}
-                className="text-slate-400 hover:text-slate-200 text-xl font-medium focus:outline-none"
+                className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 text-xl font-medium focus:outline-none"
               >
                 &times;
               </button>
@@ -1530,30 +1530,30 @@ export const PMPlanPage: React.FC = () => {
             {/* Form */}
             <form onSubmit={handleSavePlanForm} className="flex-1 overflow-y-auto p-5 space-y-4 text-xs">
               {formError && (
-                <div className="bg-rose-500/15 border border-rose-500/30 text-rose-300 p-2.5 rounded-lg flex items-center gap-2">
+                <div className="bg-rose-50 dark:bg-rose-500/15 border border-rose-200 dark:border-rose-500/30 text-rose-700 dark:text-rose-300 p-2.5 rounded-lg flex items-center gap-2">
                   <AlertTriangle size={14} /> {formError}
                 </div>
               )}
 
               <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
                 <div className="col-span-1 md:col-span-8 space-y-1">
-                  <label className="font-bold text-slate-300">ชื่อหัวข้องาน / ชื่อใบรายงาน PM*</label>
+                  <label className="font-bold text-slate-700 dark:text-slate-300">ชื่อหัวข้องาน / ชื่อใบรายงาน PM*</label>
                   <input
                     type="text"
                     required
                     placeholder="เช่น ใบรายงาน Preventive Maintenance (PM) - เครื่องหั่นผัก"
                     value={planTitle}
                     onChange={(e) => setPlanTitle(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-fg focus:outline-none focus:border-cyan-500"
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-900 dark:text-fg focus:outline-none focus:border-cyan-500"
                   />
                 </div>
 
                 <div className="col-span-1 md:col-span-4 space-y-1">
-                  <label className="font-bold text-slate-300">ความถี่ (Frequency)*</label>
+                  <label className="font-bold text-slate-700 dark:text-slate-300">ความถี่ (Frequency)*</label>
                   <select
                     value={planFrequency}
                     onChange={(e) => setPlanFrequency(e.target.value as PMFrequency)}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-fg focus:outline-none focus:border-cyan-500"
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-900 dark:text-fg focus:outline-none focus:border-cyan-500"
                   >
                     <option value="รายวัน">รายวัน (Daily)</option>
                     <option value="รายสัปดาห์">รายสัปดาห์ (Weekly)</option>
@@ -1566,7 +1566,7 @@ export const PMPlanPage: React.FC = () => {
               {/* Steps dynamic list */}
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <label className="font-bold text-slate-300">ขั้นตอนการบำรุงรักษา ({planSteps.length} ขั้นตอน)*</label>
+                  <label className="font-bold text-slate-700 dark:text-slate-300">ขั้นตอนการบำรุงรักษา ({planSteps.length} ขั้นตอน)*</label>
                   <button
                     type="button"
                     onClick={() => {
@@ -1575,7 +1575,7 @@ export const PMPlanPage: React.FC = () => {
                         { itemNo: prev.length + 1, title: '', method: 'ดูด้วยสายตา', standard: '', frequency: '1 เดือน/ครั้ง', stdTime: 10, result: 'ยังไม่ตรวจ', done: false }
                       ]);
                     }}
-                    className="flex items-center gap-1 text-[11px] font-bold bg-cyan-500/15 text-cyan-400 border border-cyan-500/30 hover:bg-cyan-500 hover:text-slate-950 px-2.5 py-1 rounded-lg transition"
+                    className="flex items-center gap-1 text-[11px] font-bold bg-cyan-50 dark:bg-cyan-500/15 text-cyan-800 dark:text-cyan-400 border border-cyan-200 dark:border-cyan-500/30 hover:bg-cyan-600 hover:text-white dark:hover:bg-cyan-500 dark:hover:text-slate-950 px-2.5 py-1 rounded-lg transition"
                   >
                     <Plus size={12} /> เพิ่มขั้นตอน
                   </button>
@@ -1583,9 +1583,9 @@ export const PMPlanPage: React.FC = () => {
 
                 <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
                   {planSteps.map((st, idx) => (
-                    <div key={idx} className="bg-slate-950 p-2.5 rounded-xl border border-slate-800 space-y-2">
+                    <div key={idx} className="bg-slate-50 dark:bg-slate-950 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2">
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-cyan-400 font-bold px-1.5">{idx + 1}</span>
+                        <span className="font-mono text-cyan-700 dark:text-cyan-400 font-bold px-1.5">{idx + 1}</span>
                         <input
                           type="text"
                           required
@@ -1596,7 +1596,7 @@ export const PMPlanPage: React.FC = () => {
                             updated[idx] = { ...updated[idx], title: e.target.value };
                             setPlanSteps(updated);
                           }}
-                          className="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-fg focus:outline-none focus:border-cyan-500"
+                          className="flex-1 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-1 text-slate-900 dark:text-fg focus:outline-none focus:border-cyan-500"
                         />
                         <div className="flex items-center gap-1 shrink-0 w-24">
                           <input
@@ -1608,14 +1608,14 @@ export const PMPlanPage: React.FC = () => {
                               updated[idx] = { ...updated[idx], stdTime: Number(e.target.value) || 10 };
                               setPlanSteps(updated);
                             }}
-                            className="w-14 bg-slate-900 border border-slate-700 rounded-lg px-1.5 py-1 text-fg text-center font-mono"
+                            className="w-14 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-1.5 py-1 text-slate-900 dark:text-fg text-center font-mono"
                           />
                           <span className="text-[10px] text-slate-500">นาที</span>
                         </div>
                         <button
                           type="button"
                           onClick={() => setPlanSteps(prev => prev.filter((_, i) => i !== idx))}
-                          className="p-1 text-slate-500 hover:text-rose-400 cursor-pointer transition"
+                          className="p-1 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 cursor-pointer transition"
                           title="ลบขั้นตอนนี้"
                         >
                           <Trash2 size={13} />
@@ -1632,7 +1632,7 @@ export const PMPlanPage: React.FC = () => {
                             updated[idx] = { ...updated[idx], method: e.target.value };
                             setPlanSteps(updated);
                           }}
-                          className="bg-slate-900 border border-slate-800 rounded px-2 py-0.5 text-[11px] text-slate-300"
+                          className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded px-2 py-0.5 text-[11px] text-slate-800 dark:text-slate-300"
                         />
                         <input
                           type="text"
@@ -1643,7 +1643,7 @@ export const PMPlanPage: React.FC = () => {
                             updated[idx] = { ...updated[idx], standard: e.target.value };
                             setPlanSteps(updated);
                           }}
-                          className="bg-slate-900 border border-slate-800 rounded px-2 py-0.5 text-[11px] text-slate-300"
+                          className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded px-2 py-0.5 text-[11px] text-slate-800 dark:text-slate-300"
                         />
                       </div>
                     </div>
@@ -1654,23 +1654,23 @@ export const PMPlanPage: React.FC = () => {
               {/* Spare parts */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <div className="col-span-2 space-y-1">
-                  <label className="font-bold text-slate-300">รายการอะไหล่ที่เตรียมแก้ไข</label>
+                  <label className="font-bold text-slate-700 dark:text-slate-300">รายการอะไหล่ที่เตรียมแก้ไข</label>
                   <input
                     type="text"
                     placeholder="เช่น ลูกปืนมีด 6006, ลูกปืนเฟือง 6003"
                     value={planSpareParts}
                     onChange={(e) => setPlanSpareParts(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-fg"
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-1.5 text-slate-900 dark:text-fg"
                   />
                 </div>
                 <div className="col-span-1 space-y-1">
-                  <label className="font-bold text-slate-300">จำนวนอะไหล่</label>
+                  <label className="font-bold text-slate-700 dark:text-slate-300">จำนวนอะไหล่</label>
                   <input
                     type="text"
                     placeholder="เช่น 2 ตลับ, 4 ชิ้น"
                     value={planSparePartsQty}
                     onChange={(e) => setPlanSparePartsQty(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-fg"
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-1.5 text-slate-900 dark:text-fg"
                   />
                 </div>
               </div>
@@ -1678,49 +1678,49 @@ export const PMPlanPage: React.FC = () => {
               {/* Signatures & Technicians */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <div className="space-y-1">
-                  <label className="font-bold text-slate-300">ผู้ทำการ PM (ทีมช่าง)</label>
+                  <label className="font-bold text-slate-700 dark:text-slate-300">ผู้ทำการ PM (ทีมช่าง)</label>
                   <input
                     type="text"
                     placeholder="เช่น สมศักดิ์ ช่างเครื่อง"
                     value={planInspectorTech}
                     onChange={(e) => setPlanInspectorTech(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-fg"
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-1.5 text-slate-900 dark:text-fg"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="font-bold text-slate-300">ผู้รับทราบ (ฝ่ายผลิต)</label>
+                  <label className="font-bold text-slate-700 dark:text-slate-300">ผู้รับทราบ (ฝ่ายผลิต)</label>
                   <input
                     type="text"
                     placeholder="เช่น วิชัย หัวหน้ากะผลิต"
                     value={planAcknowledgingDept}
                     onChange={(e) => setPlanAcknowledgingDept(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-fg"
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-1.5 text-slate-900 dark:text-fg"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="font-bold text-slate-300">ผู้ตรวจสอบ (หัวหน้า PM)</label>
+                  <label className="font-bold text-slate-700 dark:text-slate-300">ผู้ตรวจสอบ (หัวหน้า PM)</label>
                   <input
                     type="text"
                     placeholder="เช่น ธีระพงษ์ วิศวกร PM"
                     value={planSupervisorName}
                     onChange={(e) => setPlanSupervisorName(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-fg"
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-1.5 text-slate-900 dark:text-fg"
                   />
                 </div>
               </div>
 
               {/* Buttons */}
-              <div className="pt-4 border-t border-slate-700/80 flex justify-end gap-2">
+              <div className="pt-4 border-t border-slate-200 dark:border-slate-700/80 flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setShowFormModal(false)}
-                  className="px-4 py-2 border border-slate-700 text-slate-400 hover:text-fg rounded-lg transition"
+                  className="px-4 py-2 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition"
                 >
                   ยกเลิก
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-lg transition"
+                  className="px-5 py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-lg transition"
                 >
                   บันทึกแผน PM
                 </button>
@@ -1734,20 +1734,20 @@ export const PMPlanPage: React.FC = () => {
       {/* MODAL 4: DELETE PLAN CONFIRMATION (ลดการทำ PM)       */}
       {/* ---------------------------------------------------- */}
       {deleteConfirmId && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/85 backdrop-blur-sm p-4">
-          <div className="bg-slate-900 border border-slate-700 p-6 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl text-xs">
-            <div className="flex items-center gap-3 text-rose-500 border-b border-slate-800 pb-3">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/70 dark:bg-slate-950/85 backdrop-blur-sm p-4">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-6 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl text-xs text-slate-900 dark:text-slate-200">
+            <div className="flex items-center gap-3 text-rose-600 dark:text-rose-500 border-b border-slate-200 dark:border-slate-800 pb-3">
               <AlertTriangle size={22} />
-              <h3 className="text-sm font-extrabold text-slate-100">ยืนยันการลบแผน PM (ลดการทำ PM)</h3>
+              <h3 className="text-sm font-extrabold text-slate-900 dark:text-slate-100">ยืนยันการลบแผน PM (ลดการทำ PM)</h3>
             </div>
-            <p className="text-slate-300 leading-relaxed font-sans">
+            <p className="text-slate-700 dark:text-slate-300 leading-relaxed font-sans">
               คุณแน่ใจว่าต้องการลบแผนงานและใบรายงาน PM นี้ใช่หรือไม่? ขั้นตอนและรายการตรวจทั้งหมดจะถูกนำออกอย่างสมบูรณ์
             </p>
             <div className="flex gap-2.5 justify-end pt-2">
               <button
                 type="button"
                 onClick={() => setDeleteConfirmId(null)}
-                className="border border-slate-700 hover:bg-slate-800 text-slate-300 px-4 py-2 rounded-lg transition"
+                className="border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 px-4 py-2 rounded-lg transition font-medium"
               >
                 ยกเลิก
               </button>
@@ -1757,7 +1757,7 @@ export const PMPlanPage: React.FC = () => {
                   setPmPlans(prev => prev.filter(p => p.id !== deleteConfirmId));
                   setDeleteConfirmId(null);
                 }}
-                className="bg-rose-600 hover:bg-rose-500 text-fg font-extrabold px-4.5 py-2 rounded-lg transition"
+                className="bg-rose-600 hover:bg-rose-500 text-white font-extrabold px-4.5 py-2 rounded-lg transition"
               >
                 ยืนยันลบแผน
               </button>
@@ -1770,35 +1770,35 @@ export const PMPlanPage: React.FC = () => {
       {/* MODAL 5: COPY PM PLANS FROM ANOTHER MACHINE          */}
       {/* ---------------------------------------------------- */}
       {showCopyModal && (
-        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/85 backdrop-blur-sm p-4">
-          <div id="pm-copy-modal" className="bg-slate-850 border border-slate-700 rounded-2xl max-w-lg w-full max-h-[85vh] flex flex-col overflow-hidden shadow-2xl text-xs text-slate-200">
-            <div className="bg-slate-900 border-b border-slate-700 p-4.5 flex justify-between items-center shrink-0">
+        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/70 dark:bg-slate-950/85 backdrop-blur-sm p-4">
+          <div id="pm-copy-modal" className="bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-700 rounded-2xl max-w-lg w-full max-h-[85vh] flex flex-col overflow-hidden shadow-2xl text-xs text-slate-900 dark:text-slate-200">
+            <div className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 p-4.5 flex justify-between items-center shrink-0">
               <div className="flex items-center gap-2">
-                <ArrowLeftRight className="text-cyan-400" size={16} />
-                <h3 className="font-bold text-slate-100 text-sm">คัดลอกแผน PM ข้ามจากเครื่องจักรอื่น</h3>
+                <ArrowLeftRight className="text-cyan-700 dark:text-cyan-400" size={16} />
+                <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm">คัดลอกแผน PM ข้ามจากเครื่องจักรอื่น</h3>
               </div>
               <button 
                 onClick={() => setShowCopyModal(false)}
-                className="text-slate-400 hover:text-fg text-lg font-bold"
+                className="text-slate-400 hover:text-slate-700 dark:hover:text-fg text-lg font-bold"
               >
                 &times;
               </button>
             </div>
 
             <div className="p-5 overflow-y-auto space-y-4 flex-1">
-              <div className="bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 p-3 rounded-xl">
-                เป้าหมายการคัดลอก: <span className="font-mono font-bold text-fg">{selectedMachine?.id}</span> ({selectedMachine?.name})
+              <div className="bg-cyan-50 dark:bg-cyan-500/15 border border-cyan-200 dark:border-cyan-500/30 text-cyan-800 dark:text-cyan-300 p-3 rounded-xl">
+                เป้าหมายการคัดลอก: <span className="font-mono font-bold text-slate-900 dark:text-fg">{selectedMachine?.id}</span> ({selectedMachine?.name})
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[11px] text-slate-400 font-bold uppercase">เลือกเครื่องจักรต้นทาง</label>
+                <label className="text-[11px] text-slate-600 dark:text-slate-400 font-bold uppercase">เลือกเครื่องจักรต้นทาง</label>
                 <select
                   value={copySourceMachineId}
                   onChange={(e) => {
                     setCopySourceMachineId(e.target.value);
                     setSelectedPlansToCopy([]);
                   }}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-fg focus:outline-none focus:border-cyan-500"
+                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-900 dark:text-fg focus:outline-none focus:border-cyan-500"
                 >
                   <option value="">-- เลือกเครื่องจักรต้นทาง --</option>
                   {machines
@@ -1816,7 +1816,7 @@ export const PMPlanPage: React.FC = () => {
 
               {copySourceMachineId && (
                 <div className="space-y-2">
-                  <div className="flex justify-between items-center text-[11px] text-slate-400 font-bold">
+                  <div className="flex justify-between items-center text-[11px] text-slate-600 dark:text-slate-400 font-bold">
                     <span>เลือกแผนที่จะคัดลอก ({sourceMachinePlans.length} แผน):</span>
                     <button
                       type="button"
@@ -1827,28 +1827,28 @@ export const PMPlanPage: React.FC = () => {
                           setSelectedPlansToCopy(sourceMachinePlans.map(p => p.id));
                         }
                       }}
-                      className="text-cyan-400 hover:underline"
+                      className="text-cyan-700 dark:text-cyan-400 hover:underline font-semibold"
                     >
                       {selectedPlansToCopy.length === sourceMachinePlans.length ? 'ยกเลิกทั้งหมด' : 'เลือกทั้งหมด'}
                     </button>
                   </div>
 
-                  <div className="bg-slate-950 rounded-xl border border-slate-800 divide-y divide-slate-800 max-h-48 overflow-y-auto">
+                  <div className="bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 divide-y divide-slate-200 dark:divide-slate-800 max-h-48 overflow-y-auto">
                     {sourceMachinePlans.map(p => (
                       <div 
                         key={p.id}
                         onClick={() => handleToggleSelectPlanToCopy(p.id)}
-                        className="p-3 flex items-start gap-2.5 hover:bg-slate-900 cursor-pointer transition select-none"
+                        className="p-3 flex items-start gap-2.5 hover:bg-slate-100 dark:hover:bg-slate-900 cursor-pointer transition select-none"
                       >
                         <input
                           type="checkbox"
                           checked={selectedPlansToCopy.includes(p.id)}
                           onChange={() => {}}
-                          className="mt-0.5 rounded text-cyan-500"
+                          className="mt-0.5 rounded text-cyan-600 focus:ring-cyan-500/20"
                         />
                         <div className="flex-1 min-w-0">
-                          <p className="font-bold text-slate-200 truncate">{p.title}</p>
-                          <p className="text-[10px] text-slate-500 mt-0.5">
+                          <p className="font-bold text-slate-900 dark:text-slate-200 truncate">{p.title}</p>
+                          <p className="text-[10px] text-slate-600 dark:text-slate-500 mt-0.5">
                             ความถี่: {p.frequency} • {p.steps?.length || 0} ขั้นตอน • {p.ttm} นาที
                           </p>
                         </div>
@@ -1859,15 +1859,15 @@ export const PMPlanPage: React.FC = () => {
               )}
             </div>
 
-            <div className="bg-slate-900 border-t border-slate-700/80 p-4 flex justify-between items-center">
-              <span className="text-slate-500 text-[11px]">
+            <div className="bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700/80 p-4 flex justify-between items-center">
+              <span className="text-slate-600 dark:text-slate-400 text-[11px]">
                 เลือกแล้ว {selectedPlansToCopy.length} รายการ
               </span>
               <div className="flex gap-2">
                 <button
                   type="button"
                   onClick={() => setShowCopyModal(false)}
-                  className="px-4 py-2 border border-slate-700 text-slate-400 hover:text-fg rounded-lg transition"
+                  className="px-4 py-2 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition font-medium"
                 >
                   ยกเลิก
                 </button>
@@ -1875,7 +1875,7 @@ export const PMPlanPage: React.FC = () => {
                   type="button"
                   onClick={handleExecuteCopy}
                   disabled={selectedPlansToCopy.length === 0}
-                  className="px-5 py-2 bg-cyan-500 disabled:bg-slate-800 disabled:text-slate-600 text-slate-950 font-bold rounded-lg transition"
+                  className="px-5 py-2 bg-cyan-600 hover:bg-cyan-500 disabled:bg-slate-200 dark:disabled:bg-slate-800 disabled:text-slate-400 dark:disabled:text-slate-600 text-white font-bold rounded-lg transition"
                 >
                   คัดลอกและบันทึก
                 </button>
@@ -1891,27 +1891,27 @@ export const PMPlanPage: React.FC = () => {
       {machineToRemoveFromPM && (
         <div 
           id="modal-remove-pm-machine-confirm"
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/85 backdrop-blur-sm p-4"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/70 dark:bg-slate-950/85 backdrop-blur-sm p-4"
         >
-          <div className="bg-slate-900 border border-slate-700 p-6 rounded-2xl max-w-md w-full space-y-4 shadow-2xl text-xs">
-            <div className="flex items-center gap-3 text-rose-500 border-b border-slate-800 pb-3">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-6 rounded-2xl max-w-md w-full space-y-4 shadow-2xl text-xs text-slate-900 dark:text-slate-200">
+            <div className="flex items-center gap-3 text-rose-600 dark:text-rose-500 border-b border-slate-200 dark:border-slate-800 pb-3">
               <AlertTriangle size={22} className="shrink-0" />
               <div>
-                <h3 className="text-sm font-extrabold text-slate-100">นำเครื่องจักรออกจากรายการ PM</h3>
-                <p className="text-[11px] text-slate-400 font-normal">นำออกจากรายการ PM เท่านั้น (ทะเบียนเครื่องจักรไม่ได้รับผลกระทบ)</p>
+                <h3 className="text-sm font-extrabold text-slate-900 dark:text-slate-100">นำเครื่องจักรออกจากรายการ PM</h3>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-normal">นำออกจากรายการ PM เท่านั้น (ทะเบียนเครื่องจักรไม่ได้รับผลกระทบ)</p>
               </div>
             </div>
             
-            <div className="space-y-3 text-slate-300">
+            <div className="space-y-3 text-slate-700 dark:text-slate-300">
               <p className="leading-relaxed">
-                คุณแน่ใจหรือไม่ว่าต้องการนำเครื่องจักร <span className="font-mono font-bold text-cyan-400">{machineToRemoveFromPM.id}</span> ({machineToRemoveFromPM.name}) ออกจากรายการ PM หน้านี้?
+                คุณแน่ใจหรือไม่ว่าต้องการนำเครื่องจักร <span className="font-mono font-bold text-cyan-700 dark:text-cyan-400">{machineToRemoveFromPM.id}</span> ({machineToRemoveFromPM.name}) ออกจากรายการ PM หน้านี้?
               </p>
-              <div className="p-3 bg-slate-950/60 border border-slate-800 rounded-xl space-y-1.5 text-[11px]">
-                <div className="flex items-center gap-2 text-emerald-400 font-medium">
+              <div className="p-3 bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-xl space-y-1.5 text-[11px]">
+                <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400 font-medium">
                   <Check size={14} className="shrink-0" />
                   <span>ข้อมูลในทะเบียนเครื่องจักรจะยังคงอยู่สมบูรณ์ ไม่มีการลบ</span>
                 </div>
-                <div className="flex items-center gap-2 text-cyan-400 font-medium">
+                <div className="flex items-center gap-2 text-cyan-700 dark:text-cyan-400 font-medium">
                   <Check size={14} className="shrink-0" />
                   <span>สามารถกด "+ เพิ่มเครื่องจักร" เพื่อนำกลับเข้ามาในรายการ PM ได้ตลอดเวลา</span>
                 </div>
@@ -1923,7 +1923,7 @@ export const PMPlanPage: React.FC = () => {
                 type="button"
                 id="btn-cancel-remove-pm-machine"
                 onClick={() => setMachineToRemoveFromPM(null)}
-                className="border border-slate-700 hover:bg-slate-800 text-slate-300 px-4 py-2 rounded-xl transition cursor-pointer"
+                className="border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 px-4 py-2 rounded-xl transition cursor-pointer font-medium"
               >
                 ยกเลิก
               </button>
@@ -1931,7 +1931,7 @@ export const PMPlanPage: React.FC = () => {
                 type="button"
                 id="btn-confirm-remove-pm-machine"
                 onClick={() => handleConfirmRemoveMachineFromPM(machineToRemoveFromPM.id)}
-                className="bg-rose-600 hover:bg-rose-500 text-fg font-extrabold px-4.5 py-2 rounded-xl transition shadow-lg shadow-rose-600/20 cursor-pointer"
+                className="bg-rose-600 hover:bg-rose-500 text-white font-extrabold px-4.5 py-2 rounded-xl transition shadow-lg shadow-rose-600/20 cursor-pointer"
               >
                 ยืนยันนำออก
               </button>
@@ -1944,22 +1944,22 @@ export const PMPlanPage: React.FC = () => {
       {/* MODAL 7: ADD MACHINE TO PM PICKER (FROM REGISTRY)    */}
       {/* ---------------------------------------------------- */}
       {showMachinePickerModal && (
-        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/85 backdrop-blur-sm p-4">
-          <div id="modal-pm-machine-picker" className="bg-slate-850 border border-slate-700 rounded-2xl max-w-2xl w-full max-h-[85vh] flex flex-col overflow-hidden shadow-2xl text-xs text-slate-200">
+        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/70 dark:bg-slate-950/85 backdrop-blur-sm p-4">
+          <div id="modal-pm-machine-picker" className="bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-700 rounded-2xl max-w-2xl w-full max-h-[85vh] flex flex-col overflow-hidden shadow-2xl text-xs text-slate-900 dark:text-slate-200">
             {/* Header */}
-            <div className="bg-slate-900 border-b border-slate-700 p-4.5 flex justify-between items-center shrink-0">
+            <div className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 p-4.5 flex justify-between items-center shrink-0">
               <div className="flex items-center gap-2.5">
-                <div className="p-2 bg-cyan-500/15 text-cyan-400 rounded-xl border border-cyan-500/20">
+                <div className="p-2 bg-cyan-50 dark:bg-cyan-500/15 text-cyan-700 dark:text-cyan-400 rounded-xl border border-cyan-200 dark:border-cyan-500/20">
                   <Plus size={18} />
                 </div>
                 <div>
-                  <h3 className="font-bold text-slate-100 text-sm flex items-center gap-2">
+                  <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm flex items-center gap-2">
                     เลือกเครื่องจักรเข้าสู่รายการ PM
-                    <span className="text-[10px] bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 px-2 py-0.5 rounded-full font-normal">
+                    <span className="text-[10px] bg-cyan-50 dark:bg-cyan-500/15 border border-cyan-200 dark:border-cyan-500/30 text-cyan-800 dark:text-cyan-300 px-2 py-0.5 rounded-full font-medium">
                       เหลือให้เลือก {availableRegistryMachines.length} เครื่อง
                     </span>
                   </h3>
-                  <p className="text-[11px] text-slate-400 mt-0.5">
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                     เลือกจากทะเบียนเครื่องจักรในระบบ (แสดงเฉพาะเครื่องที่ยังไม่ได้อยู่ในรายการ PM)
                   </p>
                 </div>
@@ -1971,14 +1971,14 @@ export const PMPlanPage: React.FC = () => {
                   setShowMachinePickerModal(false);
                   setPickerSearch('');
                 }}
-                className="text-slate-400 hover:text-fg text-xl font-bold p-1 rounded-lg hover:bg-slate-800 transition cursor-pointer"
+                className="text-slate-400 hover:text-slate-700 dark:hover:text-fg text-xl font-bold p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
               >
                 &times;
               </button>
             </div>
 
             {/* Search filter */}
-            <div className="p-4 border-b border-slate-700/80 bg-slate-900/50 shrink-0">
+            <div className="p-4 border-b border-slate-200 dark:border-slate-700/80 bg-slate-50/70 dark:bg-slate-900/50 shrink-0">
               <div className="relative">
                 <Search className="absolute left-3.5 top-2.5 text-slate-400" size={15} />
                 <input
@@ -1987,7 +1987,7 @@ export const PMPlanPage: React.FC = () => {
                   placeholder="ค้นหารหัสเครื่องจักร, ชื่อเครื่อง, ไลน์ผลิต, โซนที่ตั้ง..."
                   value={pickerSearch}
                   onChange={(e) => setPickerSearch(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl pl-10 pr-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+                  className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl pl-10 pr-3 py-2 text-xs text-slate-900 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-cyan-500"
                   autoFocus
                 />
               </div>
@@ -1997,13 +1997,13 @@ export const PMPlanPage: React.FC = () => {
             <div className="p-4 overflow-y-auto space-y-2 flex-1 max-h-[50vh]">
               {filteredAvailableMachines.length === 0 ? (
                 <div className="p-8 text-center text-slate-500 flex flex-col items-center justify-center">
-                  <PackageOpen size={36} className="text-slate-600 mb-2" />
-                  <p className="font-semibold text-slate-300">
+                  <PackageOpen size={36} className="text-slate-400 dark:text-slate-600 mb-2" />
+                  <p className="font-semibold text-slate-700 dark:text-slate-300">
                     {availableRegistryMachines.length === 0 
                       ? 'เครื่องจักรทั้งหมดในระบบทะเบียนถูกเพิ่มลงในรายการ PM ครบแล้ว' 
                       : 'ไม่พบเครื่องจักรที่ตรงกับคำค้นหา'}
                   </p>
-                  <p className="text-[11px] text-slate-400 mt-1">
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
                     {availableRegistryMachines.length === 0 
                       ? `มีเครื่องจักรในระบบทะเบียนทั้งหมด ${machines.length} เครื่อง และทั้งหมดอยู่ในรายการ PM แล้ว` 
                       : 'ลองค้นหาด้วยรหัสเครื่อง หรือคำอื่น'}
@@ -2017,24 +2017,24 @@ export const PMPlanPage: React.FC = () => {
                       key={m.id}
                       id={`picker-mach-item-${m.id}`}
                       onClick={() => handleAddMachineToPM(m.id)}
-                      className="p-3 bg-slate-900/60 hover:bg-slate-800/80 border border-slate-700/60 hover:border-cyan-500/60 rounded-xl flex items-center justify-between gap-3 cursor-pointer transition group"
+                      className="p-3 bg-slate-50/80 hover:bg-cyan-50/60 dark:bg-slate-900/60 dark:hover:bg-slate-800/80 border border-slate-200 dark:border-slate-700/60 hover:border-cyan-400 dark:hover:border-cyan-500/60 rounded-xl flex items-center justify-between gap-3 cursor-pointer transition group"
                     >
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-mono font-bold text-cyan-400 text-xs tracking-wider">{m.id}</span>
+                          <span className="font-mono font-bold text-cyan-700 dark:text-cyan-400 text-xs tracking-wider">{m.id}</span>
                           {m.lineGroup && (
-                            <span className="text-[10px] bg-amber-500/15 border border-amber-500/30 text-amber-300 px-1.5 py-0.2 rounded font-bold">
+                            <span className="text-[10px] bg-amber-50 dark:bg-amber-500/15 border border-amber-200 dark:border-amber-500/30 text-amber-800 dark:text-amber-300 px-1.5 py-0.2 rounded font-bold">
                               {m.lineGroup}
                             </span>
                           )}
                           {m.status && (
-                            <span className="text-[10px] bg-slate-800 border border-slate-700 text-slate-400 px-1.5 py-0.2 rounded">
+                            <span className="text-[10px] bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-400 px-1.5 py-0.2 rounded font-medium">
                               {m.status}
                             </span>
                           )}
                         </div>
-                        <p className="text-xs font-semibold text-slate-200 mt-1 truncate">{m.name}</p>
-                        <div className="flex items-center gap-3 text-[10px] text-slate-400 mt-0.5 truncate">
+                        <p className="text-xs font-semibold text-slate-900 dark:text-slate-200 mt-1 truncate">{m.name}</p>
+                        <div className="flex items-center gap-3 text-[10px] text-slate-600 dark:text-slate-400 mt-0.5 truncate">
                           {(m.locationZone || m.locationRoom) && (
                             <span>{[m.locationZone, m.locationRoom].filter(Boolean).join(' • ')}</span>
                           )}
@@ -2045,7 +2045,7 @@ export const PMPlanPage: React.FC = () => {
 
                       <div className="shrink-0 flex items-center gap-2">
                         {existingPlanCount > 0 && (
-                          <span className="text-[10px] text-slate-400 bg-slate-800 px-2 py-0.5 rounded">
+                          <span className="text-[10px] text-slate-600 dark:text-slate-400 bg-slate-200/70 dark:bg-slate-800 px-2 py-0.5 rounded font-medium">
                             มี {existingPlanCount} แผน
                           </span>
                         )}
@@ -2056,7 +2056,7 @@ export const PMPlanPage: React.FC = () => {
                             e.stopPropagation();
                             handleAddMachineToPM(m.id);
                           }}
-                          className="px-3 py-1.5 bg-cyan-600 group-hover:bg-cyan-500 text-fg font-bold text-xs rounded-lg transition flex items-center gap-1 shadow-sm cursor-pointer"
+                          className="px-3 py-1.5 bg-cyan-600 group-hover:bg-cyan-500 text-white font-bold text-xs rounded-lg transition flex items-center gap-1 shadow-sm cursor-pointer"
                         >
                           <Plus size={13} />
                           <span>เลือกเครื่องนี้</span>
@@ -2069,8 +2069,8 @@ export const PMPlanPage: React.FC = () => {
             </div>
 
             {/* Footer */}
-            <div className="bg-slate-900 border-t border-slate-700/80 p-4 flex justify-between items-center shrink-0">
-              <span className="text-slate-400 text-[11px]">
+            <div className="bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700/80 p-4 flex justify-between items-center shrink-0">
+              <span className="text-slate-600 dark:text-slate-400 text-[11px]">
                 แสดง {filteredAvailableMachines.length} จาก {availableRegistryMachines.length} เครื่องที่สามารถเพิ่มได้
               </span>
               <button
@@ -2080,7 +2080,7 @@ export const PMPlanPage: React.FC = () => {
                   setShowMachinePickerModal(false);
                   setPickerSearch('');
                 }}
-                className="px-4 py-2 border border-slate-700 text-slate-300 hover:text-fg hover:bg-slate-800 rounded-xl transition cursor-pointer"
+                className="px-4 py-2 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-fg hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition cursor-pointer font-medium"
               >
                 ปิดหน้าต่าง
               </button>

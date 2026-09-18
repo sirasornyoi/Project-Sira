@@ -861,18 +861,18 @@ export const SchedulePage: React.FC = () => {
                               key={`chip-pm-${pm.id}-${idx}`}
                               className={`px-1.5 py-1 rounded-md text-[9.5px] border leading-tight truncate transition ${
                                 pm.status === 'เสร็จสิ้น'
-                                  ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300 line-through opacity-70'
+                                  ? 'bg-emerald-100 dark:bg-emerald-500/10 border-emerald-300 dark:border-emerald-500/20 text-emerald-800 dark:text-emerald-300 line-through opacity-80'
                                   : pm.status === 'กำลังทำ'
-                                    ? 'bg-blue-500/15 border-blue-500/30 text-blue-300'
-                                    : 'bg-blue-950/40 border-blue-500/20 text-blue-200'
+                                    ? 'bg-blue-100 dark:bg-blue-500/15 border-blue-300 dark:border-blue-500/30 text-blue-900 dark:text-blue-300 font-medium'
+                                    : 'bg-blue-50 dark:bg-blue-950/40 border-blue-200 dark:border-blue-500/20 text-blue-950 dark:text-blue-200'
                               }`}
                               title={`งาน PM: ${pm.machineId} • ${plan?.title || 'บำรุงรักษา'} (${people} คน) • ไป: ${pm.destination || 'หน้างาน'}`}
                             >
                               <div className="flex items-center justify-between font-bold">
-                                <span className="font-mono text-cyan-300">🔹 PM: {pm.machineId}</span>
-                                <span className="text-[8px] bg-bg/40 px-1 rounded text-slate-300">{people} คน</span>
+                                <span className="font-mono text-cyan-700 dark:text-cyan-300 font-bold">🔹 PM: {pm.machineId}</span>
+                                <span className="text-[8px] bg-slate-200 dark:bg-bg/40 px-1 rounded text-slate-700 dark:text-slate-300 font-medium">{people} คน</span>
                               </div>
-                              <p className="text-[8.5px] truncate opacity-90 text-slate-300">
+                              <p className="text-[8.5px] truncate text-slate-600 dark:text-slate-300">
                                 {pm.destination ? `📍 ${pm.destination}` : techName}
                               </p>
                             </div>
@@ -887,16 +887,16 @@ export const SchedulePage: React.FC = () => {
                               key={`chip-rep-${rep.id}-${idx}`}
                               className={`px-1.5 py-1 rounded-md text-[9.5px] border leading-tight truncate transition ${
                                 rep.status === 'ปิดงาน'
-                                  ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300 line-through opacity-70'
-                                  : 'bg-rose-500/15 border-rose-500/30 text-rose-300 font-medium'
+                                  ? 'bg-emerald-100 dark:bg-emerald-500/10 border-emerald-300 dark:border-emerald-500/20 text-emerald-800 dark:text-emerald-300 line-through opacity-80'
+                                  : 'bg-rose-100 dark:bg-rose-500/15 border-rose-300 dark:border-rose-500/30 text-rose-900 dark:text-rose-300 font-bold'
                               }`}
                               title={`งานซ่อม: ${rep.machineId} • ${rep.symptoms} (${people} คน) • ไป: ${rep.destination || 'หน้างาน'}`}
                             >
                               <div className="flex items-center justify-between font-bold">
-                                <span className="font-mono text-rose-300">🔴 ซ่อม: {rep.machineId}</span>
-                                <span className="text-[8px] bg-bg/40 px-1 rounded text-slate-300">{people} คน</span>
+                                <span className="font-mono text-rose-700 dark:text-rose-300">🔴 ซ่อม: {rep.machineId}</span>
+                                <span className="text-[8px] bg-slate-200 dark:bg-bg/40 px-1 rounded text-slate-700 dark:text-slate-300 font-medium">{people} คน</span>
                               </div>
-                              <p className="text-[8.5px] truncate opacity-90 text-slate-300">
+                              <p className="text-[8.5px] truncate text-slate-600 dark:text-slate-300">
                                 {rep.destination ? `📍 ${rep.destination}` : rep.symptoms}
                               </p>
                             </div>
@@ -911,16 +911,16 @@ export const SchedulePage: React.FC = () => {
                               key={`chip-oth-${oth.id}-${idx}`}
                               className={`px-1.5 py-1 rounded-md text-[9.5px] border leading-tight truncate transition ${
                                 oth.status === 'เสร็จสิ้น'
-                                  ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300 line-through opacity-70'
-                                  : 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300'
+                                  ? 'bg-emerald-100 dark:bg-emerald-500/10 border-emerald-300 dark:border-emerald-500/20 text-emerald-800 dark:text-emerald-300 line-through opacity-80'
+                                  : 'bg-emerald-100 dark:bg-emerald-500/15 border-emerald-300 dark:border-emerald-500/30 text-emerald-900 dark:text-emerald-300 font-medium'
                               }`}
                               title={`งานติดต่อ/อื่นๆ: ${oth.title} (${people} คน) • ปลายทาง: ${oth.destination}`}
                             >
                               <div className="flex items-center justify-between font-bold">
-                                <span className="text-emerald-300 truncate max-w-[80%]">🟢 {oth.title}</span>
-                                <span className="text-[8px] bg-bg/40 px-1 rounded text-slate-300">{people} คน</span>
+                                <span className="text-emerald-800 dark:text-emerald-300 truncate max-w-[80%] font-semibold">🟢 {oth.title}</span>
+                                <span className="text-[8px] bg-slate-200 dark:bg-bg/40 px-1 rounded text-slate-700 dark:text-slate-300 font-medium">{people} คน</span>
                               </div>
-                              <p className="text-[8.5px] truncate opacity-90 text-slate-300">
+                              <p className="text-[8.5px] truncate text-slate-600 dark:text-slate-300">
                                 {oth.destination ? `📍 ${oth.destination}` : `${people} คน`}
                               </p>
                             </div>
@@ -929,7 +929,7 @@ export const SchedulePage: React.FC = () => {
 
                         {/* More tag */}
                         {visibleTotal > 3 && (
-                          <div className="text-[8.5px] text-center font-bold text-cyan-400 bg-cyan-950/40 py-0.5 rounded border border-cyan-500/20">
+                          <div className="text-[8.5px] text-center font-bold text-cyan-700 dark:text-cyan-400 bg-cyan-50 dark:bg-cyan-950/40 py-0.5 rounded border border-cyan-200 dark:border-cyan-500/20">
                             +{visibleTotal - 3} งานเพิ่มเติม (คลิกดู)
                           </div>
                         )}
@@ -963,12 +963,12 @@ export const SchedulePage: React.FC = () => {
           onClick={() => setActiveDateStr(null)}
         >
           <div 
-            className="bg-slate-850 border border-slate-700 rounded-2xl max-w-3xl w-full overflow-hidden shadow-2xl animate-in zoom-in-95 duration-150 my-6"
+            className="bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-700 rounded-2xl max-w-3xl w-full overflow-hidden shadow-2xl animate-in zoom-in-95 duration-150 my-6 text-slate-900 dark:text-slate-100"
             id="active-date-modal"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div className="bg-gradient-to-r from-slate-900 to-slate-800 border-b border-slate-750 p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <div className="bg-slate-50 dark:bg-gradient-to-r dark:from-slate-900 dark:to-slate-800 border-b border-slate-200 dark:border-slate-750 p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
               <div>
                 {(() => {
                   const [y, m, d] = activeDateStr.split('-');
@@ -979,13 +979,13 @@ export const SchedulePage: React.FC = () => {
                   return (
                     <>
                       <div className="flex items-center gap-2">
-                        <Calendar size={18} className="text-cyan-400" />
-                        <h2 className="text-lg font-bold text-slate-100">
+                        <Calendar size={18} className="text-cyan-600 dark:text-cyan-400" />
+                        <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
                           ตารางงานประจำ{dayName}ที่ {parseInt(d)} {monthName} {yearTh}
                         </h2>
                       </div>
-                      <p className="text-xs text-slate-400 mt-1 font-mono">
-                        {activeDateStr} • มีทั้งหมด <b className="text-cyan-400">{activeDateTasks.totalTasksCount} งาน</b> (รวมกำลังคนออกปฏิบัติงาน <b className="text-fg">{activeDateTasks.totalAssignedPeople} คน</b>)
+                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 font-mono">
+                        {activeDateStr} • มีทั้งหมด <b className="text-cyan-700 dark:text-cyan-400">{activeDateTasks.totalTasksCount} งาน</b> (รวมกำลังคนออกปฏิบัติงาน <b className="text-slate-900 dark:text-fg">{activeDateTasks.totalAssignedPeople} คน</b>)
                       </p>
                     </>
                   );
@@ -996,14 +996,14 @@ export const SchedulePage: React.FC = () => {
                 <button
                   id="btn-add-task-on-date"
                   onClick={() => handleOpenCreateForm(activeDateStr, 'PM')}
-                  className="px-3.5 py-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold transition flex items-center gap-1.5 shadow"
+                  className="px-3.5 py-1.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white dark:bg-cyan-500 dark:hover:bg-cyan-400 dark:text-slate-950 text-xs font-bold transition flex items-center gap-1.5 shadow"
                 >
                   <Plus size={14} />
                   + เพิ่มงานในวันนี้
                 </button>
                 <button
                   onClick={() => setActiveDateStr(null)}
-                  className="p-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-lg text-lg leading-none"
+                  className="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg text-lg leading-none transition"
                 >
                   ✕
                 </button>
@@ -1015,23 +1015,23 @@ export const SchedulePage: React.FC = () => {
               
               {/* SECTION 1: งาน PM ของช่างแต่ละคน */}
               <div className="space-y-3" id="section-pm-tasks">
-                <div className="flex justify-between items-center border-b border-slate-750 pb-2">
+                <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-750 pb-2">
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
-                    <h3 className="text-sm font-bold text-blue-300">
+                    <h3 className="text-sm font-bold text-blue-900 dark:text-blue-300">
                       งาน PM ของช่างแต่ละคน ({activeDateTasks.pmList.length})
                     </h3>
                   </div>
                   <button
                     onClick={() => handleOpenCreateForm(activeDateStr, 'PM')}
-                    className="text-[11px] text-blue-400 hover:text-blue-300 font-semibold hover:underline"
+                    className="text-[11px] text-blue-700 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-semibold hover:underline"
                   >
                     + เพิ่มงาน PM
                   </button>
                 </div>
 
                 {activeDateTasks.pmList.length === 0 ? (
-                  <div className="bg-slate-900/50 border border-dashed border-slate-800 rounded-xl p-4 text-center text-xs text-slate-500">
+                  <div className="bg-slate-50 dark:bg-slate-900/50 border border-dashed border-slate-300 dark:border-slate-800 rounded-xl p-4 text-center text-xs text-slate-500">
                     ไม่มีงานบำรุงรักษา PM ที่ลงตารางไว้ในวันนี้
                   </div>
                 ) : (
@@ -1045,18 +1045,18 @@ export const SchedulePage: React.FC = () => {
                       return (
                         <div
                           key={`modal-pm-${pm.id}-${idx}`}
-                          className="bg-slate-900 border border-slate-750 hover:border-blue-500/50 rounded-xl p-4 transition shadow-sm"
+                          className="bg-slate-50/70 dark:bg-slate-900 border border-slate-200 dark:border-slate-750 hover:border-blue-500/50 rounded-xl p-4 transition shadow-sm"
                         >
                           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-2">
                             <div className="flex items-center gap-2.5">
-                              <span className="font-mono text-sm font-bold text-cyan-400 bg-cyan-950/60 border border-cyan-500/30 px-2 py-0.5 rounded-lg">
+                              <span className="font-mono text-sm font-bold text-cyan-800 dark:text-cyan-400 bg-cyan-100 dark:bg-cyan-950/60 border border-cyan-300 dark:border-cyan-500/30 px-2 py-0.5 rounded-lg">
                                 {pm.machineId}
                               </span>
                               <div>
-                                <h4 className="text-xs font-bold text-slate-200">
+                                <h4 className="text-xs font-bold text-slate-900 dark:text-slate-200">
                                   {mach?.name || 'เครื่องจักร'} • {plan?.title || 'แผน PM'}
                                 </h4>
-                                <p className="text-[10px] text-slate-400">
+                                <p className="text-[10px] text-slate-600 dark:text-slate-400">
                                   ระยะเวลาตามแผน: {pm.duration} นาที • ความถี่: {plan?.frequency || 'ตามรอบ'}
                                 </p>
                               </div>
@@ -1068,10 +1068,10 @@ export const SchedulePage: React.FC = () => {
                                 onClick={() => handleToggleTaskStatus(pm.id, 'PM', pm.status)}
                                 className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border cursor-pointer transition ${
                                   pm.status === 'เสร็จสิ้น'
-                                    ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300'
+                                    ? 'bg-emerald-100 dark:bg-emerald-500/15 border-emerald-300 dark:border-emerald-500/40 text-emerald-800 dark:text-emerald-300'
                                     : pm.status === 'กำลังทำ'
-                                      ? 'bg-amber-500/15 border-amber-500/40 text-amber-300'
-                                      : 'bg-slate-800 border-slate-700 text-slate-300'
+                                      ? 'bg-amber-100 dark:bg-amber-500/15 border-amber-300 dark:border-amber-500/40 text-amber-800 dark:text-amber-300'
+                                      : 'bg-slate-200 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-300'
                                 }`}
                                 title="คลิกเพื่อเปลี่ยนสถานะงาน"
                               >
@@ -1080,7 +1080,7 @@ export const SchedulePage: React.FC = () => {
 
                               <button
                                 onClick={() => handleOpenEditForm(pm, 'PM')}
-                                className="p-1.5 text-slate-400 hover:text-cyan-400 hover:bg-slate-800 rounded-lg transition"
+                                className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-cyan-700 dark:hover:text-cyan-400 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition"
                                 title="แก้ไขงาน"
                               >
                                 <Edit3 size={14} />
@@ -1088,7 +1088,7 @@ export const SchedulePage: React.FC = () => {
 
                               <button
                                 onClick={() => handleDeleteTask(pm.id, 'PM')}
-                                className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-lg transition"
+                                className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-rose-700 dark:hover:text-rose-400 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition"
                                 title="ลบงาน"
                               >
                                 <Trash2 size={14} />
@@ -1097,20 +1097,20 @@ export const SchedulePage: React.FC = () => {
                           </div>
 
                           {/* Detail row: Destination & Group details */}
-                          <div className="bg-slate-950/60 rounded-lg p-2.5 flex flex-wrap items-center gap-4 text-xs border border-slate-800">
-                            <div className="flex items-center gap-1.5 text-slate-300">
-                              <MapPin size={14} className="text-rose-400 shrink-0" />
-                              <span>สถานที่/ปลายทาง: <b className="text-fg">{pm.destination || `แท่นเครื่อง ${pm.machineId}`}</b></span>
+                          <div className="bg-white dark:bg-slate-950/60 rounded-lg p-2.5 flex flex-wrap items-center gap-4 text-xs border border-slate-200 dark:border-slate-800">
+                            <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                              <MapPin size={14} className="text-rose-500 shrink-0" />
+                              <span>สถานที่/ปลายทาง: <b className="text-slate-900 dark:text-fg">{pm.destination || `แท่นเครื่อง ${pm.machineId}`}</b></span>
                             </div>
 
-                            <div className="flex items-center gap-1.5 text-slate-300">
-                              <Users size={14} className="text-cyan-400 shrink-0" />
-                              <span>จำนวนคน: <b className="text-cyan-300 font-mono">{people} คน</b></span>
+                            <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                              <Users size={14} className="text-cyan-600 dark:text-cyan-400 shrink-0" />
+                              <span>จำนวนคน: <b className="text-cyan-700 dark:text-cyan-300 font-mono">{people} คน</b></span>
                             </div>
 
-                            <div className="flex items-center gap-1.5 text-slate-300">
-                              <User size={14} className="text-amber-400 shrink-0" />
-                              <span>รายชื่อช่าง: <b className="text-slate-100">{allTechs.join(', ')}</b></span>
+                            <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                              <User size={14} className="text-amber-600 dark:text-amber-400 shrink-0" />
+                              <span>รายชื่อช่าง: <b className="text-slate-900 dark:text-slate-100">{allTechs.join(', ')}</b></span>
                             </div>
                           </div>
                         </div>
@@ -1122,23 +1122,23 @@ export const SchedulePage: React.FC = () => {
 
               {/* SECTION 2: งานซ่อม */}
               <div className="space-y-3" id="section-repair-tasks">
-                <div className="flex justify-between items-center border-b border-slate-750 pb-2">
+                <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-750 pb-2">
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
-                    <h3 className="text-sm font-bold text-rose-300">
+                    <h3 className="text-sm font-bold text-rose-900 dark:text-rose-300">
                       งานซ่อม (Repair / Breakdown) ({activeDateTasks.repairList.length})
                     </h3>
                   </div>
                   <button
                     onClick={() => handleOpenCreateForm(activeDateStr, 'Repair')}
-                    className="text-[11px] text-rose-400 hover:text-rose-300 font-semibold hover:underline"
+                    className="text-[11px] text-rose-700 hover:text-rose-800 dark:text-rose-400 dark:hover:text-rose-300 font-semibold hover:underline"
                   >
                     + แจ้งงานซ่อม
                   </button>
                 </div>
 
                 {activeDateTasks.repairList.length === 0 ? (
-                  <div className="bg-slate-900/50 border border-dashed border-slate-800 rounded-xl p-4 text-center text-xs text-slate-500">
+                  <div className="bg-slate-50 dark:bg-slate-900/50 border border-dashed border-slate-300 dark:border-slate-800 rounded-xl p-4 text-center text-xs text-slate-500">
                     ไม่มีรายการงานซ่อมหรือเครื่องจักรเสียในวันนี้
                   </div>
                 ) : (
@@ -1151,18 +1151,18 @@ export const SchedulePage: React.FC = () => {
                       return (
                         <div
                           key={`modal-rep-${rep.id}-${idx}`}
-                          className="bg-slate-900 border border-slate-750 hover:border-rose-500/50 rounded-xl p-4 transition shadow-sm"
+                          className="bg-slate-50/70 dark:bg-slate-900 border border-slate-200 dark:border-slate-750 hover:border-rose-500/50 rounded-xl p-4 transition shadow-sm"
                         >
                           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-2">
                             <div className="flex items-center gap-2.5">
-                              <span className="font-mono text-sm font-bold text-rose-400 bg-rose-950/60 border border-rose-500/30 px-2 py-0.5 rounded-lg">
+                              <span className="font-mono text-sm font-bold text-rose-800 dark:text-rose-400 bg-rose-100 dark:bg-rose-950/60 border border-rose-300 dark:border-rose-500/30 px-2 py-0.5 rounded-lg">
                                 {rep.machineId}
                               </span>
                               <div>
-                                <h4 className="text-xs font-bold text-slate-200">
+                                <h4 className="text-xs font-bold text-slate-900 dark:text-slate-200">
                                   {mach?.name || 'เครื่องจักร'} • อาการ: {rep.symptoms}
                                 </h4>
-                                <p className="text-[10px] text-slate-400">
+                                <p className="text-[10px] text-slate-600 dark:text-slate-400">
                                   เวลาแจ้ง: {rep.breakdownTime ? rep.breakdownTime.slice(11, 16) : '09:00'} • เวลาซ่อมเสร็จ: {rep.repairDoneTime ? rep.repairDoneTime.slice(11, 16) : '11:00'}
                                 </p>
                               </div>
@@ -1173,8 +1173,8 @@ export const SchedulePage: React.FC = () => {
                                 onClick={() => handleToggleTaskStatus(rep.id, 'Repair', rep.status === 'ปิดงาน' ? 'เสร็จสิ้น' : 'กำลังทำ')}
                                 className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border cursor-pointer transition ${
                                   rep.status === 'ปิดงาน'
-                                    ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300'
-                                    : 'bg-rose-500/15 border-rose-500/40 text-rose-300 animate-pulse'
+                                    ? 'bg-emerald-100 dark:bg-emerald-500/15 border-emerald-300 dark:border-emerald-500/40 text-emerald-800 dark:text-emerald-300'
+                                    : 'bg-rose-100 dark:bg-rose-500/15 border-rose-300 dark:border-rose-500/40 text-rose-800 dark:text-rose-300 animate-pulse'
                                 }`}
                               >
                                 {rep.status === 'ปิดงาน' ? '✓ ปิดงานซ่อมแล้ว' : '🚨 กำลังซ่อม'}
@@ -1182,7 +1182,7 @@ export const SchedulePage: React.FC = () => {
 
                               <button
                                 onClick={() => handleOpenEditForm(rep, 'Repair')}
-                                className="p-1.5 text-slate-400 hover:text-cyan-400 hover:bg-slate-800 rounded-lg transition"
+                                className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-cyan-700 dark:hover:text-cyan-400 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition"
                                 title="แก้ไขงานซ่อม"
                               >
                                 <Edit3 size={14} />
@@ -1190,7 +1190,7 @@ export const SchedulePage: React.FC = () => {
 
                               <button
                                 onClick={() => handleDeleteTask(rep.id, 'Repair')}
-                                className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-lg transition"
+                                className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-rose-700 dark:hover:text-rose-400 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition"
                                 title="ลบงานซ่อม"
                               >
                                 <Trash2 size={14} />
@@ -1199,20 +1199,20 @@ export const SchedulePage: React.FC = () => {
                           </div>
 
                           {/* Detail row */}
-                          <div className="bg-slate-950/60 rounded-lg p-2.5 flex flex-wrap items-center gap-4 text-xs border border-slate-800">
-                            <div className="flex items-center gap-1.5 text-slate-300">
-                              <MapPin size={14} className="text-rose-400 shrink-0" />
-                              <span>สถานที่/พิกัดที่ไปซ่อม: <b className="text-fg">{rep.destination || `หน้างาน ${rep.machineId}`}</b></span>
+                          <div className="bg-white dark:bg-slate-950/60 rounded-lg p-2.5 flex flex-wrap items-center gap-4 text-xs border border-slate-200 dark:border-slate-800">
+                            <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                              <MapPin size={14} className="text-rose-500 shrink-0" />
+                              <span>สถานที่/พิกัดที่ไปซ่อม: <b className="text-slate-900 dark:text-fg">{rep.destination || `หน้างาน ${rep.machineId}`}</b></span>
                             </div>
 
-                            <div className="flex items-center gap-1.5 text-slate-300">
-                              <Users size={14} className="text-cyan-400 shrink-0" />
-                              <span>จำนวนคน: <b className="text-cyan-300 font-mono">{people} คน</b></span>
+                            <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                              <Users size={14} className="text-cyan-600 dark:text-cyan-400 shrink-0" />
+                              <span>จำนวนคน: <b className="text-cyan-700 dark:text-cyan-300 font-mono">{people} คน</b></span>
                             </div>
 
-                            <div className="flex items-center gap-1.5 text-slate-300">
-                              <User size={14} className="text-amber-400 shrink-0" />
-                              <span>กลุ่มช่างที่ไปซ่อม: <b className="text-slate-100">{allTechs.join(', ')}</b></span>
+                            <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                              <User size={14} className="text-amber-600 dark:text-amber-400 shrink-0" />
+                              <span>กลุ่มช่างที่ไปซ่อม: <b className="text-slate-900 dark:text-slate-100">{allTechs.join(', ')}</b></span>
                             </div>
                           </div>
                         </div>
@@ -1224,23 +1224,23 @@ export const SchedulePage: React.FC = () => {
 
               {/* SECTION 3: งานติดต่อ หรืองานอื่นๆ */}
               <div className="space-y-3" id="section-other-tasks">
-                <div className="flex justify-between items-center border-b border-slate-750 pb-2">
+                <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-750 pb-2">
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                    <h3 className="text-sm font-bold text-emerald-300">
+                    <h3 className="text-sm font-bold text-emerald-900 dark:text-emerald-300">
                       งานติดต่อ หรืองานอื่นๆ ({activeDateTasks.otherList.length})
                     </h3>
                   </div>
                   <button
                     onClick={() => handleOpenCreateForm(activeDateStr, 'Other')}
-                    className="text-[11px] text-emerald-400 hover:text-emerald-300 font-semibold hover:underline"
+                    className="text-[11px] text-emerald-700 hover:text-emerald-800 dark:text-emerald-400 dark:hover:text-emerald-300 font-semibold hover:underline"
                   >
                     + เพิ่มงานติดต่อ/อื่นๆ
                   </button>
                 </div>
 
                 {activeDateTasks.otherList.length === 0 ? (
-                  <div className="bg-slate-900/50 border border-dashed border-slate-800 rounded-xl p-4 text-center text-xs text-slate-500">
+                  <div className="bg-slate-50 dark:bg-slate-900/50 border border-dashed border-slate-300 dark:border-slate-800 rounded-xl p-4 text-center text-xs text-slate-500">
                     ไม่มีรายการงานติดต่อ ซัพพลายเออร์ หรือภารกิจภายนอกในวันนี้
                   </div>
                 ) : (
@@ -1252,19 +1252,19 @@ export const SchedulePage: React.FC = () => {
                       return (
                         <div
                           key={`modal-oth-${oth.id}-${idx}`}
-                          className="bg-slate-900 border border-slate-750 hover:border-emerald-500/50 rounded-xl p-4 transition shadow-sm"
+                          className="bg-slate-50/70 dark:bg-slate-900 border border-slate-200 dark:border-slate-750 hover:border-emerald-500/50 rounded-xl p-4 transition shadow-sm"
                         >
                           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-2">
                             <div>
                               <div className="flex items-center gap-2">
-                                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-950/70 text-emerald-300 border border-emerald-500/30">
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/30">
                                   {oth.category || 'งานติดต่อ'}
                                 </span>
-                                <h4 className="text-xs font-bold text-slate-100">
+                                <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100">
                                   {oth.title}
                                 </h4>
                               </div>
-                              <p className="text-[10px] text-slate-400 mt-0.5">
+                              <p className="text-[10px] text-slate-600 dark:text-slate-400 mt-0.5">
                                 ช่วงเวลา: {oth.startTime || '09:00'} - {oth.endTime || '12:00'}
                                 {oth.notes && <span> • หมายเหตุ: {oth.notes}</span>}
                               </p>
@@ -1275,10 +1275,10 @@ export const SchedulePage: React.FC = () => {
                                 onClick={() => handleToggleTaskStatus(oth.id, 'Other', oth.status)}
                                 className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border cursor-pointer transition ${
                                   oth.status === 'เสร็จสิ้น'
-                                    ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300'
+                                    ? 'bg-emerald-100 dark:bg-emerald-500/15 border-emerald-300 dark:border-emerald-500/40 text-emerald-800 dark:text-emerald-300'
                                     : oth.status === 'กำลังทำ'
-                                      ? 'bg-amber-500/15 border-amber-500/40 text-amber-300'
-                                      : 'bg-slate-800 border-slate-700 text-slate-300'
+                                      ? 'bg-amber-100 dark:bg-amber-500/15 border-amber-300 dark:border-amber-500/40 text-amber-800 dark:text-amber-300'
+                                      : 'bg-slate-200 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-300'
                                 }`}
                               >
                                 {oth.status === 'เสร็จสิ้น' ? '✓ เสร็จสิ้น' : oth.status === 'กำลังทำ' ? '⏳ กำลังทำ' : '• รอดำเนินการ'}
@@ -1286,7 +1286,7 @@ export const SchedulePage: React.FC = () => {
 
                               <button
                                 onClick={() => handleOpenEditForm(oth, 'Other')}
-                                className="p-1.5 text-slate-400 hover:text-cyan-400 hover:bg-slate-800 rounded-lg transition"
+                                className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-cyan-700 dark:hover:text-cyan-400 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition"
                                 title="แก้ไขงาน"
                               >
                                 <Edit3 size={14} />
@@ -1294,7 +1294,7 @@ export const SchedulePage: React.FC = () => {
 
                               <button
                                 onClick={() => handleDeleteTask(oth.id, 'Other')}
-                                className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-lg transition"
+                                className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-rose-700 dark:hover:text-rose-400 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition"
                                 title="ลบงาน"
                               >
                                 <Trash2 size={14} />
@@ -1303,20 +1303,20 @@ export const SchedulePage: React.FC = () => {
                           </div>
 
                           {/* Detail row */}
-                          <div className="bg-slate-950/60 rounded-lg p-2.5 flex flex-wrap items-center gap-4 text-xs border border-slate-800">
-                            <div className="flex items-center gap-1.5 text-slate-300">
-                              <Compass size={14} className="text-emerald-400 shrink-0" />
-                              <span>สถานที่/กลุ่มนี้ไปไหน: <b className="text-fg">{oth.destination || 'ระบุจุดหมาย'}</b></span>
+                          <div className="bg-white dark:bg-slate-950/60 rounded-lg p-2.5 flex flex-wrap items-center gap-4 text-xs border border-slate-200 dark:border-slate-800">
+                            <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                              <Compass size={14} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+                              <span>สถานที่/กลุ่มนี้ไปไหน: <b className="text-slate-900 dark:text-fg">{oth.destination || 'ระบุจุดหมาย'}</b></span>
                             </div>
 
-                            <div className="flex items-center gap-1.5 text-slate-300">
-                              <Users size={14} className="text-cyan-400 shrink-0" />
-                              <span>จำนวนคน: <b className="text-cyan-300 font-mono">{people} คน</b></span>
+                            <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                              <Users size={14} className="text-cyan-600 dark:text-cyan-400 shrink-0" />
+                              <span>จำนวนคน: <b className="text-cyan-700 dark:text-cyan-300 font-mono">{people} คน</b></span>
                             </div>
 
-                            <div className="flex items-center gap-1.5 text-slate-300">
-                              <User size={14} className="text-amber-400 shrink-0" />
-                              <span>ชื่อคนในกลุ่ม: <b className="text-slate-100">{oth.technicianNamesText || allTechs.join(', ')}</b></span>
+                            <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                              <User size={14} className="text-amber-600 dark:text-amber-400 shrink-0" />
+                              <span>ชื่อคนในกลุ่ม: <b className="text-slate-900 dark:text-slate-100">{oth.technicianNamesText || allTechs.join(', ')}</b></span>
                             </div>
                           </div>
                         </div>
@@ -1329,13 +1329,13 @@ export const SchedulePage: React.FC = () => {
             </div>
 
             {/* Modal Footer */}
-            <div className="bg-slate-900 border-t border-slate-750 p-4 flex justify-between items-center text-xs">
-              <span className="text-slate-400">
+            <div className="bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-750 p-4 flex justify-between items-center text-xs">
+              <span className="text-slate-600 dark:text-slate-400">
                 คลิกปุ่มสถานะเพื่ออัปเดตงานแบบรวดเร็ว หรือกดแก้ไขเพื่อเปลี่ยนรายละเอียด
               </span>
               <button
                 onClick={() => setActiveDateStr(null)}
-                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium transition"
+                className="px-4 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 font-medium transition cursor-pointer"
               >
                 ปิดหน้าต่าง
               </button>
@@ -1351,23 +1351,23 @@ export const SchedulePage: React.FC = () => {
           id="task-form-modal-overlay"
         >
           <div 
-            className="bg-slate-850 border border-slate-700 rounded-2xl max-w-xl w-full overflow-hidden shadow-2xl animate-in zoom-in-95 duration-150 my-6"
+            className="bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-700 rounded-2xl max-w-xl w-full overflow-hidden shadow-2xl animate-in zoom-in-95 duration-150 my-6 text-slate-900 dark:text-slate-100"
             id="task-form-modal"
           >
             {/* Form Header */}
-            <div className="bg-gradient-to-r from-slate-900 to-slate-800 border-b border-slate-750 p-5 flex justify-between items-center">
+            <div className="bg-slate-50 dark:bg-gradient-to-r dark:from-slate-900 dark:to-slate-800 border-b border-slate-200 dark:border-slate-750 p-5 flex justify-between items-center">
               <div>
-                <h3 className="text-base font-bold text-cyan-400 flex items-center gap-2">
+                <h3 className="text-base font-bold text-cyan-700 dark:text-cyan-400 flex items-center gap-2">
                   {formMode === 'create' ? '➕ เพิ่มงานใหม่ในตารางงาน' : '✏️ แก้ไขข้อมูลตารางงาน'}
                 </h3>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  วันที่: <span className="text-fg font-mono">{formDate}</span>
+                <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
+                  วันที่: <span className="text-slate-900 dark:text-fg font-mono font-semibold">{formDate}</span>
                 </p>
               </div>
 
               <button 
                 onClick={() => setShowTaskForm(false)}
-                className="text-slate-400 hover:text-fg text-xl leading-none"
+                className="text-slate-400 hover:text-slate-700 dark:hover:text-fg text-xl leading-none transition"
               >
                 &times;
               </button>
@@ -1377,15 +1377,15 @@ export const SchedulePage: React.FC = () => {
               
               {/* Task Type Switcher */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300">ประเภทงาน (Task Type)*</label>
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">ประเภทงาน (Task Type)*</label>
                 <div className="grid grid-cols-3 gap-2">
                   <button
                     type="button"
                     onClick={() => setFormTaskType('PM')}
                     className={`py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 border ${
                       formTaskType === 'PM'
-                        ? 'bg-blue-500 text-fg border-blue-400 shadow-md'
-                        : 'bg-slate-900 text-slate-400 border-slate-750 hover:text-slate-200'
+                        ? 'bg-blue-600 text-white border-blue-600 shadow-md'
+                        : 'bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-400 border-slate-200 dark:border-slate-750 hover:bg-slate-200 dark:hover:text-slate-200'
                     }`}
                   >
                     <ClipboardList size={14} />
@@ -1397,8 +1397,8 @@ export const SchedulePage: React.FC = () => {
                     onClick={() => setFormTaskType('Repair')}
                     className={`py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 border ${
                       formTaskType === 'Repair'
-                        ? 'bg-rose-500 text-fg border-rose-400 shadow-md'
-                        : 'bg-slate-900 text-slate-400 border-slate-750 hover:text-slate-200'
+                        ? 'bg-rose-600 text-white border-rose-600 shadow-md'
+                        : 'bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-400 border-slate-200 dark:border-slate-750 hover:bg-slate-200 dark:hover:text-slate-200'
                     }`}
                   >
                     <Wrench size={14} />
@@ -1410,8 +1410,8 @@ export const SchedulePage: React.FC = () => {
                     onClick={() => setFormTaskType('Other')}
                     className={`py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 border ${
                       formTaskType === 'Other'
-                        ? 'bg-emerald-500 text-slate-950 border-emerald-400 shadow-md'
-                        : 'bg-slate-900 text-slate-400 border-slate-750 hover:text-slate-200'
+                        ? 'bg-emerald-600 text-white border-emerald-600 shadow-md'
+                        : 'bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-400 border-slate-200 dark:border-slate-750 hover:bg-slate-200 dark:hover:text-slate-200'
                     }`}
                   >
                     <PhoneCall size={14} />
@@ -1422,26 +1422,26 @@ export const SchedulePage: React.FC = () => {
 
               {/* DATE PICKER */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300">วันที่ปฏิบัติงาน (Date)*</label>
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">วันที่ปฏิบัติงาน (Date)*</label>
                 <input
                   type="date"
                   required
                   value={formDate}
                   onChange={(e) => setFormDate(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-slate-100 focus:outline-none focus:border-cyan-500 font-mono"
+                  className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:border-cyan-500 font-mono"
                 />
               </div>
 
               {/* DYNAMIC FIELDS PER TYPE */}
               {formTaskType === 'PM' && (
-                <div className="space-y-3 p-3.5 rounded-xl bg-blue-950/20 border border-blue-500/20">
+                <div className="space-y-3 p-3.5 rounded-xl bg-blue-50/80 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-500/20">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-blue-200">เครื่องจักรที่ทำ PM*</label>
+                      <label className="text-xs font-semibold text-blue-900 dark:text-blue-200">เครื่องจักรที่ทำ PM*</label>
                       <select
                         value={formMachineId}
                         onChange={(e) => setFormMachineId(e.target.value)}
-                        className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500 font-mono"
+                        className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-200 focus:outline-none focus:border-cyan-500 font-mono"
                       >
                         {machines.map(m => (
                           <option key={m.id} value={m.id}>
@@ -1452,11 +1452,11 @@ export const SchedulePage: React.FC = () => {
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-blue-200">แผนงาน PM ที่เกี่ยวข้อง</label>
+                      <label className="text-xs font-semibold text-blue-900 dark:text-blue-200">แผนงาน PM ที่เกี่ยวข้อง</label>
                       <select
                         value={formPmPlanId}
                         onChange={(e) => setFormPmPlanId(e.target.value)}
-                        className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500"
+                        className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-200 focus:outline-none focus:border-cyan-500"
                       >
                         <option value="">-- เลือกแผนบำรุงรักษา --</option>
                         {pmPlans.filter(p => !formMachineId || p.machineId === formMachineId).map(p => (
@@ -1469,26 +1469,26 @@ export const SchedulePage: React.FC = () => {
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-blue-200">ระยะเวลาตามแผน (นาที)</label>
+                    <label className="text-xs font-semibold text-blue-900 dark:text-blue-200">ระยะเวลาตามแผน (นาที)</label>
                     <input
                       type="number"
                       min={10}
                       value={formDuration}
                       onChange={(e) => setFormDuration(Number(e.target.value))}
-                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-slate-100 font-mono focus:outline-none focus:border-cyan-500"
+                      className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-slate-100 font-mono focus:outline-none focus:border-cyan-500"
                     />
                   </div>
                 </div>
               )}
 
               {formTaskType === 'Repair' && (
-                <div className="space-y-3 p-3.5 rounded-xl bg-rose-950/20 border border-rose-500/20">
+                <div className="space-y-3 p-3.5 rounded-xl bg-rose-50/80 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-500/20">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-rose-200">เครื่องจักรที่เกิดเหตุ/ต้องซ่อม*</label>
+                    <label className="text-xs font-semibold text-rose-900 dark:text-rose-200">เครื่องจักรที่เกิดเหตุ/ต้องซ่อม*</label>
                     <select
                       value={formMachineId}
                       onChange={(e) => setFormMachineId(e.target.value)}
-                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500 font-mono"
+                      className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-200 focus:outline-none focus:border-cyan-500 font-mono"
                     >
                       {machines.map(m => (
                         <option key={m.id} value={m.id}>
@@ -1499,34 +1499,34 @@ export const SchedulePage: React.FC = () => {
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-rose-200">อาการเสีย / รายละเอียดงานซ่อม*</label>
+                    <label className="text-xs font-semibold text-rose-900 dark:text-rose-200">อาการเสีย / รายละเอียดงานซ่อม*</label>
                     <input
                       type="text"
                       required
                       placeholder="ตัวอย่างเช่น สายพานรูด, ปั๊มไม่สร้างแรงดัน, ฮีตเตอร์ไม่ร้อน"
                       value={formSymptoms}
                       onChange={(e) => setFormSymptoms(e.target.value)}
-                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-slate-100 focus:outline-none focus:border-cyan-500"
+                      className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-cyan-500"
                     />
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1">
-                      <label className="text-[11px] text-slate-400">เวลาเริ่มซ่อม</label>
+                      <label className="text-[11px] text-slate-600 dark:text-slate-400">เวลาเริ่มซ่อม</label>
                       <input
                         type="time"
                         value={formBreakdownTime}
                         onChange={(e) => setFormBreakdownTime(e.target.value)}
-                        className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-100 font-mono"
+                        className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-900 dark:text-slate-100 font-mono"
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[11px] text-slate-400">เวลาคาดเสร็จ</label>
+                      <label className="text-[11px] text-slate-600 dark:text-slate-400">เวลาคาดเสร็จ</label>
                       <input
                         type="time"
                         value={formRepairDoneTime}
                         onChange={(e) => setFormRepairDoneTime(e.target.value)}
-                        className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-100 font-mono"
+                        className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-900 dark:text-slate-100 font-mono"
                       />
                     </div>
                   </div>
@@ -1534,25 +1534,25 @@ export const SchedulePage: React.FC = () => {
               )}
 
               {formTaskType === 'Other' && (
-                <div className="space-y-3 p-3.5 rounded-xl bg-emerald-950/20 border border-emerald-500/20">
+                <div className="space-y-3 p-3.5 rounded-xl bg-emerald-50/80 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-500/20">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-emerald-200">ชื่องาน / ภารกิจ*</label>
+                    <label className="text-xs font-semibold text-emerald-900 dark:text-emerald-200">ชื่องาน / ภารกิจ*</label>
                     <input
                       type="text"
                       required
                       placeholder="ตัวอย่างเช่น ไปติดต่อร้านอะไหล่, ส่งชิ้นส่วนโรงกลึง, ประชุมความปลอดภัย"
                       value={formTitle}
                       onChange={(e) => setFormTitle(e.target.value)}
-                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-slate-100 focus:outline-none focus:border-cyan-500"
+                      className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-cyan-500"
                     />
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-emerald-200">หมวดหมู่ภารกิจ</label>
+                    <label className="text-xs font-semibold text-emerald-900 dark:text-emerald-200">หมวดหมู่ภารกิจ</label>
                     <select
                       value={formCategory}
                       onChange={(e) => setFormCategory(e.target.value as any)}
-                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500"
+                      className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-200 focus:outline-none focus:border-cyan-500"
                     >
                       <option value="งานติดต่อ">งานติดต่อ</option>
                       <option value="งานจัดซื้อ/ซัพพลายเออร์">งานจัดซื้อ / ซัพพลายเออร์</option>
@@ -1565,21 +1565,21 @@ export const SchedulePage: React.FC = () => {
 
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1">
-                      <label className="text-[11px] text-slate-400">เวลาเริ่มต้น</label>
+                      <label className="text-[11px] text-slate-600 dark:text-slate-400">เวลาเริ่มต้น</label>
                       <input
                         type="time"
                         value={formStartTime}
                         onChange={(e) => setFormStartTime(e.target.value)}
-                        className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-100 font-mono"
+                        className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-900 dark:text-slate-100 font-mono"
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[11px] text-slate-400">เวลาสิ้นสุด</label>
+                      <label className="text-[11px] text-slate-600 dark:text-slate-400">เวลาสิ้นสุด</label>
                       <input
                         type="time"
                         value={formEndTime}
                         onChange={(e) => setFormEndTime(e.target.value)}
-                        className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-100 font-mono"
+                        className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-900 dark:text-slate-100 font-mono"
                       />
                     </div>
                   </div>
@@ -1588,12 +1588,12 @@ export const SchedulePage: React.FC = () => {
 
               {/* 📍 สถานที่ / ปลายทางที่กลุ่มนี้ไป (กลุ่มนี้ไปไหนได้) */}
               <div className="space-y-1.5 pt-1">
-                <label className="text-xs font-semibold text-slate-200 flex items-center justify-between">
-                  <span className="flex items-center gap-1 text-cyan-400 font-bold">
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-200 flex items-center justify-between">
+                  <span className="flex items-center gap-1 text-cyan-700 dark:text-cyan-400 font-bold">
                     <Compass size={14} />
                     สถานที่ / ปลายทางที่กลุ่มนี้ไป (กลุ่มนี้ไปไหน)*
                   </span>
-                  <span className="text-[10px] text-slate-400 font-normal">เช่น ไลน์ผลิต, ร้านอะไหล่, โรงกลึง</span>
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 font-normal">เช่น ไลน์ผลิต, ร้านอะไหล่, โรงกลึง</span>
                 </label>
                 <input
                   type="text"
@@ -1601,7 +1601,7 @@ export const SchedulePage: React.FC = () => {
                   placeholder="ระบุจุดหมายหรือสถานที่ เช่น ร้านเจริญอะไหล่ พระราม 2, โรงกลึง CNC, ไลน์ผสมข้าว A"
                   value={formDestination}
                   onChange={(e) => setFormDestination(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-slate-100 focus:outline-none focus:border-cyan-500"
+                  className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-cyan-500"
                 />
 
                 {/* Destination Presets */}
@@ -1612,7 +1612,7 @@ export const SchedulePage: React.FC = () => {
                       type="button"
                       key={idx}
                       onClick={() => setFormDestination(preset)}
-                      className="text-[9.5px] px-2 py-0.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 transition"
+                      className="text-[9.5px] px-2 py-0.5 rounded-lg bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-300 transition"
                     >
                       {preset}
                     </button>
@@ -1621,30 +1621,30 @@ export const SchedulePage: React.FC = () => {
               </div>
 
               {/* 👥 จำนวนคน & ชื่อคน / รายชื่อช่างในกลุ่ม */}
-              <div className="space-y-3 pt-2 border-t border-slate-750">
+              <div className="space-y-3 pt-2 border-t border-slate-200 dark:border-slate-750">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold text-cyan-400 flex items-center gap-1.5">
+                  <label className="text-xs font-bold text-cyan-700 dark:text-cyan-400 flex items-center gap-1.5">
                     <Users size={14} />
                     จำนวนคนและรายชื่อช่างในกลุ่ม*
                   </label>
                   <div className="flex items-center gap-1.5">
-                    <span className="text-xs text-slate-400">จำนวนคน:</span>
+                    <span className="text-xs text-slate-600 dark:text-slate-400">จำนวนคน:</span>
                     <input
                       type="number"
                       min={1}
                       max={50}
                       value={formPeopleCount}
                       onChange={(e) => setFormPeopleCount(Math.max(1, Number(e.target.value)))}
-                      className="w-16 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-xs text-center font-bold text-cyan-300 font-mono"
+                      className="w-16 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-1 text-xs text-center font-bold text-cyan-700 dark:text-cyan-300 font-mono"
                     />
-                    <span className="text-xs text-slate-400">คน</span>
+                    <span className="text-xs text-slate-600 dark:text-slate-400">คน</span>
                   </div>
                 </div>
 
                 {/* Quick Select Technician Chips */}
                 <div className="space-y-1.5">
-                  <p className="text-[11px] text-slate-400">คลิกเลือกชื่อช่างในกลุ่ม (ช่างที่ปฏิบัติงาน):</p>
-                  <div className="flex flex-wrap gap-1.5 max-h-28 overflow-y-auto p-2 bg-slate-900 rounded-xl border border-slate-750 scrollbar-none">
+                  <p className="text-[11px] text-slate-600 dark:text-slate-400">คลิกเลือกชื่อช่างในกลุ่ม (ช่างที่ปฏิบัติงาน):</p>
+                  <div className="flex flex-wrap gap-1.5 max-h-28 overflow-y-auto p-2 bg-slate-100 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-750 scrollbar-none">
                     {technicians.map((tech) => {
                       const isSelected = formSelectedTechs.includes(tech);
                       return (
@@ -1654,8 +1654,8 @@ export const SchedulePage: React.FC = () => {
                           onClick={() => handleToggleTech(tech)}
                           className={`text-xs px-2.5 py-1 rounded-lg border font-medium transition flex items-center gap-1 ${
                             isSelected
-                              ? 'bg-cyan-500 text-slate-950 border-cyan-400 font-bold shadow'
-                              : 'bg-slate-800 text-slate-300 border-slate-700 hover:border-slate-500'
+                              ? 'bg-cyan-600 dark:bg-cyan-500 text-white dark:text-slate-950 border-cyan-600 dark:border-cyan-400 font-bold shadow'
+                              : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:border-slate-400'
                           }`}
                         >
                           {isSelected && <Check size={11} />}
@@ -1668,28 +1668,28 @@ export const SchedulePage: React.FC = () => {
 
                 {/* Custom / Additional Names */}
                 <div className="space-y-1">
-                  <label className="text-[11px] text-slate-400">ชื่อคนเพิ่มเติม หรือบุคคลภายนอก (ถ้ามี)</label>
+                  <label className="text-[11px] text-slate-600 dark:text-slate-400">ชื่อคนเพิ่มเติม หรือบุคคลภายนอก (ถ้ามี)</label>
                   <input
                     type="text"
                     placeholder="เช่น สมเกียรติ, พนักงานฝึกงาน, ช่างซัพพลายเออร์"
                     value={formCustomNames}
                     onChange={(e) => setFormCustomNames(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-200 placeholder-slate-500"
+                    className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-900 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500"
                   />
                 </div>
               </div>
 
               {/* Status Selector */}
-              <div className="space-y-1.5 pt-2 border-t border-slate-750">
-                <label className="text-xs font-semibold text-slate-300">สถานะงาน</label>
+              <div className="space-y-1.5 pt-2 border-t border-slate-200 dark:border-slate-750">
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">สถานะงาน</label>
                 <div className="grid grid-cols-3 gap-2">
                   <button
                     type="button"
                     onClick={() => setFormStatus('รอดำเนินการ')}
-                    className={`py-1.5 px-3 rounded-xl text-xs font-bold transition border ${
+                    className={`py-1.5 px-3 rounded-xl text-xs font-bold transition border cursor-pointer ${
                       formStatus === 'รอดำเนินการ'
-                        ? 'bg-slate-700 text-fg border-slate-500'
-                        : 'bg-slate-900 text-slate-400 border-slate-750'
+                        ? 'bg-slate-200 text-slate-900 border-slate-400 dark:bg-slate-700 dark:text-slate-100 dark:border-slate-500 shadow-sm'
+                        : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-300 dark:border-slate-750 hover:bg-slate-50'
                     }`}
                   >
                     • รอดำเนินการ
@@ -1697,10 +1697,10 @@ export const SchedulePage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setFormStatus('กำลังทำ')}
-                    className={`py-1.5 px-3 rounded-xl text-xs font-bold transition border ${
+                    className={`py-1.5 px-3 rounded-xl text-xs font-bold transition border cursor-pointer ${
                       formStatus === 'กำลังทำ'
-                        ? 'bg-amber-500 text-slate-950 border-amber-400'
-                        : 'bg-slate-900 text-slate-400 border-slate-750'
+                        ? 'bg-amber-100 text-amber-950 border-amber-400 dark:bg-amber-500 dark:text-slate-950 dark:border-amber-400 shadow-sm'
+                        : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-300 dark:border-slate-750 hover:bg-slate-50'
                     }`}
                   >
                     ⏳ กำลังทำ
@@ -1708,10 +1708,10 @@ export const SchedulePage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setFormStatus('เสร็จสิ้น')}
-                    className={`py-1.5 px-3 rounded-xl text-xs font-bold transition border ${
+                    className={`py-1.5 px-3 rounded-xl text-xs font-bold transition border cursor-pointer ${
                       formStatus === 'เสร็จสิ้น'
-                        ? 'bg-emerald-500 text-slate-950 border-emerald-400'
-                        : 'bg-slate-900 text-slate-400 border-slate-750'
+                        ? 'bg-emerald-100 text-emerald-950 border-emerald-400 dark:bg-emerald-500 dark:text-slate-950 dark:border-emerald-400 shadow-sm'
+                        : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-300 dark:border-slate-750 hover:bg-slate-50'
                     }`}
                   >
                     ✓ เสร็จสิ้น
@@ -1720,18 +1720,18 @@ export const SchedulePage: React.FC = () => {
               </div>
 
               {/* Form Buttons */}
-              <div className="pt-4 border-t border-slate-750 flex items-center justify-end gap-2.5">
+              <div className="pt-4 border-t border-slate-200 dark:border-slate-750 flex items-center justify-end gap-2.5">
                 <button
                   type="button"
                   onClick={() => setShowTaskForm(false)}
-                  className="px-4 py-2 text-xs font-medium rounded-xl border border-slate-700 hover:bg-slate-800 text-slate-300 transition"
+                  className="px-4 py-2 text-xs font-medium rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition cursor-pointer"
                 >
                   ยกเลิก
                 </button>
                 <button
                   type="submit"
                   id="btn-submit-task-form"
-                  className="px-5 py-2 text-xs font-bold rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 transition shadow-lg shadow-cyan-500/20 cursor-pointer flex items-center gap-1.5"
+                  className="px-5 py-2 text-xs font-bold rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white dark:bg-cyan-500 dark:hover:bg-cyan-400 dark:text-slate-950 transition shadow-lg shadow-cyan-500/20 cursor-pointer flex items-center gap-1.5"
                 >
                   <Check size={14} />
                   {formMode === 'create' ? 'บันทึกงานลงตาราง' : 'อัปเดตข้อมูล'}

@@ -493,25 +493,25 @@ export const PMHistoryPage: React.FC = () => {
       )}
 
       {/* HEADER SECTION WITH TITLE AND FORM TRIGGER */}
-      <div id="pm-history-header" className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-900/40 p-5 rounded-2xl border border-slate-800/80 mb-6">
+      <div id="pm-history-header" className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white dark:bg-slate-900/40 p-5 rounded-2xl border border-slate-200 dark:border-slate-800/80 mb-6 shadow-xs">
         <div>
           <div className="flex items-center gap-2.5">
-            <div className="p-2.5 bg-cyan-500/10 rounded-xl border border-cyan-500/20 text-cyan-400">
-              <ClipboardCheck size={20} className="text-cyan-400" />
+            <div className="p-2.5 bg-cyan-500/10 rounded-xl border border-cyan-500/20 text-cyan-600 dark:text-cyan-400">
+              <ClipboardCheck size={20} className="text-cyan-600 dark:text-cyan-400" />
             </div>
             <div>
-              <h1 className="text-lg font-black tracking-tight text-fg flex items-center gap-2">
+              <h1 className="text-lg font-black tracking-tight text-slate-900 dark:text-slate-100 flex items-center gap-2">
                 📋 บันทึกประวัติและผลต่างเวลา PM
-                <span className="text-xs font-semibold px-2 py-0.5 bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 rounded-full">
+                <span className="text-xs font-semibold px-2 py-0.5 bg-cyan-50 dark:bg-cyan-500/10 text-cyan-700 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-500/30 rounded-full">
                   Std. vs Actual PM Time
                 </span>
                 {totalOverdueCount > 0 && (
-                  <span className="text-xs font-bold px-2 py-0.5 bg-rose-500/20 text-rose-400 border border-rose-500/40 rounded-full flex items-center gap-1">
+                  <span className="text-xs font-bold px-2 py-0.5 bg-rose-50 dark:bg-rose-500/20 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-500/40 rounded-full flex items-center gap-1">
                     <AlertTriangle size={11} /> เลยกำหนด {totalOverdueCount} งาน
                   </span>
                 )}
               </h1>
-              <p className="text-xs text-slate-400 mt-1">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                 เปรียบเทียบระยะเวลามาตรฐานแผนบำรุงรักษาเชิงป้องกัน (TTM Plan) ตรวจเช็คงานเลยกำหนด และจัดการเลื่อนแผน
               </p>
             </div>
@@ -522,10 +522,10 @@ export const PMHistoryPage: React.FC = () => {
           <button
             id="btn-export-pm-excel"
             onClick={handleExportToExcel}
-            className="flex items-center gap-1.5 px-3 py-2 bg-slate-800 hover:bg-slate-750 text-slate-300 border border-slate-700/80 hover:border-slate-600 rounded-xl text-xs font-bold transition duration-150 cursor-pointer shadow-md"
+            className="flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700/80 hover:border-slate-400 dark:hover:border-slate-600 rounded-xl text-xs font-bold transition duration-150 cursor-pointer shadow-xs"
             title="ออกรายงานเอกสารเปรียบเทียบความเป๊ะ PM ลง Excel/CSV"
           >
-            <FileSpreadsheet size={14} className="text-emerald-400" />
+            <FileSpreadsheet size={14} className="text-emerald-600 dark:text-emerald-400" />
             <span>ออกรายงาน Excel (CSV)</span>
           </button>
 
@@ -546,7 +546,7 @@ export const PMHistoryPage: React.FC = () => {
               setFormStatus('เสร็จสิ้น');
               setShowFormModal(true);
             }}
-            className="flex items-center gap-1.5 px-4.5 py-2.5 bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-450 hover:to-teal-450 text-slate-950 rounded-xl text-xs font-black shadow-lg shadow-cyan-500/10 hover:shadow-cyan-450/20 hover:scale-[1.01] active:scale-[0.98] transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-4.5 py-2.5 bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-400 hover:to-teal-400 text-slate-950 rounded-xl text-xs font-black shadow-md shadow-cyan-500/10 hover:scale-[1.01] active:scale-[0.98] transition-all cursor-pointer"
           >
             <Plus size={15} strokeWidth={3} />
             <span>บันทึกประวัติ PM ใหม่</span>
@@ -558,15 +558,15 @@ export const PMHistoryPage: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5" id="pm-kpi-dashboard-row">
         
         {/* KPI 1 : Total Jobs Completed */}
-        <div id="pm-kpi-completed" className="bg-slate-900/60 border border-slate-800/80 p-4 rounded-2xl flex items-center justify-between shadow-xs">
+        <div id="pm-kpi-completed" className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 p-4 rounded-2xl flex items-center justify-between shadow-xs">
           <div>
-            <p className="text-[10px] text-slate-500 uppercase tracking-wider font-extrabold font-mono">Completed PM</p>
-            <h3 className="text-2xl font-black text-slate-100 mt-1 font-mono">{totalCompletedCount} <span className="text-xs text-slate-400 font-sans">งาน</span></h3>
-            <p className="text-[9px] text-slate-400 mt-1 font-sans">
+            <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider font-extrabold font-mono">Completed PM</p>
+            <h3 className="text-2xl font-black text-slate-900 dark:text-slate-100 mt-1 font-mono">{totalCompletedCount} <span className="text-xs text-slate-500 dark:text-slate-400 font-sans">งาน</span></h3>
+            <p className="text-[9px] text-slate-500 dark:text-slate-400 mt-1 font-sans">
               คีย์ปิดงานเสร็จสิ้นแล้ว
             </p>
           </div>
-          <div className="p-2.5 bg-cyan-500/15 border border-cyan-500/20 text-cyan-400 rounded-xl">
+          <div className="p-2.5 bg-cyan-50 dark:bg-cyan-500/15 border border-cyan-200 dark:border-cyan-500/20 text-cyan-600 dark:text-cyan-400 rounded-xl">
             <ClipboardCheck size={18} />
           </div>
         </div>
@@ -577,75 +577,75 @@ export const PMHistoryPage: React.FC = () => {
           onClick={() => setVarianceFilter(totalOverdueCount > 0 ? 'overdue' : 'all')}
           className={`p-4 rounded-2xl flex items-center justify-between shadow-xs cursor-pointer transition ${
             totalOverdueCount > 0
-              ? 'bg-rose-950/30 border border-rose-500/40 hover:bg-rose-950/50'
-              : 'bg-slate-900/60 border border-slate-800/80'
+              ? 'bg-rose-50 dark:bg-rose-950/30 border border-rose-300 dark:border-rose-500/40 hover:bg-rose-100/70 dark:hover:bg-rose-950/50'
+              : 'bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80'
           }`}
         >
           <div>
-            <p className="text-[10px] text-rose-400 uppercase tracking-wider font-extrabold font-mono">Overdue / Delayed</p>
-            <h3 className="text-2xl font-black text-rose-400 mt-1 font-mono">
-              {totalOverdueCount} <span className="text-xs text-slate-400 font-sans">งาน</span>
+            <p className="text-[10px] text-rose-600 dark:text-rose-400 uppercase tracking-wider font-extrabold font-mono">Overdue / Delayed</p>
+            <h3 className="text-2xl font-black text-rose-600 dark:text-rose-400 mt-1 font-mono">
+              {totalOverdueCount} <span className="text-xs text-slate-500 dark:text-slate-400 font-sans">งาน</span>
             </h3>
-            <p className="text-[9px] text-slate-400 mt-1 font-sans">
+            <p className="text-[9px] text-slate-500 dark:text-slate-400 mt-1 font-sans">
               เลื่อนแผนสะสม {totalRescheduledCount} งาน
             </p>
           </div>
-          <div className={`p-2.5 rounded-xl border ${totalOverdueCount > 0 ? 'bg-rose-500/20 border-rose-500/30 text-rose-400' : 'bg-slate-800 border-slate-700 text-slate-400'}`}>
+          <div className={`p-2.5 rounded-xl border ${totalOverdueCount > 0 ? 'bg-rose-100 dark:bg-rose-500/20 border-rose-300 dark:border-rose-500/30 text-rose-600 dark:text-rose-400' : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400'}`}>
             <AlertTriangle size={18} />
           </div>
         </div>
 
         {/* KPI 3 : Total Variance Variance Over standard */}
-        <div id="pm-kpi-variance" className="bg-slate-900/60 border border-slate-800/80 p-4 rounded-2xl flex items-center justify-between shadow-xs">
+        <div id="pm-kpi-variance" className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 p-4 rounded-2xl flex items-center justify-between shadow-xs">
           <div>
-            <p className="text-[10px] text-slate-500 uppercase tracking-wider font-extrabold font-mono">Time Variance</p>
-            <h3 className={`text-2xl font-black mt-1 font-mono flex items-center gap-1 ${totalDiffMins > 0 ? 'text-rose-400' : totalDiffMins < 0 ? 'text-emerald-400' : 'text-slate-100'}`}>
+            <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider font-extrabold font-mono">Time Variance</p>
+            <h3 className={`text-2xl font-black mt-1 font-mono flex items-center gap-1 ${totalDiffMins > 0 ? 'text-rose-600 dark:text-rose-400' : totalDiffMins < 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-900 dark:text-slate-100'}`}>
               {totalDiffMins > 0 ? `+${totalDiffMins}` : totalDiffMins}
-              <span className="text-xs font-sans font-medium text-slate-400">น.</span>
+              <span className="text-xs font-sans font-medium text-slate-500 dark:text-slate-400">น.</span>
             </h3>
-            <div className="flex items-center gap-1 mt-1 text-[9px] text-slate-400">
+            <div className="flex items-center gap-1 mt-1 text-[9px] text-slate-500 dark:text-slate-400">
               {totalDiffMins > 0 ? (
-                <TrendingUp size={10} className="text-rose-400" />
+                <TrendingUp size={10} className="text-rose-600 dark:text-rose-400" />
               ) : (
-                <TrendingDown size={10} className="text-emerald-400" />
+                <TrendingDown size={10} className="text-emerald-600 dark:text-emerald-400" />
               )}
               <span>ส่วนต่าง {avgVariancePercent}% </span>
             </div>
           </div>
-          <div className={`p-2.5 rounded-xl border ${totalDiffMins > 0 ? 'bg-rose-500/20 border-rose-500/20 text-rose-400' : 'bg-emerald-500/20 border-emerald-500/20 text-emerald-400'}`}>
+          <div className={`p-2.5 rounded-xl border ${totalDiffMins > 0 ? 'bg-rose-50 dark:bg-rose-500/20 border-rose-200 dark:border-rose-500/20 text-rose-600 dark:text-rose-400' : 'bg-emerald-50 dark:bg-emerald-500/20 border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400'}`}>
             <Clock size={18} />
           </div>
         </div>
 
         {/* KPI 4 : On-Time Or Faster Consistency */}
-        <div id="pm-kpi-ontime-ratio" className="bg-slate-900/60 border border-slate-800/80 p-4 rounded-2xl flex items-center justify-between shadow-xs">
+        <div id="pm-kpi-ontime-ratio" className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 p-4 rounded-2xl flex items-center justify-between shadow-xs">
           <div>
-            <p className="text-[10px] text-slate-500 uppercase tracking-wider font-extrabold font-mono">On-Time Ratio</p>
-            <h3 className="text-2xl font-black text-emerald-400 mt-1 font-mono">{onTimeOrFasterRate}%</h3>
-            <p className="text-[9px] text-slate-400 mt-1 font-sans">
+            <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider font-extrabold font-mono">On-Time Ratio</p>
+            <h3 className="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1 font-mono">{onTimeOrFasterRate}%</h3>
+            <p className="text-[9px] text-slate-500 dark:text-slate-400 mt-1 font-sans">
               เป้าหมาย &gt; 80%
             </p>
           </div>
-          <div className="p-2.5 bg-emerald-500/15 border border-emerald-500/25 text-emerald-400 rounded-xl">
+          <div className="p-2.5 bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/25 text-emerald-600 dark:text-emerald-400 rounded-xl">
             <Sparkles size={18} />
           </div>
         </div>
 
         {/* KPI 5 : Speed State Dispersion */}
-        <div id="pm-kpi-dispersion" className="bg-slate-900/60 border border-slate-800/80 p-3.5 font-sans rounded-2xl shadow-xs">
-          <p className="text-[10px] text-slate-500 uppercase tracking-wider font-extrabold font-mono mb-1.5">PM Efficiency Breakdown</p>
-          <div className="space-y-1 text-slate-350 text-[9.5px]">
-            <div className="flex justify-between items-center bg-emerald-500/5 px-1.5 py-0.5 rounded border border-emerald-500/10">
+        <div id="pm-kpi-dispersion" className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 p-3.5 font-sans rounded-2xl shadow-xs">
+          <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider font-extrabold font-mono mb-1.5">PM Efficiency Breakdown</p>
+          <div className="space-y-1 text-[9.5px]">
+            <div className="flex justify-between items-center bg-emerald-50 dark:bg-emerald-500/5 px-1.5 py-0.5 rounded border border-emerald-200 dark:border-emerald-500/10 text-emerald-900 dark:text-emerald-300">
               <span>⚡️ เร็วกว่ามาตรฐาน</span>
-              <b className="text-emerald-400 font-mono text-[10px] font-black">{fasterJobsCount}</b>
+              <b className="text-emerald-700 dark:text-emerald-400 font-mono text-[10px] font-black">{fasterJobsCount}</b>
             </div>
-            <div className="flex justify-between items-center bg-slate-800/40 px-1.5 py-0.5 rounded border border-slate-750">
+            <div className="flex justify-between items-center bg-slate-100 dark:bg-slate-800/40 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-750 text-slate-800 dark:text-slate-300">
               <span>⏱ ตรงมาตรฐาน</span>
-              <b className="text-slate-300 font-mono text-[10px] font-black">{onTimeJobsCount}</b>
+              <b className="text-slate-900 dark:text-slate-200 font-mono text-[10px] font-black">{onTimeJobsCount}</b>
             </div>
-            <div className="flex justify-between items-center bg-rose-500/5 px-1.5 py-0.5 rounded border border-rose-500/10">
+            <div className="flex justify-between items-center bg-rose-50 dark:bg-rose-500/5 px-1.5 py-0.5 rounded border border-rose-200 dark:border-rose-500/10 text-rose-900 dark:text-rose-300">
               <span>⚠️ ช้าเกินมาตรฐาน</span>
-              <b className="text-rose-400 font-mono text-[10px] font-black">{delayedJobsCount}</b>
+              <b className="text-rose-700 dark:text-rose-400 font-mono text-[10px] font-black">{delayedJobsCount}</b>
             </div>
           </div>
         </div>
@@ -653,11 +653,11 @@ export const PMHistoryPage: React.FC = () => {
       </div>
 
       {/* CORE INTERACTIVE FILTER BOXES BAR */}
-      <div className="bg-[#0b1222]/90 border border-slate-800 p-4.5 rounded-2xl space-y-4" id="pmhistory-filtering-bar">
+      <div className="bg-white dark:bg-[#0b1222]/90 border border-slate-200 dark:border-slate-800 p-4.5 rounded-2xl space-y-4 shadow-xs" id="pmhistory-filtering-bar">
         
-        <div className="flex items-center justify-between text-xs pb-3 border-b border-slate-800/60">
-          <div className="flex items-center gap-1.5 text-slate-300 font-extrabold">
-            <Filter size={13} className="text-cyan-400" />
+        <div className="flex items-center justify-between text-xs pb-3 border-b border-slate-200 dark:border-slate-800/60">
+          <div className="flex items-center gap-1.5 text-slate-800 dark:text-slate-300 font-extrabold">
+            <Filter size={13} className="text-cyan-600 dark:text-cyan-400" />
             <span>ตัวคัดกรองระบบประวัติการบำรุงรักษาเชิงป้องกัน</span>
           </div>
           <button
@@ -668,7 +668,7 @@ export const PMHistoryPage: React.FC = () => {
               setVarianceFilter('all');
               setSortBy('date');
             }}
-            className="text-[10.5px] font-bold text-slate-500 hover:text-cyan-400 transition"
+            className="text-[10.5px] font-bold text-slate-500 hover:text-cyan-600 dark:hover:text-cyan-400 transition cursor-pointer"
           >
             ล้างตัวกรองทั้งหมด
           </button>
@@ -678,7 +678,7 @@ export const PMHistoryPage: React.FC = () => {
           
           {/* SEARCH BY MACHINE KEYWORDS */}
           <div className="space-y-1.5 flex flex-col">
-            <label className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">ค้นหาตามรหัสเครื่องจักร</label>
+            <label className="text-[10px] text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wider">ค้นหาตามรหัสเครื่องจักร</label>
             <div className="relative">
               <input
                 id="pm-history-mach-input"
@@ -686,20 +686,20 @@ export const PMHistoryPage: React.FC = () => {
                 value={machineFilter}
                 onChange={(e) => setMachineFilter(e.target.value)}
                 placeholder="เช่น RIM01, VAC..."
-                className="w-full bg-[#050a14] border border-slate-800 rounded-xl px-3 py-1.8 text-xs text-fg placeholder-slate-600 focus:outline-hidden focus:border-cyan-500/70"
+                className="w-full bg-slate-50 dark:bg-[#050a14] border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-1.8 text-xs text-slate-900 dark:text-fg placeholder-slate-400 dark:placeholder-slate-600 focus:outline-hidden focus:border-cyan-500/70 focus:bg-white dark:focus:bg-[#050a14]"
               />
-              <Search className="absolute right-2.5 top-2 text-slate-600" size={13} />
+              <Search className="absolute right-2.5 top-2 text-slate-400 dark:text-slate-600" size={13} />
             </div>
           </div>
 
           {/* CHOOSE BY ASSIGNED TECHNICIAN */}
           <div className="space-y-1.5 flex flex-col">
-            <label className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">กรองด้วยชื่อช่าง</label>
+            <label className="text-[10px] text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wider">กรองด้วยชื่อช่าง</label>
             <select
               id="pm-history-tech-select"
               value={techFilter}
               onChange={(e) => setTechFilter(e.target.value)}
-              className="w-full bg-[#050a14] border border-slate-800 rounded-xl px-3 py-1.8 text-xs text-fg focus:outline-hidden focus:border-cyan-500/70"
+              className="w-full bg-slate-50 dark:bg-[#050a14] border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-1.8 text-xs text-slate-900 dark:text-fg focus:outline-hidden focus:border-cyan-500/70 focus:bg-white dark:focus:bg-[#050a14]"
             >
               <option value="">-- แสดงช่างบำรุงทั้งหมด --</option>
               {technicians.map((t, idx) => (
@@ -710,27 +710,27 @@ export const PMHistoryPage: React.FC = () => {
 
           {/* CHOOSE BY MONTH DATE */}
           <div className="space-y-1.5 flex flex-col">
-            <label className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">กรองด้วยเดือนที่บันทึก</label>
+            <label className="text-[10px] text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wider">กรองด้วยเดือนที่บันทึก</label>
             <input
               id="pm-history-month-input"
               type="month"
               value={monthFilter}
               onChange={(e) => setMonthFilter(e.target.value)}
-              className="w-full bg-[#050a14] border border-slate-800 rounded-xl px-3 py-1.8 text-xs text-fg focus:outline-hidden focus:border-cyan-500/70 select-none"
+              className="w-full bg-slate-50 dark:bg-[#050a14] border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-1.8 text-xs text-slate-900 dark:text-fg focus:outline-hidden focus:border-cyan-500/70 focus:bg-white dark:focus:bg-[#050a14] select-none"
             />
           </div>
 
           {/* CHOOSE BY VARIANCE TYPE / OVERDUE STATE */}
           <div className="space-y-1.5 flex flex-col">
-            <label className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">ประสิทธิภาพ / สถานะแผน PM</label>
+            <label className="text-[10px] text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wider">ประสิทธิภาพ / สถานะแผน PM</label>
             <select
               id="pm-history-variance-select"
               value={varianceFilter}
               onChange={(e) => setVarianceFilter(e.target.value as any)}
-              className={`w-full bg-[#050a14] border rounded-xl px-3 py-1.8 text-xs focus:outline-hidden ${
+              className={`w-full bg-slate-50 dark:bg-[#050a14] border rounded-xl px-3 py-1.8 text-xs focus:outline-hidden focus:bg-white dark:focus:bg-[#050a14] ${
                 varianceFilter === 'overdue'
-                  ? 'border-rose-500 text-rose-300 font-bold'
-                  : 'border-slate-800 text-fg focus:border-cyan-500/70'
+                  ? 'border-rose-400 dark:border-rose-500 text-rose-600 dark:text-rose-300 font-bold bg-rose-50/50'
+                  : 'border-slate-300 dark:border-slate-800 text-slate-900 dark:text-fg focus:border-cyan-500/70'
               }`}
             >
               <option value="all">ทั้งหมด (แสดงเกณฑ์ประสิทธิภาพทุกแบบ)</option>
@@ -746,56 +746,56 @@ export const PMHistoryPage: React.FC = () => {
         </div>
 
         {/* TABS SORT BY & RECORD COUNTER STAT */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pt-2 border-t border-slate-850 text-xs">
-          <div className="flex items-center gap-1.5 text-slate-400">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pt-2 border-t border-slate-200 dark:border-slate-850 text-xs">
+          <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
             <span>เรียงลำดับงาน:</span>
-            <div id="pm-history-sort-tabs" className="flex bg-[#050a14] border border-slate-800/80 rounded-lg p-0.5">
+            <div id="pm-history-sort-tabs" className="flex bg-slate-100 dark:bg-[#050a14] border border-slate-200 dark:border-slate-800/80 rounded-lg p-0.5">
               <button
                 onClick={() => setSortBy('date')}
-                className={`px-3 py-1 text-[10.5px] rounded-md transition duration-150 ${sortBy === 'date' ? 'bg-[#0f172a] text-cyan-400 font-bold border border-slate-800' : 'text-slate-500 hover:text-slate-350'}`}
+                className={`px-3 py-1 text-[10.5px] rounded-md transition duration-150 cursor-pointer ${sortBy === 'date' ? 'bg-white dark:bg-[#0f172a] text-cyan-700 dark:text-cyan-400 font-bold border border-slate-200 dark:border-slate-800 shadow-xs' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-350'}`}
               >
                 วันที่ซ่อม (ล่าสุดก่อน)
               </button>
               <button
                 onClick={() => setSortBy('variance')}
-                className={`px-3 py-1 text-[10.5px] rounded-md transition duration-150 ${sortBy === 'variance' ? 'bg-[#0f172a] text-cyan-400 font-bold border border-slate-800' : 'text-slate-500 hover:text-slate-350'}`}
+                className={`px-3 py-1 text-[10.5px] rounded-md transition duration-150 cursor-pointer ${sortBy === 'variance' ? 'bg-white dark:bg-[#0f172a] text-cyan-700 dark:text-cyan-400 font-bold border border-slate-200 dark:border-slate-800 shadow-xs' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-350'}`}
               >
                 ผลต่างดีเลย์มากสุด
               </button>
               <button
                 onClick={() => setSortBy('duration')}
-                className={`px-3 py-1 text-[10.5px] rounded-md transition duration-150 ${sortBy === 'duration' ? 'bg-[#0f172a] text-cyan-400 font-bold border border-slate-800' : 'text-slate-500 hover:text-slate-350'}`}
+                className={`px-3 py-1 text-[10.5px] rounded-md transition duration-150 cursor-pointer ${sortBy === 'duration' ? 'bg-white dark:bg-[#0f172a] text-cyan-700 dark:text-cyan-400 font-bold border border-slate-200 dark:border-slate-800 shadow-xs' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-350'}`}
               >
                 ระยะเวลามาตรฐานแผนสูงสุด
               </button>
             </div>
           </div>
 
-          <div className="text-[10.5px] font-bold text-slate-400 bg-slate-900/60 px-2.5 py-1 rounded-lg border border-slate-800/50">
-            ค้นพบรายการประวัติบำรุงรักษา: <span className="text-cyan-450">{filteredPmJobs.length}</span> / {pmJobs.length} รายการ
+          <div className="text-[10.5px] font-bold text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-900/60 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-800/50">
+            ค้นพบรายการประวัติบำรุงรักษา: <span className="text-cyan-700 dark:text-cyan-450 font-mono font-bold">{filteredPmJobs.length}</span> / {pmJobs.length} รายการ
           </div>
         </div>
 
       </div>
 
       {/* CORE LOGS TABULAR LISTING */}
-      <div className="bg-[#0b1222] border border-slate-800 rounded-2xl overflow-hidden shadow-xl" id="pmhistory-table-container">
+      <div className="bg-white dark:bg-[#0b1222] border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-xs" id="pmhistory-table-container">
         {filteredPmJobs.length === 0 ? (
           <div className="p-12 text-center text-slate-500">
-            <ClipboardCheck size={45} className="mx-auto block text-slate-700 mb-3 animate-bounce" />
-            <p className="text-sm font-bold text-slate-400">ไม่พบข้อมูลประวัติ PM ตามเงื่อนไขค้นหาเปรียบเทียบที่ระบุ</p>
-            <p className="text-xs text-slate-600 mt-1">ลองล้างตัวกรองหรือเพิ่มบันทึกประวัติ PM ด้วยงานใหม่ผ่านปุ่มด้านขวาบน</p>
+            <ClipboardCheck size={45} className="mx-auto block text-slate-400 dark:text-slate-700 mb-3 animate-bounce" />
+            <p className="text-sm font-bold text-slate-700 dark:text-slate-400">ไม่พบข้อมูลประวัติ PM ตามเงื่อนไขค้นหาเปรียบเทียบที่ระบุ</p>
+            <p className="text-xs text-slate-500 dark:text-slate-600 mt-1">ลองล้างตัวกรองหรือเพิ่มบันทึกประวัติ PM ด้วยงานใหม่ผ่านปุ่มด้านขวาบน</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table id="pm-history-logs-table" className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-[#080d1a] border-b border-slate-800 text-[10.5px] uppercase font-black text-slate-400 font-mono tracking-wider select-none">
+                <tr className="bg-slate-100 dark:bg-[#080d1a] border-b border-slate-200 dark:border-slate-800 text-[10.5px] uppercase font-black text-slate-700 dark:text-slate-400 font-mono tracking-wider select-none">
                   <th className="p-4 w-32">วันที่ปฏิบัติงาน</th>
                   <th className="p-4 w-32">รหัสเละชื่อเครื่อง</th>
                   <th className="p-4">รายการแผน PM บำรุงรักษา</th>
-                  <th className="p-4 w-28 text-center text-slate-300">มาตรฐานแผน</th>
-                  <th className="p-4 w-28 text-center text-slate-300">เวลาปฏิบัติงานจริง</th>
+                  <th className="p-4 w-28 text-center text-slate-700 dark:text-slate-300">มาตรฐานแผน</th>
+                  <th className="p-4 w-28 text-center text-slate-700 dark:text-slate-300">เวลาปฏิบัติงานจริง</th>
                   <th className="p-4 w-36 text-center">ความคลาดเคลื่อน</th>
                   <th className="p-4 w-32 text-right">ค่าบำรุงรักษา</th>
                   <th className="p-4 w-36">ทีมช่างเทคนิค</th>
@@ -803,7 +803,7 @@ export const PMHistoryPage: React.FC = () => {
                   <th className="p-4 w-24 text-center">เครื่องมือ</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-850 text-xs">
+              <tbody className="divide-y divide-slate-200 dark:divide-slate-850 text-xs">
                 {filteredPmJobs.map((job) => {
                   const mDetail = machines.find(m => m.id === job.machineId);
                   const pDetail = pmPlans.find(p => p.id === job.pmPlanId);
@@ -869,23 +869,23 @@ export const PMHistoryPage: React.FC = () => {
                   return (
                     <tr 
                       key={job.id} 
-                      className={`hover:bg-slate-900/40 transition group cursor-pointer ${
-                        job.id === selectedPmDetail?.id ? 'bg-cyan-500/5' : ''
+                      className={`hover:bg-slate-50 dark:hover:bg-slate-900/40 transition group cursor-pointer ${
+                        job.id === selectedPmDetail?.id ? 'bg-cyan-50/80 dark:bg-cyan-500/5' : ''
                       } ${
-                        jobIsOverdue ? 'bg-rose-950/20 hover:bg-rose-950/30' : ''
+                        jobIsOverdue ? 'bg-rose-50/60 hover:bg-rose-100/60 dark:bg-rose-950/20 dark:hover:bg-rose-950/30' : ''
                       }`}
                       onClick={() => setSelectedPmDetail(job)}
                     >
                       {/* Date */}
                       <td className="p-4 font-mono font-bold">
                         <div className="flex flex-col">
-                          <span className={jobIsOverdue ? 'text-rose-300 font-black' : 'text-slate-400'}>
+                          <span className={jobIsOverdue ? 'text-rose-600 dark:text-rose-300 font-black' : 'text-slate-700 dark:text-slate-400'}>
                             {job.date}
                           </span>
                           
                           {/* Overdue Badge */}
                           {jobIsOverdue && (
-                            <span className="text-[9px] font-mono text-rose-400 font-black flex items-center gap-0.5 mt-0.5">
+                            <span className="text-[9px] font-mono text-rose-600 dark:text-rose-400 font-black flex items-center gap-0.5 mt-0.5">
                               <AlertTriangle size={9} /> เลย {overdueDays} วัน
                             </span>
                           )}
@@ -893,10 +893,10 @@ export const PMHistoryPage: React.FC = () => {
                           {/* Rescheduled Badge */}
                           {jobIsRescheduled && (
                             <span 
-                              className="text-[8.5px] font-sans text-amber-400/90 flex items-center gap-0.5 mt-0.5"
+                              className="text-[8.5px] font-sans text-amber-600 dark:text-amber-400/90 font-medium flex items-center gap-0.5 mt-0.5"
                               title={`เลื่อนมาจากวันที่ ${job.rescheduledFromDate} (เหตุผล: ${job.rescheduledReason || '-'})`}
                             >
-                              <RefreshCw size={8} className="text-amber-400" />
+                              <RefreshCw size={8} className="text-amber-600 dark:text-amber-400" />
                               เลื่อนแผน ({job.rescheduledCount || 1} ครั้ง)
                             </span>
                           )}
@@ -905,22 +905,22 @@ export const PMHistoryPage: React.FC = () => {
 
                       {/* Machine ID + Group Name */}
                       <td className="p-4">
-                        <div className="font-bold text-slate-200">{job.machineId}</div>
-                        <div className="text-[10px] text-slate-500 truncate max-w-[130px]" title={mDetail?.name}>
+                        <div className="font-bold text-slate-900 dark:text-slate-200">{job.machineId}</div>
+                        <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate max-w-[130px]" title={mDetail?.name}>
                           {mDetail?.name || 'บำรุงในจุดทั่วไป'}
                         </div>
                       </td>
 
                       {/* PM Plan Title */}
                       <td className="p-4">
-                        <div className="font-bold text-slate-200 hover:text-cyan-450 transition">
+                        <div className="font-bold text-slate-900 dark:text-slate-200 hover:text-cyan-600 dark:hover:text-cyan-450 transition">
                           {pDetail?.title || 'ชื่องานบำรุงรักษาในระบบ'}
                         </div>
-                        <div className="text-[10px] text-slate-500 flex items-center gap-1.5 mt-0.5">
-                          <span className="px-1 py-0.2 bg-slate-800 rounded text-[9px]">{pDetail?.frequency || 'รอบการทำงาน'}</span>
+                        <div className="text-[10px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mt-0.5">
+                          <span className="px-1 py-0.2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded text-[9px] border border-slate-200 dark:border-transparent">{pDetail?.frequency || 'รอบการทำงาน'}</span>
                           <span>{pDetail?.steps?.length || 0} ขั้นตอนตรวจ</span>
                           {job.rescheduledReason && (
-                            <span className="text-amber-400/80 truncate max-w-[120px] text-[9px]" title={`เหตุผลเลื่อนแผน: ${job.rescheduledReason}`}>
+                            <span className="text-amber-600 dark:text-amber-400/80 truncate max-w-[120px] text-[9px]" title={`เหตุผลเลื่อนแผน: ${job.rescheduledReason}`}>
                               📌 {job.rescheduledReason}
                             </span>
                           )}
@@ -928,18 +928,18 @@ export const PMHistoryPage: React.FC = () => {
                       </td>
 
                       {/* Standard Plan Duration */}
-                      <td className="p-4 text-center font-mono font-black text-slate-300">
+                      <td className="p-4 text-center font-mono font-black text-slate-800 dark:text-slate-300">
                         {stdTime} Mins
                       </td>
 
                       {/* Actual Spent Duration */}
                       <td className="p-4 text-center font-mono font-black">
                         {actTime !== undefined ? (
-                          <span className={actTime > stdTime ? 'text-rose-400 font-bold' : actTime < stdTime ? 'text-emerald-400 font-black' : 'text-slate-300'}>
+                          <span className={actTime > stdTime ? 'text-rose-600 dark:text-rose-400 font-bold' : actTime < stdTime ? 'text-emerald-600 dark:text-emerald-400 font-black' : 'text-slate-800 dark:text-slate-300'}>
                             {actTime} Mins
                           </span>
                         ) : (
-                          <span className="text-slate-650 italic text-[11px]">- (รอดำเนินการ)</span>
+                          <span className="text-slate-400 dark:text-slate-500 italic text-[11px]">- (รอดำเนินการ)</span>
                         )}
                       </td>
 
@@ -947,24 +947,24 @@ export const PMHistoryPage: React.FC = () => {
                       <td className="p-4 text-center">
                         {varBadge}
                         {job.overtimeReason && (
-                          <div className="mt-1 flex items-center justify-center gap-1 text-[9px] text-rose-450 font-medium max-w-[150px] mx-auto bg-rose-500/10 border border-rose-500/20 px-1.5 py-0.5 rounded" title={`สาเหตุที่เกินเวลา: ${job.overtimeReason}`}>
-                            <AlertTriangle size={9} className="shrink-0 text-rose-400" />
+                          <div className="mt-1 flex items-center justify-center gap-1 text-[9px] text-rose-700 dark:text-rose-450 font-medium max-w-[150px] mx-auto bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 px-1.5 py-0.5 rounded" title={`สาเหตุที่เกินเวลา: ${job.overtimeReason}`}>
+                            <AlertTriangle size={9} className="shrink-0 text-rose-600 dark:text-rose-400" />
                             <span className="truncate">{job.overtimeReason}</span>
                           </div>
                         )}
                       </td>
 
                       {/* Maintenance Cost */}
-                      <td className="p-4 text-right font-mono font-bold text-cyan-400 whitespace-nowrap">
+                      <td className="p-4 text-right font-mono font-bold text-cyan-700 dark:text-cyan-400 whitespace-nowrap">
                         {((job.usedParts?.reduce((sum, item) => sum + item.totalCost, 0) || 0) + (job.otherCost || 0)).toLocaleString()} ฿
                       </td>
 
                       {/* Tech team */}
                       <td className="p-4">
                         <div className="flex flex-col gap-0.5 max-w-[140px] truncate">
-                          <span className="font-bold text-slate-300 truncate">{allTechs[0]}</span>
+                          <span className="font-bold text-slate-800 dark:text-slate-300 truncate">{allTechs[0]}</span>
                           {allTechs.length > 1 && (
-                            <span className="text-[9px] text-slate-500 font-sans flex items-center gap-1 bg-bg/30 w-max px-1 rounded border border-slate-800">
+                            <span className="text-[9px] text-slate-500 dark:text-slate-400 font-sans flex items-center gap-1 bg-slate-100 dark:bg-bg/30 w-max px-1 rounded border border-slate-200 dark:border-slate-800">
                               <Users size={9} /> ช่างเพิ่ม {allTechs.length - 1} คน
                             </span>
                           )}
@@ -975,12 +975,12 @@ export const PMHistoryPage: React.FC = () => {
                       <td className="p-4 text-center">
                         <span className={`inline-block px-2 py-0.6 text-[10px] font-bold rounded-lg font-sans ${
                           job.status === 'เสร็จสิ้น'
-                            ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400'
+                            ? 'bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-400'
                             : jobIsOverdue
-                              ? 'bg-rose-500/15 border border-rose-500/30 text-rose-400 animate-pulse'
+                              ? 'bg-rose-50 dark:bg-rose-500/15 border border-rose-200 dark:border-rose-500/30 text-rose-700 dark:text-rose-400 animate-pulse'
                               : job.status === 'กำลังทำ'
-                                ? 'bg-amber-500/10 border border-amber-500/30 text-amber-300 animate-pulse'
-                                : 'bg-indigo-500/10 border border-indigo-500/30 text-indigo-300'
+                                ? 'bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 text-amber-700 dark:text-amber-300 animate-pulse'
+                                : 'bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/30 text-indigo-700 dark:text-indigo-300'
                         }`}>
                           {jobIsOverdue && job.status !== 'เสร็จสิ้น' ? 'เลยกำหนด' : job.status}
                         </span>
@@ -993,10 +993,10 @@ export const PMHistoryPage: React.FC = () => {
                           <button
                             id={`btn-reschedule-pm-job-${job.id}`}
                             onClick={() => setRescheduleTargetJob(job)}
-                            className={`p-1.2 rounded transition duration-100 ${
+                            className={`p-1.2 rounded transition duration-100 cursor-pointer ${
                               jobIsOverdue
-                                ? 'text-amber-400 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30'
-                                : 'text-slate-500 hover:text-amber-400 hover:bg-slate-800'
+                                ? 'text-amber-700 bg-amber-100 hover:bg-amber-200 border border-amber-300 dark:text-amber-400 dark:bg-amber-500/15 dark:hover:bg-amber-500/25 dark:border-amber-500/30'
+                                : 'text-slate-400 hover:text-amber-600 hover:bg-slate-100 dark:text-slate-500 dark:hover:text-amber-400 dark:hover:bg-slate-800'
                             }`}
                             title="เลื่อนแผนงาน PM กำหนดวันนัดหมายใหม่"
                           >
@@ -1006,23 +1006,23 @@ export const PMHistoryPage: React.FC = () => {
                           <button
                             id={`btn-edit-pm-job-${job.id}`}
                             onClick={() => handleEditClick(job)}
-                            className="p-1 text-slate-500 hover:text-cyan-400 hover:bg-slate-800 rounded transition duration-100"
+                            className="p-1 text-slate-400 hover:text-cyan-600 hover:bg-slate-100 dark:text-slate-500 dark:hover:text-cyan-400 dark:hover:bg-slate-800 rounded transition duration-100 cursor-pointer"
                             title="แก้ไขบันทึกประวัติ PM และเวลาปฏิบัติงาน"
                           >
                             <Edit size={13.5} />
                           </button>
 
                           {deleteConfirmId === job.id ? (
-                            <div className="flex items-center gap-1 bg-rose-500/10 border border-rose-500/30 p-1.2 rounded">
+                            <div className="flex items-center gap-1 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 p-1.2 rounded">
                               <button
                                 onClick={() => handleDeletePmHistory(job.id)}
-                                className="text-[10px] bg-rose-500 text-slate-950 px-1.5 py-0.5 rounded font-black hover:bg-rose-400"
+                                className="text-[10px] bg-rose-600 text-white px-1.5 py-0.5 rounded font-black hover:bg-rose-500 cursor-pointer"
                               >
                                 ยืนยันลบ
                               </button>
                               <button
                                 onClick={() => setDeleteConfirmId(null)}
-                                className="text-[9px] text-slate-400 hover:text-fg"
+                                className="text-[9px] text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-fg cursor-pointer"
                               >
                                 ยกเลิก
                               </button>
@@ -1031,7 +1031,7 @@ export const PMHistoryPage: React.FC = () => {
                             <button
                               id={`btn-confirm-delete-pm-job-${job.id}`}
                               onClick={() => setDeleteConfirmId(job.id)}
-                              className="p-1 text-slate-500 hover:text-rose-500 hover:bg-slate-800 rounded transition duration-100"
+                              className="p-1 text-slate-400 hover:text-rose-600 hover:bg-slate-100 dark:text-slate-500 dark:hover:text-rose-500 dark:hover:bg-slate-800 rounded transition duration-100 cursor-pointer"
                               title="ลบเอกสารประวัติชิ้นนี้"
                             >
                               <Trash2 size={13.5} />
@@ -1057,19 +1057,19 @@ export const PMHistoryPage: React.FC = () => {
           onClick={() => setSelectedPmDetail(null)}
         >
           <div 
-            className="w-full max-w-lg bg-[#0b1222] border border-cyan-500/30 rounded-2xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-100 text-slate-100"
+            className="w-full max-w-lg bg-white dark:bg-[#0b1222] border border-slate-200 dark:border-cyan-500/30 rounded-2xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-100 text-slate-900 dark:text-slate-100"
             onClick={(e) => e.stopPropagation()}
             id="pm-detail-info-dialog"
           >
             {/* Header Brand */}
-            <div className="p-4 bg-[#080d1a] border-b border-slate-800 flex justify-between items-center">
+            <div className="p-4 bg-slate-50 dark:bg-[#080d1a] border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
               <div className="flex items-center gap-2">
-                <ClipboardCheck className="text-cyan-400" size={16} />
-                <span className="text-xs font-black tracking-wider uppercase text-slate-450">ใบตรวจงานบำรุงรักษาบอร์ดกลาง</span>
+                <ClipboardCheck className="text-cyan-600 dark:text-cyan-400" size={16} />
+                <span className="text-xs font-black tracking-wider uppercase text-slate-700 dark:text-slate-450">ใบตรวจงานบำรุงรักษาบอร์ดกลาง</span>
               </div>
               <button 
                 onClick={() => setSelectedPmDetail(null)}
-                className="text-xs text-slate-500 hover:text-fg px-2 py-1 bg-slate-800 rounded-lg"
+                className="text-xs text-slate-600 hover:text-slate-900 dark:text-slate-500 dark:hover:text-fg px-2.5 py-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition cursor-pointer"
               >
                 ปิดหน้าต่าง
               </button>
@@ -1078,38 +1078,38 @@ export const PMHistoryPage: React.FC = () => {
             {/* Layout content */}
             <div className="p-5 space-y-4 text-xs font-sans">
               <div className="space-y-1">
-                <p className="text-[10px] text-slate-500 uppercase font-bold">ชื่อแผนงานบำรุงรักษา</p>
-                <h2 className="text-sm font-black text-fg">
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold">ชื่อแผนงานบำรุงรักษา</p>
+                <h2 className="text-sm font-black text-slate-900 dark:text-fg">
                   {pmPlans.find(p => p.id === selectedPmDetail.pmPlanId)?.title || 'บำรุงรักษาเครื่องจักร'}
                 </h2>
-                <p className="text-[10px] text-slate-400 mt-1">
-                  รหัสอ้างอิง: <span className="font-mono">{selectedPmDetail.id}</span> | วันที่: <span className="font-mono text-slate-100">{selectedPmDetail.date}</span>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1">
+                  รหัสอ้างอิง: <span className="font-mono">{selectedPmDetail.id}</span> | วันที่: <span className="font-mono text-slate-900 dark:text-slate-100 font-bold">{selectedPmDetail.date}</span>
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 bg-slate-900/80 p-3 rounded-xl border border-slate-850">
+              <div className="grid grid-cols-2 gap-3 bg-slate-50 dark:bg-slate-900/80 p-3 rounded-xl border border-slate-200 dark:border-slate-850">
                 <div>
-                  <p className="text-[9px] text-slate-550 uppercase">ข้อมูลพิกัดเครื่องจักร</p>
-                  <p className="font-bold text-slate-300 mt-0.5">{selectedPmDetail.machineId}</p>
-                  <p className="text-[9.5px] text-zinc-500 mt-0.5">{machines.find(m => m.id === selectedPmDetail.machineId)?.name || 'พิกัดทั่วไป'}</p>
+                  <p className="text-[9px] text-slate-500 dark:text-slate-400 uppercase">ข้อมูลพิกัดเครื่องจักร</p>
+                  <p className="font-bold text-slate-900 dark:text-slate-300 mt-0.5">{selectedPmDetail.machineId}</p>
+                  <p className="text-[9.5px] text-slate-600 dark:text-zinc-500 mt-0.5">{machines.find(m => m.id === selectedPmDetail.machineId)?.name || 'พิกัดทั่วไป'}</p>
                 </div>
                 <div>
-                  <p className="text-[9px] text-slate-550 uppercase">กลุ่มระบบไลน์</p>
-                  <p className="font-bold text-slate-300 mt-0.5">{machines.find(m => m.id === selectedPmDetail.machineId)?.lineGroup || 'ฝ่ายบำรุงโรงแปรรูป'}</p>
+                  <p className="text-[9px] text-slate-500 dark:text-slate-400 uppercase">กลุ่มระบบไลน์</p>
+                  <p className="font-bold text-slate-900 dark:text-slate-300 mt-0.5">{machines.find(m => m.id === selectedPmDetail.machineId)?.lineGroup || 'ฝ่ายบำรุงโรงแปรรูป'}</p>
                 </div>
               </div>
 
               {/* Time comparative section */}
-              <div className="bg-[#050a14] border border-slate-800 p-4 rounded-xl space-y-3">
-                <p className="text-[9.5px] uppercase font-extrabold text-slate-450 tracking-wider">⏱ สเกลบันทึกระยะเวลาดำเนินการ (Time Comparative Metrics)</p>
+              <div className="bg-slate-50 dark:bg-[#050a14] border border-slate-200 dark:border-slate-800 p-4 rounded-xl space-y-3">
+                <p className="text-[9.5px] uppercase font-extrabold text-slate-700 dark:text-slate-450 tracking-wider">⏱ สเกลบันทึกระยะเวลาดำเนินการ (Time Comparative Metrics)</p>
                 <div className="grid grid-cols-2 gap-4 text-center">
-                  <div className="bg-slate-900/60 p-2 rounded-lg border border-slate-800">
-                    <p className="text-[9px] text-slate-500">เกณฑ์มาตรฐาน (TTM Plan)</p>
-                    <p className="text-base font-mono font-black text-slate-300 mt-0.5">{selectedPmDetail.duration} นาที</p>
+                  <div className="bg-white dark:bg-slate-900/60 p-2 rounded-lg border border-slate-200 dark:border-slate-800 shadow-xs">
+                    <p className="text-[9px] text-slate-500 dark:text-slate-400">เกณฑ์มาตรฐาน (TTM Plan)</p>
+                    <p className="text-base font-mono font-black text-slate-900 dark:text-slate-300 mt-0.5">{selectedPmDetail.duration} นาที</p>
                   </div>
-                  <div className="bg-slate-900/60 p-2 rounded-lg border border-slate-800">
-                    <p className="text-[9px] text-slate-500">ปฏิบัติงานเสร็จจริง (Actual Spent)</p>
-                    <p className="text-base font-mono font-black text-slate-300 mt-0.5">
+                  <div className="bg-white dark:bg-slate-900/60 p-2 rounded-lg border border-slate-200 dark:border-slate-800 shadow-xs">
+                    <p className="text-[9px] text-slate-500 dark:text-slate-400">ปฏิบัติงานเสร็จจริง (Actual Spent)</p>
+                    <p className="text-base font-mono font-black text-slate-900 dark:text-slate-300 mt-0.5">
                       {selectedPmDetail.actualDuration !== undefined ? `${selectedPmDetail.actualDuration} นาที` : 'ไม่ได้บันทึกเวลา'}
                     </p>
                   </div>
@@ -1117,29 +1117,29 @@ export const PMHistoryPage: React.FC = () => {
 
                 {/* Comparative calculation details */}
                 {selectedPmDetail.status === 'เสร็จสิ้น' && selectedPmDetail.actualDuration !== undefined && (
-                  <div className="pt-2 border-t border-slate-850 text-center space-y-2">
+                  <div className="pt-2 border-t border-slate-200 dark:border-slate-850 text-center space-y-2">
                     {selectedPmDetail.actualDuration === selectedPmDetail.duration ? (
-                      <p className="text-slate-300 font-bold">⏱ สปีดตรงตามเป้าหมาย (On Time Performance Perfect)</p>
+                      <p className="text-slate-700 dark:text-slate-300 font-bold">⏱ สปีดตรงตามเป้าหมาย (On Time Performance Perfect)</p>
                     ) : selectedPmDetail.actualDuration > selectedPmDetail.duration ? (
-                      <div className="text-rose-450 font-medium space-y-0.5">
+                      <div className="text-rose-600 dark:text-rose-450 font-medium space-y-0.5">
                         <p className="font-bold">⚠️ ล่าช้ากว่าแผนสะสม: <b className="font-mono text-xs">+{selectedPmDetail.actualDuration - selectedPmDetail.duration} นาที</b></p>
-                        <p className="text-[10px] text-slate-500">คิดเป็นความลาดเคลื่อนเพิ่มขึ้น +{Math.round(((selectedPmDetail.actualDuration - selectedPmDetail.duration) / selectedPmDetail.duration) * 100)}% ของระยะมาตรฐาน</p>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400">คิดเป็นความลาดเคลื่อนเพิ่มขึ้น +{Math.round(((selectedPmDetail.actualDuration - selectedPmDetail.duration) / selectedPmDetail.duration) * 100)}% ของระยะมาตรฐาน</p>
                       </div>
                     ) : (
-                      <div className="text-emerald-400 font-medium space-y-0.5">
+                      <div className="text-emerald-600 dark:text-emerald-400 font-medium space-y-0.5">
                         <p className="font-bold">⚡️ ทำเสร็จเร็วกว่าแผน: <b className="font-mono text-xs">-{selectedPmDetail.duration - selectedPmDetail.actualDuration} นาที</b></p>
-                        <p className="text-[10px] text-slate-500">เซฟเวลาลดลง -{Math.round(((selectedPmDetail.duration - selectedPmDetail.actualDuration) / selectedPmDetail.duration) * 100)}% (ประสิทธิภาพยอดเยี่ยม)</p>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400">เซฟเวลาลดลง -{Math.round(((selectedPmDetail.duration - selectedPmDetail.actualDuration) / selectedPmDetail.duration) * 100)}% (ประสิทธิภาพยอดเยี่ยม)</p>
                       </div>
                     )}
 
                     {/* Overtime Reason Display in Detail Modal */}
                     {selectedPmDetail.actualDuration > selectedPmDetail.duration && (
-                      <div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl space-y-1 text-left">
-                        <div className="flex items-center gap-1.5 text-rose-400 font-bold text-[10.5px]">
-                          <AlertTriangle size={13} className="shrink-0 text-rose-400" />
+                      <div className="p-3 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 rounded-xl space-y-1 text-left">
+                        <div className="flex items-center gap-1.5 text-rose-600 dark:text-rose-400 font-bold text-[10.5px]">
+                          <AlertTriangle size={13} className="shrink-0 text-rose-600 dark:text-rose-400" />
                           <span>สาเหตุที่ใช้เวลาเกินมาตรฐาน:</span>
                         </div>
-                        <p className="text-xs text-rose-200 font-medium pl-4 leading-relaxed">
+                        <p className="text-xs text-rose-800 dark:text-rose-200 font-medium pl-4 leading-relaxed">
                           {selectedPmDetail.overtimeReason || 'ไม่ได้ระบุสาเหตุเพิ่มเติมในระบบ'}
                         </p>
                       </div>
@@ -1151,10 +1151,10 @@ export const PMHistoryPage: React.FC = () => {
               {/* Steps overview */}
               {pmPlans.find(p => p.id === selectedPmDetail.pmPlanId)?.steps && (
                 <div className="space-y-1.5">
-                  <p className="text-[9px] text-slate-500 uppercase tracking-wide">ขั้นตอนมาตรฐานเชิงลึกของแผนนี้:</p>
-                  <div className="max-h-24 overflow-y-auto space-y-1 pr-1 border border-slate-850 p-2 rounded-xl bg-slate-900/40">
+                  <p className="text-[9px] text-slate-500 dark:text-slate-400 uppercase tracking-wide">ขั้นตอนมาตรฐานเชิงลึกของแผนนี้:</p>
+                  <div className="max-h-24 overflow-y-auto space-y-1 pr-1 border border-slate-200 dark:border-slate-850 p-2 rounded-xl bg-white dark:bg-slate-900/40">
                     {pmPlans.find(p => p.id === selectedPmDetail.pmPlanId)?.steps?.map((step, idx) => (
-                      <div key={idx} className="flex justify-between items-center text-[10px] text-slate-400 py-0.5 border-b border-slate-900 last:border-0">
+                      <div key={idx} className="flex justify-between items-center text-[10px] text-slate-700 dark:text-slate-400 py-0.5 border-b border-slate-100 dark:border-slate-900 last:border-0">
                         <span>{idx + 1}. {step.title}</span>
                         <span className="font-mono text-slate-500 font-bold">{step.stdTime} นาที</span>
                       </div>
@@ -1164,15 +1164,15 @@ export const PMHistoryPage: React.FC = () => {
               )}
 
               {/* Used Spare Parts & Cost breakdown in Detail Modal */}
-              <div className="bg-slate-900/30 border border-slate-800 p-4 rounded-xl space-y-3">
-                <h4 className="text-[10px] font-bold text-slate-350 flex items-center gap-1.5 border-b border-slate-800 pb-2 select-none">
+              <div className="bg-slate-50 dark:bg-slate-900/30 border border-slate-200 dark:border-slate-800 p-4 rounded-xl space-y-3">
+                <h4 className="text-[10px] font-bold text-slate-700 dark:text-slate-350 flex items-center gap-1.5 border-b border-slate-200 dark:border-slate-800 pb-2 select-none">
                   🛠️ รายการอะไหล่ที่เปลี่ยนและค่าซ่อมบำรุง
                 </h4>
                 
                 {selectedPmDetail.usedParts && selectedPmDetail.usedParts.length > 0 ? (
-                  <div className="border border-slate-850 rounded-lg overflow-hidden bg-slate-950/80">
+                  <div className="border border-slate-200 dark:border-slate-850 rounded-lg overflow-hidden bg-white dark:bg-slate-950/80">
                     <table className="w-full text-left text-[10.5px]">
-                      <thead className="bg-[#050a14] text-slate-400 text-[9px] uppercase border-b border-slate-850 select-none">
+                      <thead className="bg-slate-100 dark:bg-[#050a14] text-slate-700 dark:text-slate-400 text-[9px] uppercase border-b border-slate-200 dark:border-slate-850 select-none">
                         <tr>
                           <th className="p-2 pl-2.5">ชื่ออะไหล่ / SKU</th>
                           <th className="p-2 text-center w-16">จำนวน</th>
@@ -1180,18 +1180,18 @@ export const PMHistoryPage: React.FC = () => {
                           <th className="p-2 text-right w-20">รวม</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-850">
+                      <tbody className="divide-y divide-slate-200 dark:divide-slate-850">
                         {selectedPmDetail.usedParts.map(item => {
                           const partInfo = spareParts.find(p => p.id === item.partId);
                           return (
-                            <tr key={item.partId} className="hover:bg-slate-900/40 text-slate-300">
+                            <tr key={item.partId} className="hover:bg-slate-50 dark:hover:bg-slate-900/40 text-slate-800 dark:text-slate-300">
                               <td className="p-2 pl-2.5">
                                 <p className="font-semibold">{partInfo?.name || item.partId}</p>
                                 <p className="text-[8px] text-slate-500 font-mono">{item.partId}</p>
                               </td>
                               <td className="p-2 text-center font-mono">{item.quantity} {partInfo?.unit}</td>
                               <td className="p-2 text-right font-mono">{item.pricePerUnit.toLocaleString()} ฿</td>
-                              <td className="p-2 text-right font-mono text-cyan-400 font-bold">{item.totalCost.toLocaleString()} ฿</td>
+                              <td className="p-2 text-right font-mono text-cyan-700 dark:text-cyan-400 font-bold">{item.totalCost.toLocaleString()} ฿</td>
                             </tr>
                           );
                         })}
@@ -1199,7 +1199,7 @@ export const PMHistoryPage: React.FC = () => {
                     </table>
                   </div>
                 ) : (
-                  <p className="text-[10.5px] text-slate-500 italic text-center py-2 bg-slate-950/20 rounded border border-slate-850 select-none">
+                  <p className="text-[10.5px] text-slate-500 italic text-center py-2 bg-white dark:bg-slate-950/20 rounded border border-slate-200 dark:border-slate-850 select-none">
                     ไม่มีรายงานการเปลี่ยนอะไหล่สำหรับประวัติ PM นี้
                   </p>
                 )}
@@ -1207,13 +1207,13 @@ export const PMHistoryPage: React.FC = () => {
                 <div className="grid grid-cols-2 gap-4 pt-1 text-[11px]">
                   <div className="flex flex-col">
                     <span className="text-[9.5px] text-slate-500 font-bold uppercase">ค่าจ้างซ่อม/บริการอื่นๆ</span>
-                    <span className="font-mono text-slate-200 mt-0.5 font-semibold">
+                    <span className="font-mono text-slate-800 dark:text-slate-200 mt-0.5 font-semibold">
                       {(selectedPmDetail.otherCost || 0).toLocaleString()} บาท
                     </span>
                   </div>
                   <div className="flex flex-col items-end pr-2">
                     <span className="text-[9.5px] text-slate-500 font-bold uppercase">รวมค่าบำรุงทั้งสิ้น</span>
-                    <span className="text-xs font-black text-cyan-400 font-mono mt-0.5">
+                    <span className="text-xs font-black text-cyan-700 dark:text-cyan-400 font-mono mt-0.5">
                       {((selectedPmDetail.usedParts?.reduce((sum, i) => sum + i.totalCost, 0) || 0) + (selectedPmDetail.otherCost || 0)).toLocaleString()} บาท
                     </span>
                   </div>
@@ -1223,7 +1223,7 @@ export const PMHistoryPage: React.FC = () => {
               {/* Tech summary */}
               <div>
                 <p className="text-[9px] text-slate-500 uppercase">ทีมบุคลากรสายช่างปฏิบัติงาน</p>
-                <p className="mt-1 font-bold text-slate-300">
+                <p className="mt-1 font-bold text-slate-800 dark:text-slate-300">
                   {selectedPmDetail.technicians && selectedPmDetail.technicians.length > 0 
                     ? selectedPmDetail.technicians.join(', ') 
                     : selectedPmDetail.technician}
@@ -1234,38 +1234,38 @@ export const PMHistoryPage: React.FC = () => {
               {(isPMRescheduled(selectedPmDetail) || isPMOverdue(selectedPmDetail, todayStr)) && (
                 <div className={`p-4 rounded-xl space-y-2 border ${
                   isPMOverdue(selectedPmDetail, todayStr)
-                    ? 'bg-rose-950/30 border-rose-500/40'
-                    : 'bg-amber-950/20 border-amber-500/30'
+                    ? 'bg-rose-50 dark:bg-rose-950/30 border-rose-200 dark:border-rose-500/40'
+                    : 'bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-500/30'
                 }`}>
                   <div className="flex items-center justify-between">
-                    <h4 className="text-[10px] font-bold text-amber-300 flex items-center gap-1.5 uppercase tracking-wider">
-                      <RefreshCw size={12} className="text-amber-400" />
+                    <h4 className="text-[10px] font-bold text-amber-700 dark:text-amber-300 flex items-center gap-1.5 uppercase tracking-wider">
+                      <RefreshCw size={12} className="text-amber-600 dark:text-amber-400" />
                       ข้อมูลสถานะการเลื่อนแผนงาน PM
                     </h4>
                     {isPMOverdue(selectedPmDetail, todayStr) && (
-                      <span className="text-[9px] bg-rose-500 text-slate-950 font-black px-2 py-0.5 rounded font-mono">
+                      <span className="text-[9px] bg-rose-600 text-white font-black px-2 py-0.5 rounded font-mono">
                         เลยกำหนด +{getPMOverdueDays(selectedPmDetail.date, todayStr)} วัน
                       </span>
                     )}
                   </div>
 
                   {selectedPmDetail.rescheduledFromDate && (
-                    <div className="text-[10.5px] text-slate-300 space-y-1 bg-slate-950/60 p-2.5 rounded-lg border border-slate-850">
+                    <div className="text-[10.5px] text-slate-700 dark:text-slate-300 space-y-1 bg-white dark:bg-slate-950/60 p-2.5 rounded-lg border border-slate-200 dark:border-slate-850">
                       <p className="flex justify-between">
                         <span className="text-slate-500">วันที่แผนเดิม:</span>
                         <span className="font-mono text-slate-400 line-through">{selectedPmDetail.rescheduledFromDate}</span>
                       </p>
                       <p className="flex justify-between">
                         <span className="text-slate-500">วันที่เลื่อนมาใหม่:</span>
-                        <span className="font-mono text-cyan-400 font-bold">{selectedPmDetail.date}</span>
+                        <span className="font-mono text-cyan-700 dark:text-cyan-400 font-bold">{selectedPmDetail.date}</span>
                       </p>
                       <p className="flex justify-between">
                         <span className="text-slate-500">เหตุผลที่ขอเลื่อน:</span>
-                        <span className="text-amber-300 font-medium">{selectedPmDetail.rescheduledReason || 'ไม่ได้ระบุเหตุผล'}</span>
+                        <span className="text-amber-700 dark:text-amber-300 font-medium">{selectedPmDetail.rescheduledReason || 'ไม่ได้ระบุเหตุผล'}</span>
                       </p>
                       <p className="flex justify-between">
                         <span className="text-slate-500">จำนวนครั้งที่เลื่อน:</span>
-                        <span className="font-mono text-slate-300">{selectedPmDetail.rescheduledCount || 1} ครั้ง</span>
+                        <span className="font-mono text-slate-700 dark:text-slate-300">{selectedPmDetail.rescheduledCount || 1} ครั้ง</span>
                       </p>
                     </div>
                   )}
@@ -1273,16 +1273,16 @@ export const PMHistoryPage: React.FC = () => {
                   {/* Reschedule audit history if available */}
                   {selectedPmDetail.rescheduleHistory && selectedPmDetail.rescheduleHistory.length > 0 && (
                     <div className="space-y-1 pt-1">
-                      <p className="text-[9px] text-slate-400 font-bold uppercase">ประวัติการเลื่อนทั้งหมด:</p>
+                      <p className="text-[9px] text-slate-500 dark:text-slate-400 font-bold uppercase">ประวัติการเลื่อนทั้งหมด:</p>
                       <div className="space-y-1 max-h-24 overflow-y-auto">
                         {selectedPmDetail.rescheduleHistory.map((hist, idx) => (
-                          <div key={idx} className="text-[9.5px] bg-slate-900/80 p-1.5 rounded border border-slate-800 text-slate-300">
+                          <div key={idx} className="text-[9.5px] bg-white dark:bg-slate-900/80 p-1.5 rounded border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300">
                             <div className="flex justify-between text-slate-500 text-[8.5px]">
                               <span>ครั้งที่ {idx + 1} ({new Date(hist.rescheduledAt).toLocaleDateString('th-TH')})</span>
                               <span>โดย: {hist.rescheduledBy}</span>
                             </div>
                             <div className="mt-0.5">
-                              <span className="line-through text-slate-500">{hist.fromDate}</span> ➔ <span className="text-cyan-400 font-bold">{hist.toDate}</span>: {hist.reason}
+                              <span className="line-through text-slate-400">{hist.fromDate}</span> ➔ <span className="text-cyan-700 dark:text-cyan-400 font-bold">{hist.toDate}</span>: {hist.reason}
                             </div>
                           </div>
                         ))}
@@ -1293,13 +1293,13 @@ export const PMHistoryPage: React.FC = () => {
               )}
 
               {/* Status footer button panel */}
-              <div className="pt-3 border-t border-slate-850 flex justify-end gap-2">
+              <div className="pt-3 border-t border-slate-200 dark:border-slate-850 flex justify-end gap-2">
                 <button
                   onClick={() => {
                     setRescheduleTargetJob(selectedPmDetail);
                     setSelectedPmDetail(null);
                   }}
-                  className="px-3.5 py-1.8 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-bold rounded-lg text-xs flex items-center gap-1.5 transition cursor-pointer"
+                  className="px-3.5 py-1.8 bg-amber-100 hover:bg-amber-200 text-amber-800 border border-amber-300 dark:bg-amber-500/20 dark:hover:bg-amber-500/30 dark:text-amber-300 dark:border-amber-500/40 font-bold rounded-lg text-xs flex items-center gap-1.5 transition cursor-pointer"
                 >
                   <RefreshCw size={12} />
                   <span>เลื่อนแผนงานนี้</span>
@@ -1309,7 +1309,7 @@ export const PMHistoryPage: React.FC = () => {
                     handleEditClick(selectedPmDetail);
                     setSelectedPmDetail(null);
                   }}
-                  className="px-3.5 py-1.8 bg-cyan-500 text-slate-950 font-bold hover:bg-cyan-400 rounded-lg text-xs transition cursor-pointer"
+                  className="px-3.5 py-1.8 bg-cyan-600 text-white font-bold hover:bg-cyan-500 dark:bg-cyan-500 dark:text-slate-950 dark:hover:bg-cyan-400 rounded-lg text-xs transition cursor-pointer"
                 >
                   แก้ไขใบงาน
                 </button>
@@ -1322,16 +1322,16 @@ export const PMHistoryPage: React.FC = () => {
       {/* FORM MODAL FOR CREATING AND EDITING PM HISTORIES */}
       {showFormModal && (
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center bg-bg/85 backdrop-blur-xs p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 dark:bg-bg/85 backdrop-blur-xs p-4"
           id="pm-log-modal-overlay"
         >
           <div 
-            className="w-full max-w-lg bg-[#0e1626] border border-slate-800 rounded-2xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-155 text-slate-100"
+            className="w-full max-w-lg bg-white dark:bg-[#0e1626] border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-155 text-slate-900 dark:text-slate-100"
             id="pm-log-modal-container"
           >
             {/* Modal header */}
-            <div className="p-4 bg-[#0a0f1d] border-b border-slate-850 flex justify-between items-center">
-              <h3 className="text-xs font-black uppercase text-slate-400 tracking-wider">
+            <div className="p-4 bg-slate-50 dark:bg-[#0a0f1d] border-b border-slate-200 dark:border-slate-850 flex justify-between items-center">
+              <h3 className="text-xs font-black uppercase text-slate-700 dark:text-slate-400 tracking-wider">
                 {editingId ? "🔧 แก้ไขบันทึก PM และทวนสอบความเป๊ะเวลา" : "➕ สร้างใบกรอกประวัติ PM และเวลาจริง"}
               </h3>
               <button
@@ -1341,7 +1341,7 @@ export const PMHistoryPage: React.FC = () => {
                   setFormPlan('');
                   setFormTechnicians([]);
                 }}
-                className="text-slate-500 hover:text-fg font-black text-xs px-2.5 py-1.2 bg-slate-900 rounded-lg"
+                className="text-slate-600 hover:text-slate-900 dark:text-slate-500 dark:hover:text-fg font-black text-xs px-2.5 py-1.2 bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg cursor-pointer transition"
               >
                 ยกเลิก
               </button>
@@ -1353,11 +1353,11 @@ export const PMHistoryPage: React.FC = () => {
               {/* Choose machine */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-[10px] text-slate-400 uppercase font-black tracking-wider">เลือกเครื่องจักรที่ต้องการ PM *</label>
+                  <label className="text-[10px] text-slate-700 dark:text-slate-400 uppercase font-black tracking-wider">เลือกเครื่องจักรที่ต้องการ PM *</label>
                   <select
                     value={formMachine}
                     onChange={(e) => handleMachineChangeForForm(e.target.value)}
-                    className="w-full bg-[#050a14] border border-slate-800 rounded-xl px-3 py-2 text-xs text-fg focus:outline-hidden focus:border-cyan-500/70"
+                    className="w-full bg-white dark:bg-[#050a14] border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-fg focus:outline-hidden focus:border-cyan-500/70"
                     required
                   >
                     <option value="">-- เลือกเครื่องจักร --</option>
@@ -1370,12 +1370,12 @@ export const PMHistoryPage: React.FC = () => {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[10px] text-slate-400 uppercase font-black tracking-wider">วันที่ปฏิบัติงาน PM *</label>
+                  <label className="text-[10px] text-slate-700 dark:text-slate-400 uppercase font-black tracking-wider">วันที่ปฏิบัติงาน PM *</label>
                   <input
                     type="date"
                     value={formDate}
                     onChange={(e) => setFormDate(e.target.value)}
-                    className="w-full bg-[#050a14] border border-slate-800 rounded-xl px-3 py-2 text-xs text-fg focus:outline-hidden focus:border-cyan-500/70 select-none"
+                    className="w-full bg-white dark:bg-[#050a14] border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-fg focus:outline-hidden focus:border-cyan-500/70 select-none"
                     required
                   />
                 </div>
@@ -1383,11 +1383,11 @@ export const PMHistoryPage: React.FC = () => {
 
               {/* Choose plan associated with machine */}
               <div className="space-y-1">
-                <label className="text-[10px] text-slate-400 uppercase font-black tracking-wider">เชื่อมโยงรายการแผนบำรุงรักษา (PM Plan) *</label>
+                <label className="text-[10px] text-slate-700 dark:text-slate-400 uppercase font-black tracking-wider">เชื่อมโยงรายการแผนบำรุงรักษา (PM Plan) *</label>
                 <select
                   value={formPlan}
                   onChange={(e) => handlePlanChangeForForm(e.target.value)}
-                  className="w-full bg-[#050a14] border border-slate-800 rounded-xl px-3 py-2 text-xs text-fg focus:outline-hidden focus:border-cyan-500/70"
+                  className="w-full bg-white dark:bg-[#050a14] border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-fg focus:outline-hidden focus:border-cyan-500/70"
                   required
                 >
                   <option value="">-- กรุณาเลือกรายการแผน PM ในระบบ --</option>
@@ -1400,9 +1400,9 @@ export const PMHistoryPage: React.FC = () => {
               </div>
 
               {/* Duration inputs comparison */}
-              <div className="grid grid-cols-2 gap-3 bg-[#050a14] border border-slate-800 p-3.5 rounded-xl">
+              <div className="grid grid-cols-2 gap-3 bg-slate-50 dark:bg-[#050a14] border border-slate-200 dark:border-slate-800 p-3.5 rounded-xl">
                 <div className="space-y-1">
-                  <label className="text-[10px] text-cyan-450 uppercase font-bold tracking-wider">
+                  <label className="text-[10px] text-cyan-700 dark:text-cyan-450 uppercase font-bold tracking-wider">
                     ระยะเวลามาตรฐานแผน (นาที)
                   </label>
                   <input
@@ -1410,14 +1410,14 @@ export const PMHistoryPage: React.FC = () => {
                     value={formDuration}
                     onChange={(e) => setFormDuration(Number(e.target.value))}
                     min={1}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-cyan-300 font-mono font-bold focus:outline-hidden"
+                    className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-cyan-700 dark:text-cyan-300 font-mono font-bold focus:outline-hidden"
                     required
                   />
                   <p className="text-[9px] text-slate-500">ดึงจาก Standard TTM อัตโนมัติ</p>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[10px] text-emerald-400 uppercase font-bold tracking-wider">
+                  <label className="text-[10px] text-emerald-700 dark:text-emerald-400 uppercase font-bold tracking-wider">
                     เวลาปฏิบัติงานจริงหน้าพิกัด (นาที)
                   </label>
                   <input
@@ -1426,7 +1426,7 @@ export const PMHistoryPage: React.FC = () => {
                     onChange={(e) => setFormActualDuration(Number(e.target.value))}
                     min={formStatus === 'เสร็จสิ้น' ? 1 : 0}
                     disabled={formStatus !== 'เสร็จสิ้น'}
-                    className="w-full bg-slate-900 border border-slate-800 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg px-2.5 py-1.5 text-xs text-emerald-300 font-mono font-bold focus:outline-hidden"
+                    className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg px-2.5 py-1.5 text-xs text-emerald-700 dark:text-emerald-300 font-mono font-bold focus:outline-hidden"
                     required={formStatus === 'เสร็จสิ้น'}
                   />
                   <p className="text-[9px] text-slate-500">กรอกเวลาที่ช่างคีย์ทำจริงเสร็จสิ้น</p>
@@ -1435,15 +1435,15 @@ export const PMHistoryPage: React.FC = () => {
 
               {/* Variance Analysis Prompt info */}
               {formStatus === 'เสร็จสิ้น' && formActualDuration > 0 && formDuration > 0 && (
-                <div className="p-2.5 border rounded-lg text-[10px] leading-relaxed">
+                <div className="p-2.5 border border-slate-200 dark:border-slate-800 rounded-lg text-[10px] leading-relaxed bg-slate-50 dark:bg-transparent">
                   {formActualDuration === formDuration ? (
-                    <span className="text-slate-400">⏱ เวลาทำจริงตรงเกณฑ์มาตราฐาน 100% ประสิทธิภาพระดับเป๊ะ</span>
+                    <span className="text-slate-600 dark:text-slate-400">⏱ เวลาทำจริงตรงเกณฑ์มาตราฐาน 100% ประสิทธิภาพระดับเป๊ะ</span>
                   ) : formActualDuration > formDuration ? (
-                    <span className="text-rose-450 font-bold flex items-center gap-1">
+                    <span className="text-rose-600 dark:text-rose-450 font-bold flex items-center gap-1">
                       ⚠️ ระวัง: ทำช้ากว่ามาตรฐานที่ประเมินไว้ +{formActualDuration - formDuration} นาที (+{Math.round(((formActualDuration - formDuration)/formDuration)*100)}%)
                     </span>
                   ) : (
-                    <span className="text-emerald-450 font-black flex items-center gap-1">
+                    <span className="text-emerald-600 dark:text-emerald-450 font-black flex items-center gap-1">
                       ⚡️ เยี่ยมยอด: บำรุงเสร็จเร็วสปีดเซฟได้ -{formDuration - formActualDuration} นาที (-{Math.round(((formDuration - formActualDuration)/formDuration)*100)}%)
                     </span>
                   )}
@@ -1452,20 +1452,20 @@ export const PMHistoryPage: React.FC = () => {
 
               {/* Overtime Reason Input Section (Appears when Actual Duration exceeds Standard Duration) */}
               {formStatus === 'เสร็จสิ้น' && formActualDuration > formDuration && (
-                <div className="p-3.5 rounded-xl bg-rose-500/10 border-2 border-rose-500/30 space-y-2.5 animate-in fade-in duration-200">
+                <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-500/10 border-2 border-rose-200 dark:border-rose-500/30 space-y-2.5 animate-in fade-in duration-200">
                   <div className="flex items-center justify-between">
-                    <label className="text-[11px] font-extrabold text-rose-300 flex items-center gap-1.5">
-                      <AlertTriangle size={14} className="text-rose-400 shrink-0" />
+                    <label className="text-[11px] font-extrabold text-rose-700 dark:text-rose-300 flex items-center gap-1.5">
+                      <AlertTriangle size={14} className="text-rose-600 dark:text-rose-400 shrink-0" />
                       ระบุสาเหตุที่ใช้เวลาเกินมาตรฐาน (Overtime / Delay Reason)*
                     </label>
-                    <span className="text-[10px] bg-rose-500/20 text-rose-300 px-2 py-0.5 rounded font-mono font-bold">
+                    <span className="text-[10px] bg-rose-100 dark:bg-rose-500/20 text-rose-700 dark:text-rose-300 px-2 py-0.5 rounded font-mono font-bold">
                       +{formActualDuration - formDuration} นาที
                     </span>
                   </div>
 
                   {/* Preset Buttons */}
                   <div className="space-y-1">
-                    <p className="text-[9.5px] text-slate-400 font-medium">กดเลือกสาเหตุมาตรฐานเพื่อกรอกอัตโนมัติ:</p>
+                    <p className="text-[9.5px] text-slate-600 dark:text-slate-400 font-medium">กดเลือกสาเหตุมาตรฐานเพื่อกรอกอัตโนมัติ:</p>
                     <div className="flex flex-wrap gap-1.5 max-h-28 overflow-y-auto pr-1">
                       {PM_OVERTIME_REASON_PRESETS.map((preset, idx) => (
                         <button
@@ -1474,8 +1474,8 @@ export const PMHistoryPage: React.FC = () => {
                           onClick={() => setFormOvertimeReason(preset)}
                           className={`text-[10px] px-2.5 py-1 rounded-lg border text-left transition cursor-pointer ${
                             formOvertimeReason === preset
-                              ? 'bg-rose-500 text-fg font-bold border-rose-400 shadow-sm'
-                              : 'bg-slate-900/80 border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-fg'
+                              ? 'bg-rose-600 text-white font-bold border-rose-600 shadow-xs'
+                              : 'bg-white dark:bg-slate-900/80 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
                           }`}
                         >
                           {preset}
@@ -1491,7 +1491,7 @@ export const PMHistoryPage: React.FC = () => {
                       onChange={(e) => setFormOvertimeReason(e.target.value)}
                       placeholder="โปรดระบุสาเหตุและรายละเอียดเพิ่มเติมว่าทำไมใช้เวลาเกินมาตรฐาน..."
                       rows={2}
-                      className="w-full bg-[#050a14] border border-rose-500/40 focus:border-rose-400 rounded-lg p-2.5 text-xs text-rose-100 placeholder:text-slate-500 focus:outline-none"
+                      className="w-full bg-white dark:bg-[#050a14] border border-rose-300 dark:border-rose-500/40 focus:border-rose-500 rounded-lg p-2.5 text-xs text-slate-900 dark:text-rose-100 placeholder:text-slate-400 focus:outline-hidden"
                     />
                   </div>
                 </div>
@@ -1499,9 +1499,9 @@ export const PMHistoryPage: React.FC = () => {
 
               {/* Status input */}
               <div className="space-y-1">
-                <label className="text-[10px] text-slate-400 uppercase font-black tracking-wider">สถานะของรอบบำรุงรักษา *</label>
+                <label className="text-[10px] text-slate-700 dark:text-slate-400 uppercase font-black tracking-wider">สถานะของรอบบำรุงรักษา *</label>
                 <div className="flex gap-4">
-                  <label className="flex items-center gap-1.5 cursor-pointer text-slate-300">
+                  <label className="flex items-center gap-1.5 cursor-pointer text-slate-800 dark:text-slate-300">
                     <input
                       type="radio"
                       name="status"
@@ -1511,7 +1511,7 @@ export const PMHistoryPage: React.FC = () => {
                     />
                     <span>เสร็จสิ้น (บันทึกเวลาจริงเรียบร้อย)</span>
                   </label>
-                  <label className="flex items-center gap-1.5 cursor-pointer text-slate-300">
+                  <label className="flex items-center gap-1.5 cursor-pointer text-slate-800 dark:text-slate-300">
                     <input
                       type="radio"
                       name="status"
@@ -1526,10 +1526,10 @@ export const PMHistoryPage: React.FC = () => {
 
               {/* Multi companion technicians selection */}
               <div className="space-y-1.5">
-                <label className="text-[10px] text-slate-400 uppercase font-black tracking-wider">
+                <label className="text-[10px] text-slate-700 dark:text-slate-400 uppercase font-black tracking-wider">
                   ทีมช่างที่เข้าร่วมงาน (สามารถเลือกคู่หูร่วมทำ PM ได้หลายคน)
                 </label>
-                <div className="grid grid-cols-3 gap-2 bg-slate-900/60 p-2.5 rounded-xl border border-slate-800">
+                <div className="grid grid-cols-3 gap-2 bg-slate-50 dark:bg-slate-900/60 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800">
                   {technicians.map((t, idx) => {
                     const isSelected = formTechnicians.includes(t);
                     return (
@@ -1537,14 +1537,14 @@ export const PMHistoryPage: React.FC = () => {
                         key={idx}
                         type="button"
                         onClick={() => toggleTechnician(t)}
-                        className={`px-2 py-1.5 rounded-lg border text-left transition-all duration-150 flex items-center justify-between text-[10.5px] ${
+                        className={`px-2 py-1.5 rounded-lg border text-left transition-all duration-150 flex items-center justify-between text-[10.5px] cursor-pointer ${
                           isSelected 
-                            ? 'bg-cyan-500/10 border-cyan-550 text-cyan-300 font-bold' 
-                            : 'bg-[#050a14] border-slate-800 text-slate-450 hover:text-slate-200 hover:border-slate-700'
+                            ? 'bg-cyan-50 border-cyan-400 text-cyan-800 dark:bg-cyan-500/10 dark:border-cyan-550 dark:text-cyan-300 font-bold' 
+                            : 'bg-white dark:bg-[#050a14] border-slate-300 dark:border-slate-800 text-slate-700 dark:text-slate-450 hover:text-slate-900 dark:hover:text-slate-200 hover:border-slate-400 dark:hover:border-slate-700'
                         }`}
                       >
                         <span className="truncate">{t}</span>
-                        {isSelected && <CheckCircle size={10} className="text-cyan-400 shrink-0 ml-1" />}
+                        {isSelected && <CheckCircle size={10} className="text-cyan-600 dark:text-cyan-400 shrink-0 ml-1" />}
                       </button>
                     );
                   })}
@@ -1552,21 +1552,21 @@ export const PMHistoryPage: React.FC = () => {
               </div>
 
               {/* SPARE PARTS AND PM COSTS SECTION */}
-              <div className="bg-[#050a14] p-3.5 border border-slate-800 rounded-xl space-y-3">
-                <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-wide flex items-center gap-1 select-none">
+              <div className="bg-slate-50 dark:bg-[#050a14] p-3.5 border border-slate-200 dark:border-slate-800 rounded-xl space-y-3">
+                <span className="text-[10px] font-bold text-cyan-700 dark:text-cyan-400 uppercase tracking-wide flex items-center gap-1 select-none">
                   🛠️ อะไหล่ที่ใช้และค่าใช้จ่าย (Spare Parts & PM Costs)
                 </span>
                 
                 {/* Add spare part widget */}
                 <div className="grid grid-cols-1 sm:grid-cols-12 gap-2 pt-1">
                   <div className="sm:col-span-7 space-y-1">
-                    <label className="text-[9px] text-slate-500 uppercase flex justify-between items-center">
+                    <label className="text-[9px] text-slate-600 dark:text-slate-500 uppercase flex justify-between items-center">
                       <span>เลือกรายการอะไหล่ในคลัง</span>
                       {partSearchQuery && (
                         <button 
                           type="button" 
                           onClick={() => setPartSearchQuery('')} 
-                          className="text-[9px] text-cyan-400 hover:underline cursor-pointer"
+                          className="text-[9px] text-cyan-600 dark:text-cyan-400 hover:underline cursor-pointer"
                         >
                           ล้างค้นหา ✕
                         </button>
@@ -1578,7 +1578,7 @@ export const PMHistoryPage: React.FC = () => {
                         placeholder="🔍 พิมพ์ค้นหาอะไหล่ (ชื่อ หรือ รหัส)..."
                         value={partSearchQuery}
                         onChange={(e) => setPartSearchQuery(e.target.value)}
-                        className="w-full bg-[#050a14] border border-slate-850 rounded px-2 py-1 text-[10.5px] text-slate-200 focus:outline-none focus:border-cyan-500 placeholder-slate-500 font-sans"
+                        className="w-full bg-white dark:bg-[#050a14] border border-slate-300 dark:border-slate-850 rounded px-2 py-1 text-[10.5px] text-slate-900 dark:text-slate-200 focus:outline-hidden focus:border-cyan-500 placeholder-slate-400 dark:placeholder-slate-500 font-sans"
                       />
                       <select
                         value={selectedPartId}
@@ -1592,7 +1592,7 @@ export const PMHistoryPage: React.FC = () => {
                             setSelectedPartPrice(0);
                           }
                         }}
-                        className="w-full bg-[#050a14] border border-slate-850 rounded p-1.5 text-[10.5px] text-slate-200 focus:outline-none focus:border-cyan-500 font-sans"
+                        className="w-full bg-white dark:bg-[#050a14] border border-slate-300 dark:border-slate-850 rounded p-1.5 text-[10.5px] text-slate-900 dark:text-slate-200 focus:outline-hidden focus:border-cyan-500 font-sans"
                       >
                         <option value="">
                           {partSearchQuery ? `-- อะไหล่ที่ตรงค้นหา (${spareParts.filter(sp => sp.name.toLowerCase().includes(partSearchQuery.toLowerCase()) || sp.id.toLowerCase().includes(partSearchQuery.toLowerCase())).length} รายการ) --` : "-- เลือกอะไหล่ --"}
@@ -1617,13 +1617,13 @@ export const PMHistoryPage: React.FC = () => {
                   </div>
 
                   <div className="sm:col-span-3 space-y-1">
-                    <label className="text-[9px] text-slate-500 text-center block uppercase">จำนวน</label>
+                    <label className="text-[9px] text-slate-600 dark:text-slate-500 text-center block uppercase">จำนวน</label>
                     <input
                       type="number"
                       min="1"
                       value={selectedPartQty}
                       onChange={(e) => setSelectedPartQty(Math.max(1, parseInt(e.target.value) || 1))}
-                      className="w-full bg-[#050a14] border border-slate-850 rounded p-1.5 text-[10.5px] text-slate-200 focus:outline-none focus:border-cyan-500 text-center font-mono"
+                      className="w-full bg-white dark:bg-[#050a14] border border-slate-300 dark:border-slate-850 rounded p-1.5 text-[10.5px] text-slate-900 dark:text-slate-200 focus:outline-hidden focus:border-cyan-500 text-center font-mono"
                     />
                   </div>
 
@@ -1631,7 +1631,7 @@ export const PMHistoryPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={handleAddPartToForm}
-                      className="w-full bg-cyan-550/15 hover:bg-cyan-500 border border-cyan-550/30 hover:text-slate-950 text-cyan-400 font-bold text-[10px] py-1.5 rounded transition flex items-center justify-center"
+                      className="w-full bg-cyan-50 hover:bg-cyan-100 dark:bg-cyan-550/15 dark:hover:bg-cyan-500 border border-cyan-300 dark:border-cyan-550/30 text-cyan-700 dark:text-cyan-400 hover:text-cyan-800 dark:hover:text-slate-950 font-bold text-[10px] py-1.5 rounded transition flex items-center justify-center cursor-pointer"
                     >
                       เพิ่ม
                     </button>
@@ -1640,9 +1640,9 @@ export const PMHistoryPage: React.FC = () => {
 
                 {/* Used spare parts list */}
                 {formUsedParts.length > 0 ? (
-                  <div className="border border-slate-850 rounded-lg overflow-hidden bg-slate-950">
-                    <table className="w-full text-left text-[9.5px] text-slate-350">
-                      <thead className="bg-[#050a14] text-slate-400 text-[8.5px] uppercase border-b border-slate-850 select-none">
+                  <div className="border border-slate-200 dark:border-slate-850 rounded-lg overflow-hidden bg-white dark:bg-slate-950">
+                    <table className="w-full text-left text-[9.5px] text-slate-700 dark:text-slate-350">
+                      <thead className="bg-slate-100 dark:bg-[#050a14] text-slate-700 dark:text-slate-400 text-[8.5px] uppercase border-b border-slate-200 dark:border-slate-850 select-none">
                         <tr>
                           <th className="p-2 pl-3">รายการอะไหล่</th>
                           <th className="p-2 text-center w-16">จำนวน</th>
@@ -1651,23 +1651,23 @@ export const PMHistoryPage: React.FC = () => {
                           <th className="p-2 text-center w-10">ลบ</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-850">
+                      <tbody className="divide-y divide-slate-200 dark:divide-slate-850">
                         {formUsedParts.map(item => {
                           const originalPart = spareParts.find(p => p.id === item.partId);
                           return (
-                            <tr key={item.partId} className="hover:bg-slate-900/50">
+                            <tr key={item.partId} className="hover:bg-slate-50 dark:hover:bg-slate-900/50">
                               <td className="p-2 pl-3">
-                                <p className="font-semibold text-slate-200">{originalPart?.name || item.partId}</p>
+                                <p className="font-semibold text-slate-900 dark:text-slate-200">{originalPart?.name || item.partId}</p>
                                 <p className="text-[8px] text-slate-500 font-mono">{item.partId}</p>
                               </td>
-                              <td className="p-2 text-center font-mono text-slate-300">{item.quantity} {originalPart?.unit}</td>
-                              <td className="p-2 text-right font-mono text-slate-350">{item.pricePerUnit.toLocaleString()} ฿</td>
-                              <td className="p-2 text-right font-mono text-cyan-400 font-semibold">{item.totalCost.toLocaleString()} ฿</td>
+                              <td className="p-2 text-center font-mono text-slate-700 dark:text-slate-300">{item.quantity} {originalPart?.unit}</td>
+                              <td className="p-2 text-right font-mono text-slate-700 dark:text-slate-350">{item.pricePerUnit.toLocaleString()} ฿</td>
+                              <td className="p-2 text-right font-mono text-cyan-700 dark:text-cyan-400 font-semibold">{item.totalCost.toLocaleString()} ฿</td>
                               <td className="p-2 text-center">
                                 <button
                                   type="button"
                                   onClick={() => handleRemovePartFromForm(item.partId)}
-                                  className="text-slate-500 hover:text-rose-400 p-0.5 rounded"
+                                  className="text-slate-400 hover:text-rose-600 dark:text-slate-500 dark:hover:text-rose-400 p-0.5 rounded cursor-pointer"
                                 >
                                   ✕
                                 </button>
@@ -1679,28 +1679,28 @@ export const PMHistoryPage: React.FC = () => {
                     </table>
                   </div>
                 ) : (
-                  <p className="text-[9.5px] text-slate-500 italic text-center py-2 bg-slate-950/30 rounded border border-slate-850 select-none">
+                  <p className="text-[9.5px] text-slate-500 italic text-center py-2 bg-slate-100/60 dark:bg-slate-950/30 rounded border border-slate-200 dark:border-slate-850 select-none">
                     ยังไม่มีการใช้อะไหล่ในใบงานนี้
                   </p>
                 )}
 
                 {/* Other costs like contractor */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-850">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-200 dark:border-slate-850">
                   <div className="space-y-1">
-                    <label className="text-[9px] text-slate-400 font-semibold uppercase">ค่าจ้างซ่อมภายนอก/ค่าบริการอื่นๆ (บาท)</label>
+                    <label className="text-[9px] text-slate-600 dark:text-slate-400 font-semibold uppercase">ค่าจ้างซ่อมภายนอก/ค่าบริการอื่นๆ (บาท)</label>
                     <input
                       type="number"
                       min="0"
                       value={formOtherCost || ""}
                       onChange={(e) => setFormOtherCost(Math.max(0, parseFloat(e.target.value) || 0))}
                       placeholder="เช่น 0"
-                      className="w-full bg-[#050a14] border border-slate-850 rounded px-2.5 py-1.5 text-[10.5px] text-slate-200 focus:outline-none focus:border-cyan-500 font-mono"
+                      className="w-full bg-white dark:bg-[#050a14] border border-slate-300 dark:border-slate-850 rounded px-2.5 py-1.5 text-[10.5px] text-slate-900 dark:text-slate-200 focus:outline-hidden focus:border-cyan-500 font-mono"
                     />
                   </div>
 
                   <div className="flex flex-col justify-center items-end pr-2">
-                    <span className="text-[8.5px] text-slate-455 uppercase font-bold tracking-wider">รวมมูลค่างาน PM ทั้งสิ้น</span>
-                    <span className="text-xs font-black font-mono text-cyan-400 mt-0.5">
+                    <span className="text-[8.5px] text-slate-600 dark:text-slate-455 uppercase font-bold tracking-wider">รวมมูลค่างาน PM ทั้งสิ้น</span>
+                    <span className="text-xs font-black font-mono text-cyan-700 dark:text-cyan-400 mt-0.5">
                       {(formUsedParts.reduce((sum, item) => sum + item.totalCost, 0) + Number(formOtherCost || 0)).toLocaleString()} บาท
                     </span>
                   </div>
@@ -1708,7 +1708,7 @@ export const PMHistoryPage: React.FC = () => {
               </div>
 
               {/* Form submit footer buttons */}
-              <div className="pt-3 border-t border-slate-850 flex justify-end gap-2.5">
+              <div className="pt-3 border-t border-slate-200 dark:border-slate-850 flex justify-end gap-2.5">
                 <button
                   type="button"
                   onClick={() => {
@@ -1717,13 +1717,13 @@ export const PMHistoryPage: React.FC = () => {
                     setFormPlan('');
                     setFormTechnicians([]);
                   }}
-                  className="px-4 py-2 bg-slate-900 border border-slate-800 text-slate-400 font-bold hover:text-fg rounded-xl"
+                  className="px-4 py-2 bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-slate-700 dark:text-slate-400 font-bold hover:text-slate-900 dark:hover:text-fg rounded-xl cursor-pointer"
                 >
                   ยกเลิก
                 </button>
                 <button
                   type="submit"
-                  className="px-5.5 py-2 bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-450 hover:to-teal-450 text-slate-950 font-black rounded-xl hover:shadow-cyan-500/15 transition-all"
+                  className="px-5.5 py-2 bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-500 hover:to-teal-500 text-white dark:text-slate-950 font-black rounded-xl hover:shadow-cyan-500/15 transition-all cursor-pointer"
                 >
                   {editingId ? "บันทึกการแก้ไข" : "บันทึกข้อมูลเข้าสู่ฐานข้อมูล"}
                 </button>

@@ -459,8 +459,10 @@ export const parsePMReportExcel = (data: ArrayBuffer): ParsedPMReportResult => {
 
       // Detect column indices dynamically
       row.forEach((cell, c) => {
-        const s = String(cell).toLowerCase();
-        if (s.includes('ลำดับ')) colIndex.itemNo = c;
+        const s = String(cell).toLowerCase().trim();
+        if (s.includes('ลำดับ') || s.includes('no.') || s === 'no' || s === '#' || s.includes('item') || s.includes('ข้อที่') || s === 'ที่' || s.includes('รายการ')) {
+          colIndex.itemNo = c;
+        }
         else if (s.includes('หัวข้อ')) colIndex.title = c;
         else if (s.includes('วิธี')) colIndex.method = c;
         else if (s.includes('มาตรฐาน')) colIndex.standard = c;
@@ -474,7 +476,7 @@ export const parsePMReportExcel = (data: ArrayBuffer): ParsedPMReportResult => {
       // Also inspect sub-header row (r + 1) for 'ปกติ' (col 20) and 'ไม่ปกติ' (col 22)
       const nextHeaderRow = rawRows[r + 1] || [];
       nextHeaderRow.forEach((cell, c) => {
-        const s = String(cell).toLowerCase();
+        const s = String(cell).toLowerCase().trim();
         if (s.includes('ผิดปกติ') || s.includes('รายละเอียด')) colIndex.abnormalDetail = c;
         else if (s.includes('ไม่ปกติ')) colIndex.abnormal = c;
         else if (s.includes('ปกติ') && !s.includes('ไม่') && !s.includes('ผิด')) colIndex.normal = c;
@@ -482,8 +484,13 @@ export const parsePMReportExcel = (data: ArrayBuffer): ParsedPMReportResult => {
 
       // For 34-column layout, enforce canonical columns if row is wide
       if (row.length >= 30) {
-        if (colIndex.normal === 0 || colIndex.normal === 20) colIndex.normal = 20;
-        if (colIndex.abnormal === 1 || colIndex.abnormal === 22) colIndex.abnormal = 22;
+        colIndex.itemNo = 0;
+        colIndex.title = 1;
+        colIndex.method = 8;
+        colIndex.standard = 11;
+        colIndex.frequency = 19;
+        colIndex.normal = 20;
+        colIndex.abnormal = 22;
         colIndex.abnormalDetail = 24;
         colIndex.remark = 32;
       }
@@ -558,7 +565,15 @@ export const parsePMReportExcel = (data: ArrayBuffer): ParsedPMReportResult => {
     const isRowEmpty = row.every(c => !c || String(c).trim() === '');
     if (isRowEmpty) continue;
 
-    const rawNo = row[colIndex.itemNo] !== undefined ? String(row[colIndex.itemNo]).trim() : '';
+    let rawNo = row[colIndex.itemNo] !== undefined ? String(row[colIndex.itemNo]).trim() : '';
+    // Fallback: If colIndex.itemNo !== 0, but cell 0 contains a pure number (1, 2, 3...), treat cell 0 as sequence candidate
+    if (!rawNo && colIndex.itemNo !== 0 && row[0] !== undefined) {
+      const cell0 = String(row[0]).trim();
+      if (/^\d+(\.\d+)?$/.test(cell0)) {
+        rawNo = cell0;
+      }
+    }
+
     const rawTitle = row[colIndex.title] !== undefined ? String(row[colIndex.title]).trim() : '';
     const rawMethod = row[colIndex.method] !== undefined ? String(row[colIndex.method]).trim() : '';
     const rawStandard = row[colIndex.standard] !== undefined ? String(row[colIndex.standard]).trim() : '';
@@ -576,11 +591,46 @@ export const parsePMReportExcel = (data: ArrayBuffer): ParsedPMReportResult => {
     const rawAbnormalDetail = row[colIndex.abnormalDetail] !== undefined ? String(row[colIndex.abnormalDetail]).trim() : '';
     const rawRemark = row[colIndex.remark] !== undefined ? String(row[colIndex.remark]).trim() : '';
 
-    // Forward-fill itemNo, title, and method from parent row when current cell is empty (merged/continuation rows)
+    // Determine sequence number (itemNo)
+    let stepItemNo: number | string = '';
+
     if (rawNo !== '') {
-      const parsedNum = Number(rawNo);
-      currentItemNo = (!isNaN(parsedNum) && !rawNo.includes(' ')) ? parsedNum : rawNo;
+      // Clean prefixes like '#', 'ข้อ', and trailing dots (e.g. '1.', '#1', 'ข้อ 1')
+      const cleanNo = rawNo.replace(/^#/, '').replace(/^ข้อ\s*/, '').replace(/\.$/, '').trim();
+      const parsedNum = Number(cleanNo);
+      if (!isNaN(parsedNum) && !cleanNo.includes(' ') && cleanNo !== '') {
+        stepItemNo = parsedNum;
+        currentItemNo = parsedNum;
+      } else {
+        stepItemNo = cleanNo;
+        currentItemNo = cleanNo;
+      }
+    } else {
+      // If rawNo is empty:
+      // If this row has a new title, it's a new checklist topic
+      if (rawTitle && rawTitle !== currentTitle) {
+        if (typeof currentItemNo === 'number') {
+          currentItemNo = currentItemNo + 1;
+        } else {
+          currentItemNo = steps.length + 1;
+        }
+        stepItemNo = currentItemNo;
+      } else if (rawTitle && rawTitle === currentTitle) {
+        // Sub-item or continuation row of the same title
+        stepItemNo = currentItemNo !== '' ? currentItemNo : (steps.length + 1);
+      } else if (!rawTitle && rawStandard) {
+        // Continuation standard line for current item
+        stepItemNo = currentItemNo !== '' ? currentItemNo : (steps.length + 1);
+      } else {
+        stepItemNo = steps.length + 1;
+        currentItemNo = stepItemNo;
+      }
     }
+
+    if (stepItemNo === '' || stepItemNo === undefined) {
+      stepItemNo = steps.length + 1;
+    }
+
     if (rawTitle) {
       currentTitle = rawTitle;
     }
@@ -614,7 +664,7 @@ export const parsePMReportExcel = (data: ArrayBuffer): ParsedPMReportResult => {
     if (currentTitle || rawStandard) {
       steps.push({
         id: `step-${Date.now()}-${steps.length}`,
-        itemNo: currentItemNo !== '' ? currentItemNo : '',
+        itemNo: stepItemNo,
         title: currentTitle || rawStandard,
         method: currentMethod || 'ดูด้วยสายตา',
         standard: rawStandard || '-',
