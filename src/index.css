@@ -1833,7 +1833,8 @@ body {
 /* PM Plan Page Modals - Form, Copy, Import */
 .light-theme #pm-form-modal,
 .light-theme #pm-copy-modal,
-.light-theme #pm-import-modal {
+.light-theme #pm-import-modal,
+.light-theme #pm-excel-import-modal {
   background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #1e293b !important;
@@ -1841,7 +1842,8 @@ body {
 
 .light-theme #pm-form-modal div.bg-gradient-to-r,
 .light-theme #pm-copy-modal .bg-slate-900,
-.light-theme #pm-import-modal .bg-slate-900 {
+.light-theme #pm-import-modal .bg-slate-900,
+.light-theme #pm-excel-import-modal .bg-slate-900 {
   background-image: none !important;
   background-color: #f1f5f9 !important;
   border-bottom-color: #cbd5e1 !important;
@@ -1849,7 +1851,8 @@ body {
 
 .light-theme #pm-form-modal h3,
 .light-theme #pm-copy-modal h3,
-.light-theme #pm-import-modal h3 {
+.light-theme #pm-import-modal h3,
+.light-theme #pm-excel-import-modal h3 {
   color: #0f172a !important;
 }
 
@@ -1862,7 +1865,10 @@ body {
 .light-theme #pm-copy-modal textarea,
 .light-theme #pm-import-modal input,
 .light-theme #pm-import-modal select,
-.light-theme #pm-import-modal textarea {
+.light-theme #pm-import-modal textarea,
+.light-theme #pm-excel-import-modal input,
+.light-theme #pm-excel-import-modal select,
+.light-theme #pm-excel-import-modal textarea {
   background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
@@ -1876,14 +1882,16 @@ body {
 
 .light-theme #pm-form-modal label,
 .light-theme #pm-copy-modal label,
-.light-theme #pm-import-modal label {
-  color: #334155 !important;
+.light-theme #pm-import-modal label,
+.light-theme #pm-excel-import-modal label {
+  color: #0f172a !important;
 }
 
 .light-theme #pm-form-modal p,
 .light-theme #pm-copy-modal p,
-.light-theme #pm-import-modal p {
-  color: #475569 !important;
+.light-theme #pm-import-modal p,
+.light-theme #pm-excel-import-modal p {
+  color: #334155 !important;
 }
 
 /* Step row container inside Form Modal */
@@ -1909,7 +1917,8 @@ body {
 /* Footer border in modals */
 .light-theme #pm-form-modal .border-t,
 .light-theme #pm-copy-modal .border-t,
-.light-theme #pm-import-modal .border-t {
+.light-theme #pm-import-modal .border-t,
+.light-theme #pm-excel-import-modal .border-t {
   border-color: #cbd5e1 !important;
 }
 
@@ -1939,21 +1948,63 @@ body {
 }
 
 /* Import Modal excel paste helper box */
-.light-theme #pm-import-modal .bg-slate-900\/40 {
+.light-theme #pm-import-modal .bg-slate-900\/40,
+.light-theme #pm-excel-import-modal .bg-slate-900\/40 {
   background-color: #f8fafc !important;
   border-color: #cbd5e1 !important;
 }
 
-.light-theme #pm-import-modal .text-slate-300 {
+.light-theme #pm-excel-import-modal #pm-import-machine-assignment-box,
+.light-theme #pm-import-modal #pm-import-machine-assignment-box {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+}
+
+.light-theme #pm-excel-import-modal #pm-import-machine-assignment-box label,
+.light-theme #pm-import-modal #pm-import-machine-assignment-box label {
+  color: #0f172a !important;
+}
+
+.light-theme #pm-excel-import-modal #pm-import-machine-assignment-box p,
+.light-theme #pm-import-modal #pm-import-machine-assignment-box p {
   color: #334155 !important;
 }
 
-.light-theme #pm-import-modal .bg-slate-950 {
+.light-theme #pm-excel-import-modal div.bg-\[\#050a14\],
+.light-theme #pm-import-modal div.bg-\[\#050a14\] {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+.light-theme #pm-excel-import-modal table thead tr,
+.light-theme #pm-import-modal table thead tr {
+  background-color: #f1f5f9 !important;
+  color: #334155 !important;
+}
+
+.light-theme #pm-excel-import-modal table tbody tr:hover,
+.light-theme #pm-import-modal table tbody tr:hover {
+  background-color: #f8fafc !important;
+}
+
+.light-theme #pm-excel-import-modal table td,
+.light-theme #pm-import-modal table td {
+  color: #1e293b !important;
+}
+
+.light-theme #pm-import-modal .text-slate-300,
+.light-theme #pm-excel-import-modal .text-slate-300 {
+  color: #334155 !important;
+}
+
+.light-theme #pm-import-modal .bg-slate-950,
+.light-theme #pm-excel-import-modal .bg-slate-950 {
   background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
 }
 
-.light-theme #pm-import-modal .bg-slate-950 span {
+.light-theme #pm-import-modal .bg-slate-950 span,
+.light-theme #pm-excel-import-modal .bg-slate-950 span {
   color: #475569 !important;
 }
 

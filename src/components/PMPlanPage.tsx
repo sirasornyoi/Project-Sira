@@ -1108,20 +1108,23 @@ export const PMPlanPage: React.FC = () => {
               )}
 
               {/* Machine Assignment Options */}
-              <div className="bg-slate-900/70 p-3.5 rounded-xl border border-slate-800 space-y-2">
+              <div 
+                id="pm-import-machine-assignment-box" 
+                className="bg-slate-100 dark:bg-slate-900 p-3.5 rounded-xl border border-slate-300 dark:border-slate-800 space-y-2"
+              >
                 <div className="flex items-center gap-2">
                   <input
                     type="checkbox"
                     id="opt-import-curr-machine"
                     checked={importSelectedMachineOnly}
                     onChange={(e) => setImportSelectedMachineOnly(e.target.checked)}
-                    className="rounded text-emerald-500 focus:ring-emerald-500/20"
+                    className="rounded text-emerald-600 focus:ring-emerald-500/20"
                   />
-                  <label htmlFor="opt-import-curr-machine" className="font-bold text-slate-200 text-xs">
-                    นำเข้าลงในเครื่องจักรที่เลือกปัจจุบัน: <span className="font-mono text-cyan-400">{selectedMachine?.id}</span> ({selectedMachine?.name})
+                  <label htmlFor="opt-import-curr-machine" className="font-bold text-slate-900 dark:text-slate-100 text-xs cursor-pointer">
+                    นำเข้าลงในเครื่องจักรที่เลือกปัจจุบัน: <span className="font-mono font-bold text-cyan-700 dark:text-cyan-400">{selectedMachine?.id}</span> <span className="text-slate-700 dark:text-slate-300">({selectedMachine?.name})</span>
                   </label>
                 </div>
-                <p className="text-[11px] text-slate-500 pl-5">
+                <p className="text-[11.5px] text-slate-700 dark:text-slate-300 pl-5 font-medium leading-normal">
                   หากติ๊กถูก ระบบจะนำเข้าแผนนี้ลงเครื่องจักรที่กำลังเลือกอยู่ แม้ในไฟล์จะระบุรหัสเครื่องจักรอื่นไว้ก็ตาม
                 </p>
               </div>
@@ -1155,7 +1158,7 @@ export const PMPlanPage: React.FC = () => {
                         {importedDataPreview.steps.map((step, sIdx) => (
                           <tr key={sIdx} className="hover:bg-slate-900/50">
                             <td className="py-1.5 px-2.5 text-center font-mono text-slate-400">
-                              {step.itemNo !== undefined ? step.itemNo : (sIdx + 1)}
+                              {step.itemNo !== undefined && step.itemNo !== '' ? step.itemNo : ''}
                             </td>
                             <td className="py-1.5 px-3 font-medium text-slate-200">{step.title}</td>
                             <td className="py-1.5 px-2.5 text-slate-400">{step.method}</td>

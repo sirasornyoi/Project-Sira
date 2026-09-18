@@ -497,6 +497,7 @@ export const parsePMReportExcel = (data: ArrayBuffer): ParsedPMReportResult => {
 
   // 2. Parse data rows starting after headerRowIndex (skip sub-header if present)
   const steps: PMStep[] = [];
+  let currentItemNo: number | string = '';
   let currentTitle = '';
   let currentMethod = '';
 
@@ -575,7 +576,11 @@ export const parsePMReportExcel = (data: ArrayBuffer): ParsedPMReportResult => {
     const rawAbnormalDetail = row[colIndex.abnormalDetail] !== undefined ? String(row[colIndex.abnormalDetail]).trim() : '';
     const rawRemark = row[colIndex.remark] !== undefined ? String(row[colIndex.remark]).trim() : '';
 
-    // Handle merged cells in Excel where title or method might be on the first sub-row
+    // Forward-fill itemNo, title, and method from parent row when current cell is empty (merged/continuation rows)
+    if (rawNo !== '') {
+      const parsedNum = Number(rawNo);
+      currentItemNo = (!isNaN(parsedNum) && !rawNo.includes(' ')) ? parsedNum : rawNo;
+    }
     if (rawTitle) {
       currentTitle = rawTitle;
     }
@@ -609,7 +614,7 @@ export const parsePMReportExcel = (data: ArrayBuffer): ParsedPMReportResult => {
     if (currentTitle || rawStandard) {
       steps.push({
         id: `step-${Date.now()}-${steps.length}`,
-        itemNo: rawNo || (steps.length + 1),
+        itemNo: currentItemNo !== '' ? currentItemNo : '',
         title: currentTitle || rawStandard,
         method: currentMethod || 'ดูด้วยสายตา',
         standard: rawStandard || '-',

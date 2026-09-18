@@ -431,6 +431,10 @@ export function importPMForm(file: File): Promise<{ machineName: string; machine
 
         // Data loop starting from detected startRow
         const steps: PMStep[] = [];
+        let currentItemNo: number | string = '';
+        let currentTitle = '';
+        let currentMethod = '';
+
         for (let r = startRow; r < rows.length; r++) {
           const row = rows[r];
           if (!row || row.length === 0) continue;
@@ -439,6 +443,24 @@ export function importPMForm(file: File): Promise<{ machineName: string; machine
           // Stop when reaching footer
           if (rowStr.includes('รายการอะไหล่') || rowStr.includes('ผู้ทำการ PM') || rowStr.includes('ผู้รับทราบ') || rowStr.includes('ผู้ตรวจสอบ')) {
             break;
+          }
+
+          // Forward-fill itemNo, title, method when cells are not empty
+          const itemNoRaw = row[0];
+          const rawNoStr = itemNoRaw !== undefined && itemNoRaw !== null ? String(itemNoRaw).trim() : '';
+          if (rawNoStr !== '') {
+            const parsedNum = Number(rawNoStr);
+            currentItemNo = (!isNaN(parsedNum) && !rawNoStr.includes(' ')) ? parsedNum : rawNoStr;
+          }
+
+          const rawTitle = String(row[1] ?? '').trim();
+          if (rawTitle !== '') {
+            currentTitle = rawTitle;
+          }
+
+          const rawMethod = String(row[8] ?? '').trim();
+          if (rawMethod !== '') {
+            currentMethod = rawMethod;
           }
 
           // ถ้าคอลัมน์ 11 (มาตรฐาน) ว่าง = ข้าม
@@ -464,22 +486,15 @@ export function importPMForm(file: File): Promise<{ machineName: string; machine
             result = 'ไม่ปกติ';
           }
 
-          const itemNoRaw = row[0];
-          const itemNo = itemNoRaw !== undefined && itemNoRaw !== '' 
-            ? (typeof itemNoRaw === 'number' ? itemNoRaw : String(itemNoRaw).trim()) 
-            : (steps.length + 1);
-
-          const title = String(row[1] ?? '').trim();
-          const method = String(row[8] ?? '').trim();
           const frequency = String(row[19] ?? '').trim();
           const abnormalDetail = String(row[24] ?? '').trim();
           const remark = String(row[32] ?? '').trim();
 
           const step: PMStep = {
             id: `step-${Date.now()}-${steps.length}-${Math.random().toString(36).substring(2, 5)}`,
-            itemNo,
-            title: title || `ข้อตรวจที่ ${steps.length + 1}`,
-            method: method || 'ดูด้วยสายตา',
+            itemNo: currentItemNo !== '' ? currentItemNo : '',
+            title: currentTitle || `ข้อตรวจที่ ${steps.length + 1}`,
+            method: currentMethod || 'ดูด้วยสายตา',
             standard,
             frequency: frequency || '1 เดือน/ครั้ง',
             stdTime: 0, // stdTime ตั้ง 0 ถ้าไม่มีในไฟล์
