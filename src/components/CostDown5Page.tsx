@@ -63,6 +63,7 @@ export const CostDown5Page: React.FC = () => {
   const [formEngineeringDetails, setFormEngineeringDetails] = useState<string>('');
   const [formFoodGradeCompliance, setFormFoodGradeCompliance] = useState<boolean>(true);
   const [formSafetyNotes, setFormSafetyNotes] = useState<string>('');
+  const [projectToDelete, setProjectToDelete] = useState<{ id: string; title: string } | null>(null);
 
   // Categories list
   const CATEGORIES: CD5Category[] = [
@@ -281,10 +282,15 @@ export const CostDown5Page: React.FC = () => {
 
   // Delete project
   const handleDeleteProject = (id: string, title: string) => {
-    if (window.confirm(`ยืนยันการลบโครงการ Cost Down 5: "${title}" หรือไม่?`)) {
-      setCd5Projects(prev => prev.filter(p => p.id !== id));
-      if (viewingProject?.id === id) setViewingProject(null);
-    }
+    setProjectToDelete({ id, title });
+  };
+
+  const confirmDeleteProject = () => {
+    if (!projectToDelete) return;
+    const { id } = projectToDelete;
+    setCd5Projects(prev => prev.filter(p => p.id !== id));
+    if (viewingProject?.id === id) setViewingProject(null);
+    setProjectToDelete(null);
   };
 
   // Image Upload helper
@@ -1693,6 +1699,43 @@ export const CostDown5Page: React.FC = () => {
               alt="Zoomed" 
               className="max-h-[75vh] max-w-full object-contain p-2"
             />
+          </div>
+        </div>
+      )}
+
+      {/* 9. CONFIRMATION MODAL FOR DELETING PROJECT */}
+      {projectToDelete && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4 animate-in fade-in duration-100">
+          <div id="modal-delete-cd5-project-confirm" className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-750 rounded-2xl max-w-sm w-full p-6 space-y-5 shadow-2xl">
+            <div className="flex flex-col items-center text-center space-y-3">
+              <div className="w-12 h-12 rounded-full bg-rose-500/15 flex items-center justify-center text-rose-500">
+                <Trash2 size={24} />
+              </div>
+              <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                ยืนยันการลบโครงการ Cost Down 5?
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                คุณแน่ใจหรือไม่ว่าต้องการลบโครงการ "{projectToDelete.title}" ออกจากระบบ?
+              </p>
+            </div>
+            <div className="flex gap-3 justify-end text-xs font-bold">
+              <button
+                type="button"
+                id="btn-cancel-delete-cd5-project"
+                onClick={() => setProjectToDelete(null)}
+                className="w-1/2 border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 py-2.5 rounded-xl cursor-pointer transition font-medium"
+              >
+                ยกเลิก
+              </button>
+              <button
+                type="button"
+                id="btn-confirm-delete-cd5-project"
+                onClick={confirmDeleteProject}
+                className="w-1/2 bg-rose-600 hover:bg-rose-500 text-white py-2.5 rounded-xl cursor-pointer transition shadow-lg shadow-rose-600/20"
+              >
+                ยืนยันลบ
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -5525,37 +5525,37 @@ body {
 }
 
 /* 2. Statistical KPI Cards */
-.light-theme #setup-workload-container div.grid-cols-1.sm:grid-cols-2.lg:grid-cols-4 > div.bg-slate-900 {
+.light-theme #setup-workload-container div.grid-cols-1.\sm\:grid-cols-2.\lg\:grid-cols-4 > div.bg-slate-900 {
   background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
 }
 
-.light-theme #setup-workload-container div.grid-cols-1.sm:grid-cols-2.lg:grid-cols-4 div.bg-cyan-500\/10 {
+.light-theme #setup-workload-container div.grid-cols-1.\sm\:grid-cols-2.\lg\:grid-cols-4 div.bg-cyan-500\/10 {
   background-color: #e0f2fe !important;
   border-color: #bae6fd !important;
   color: #0369a1 !important;
 }
 
-.light-theme #setup-workload-container div.grid-cols-1.sm:grid-cols-2.lg:grid-cols-4 div.bg-indigo-500\/10 {
+.light-theme #setup-workload-container div.grid-cols-1.\sm\:grid-cols-2.\lg\:grid-cols-4 div.bg-indigo-500\/10 {
   background-color: #e0e7ff !important;
   border-color: #c7d2fe !important;
   color: #4338ca !important;
 }
 
-.light-theme #setup-workload-container div.grid-cols-1.sm:grid-cols-2.lg:grid-cols-4 div.bg-purple-500\/10 {
+.light-theme #setup-workload-container div.grid-cols-1.\sm\:grid-cols-2.\lg\:grid-cols-4 div.bg-purple-500\/10 {
   background-color: #f3e8ff !important;
   border-color: #e9d5ff !important;
   color: #6b21a8 !important;
 }
 
-.light-theme #setup-workload-container div.grid-cols-1.sm:grid-cols-2.lg:grid-cols-4 div.bg-emerald-500\/10 {
+.light-theme #setup-workload-container div.grid-cols-1.\sm\:grid-cols-2.\lg\:grid-cols-4 div.bg-emerald-500\/10 {
   background-color: #dcfce7 !important;
   border-color: #bbf7d0 !important;
   color: #15803d !important;
 }
 
-.light-theme #setup-workload-container div.grid-cols-1.sm:grid-cols-2.lg:grid-cols-4 p.text-fg {
+.light-theme #setup-workload-container div.grid-cols-1.\sm\:grid-cols-2.\lg\:grid-cols-4 p.text-fg {
   color: #0f172a !important;
 }
 
@@ -5784,23 +5784,23 @@ body {
 }
 
 /* Filters bar on right side list */
-.light-theme #setup-workload-container div.grid-cols-1.sm:grid-cols-3.bg-slate-950 {
+.light-theme #setup-workload-container div.grid-cols-1.\sm\:grid-cols-3.bg-slate-950 {
   background-color: #f8fafc !important;
   border-color: #cbd5e1 !important;
 }
 
-.light-theme #setup-workload-container div.grid-cols-1.sm:grid-cols-3 span.text-slate-500 {
+.light-theme #setup-workload-container div.grid-cols-1.\sm\:grid-cols-3 span.text-slate-500 {
   color: #475569 !important;
 }
 
-.light-theme #setup-workload-container div.grid-cols-1.sm:grid-cols-3 select,
-.light-theme #setup-workload-container div.grid-cols-1.sm:grid-cols-3 input {
+.light-theme #setup-workload-container div.grid-cols-1.\sm\:grid-cols-3 select,
+.light-theme #setup-workload-container div.grid-cols-1.\sm\:grid-cols-3 input {
   background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
 }
 
-.light-theme #setup-workload-container div.grid-cols-1.sm:grid-cols-3 input::placeholder {
+.light-theme #setup-workload-container div.grid-cols-1.\sm\:grid-cols-3 input::placeholder {
   color: #94a3b8 !important;
 }
 
@@ -6224,31 +6224,31 @@ body {
 }
 
 /* 2. Statistical KPI Cards */
-.light-theme #executive-presentation-dashboard div.grid-cols-1.md:grid-cols-3 > div.bg-slate-900 {
+.light-theme #executive-presentation-dashboard div.grid-cols-1.\md\:grid-cols-3 > div.bg-slate-900 {
   background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03) !important;
 }
 
-.light-theme #executive-presentation-dashboard div.grid-cols-1.md:grid-cols-3 span.bg-cyan-500\/10 {
+.light-theme #executive-presentation-dashboard div.grid-cols-1.\md\:grid-cols-3 span.bg-cyan-500\/10 {
   background-color: #e0f2fe !important;
   border-color: #bae6fd !important;
   color: #0369a1 !important;
 }
 
-.light-theme #executive-presentation-dashboard div.grid-cols-1.md:grid-cols-3 span.bg-rose-500\/10 {
+.light-theme #executive-presentation-dashboard div.grid-cols-1.\md\:grid-cols-3 span.bg-rose-500\/10 {
   background-color: #ffe4e6 !important;
   border-color: #fecdd3 !important;
   color: #be123c !important;
 }
 
-.light-theme #executive-presentation-dashboard div.grid-cols-1.md:grid-cols-3 span.bg-emerald-500\/10 {
+.light-theme #executive-presentation-dashboard div.grid-cols-1.\md\:grid-cols-3 span.bg-emerald-500\/10 {
   background-color: #dcfce7 !important;
   border-color: #bbf7d0 !important;
   color: #15803d !important;
 }
 
-.light-theme #executive-presentation-dashboard div.grid-cols-1.md:grid-cols-3 div.border-slate-850 {
+.light-theme #executive-presentation-dashboard div.grid-cols-1.\md\:grid-cols-3 div.border-slate-850 {
   border-color: #e2e8f0 !important;
 }
 
@@ -6525,7 +6525,7 @@ body {
 }
 
 /* 2. Safety & Security Highlights */
-.light-theme #offline-guide-container div.grid-cols-1.md:grid-cols-3 > div.bg-slate-900 {
+.light-theme #offline-guide-container div.grid-cols-1.\md\:grid-cols-3 > div.bg-slate-900 {
   background-color: var(--surface) !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
@@ -6607,7 +6607,7 @@ body {
   background-color: #e2e8f0 !important;
 }
 
-.light-theme #offline-guide-container div.w-0.5.bg-slate-800 {
+.light-theme #offline-guide-container div.w-0\.5.bg-slate-800 {
   background-color: #e2e8f0 !important;
 }
 
@@ -6981,7 +6981,7 @@ body {
   color: #0284c7 !important;
 }
 
-.light-theme #offline-guide-container div.w-0.5.bg-slate-800 {
+.light-theme #offline-guide-container div.w-0\.5.bg-slate-800 {
   background-color: #cbd5e1 !important;
 }
 
@@ -8676,7 +8676,7 @@ body {
   #portfolio-pdf-modal-header,
   .no-print,
   button,
-  .print\\:hidden {
+  .print\:hidden {
     display: none !important;
   }
 
@@ -8733,7 +8733,7 @@ body {
   }
 
   /* Avoid page breaks inside cards and tables */
-  #portfolio-printable-document .print\\:break-inside-avoid,
+  #portfolio-printable-document .print\:break-inside-avoid,
   #portfolio-printable-document .break-inside-avoid,
   #portfolio-printable-document table,
   #portfolio-printable-document tr,

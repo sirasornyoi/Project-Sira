@@ -3,7 +3,7 @@ import { useApp } from '../context/AppContext';
 import { PMScheduleItem, PMRescheduleHistoryItem } from '../types';
 import { 
   Calendar, Clock, AlertTriangle, RefreshCw, Send, CheckCircle2, 
-  X, HelpCircle, User, Wrench, FileText, ArrowRight, History
+  X, HelpCircle, User, Wrench, FileText, ArrowRight, History, AlertCircle
 } from 'lucide-react';
 import { RESCHEDULE_REASONS, getTodayDateString, getPMOverdueDays, isPMOverdue } from '../utils/pmAlerts';
 
@@ -42,6 +42,7 @@ export const PMRescheduleModal: React.FC<PMRescheduleModalProps> = ({ job, onClo
   const [sendLineAlert, setSendLineAlert] = useState<boolean>(settings.lineNotifyEnabled || false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [showHistory, setShowHistory] = useState<boolean>(false);
+  const [showSameDateConfirm, setShowSameDateConfirm] = useState<boolean>(false);
 
   // Quick date jump helpers
   const handleQuickAddDays = (days: number) => {
@@ -59,20 +60,7 @@ export const PMRescheduleModal: React.FC<PMRescheduleModalProps> = ({ job, onClo
     );
   };
 
-  const handleConfirmReschedule = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!newDate) {
-      alert('กรุณาระบุกำหนดการวันที่ใหม่');
-      return;
-    }
-
-    if (newDate === job.date) {
-      if (!confirm('วันที่ใหม่ตรงกับวันที่เดิม คุณแน่ใจหรือไม่ว่าต้องการใช้ตอนนี้?')) {
-        return;
-      }
-    }
-
+  const executeReschedule = async () => {
     const finalReason = selectedReason.includes('อื่น ๆ') && customReasonText.trim()
       ? `อื่น ๆ: ${customReasonText.trim()}`
       : selectedReason;
@@ -139,6 +127,22 @@ export const PMRescheduleModal: React.FC<PMRescheduleModalProps> = ({ job, onClo
     setIsSubmitting(false);
     if (onSuccess) onSuccess(updatedJob);
     onClose();
+  };
+
+  const handleConfirmReschedule = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!newDate) {
+      alert('กรุณาระบุกำหนดการวันที่ใหม่');
+      return;
+    }
+
+    if (newDate === job.date) {
+      setShowSameDateConfirm(true);
+      return;
+    }
+
+    await executeReschedule();
   };
 
   return (
@@ -431,6 +435,46 @@ export const PMRescheduleModal: React.FC<PMRescheduleModalProps> = ({ job, onClo
 
         </form>
       </div>
+
+      {/* CONFIRM SAME DATE RESCHEDULE */}
+      {showSameDateConfirm && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4 animate-in fade-in duration-100">
+          <div id="modal-confirm-same-date-reschedule" className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-750 rounded-2xl max-w-sm w-full p-6 space-y-5 shadow-2xl">
+            <div className="flex flex-col items-center text-center space-y-3">
+              <div className="w-12 h-12 rounded-full bg-amber-500/15 flex items-center justify-center text-amber-500">
+                <AlertCircle size={24} />
+              </div>
+              <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                วันที่ใหม่ตรงกับวันที่เดิม
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                วันที่ระบุ ({newDate}) ตรงกับวันที่กำหนดการเดิม คุณต้องการบันทึกการปรับปรุงข้อมูล/ช่างผู้รับผิดชอบสำหรับวันนี้ใช่หรือไม่?
+              </p>
+            </div>
+            <div className="flex gap-3 justify-end text-xs font-bold">
+              <button
+                type="button"
+                id="btn-cancel-same-date-reschedule"
+                onClick={() => setShowSameDateConfirm(false)}
+                className="w-1/2 border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 py-2.5 rounded-xl cursor-pointer transition font-medium"
+              >
+                แก้ไขวันที่
+              </button>
+              <button
+                type="button"
+                id="btn-confirm-same-date-reschedule"
+                onClick={() => {
+                  setShowSameDateConfirm(false);
+                  executeReschedule();
+                }}
+                className="w-1/2 bg-cyan-600 hover:bg-cyan-500 text-white py-2.5 rounded-xl cursor-pointer transition shadow-lg shadow-cyan-600/20"
+              >
+                ยืนยันใช้ตอนนี้
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
