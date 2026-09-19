@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { 
   Machine, PMPlan, PMScheduleItem, OperationScheduleItem, 
   RepairLog, ImprovementProject, SystemSettings, ScheduleItem, SetupLog, Employee,
@@ -195,12 +195,31 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   });
 
+  const lastLocalSaveTimeRef = useRef<number>(0);
+  const currentStateRef = useRef({
+    machines, technicians, employees, pmPlans, pmMachineIds, schedules,
+    repairs, improvements, setupLogs, leaves, spareParts, cd5Projects, timeBreakParts, settings, zones
+  });
+
+  // Always keep currentStateRef up-to-date with the latest state values
+  useEffect(() => {
+    currentStateRef.current = {
+      machines, technicians, employees, pmPlans, pmMachineIds, schedules,
+      repairs, improvements, setupLogs, leaves, spareParts, cd5Projects, timeBreakParts, settings, zones
+    };
+  });
+
   // Load from Server or fall back to LocalStorage/preloads
   useEffect(() => {
     const initDb = async () => {
       try {
-        const response = await fetch("/api/db");
-        if (response.ok) {
+        const response = await fetch("/api/db", {
+          headers: {
+            "Accept": "application/json"
+          }
+        });
+        const contentType = response.headers.get("content-type");
+        if (response.ok && contentType && contentType.includes("application/json")) {
           const serverData = await response.json();
           if (serverData && serverData.machines) {
             // Server has data! Load it, enriching with defaults if missing
@@ -261,7 +280,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           }
         }
       } catch (err) {
-        console.error("Failed to load database from server, falling back to localStorage", err);
+        console.warn("Notice: Server database unavailable during initialization, using local cache / defaults:", err);
       }
 
       // Fallback: load from LocalStorage or preloads
@@ -484,15 +503,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     const saveToServer = async () => {
       try {
+        lastLocalSaveTimeRef.current = Date.now();
         await fetch("/api/db", {
           method: "POST",
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "Accept": "application/json"
           },
           body: JSON.stringify(dataToSave)
         });
       } catch (error) {
-        console.error("Error syncing with LAN server:", error);
+        console.warn("Notice: Sync with server paused (server unreachable):", error);
       }
     };
 
@@ -511,53 +532,67 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     const intervalId = setInterval(async () => {
       if (isPolling) return;
+
+      // Skip polling if a local save was performed in the last 4 seconds to avoid race conditions
+      if (Date.now() - lastLocalSaveTimeRef.current < 4000) {
+        return;
+      }
+
       isPolling = true;
 
       try {
-        const response = await fetch("/api/db");
-        if (response.ok) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+        const response = await fetch("/api/db", {
+          headers: {
+            "Accept": "application/json"
+          },
+          signal: controller.signal
+        }).finally(() => clearTimeout(timeoutId));
+
+        const contentType = response.headers.get("content-type");
+        if (response.ok && contentType && contentType.includes("application/json")) {
           const serverData = await response.json();
           if (serverData && serverData.machines) {
             const checkAndSet = (localVal: any, serverVal: any, setter: any) => {
-              if (JSON.stringify(localVal) !== JSON.stringify(serverVal)) {
+              if (serverVal !== undefined && JSON.stringify(localVal) !== JSON.stringify(serverVal)) {
                 setter(serverVal);
               }
             };
 
-            checkAndSet(machines, serverData.machines, setMachines);
-            checkAndSet(technicians, serverData.technicians, setTechnicians);
-            checkAndSet(employees, serverData.employees, setEmployees);
-            checkAndSet(pmPlans, serverData.pmPlans, setPmPlans);
+            const curr = currentStateRef.current;
+            checkAndSet(curr.machines, serverData.machines, setMachines);
+            checkAndSet(curr.technicians, serverData.technicians, setTechnicians);
+            checkAndSet(curr.employees, serverData.employees, setEmployees);
+            checkAndSet(curr.pmPlans, serverData.pmPlans, setPmPlans);
             if (serverData.pmMachineIds && Array.isArray(serverData.pmMachineIds)) {
-              checkAndSet(pmMachineIds, serverData.pmMachineIds, setPmMachineIds);
+              checkAndSet(curr.pmMachineIds, serverData.pmMachineIds, setPmMachineIds);
             }
-            checkAndSet(schedules, serverData.schedules, setSchedules);
-            checkAndSet(repairs, serverData.repairs, setRepairs);
-            checkAndSet(improvements, serverData.improvements, setImprovements);
-            checkAndSet(setupLogs, serverData.setupLogs, setSetupLogs);
-            checkAndSet(leaves, serverData.leaves, setLeaves);
-            checkAndSet(spareParts, serverData.spareParts, setSpareParts);
-            checkAndSet(cd5Projects, serverData.cd5Projects, setCd5Projects);
-            checkAndSet(timeBreakParts, serverData.timeBreakParts, setTimeBreakParts);
-            checkAndSet(settings, serverData.settings, setSettings);
+            checkAndSet(curr.schedules, serverData.schedules, setSchedules);
+            checkAndSet(curr.repairs, serverData.repairs, setRepairs);
+            checkAndSet(curr.improvements, serverData.improvements, setImprovements);
+            checkAndSet(curr.setupLogs, serverData.setupLogs, setSetupLogs);
+            checkAndSet(curr.leaves, serverData.leaves, setLeaves);
+            checkAndSet(curr.spareParts, serverData.spareParts, setSpareParts);
+            checkAndSet(curr.cd5Projects, serverData.cd5Projects, setCd5Projects);
+            checkAndSet(curr.timeBreakParts, serverData.timeBreakParts, setTimeBreakParts);
+            checkAndSet(curr.settings, serverData.settings, setSettings);
             if (serverData.zones) {
-              checkAndSet(zones, serverData.zones, setZones);
+              checkAndSet(curr.zones, serverData.zones, setZones);
             }
           }
         }
       } catch (err) {
-        console.error("LAN Polling sync error:", err);
+        // Polling is a background task; log as notice rather than unhandled fatal error
+        console.warn("LAN Polling sync notice:", (err as Error)?.message || err);
       } finally {
         isPolling = false;
       }
     }, 4000); // poll every 4 seconds
 
     return () => clearInterval(intervalId);
-  }, [
-    isLoaded,
-    machines, technicians, employees, pmPlans, pmMachineIds, schedules,
-    repairs, improvements, setupLogs, leaves, spareParts, cd5Projects, timeBreakParts, settings, zones
-  ]);
+  }, [isLoaded]);
 
   const addZone = (zoneName: string): boolean => {
     const trimmed = zoneName.trim();

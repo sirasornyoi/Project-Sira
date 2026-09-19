@@ -18,15 +18,21 @@ export async function sendLineNotification(message: string, token?: string, to?:
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "Accept": "application/json",
       },
       body: JSON.stringify({ message, token: activeToken, to: activeTarget }),
     });
 
-    const data = await response.json();
-    if (response.ok && data.success) {
-      return { success: true };
+    const contentType = response.headers.get("content-type");
+    if (contentType && contentType.includes("application/json")) {
+      const data = await response.json();
+      if (response.ok && data.success) {
+        return { success: true };
+      } else {
+        return { success: false, message: data.message || "เกิดข้อผิดพลาดในการส่งข้อความแจ้งเตือน" };
+      }
     } else {
-      return { success: false, message: data.message || "เกิดข้อผิดพลาดในการส่งข้อความแจ้งเตือน" };
+      return { success: false, message: `Server error (${response.status})` };
     }
   } catch (error) {
     console.error("Error sending LINE notification:", error);

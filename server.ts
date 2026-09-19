@@ -23,10 +23,26 @@ async function startServer() {
 
   // API Route: Load Database
   app.get("/api/db", (req, res) => {
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
+    const backupFile = path.join(process.cwd(), "db.json.bak");
     try {
       if (fs.existsSync(DB_FILE)) {
         const fileContent = fs.readFileSync(DB_FILE, "utf-8");
-        return res.json(JSON.parse(fileContent));
+        if (fileContent.trim()) {
+          try {
+            return res.json(JSON.parse(fileContent));
+          } catch (parseErr) {
+            console.warn("db.json was invalid JSON, trying backup:", parseErr);
+            if (fs.existsSync(backupFile)) {
+              const bakContent = fs.readFileSync(backupFile, "utf-8");
+              return res.json(JSON.parse(bakContent));
+            }
+          }
+        }
+        return res.json({});
+      } else if (fs.existsSync(backupFile)) {
+        const bakContent = fs.readFileSync(backupFile, "utf-8");
+        return res.json(JSON.parse(bakContent));
       } else {
         return res.json({});
       }
@@ -172,6 +188,11 @@ async function startServer() {
         message: (error as Error).message 
       });
     }
+  });
+
+  // Ensure any unmatched /api/* route returns JSON 404 rather than HTML fallback
+  app.all("/api/*", (req, res) => {
+    res.status(404).json({ success: false, message: `API route not found: ${req.method} ${req.path}` });
   });
 
   // Vite middleware for development or serving compiled static assets in production
