@@ -51,6 +51,7 @@ export const PMPlanPage: React.FC = () => {
   const [showFormModal, setShowFormModal] = useState(false);
   const [editingPlanId, setEditingPlanId] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [resetChecklistPlanId, setResetChecklistPlanId] = useState<string | null>(null);
   
   // Quick Add/Edit Single Step modal
   const [stepModalPlanId, setStepModalPlanId] = useState<string | null>(null);
@@ -260,9 +261,13 @@ export const PMPlanPage: React.FC = () => {
 
   // Reset checklist steps for a plan
   const handleResetChecklist = (planId: string) => {
-    if (!confirm('คุณต้องการรีเซ็ตผลการตรวจและเครื่องหมายเช็คลิสต์ทั้งหมดในแผนนี้ใช่หรือไม่?')) return;
+    setResetChecklistPlanId(planId);
+  };
+
+  const confirmResetChecklist = () => {
+    if (!resetChecklistPlanId) return;
     setPmPlans(prev => prev.map(plan => {
-      if (plan.id !== planId) return plan;
+      if (plan.id !== resetChecklistPlanId) return plan;
       return {
         ...plan,
         steps: plan.steps.map(s => ({
@@ -272,6 +277,7 @@ export const PMPlanPage: React.FC = () => {
         }))
       };
     }));
+    setResetChecklistPlanId(null);
   };
 
   // Delete a step from a plan (ลดการทำ PM)
@@ -1934,6 +1940,52 @@ export const PMPlanPage: React.FC = () => {
                 className="bg-rose-600 hover:bg-rose-500 text-white font-extrabold px-4.5 py-2 rounded-xl transition shadow-lg shadow-rose-600/20 cursor-pointer"
               >
                 ยืนยันนำออก
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* CONFIRMATION FOR RESETTING PM CHECKLIST */}
+      {resetChecklistPlanId && (
+        <div 
+          id="modal-reset-pm-checklist-confirm"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/70 dark:bg-slate-950/85 backdrop-blur-sm p-4 animate-in fade-in duration-100"
+        >
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-6 rounded-2xl max-w-md w-full space-y-4 shadow-2xl text-xs text-slate-900 dark:text-slate-200">
+            <div className="flex items-center gap-3 text-amber-600 dark:text-amber-500 border-b border-slate-200 dark:border-slate-800 pb-3">
+              <RefreshCw size={22} className="shrink-0" />
+              <div>
+                <h3 className="text-sm font-extrabold text-slate-900 dark:text-slate-100">รีเซ็ตผลการตรวจเช็คลิสต์</h3>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-normal">ล้างเครื่องหมายติ๊กทำแล้วและผลตรวจทั้งหมดในแผนนี้</p>
+              </div>
+            </div>
+            
+            <div className="space-y-3 text-slate-700 dark:text-slate-300">
+              <p className="leading-relaxed">
+                คุณต้องการรีเซ็ตผลการตรวจและเครื่องหมายเช็คลิสต์ทั้งหมดในแผนนี้ใช่หรือไม่?
+              </p>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                (ทุกหัวข้อย่อยจะถูกเปลี่ยนสถานะกลับเป็น "ยังไม่ตรวจ")
+              </p>
+            </div>
+
+            <div className="flex gap-2.5 justify-end pt-2">
+              <button
+                type="button"
+                id="btn-cancel-reset-checklist"
+                onClick={() => setResetChecklistPlanId(null)}
+                className="border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 px-4 py-2 rounded-xl transition cursor-pointer font-medium"
+              >
+                ยกเลิก
+              </button>
+              <button
+                type="button"
+                id="btn-confirm-reset-checklist"
+                onClick={confirmResetChecklist}
+                className="bg-amber-600 hover:bg-amber-500 text-white font-extrabold px-4.5 py-2 rounded-xl transition shadow-lg shadow-amber-600/20 cursor-pointer"
+              >
+                ยืนยันรีเซ็ต
               </button>
             </div>
           </div>

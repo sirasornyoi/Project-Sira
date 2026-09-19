@@ -33,8 +33,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
   const [testStatus, setTestStatus] = useState<{ type: 'idle' | 'success' | 'error'; msg: string }>({ type: 'idle', msg: '' });
   const [isTesting, setIsTesting] = useState<boolean>(false);
 
-  // Technician input state
-  const [tempTechs, setTempTechs] = useState<string[]>([...technicians]);
+  // Technician input state with identity tracking ({ orig, name })
+  const [tempTechs, setTempTechs] = useState<{ orig: string; name: string }[]>(() =>
+    technicians.map(t => ({ orig: t, name: t }))
+  );
   const [newTechName, setNewTechName] = useState('');
 
   // Shift working hours inputs
@@ -46,6 +48,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
   // Import JSON textarea
   const [jsonImportStr, setJsonImportStr] = useState('');
   const [importStatus, setImportStatus] = useState<{ type: 'idle' | 'success' | 'error'; msg: string }>({ type: 'idle', msg: '' });
+  const [showResetDbConfirm, setShowResetDbConfirm] = useState<boolean>(false);
   const modalFileRef = useRef<HTMLInputElement>(null);
 
   const handleFileImport = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -81,70 +84,89 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
 
   // Add a technician name
   const handleAddTech = () => {
-    if (!newTechName.trim()) return;
-    if (tempTechs.includes(newTechName.trim())) {
+    const trimmed = newTechName.trim();
+    if (!trimmed) return;
+    if (tempTechs.some(t => t.name.trim() === trimmed)) {
       alert("มีชื่อช่างพนักงานนี้ในระบบแล้ว");
       return;
     }
-    setTempTechs(prev => [...prev, newTechName.trim()]);
+    setTempTechs(prev => [...prev, { orig: '', name: trimmed }]);
     setNewTechName('');
   };
 
   // Remove technician
   const handleRemoveTech = (idx: number) => {
-    if (tempTechs.length <= 1) {
-      alert("ต้องมีอย่างน้อย 1 ช่างประจำการในระบบ");
-      return;
-    }
     setTempTechs(prev => prev.filter((_, i) => i !== idx));
   };
 
   // Save technician names changes
   const handleSaveTechs = () => {
-    const updatedTechs = tempTechs.map(t => t.trim()).filter(Boolean);
-    if (updatedTechs.length === 0) {
-      alert("ต้องมีอย่างน้อย 1 ช่างประจำการในระบบและห้ามเว้นสายเปล่า");
-      return;
+    // Clean and validate rows: trim, ignore empty, and deduplicate
+    const cleanedRows: { orig: string; name: string }[] = [];
+    const seenNames = new Set<string>();
+
+    for (const item of tempTechs) {
+      const trimmed = item.name.trim();
+      if (!trimmed) continue;
+      if (seenNames.has(trimmed)) continue;
+      seenNames.add(trimmed);
+      cleanedRows.push({ orig: item.orig, name: trimmed });
     }
 
-    // Find any renames by matching index
+    const updatedTechs = cleanedRows.map(r => r.name);
+
+    // Build renamedMap ONLY for rows where orig is not empty AND orig !== name.
+    // Technicians that were deleted will NOT have a row with their orig pointing to a new name,
+    // so their historical logs are kept intact under their original name and not reassigned.
     const renamedMap: Record<string, string> = {};
-    technicians.forEach((oldName, idx) => {
-      const newName = updatedTechs[idx];
-      if (newName && oldName !== newName) {
-        renamedMap[oldName] = newName;
+    for (const row of cleanedRows) {
+      if (row.orig && row.orig !== row.name) {
+        renamedMap[row.orig] = row.name;
       }
-    });
+    }
 
     const hasRenames = Object.keys(renamedMap).length > 0;
 
     if (hasRenames) {
       // Propagate to schedules
       setSchedules(prev => prev.map(s => {
+        let updated = s;
         if (renamedMap[s.technician]) {
-          return { ...s, technician: renamedMap[s.technician] };
+          updated = { ...updated, technician: renamedMap[s.technician] };
         }
-        return s;
+        if (updated.technicians && updated.technicians.some(t => renamedMap[t])) {
+          updated = { ...updated, technicians: updated.technicians.map(t => renamedMap[t] || t) };
+        }
+        return updated;
       }));
 
       // Propagate to repairs
       setRepairs(prev => prev.map(r => {
+        let updated = r;
         if (renamedMap[r.technician]) {
-          return { ...r, technician: renamedMap[r.technician] };
+          updated = { ...updated, technician: renamedMap[r.technician] };
         }
-        return r;
+        if (updated.technicians && updated.technicians.some(t => renamedMap[t])) {
+          updated = { ...updated, technicians: updated.technicians.map(t => renamedMap[t] || t) };
+        }
+        return updated;
       }));
 
       // Propagate to improvements
       setImprovements(prev => prev.map(imp => {
+        let updated = imp;
         if (renamedMap[imp.technician]) {
-          return { ...imp, technician: renamedMap[imp.technician] };
+          updated = { ...updated, technician: renamedMap[imp.technician] };
         }
-        return imp;
+        if (updated.technicians && updated.technicians.some(t => renamedMap[t])) {
+          updated = { ...updated, technicians: updated.technicians.map(t => renamedMap[t] || t) };
+        }
+        return updated;
       }));
     }
 
     setTechnicians(updatedTechs);
+    setTempTechs(cleanedRows.map(r => ({ orig: r.name, name: r.name })));
     alert("บันทึกรายชื่อช่างหลักและแก้ไขเชื่อมโยงประวัติงานเรียบร้อยแล้ว");
   };
 
@@ -211,14 +233,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
     }
   };
 
-  // Reset database warning trigger
+  // Reset database warning trigger (in-app confirmation)
   const triggerResetDatabase = () => {
-    if (window.confirm('🚨 คำเตือนรุนแรงระดับความมั่นคง! คุณต้องการตั้งค่าระบบใหม่ทั้งหมดใช่หรือไม่? ประวัติการแจ้งประเมินวิเคราะห์ชำรุด งาน PM โครงการ Kaizen ทั้งหมดจะถูกลบกลายเป็นดีฟอลต์พรีโหลด')) {
-      resetToDefaults();
-      alert("รีเซ็ตระบบเข้าตั้งต้นสำเร็จ!");
-      onClose();
-      window.location.reload();
-    }
+    setShowResetDbConfirm(true);
+  };
+
+  const confirmResetDatabase = () => {
+    resetToDefaults();
+    alert("รีเซ็ตระบบเข้าตั้งต้นสำเร็จ!");
+    setShowResetDbConfirm(false);
+    onClose();
+    window.location.reload();
   };
 
   // Save LINE configuration
@@ -391,35 +416,43 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-border dark:divide-slate-700/40 text-slate-700 dark:text-slate-300">
-                      {tempTechs.map((tName, i) => (
-                        <tr key={i} className="hover:bg-slate-50 dark:hover:bg-slate-900/40">
-                          <td className="py-2 px-4 text-center text-slate-400 font-mono">{i + 1}</td>
-                          <td className="py-2 px-4 font-bold">
-                            <input
-                              type="text"
-                              value={tName}
-                              onChange={(e) => {
-                                const val = e.target.value;
-                                setTempTechs(prev => {
-                                  const cloned = [...prev];
-                                  cloned[i] = val;
-                                  return cloned;
-                                });
-                              }}
-                              className="w-full bg-white dark:bg-slate-950/60 border border-border dark:border-slate-700/80 rounded px-2 py-1 text-xs text-fg dark:text-slate-200 focus:outline-none focus:border-cyan-500 font-sans font-medium"
-                            />
-                          </td>
-                          <td className="py-2 px-4 text-center">
-                            <button
-                              onClick={() => handleRemoveTech(i)}
-                              className="text-slate-400 hover:text-rose-500 text-sm transition bg-slate-100 dark:bg-slate-950/20 hover:bg-slate-200 dark:hover:bg-slate-900 p-1 rounded cursor-pointer"
-                              title="ลบรายชื่อช่างคนนี้"
-                            >
-                              &times;
-                            </button>
+                      {tempTechs.length === 0 ? (
+                        <tr>
+                          <td colSpan={3} className="py-6 text-center text-slate-400 text-xs">
+                            ยังไม่มีรายชื่อช่างในระบบ (สามารถพิมพ์ชื่อด้านบนเพื่อเพิ่มได้)
                           </td>
                         </tr>
-                      ))}
+                      ) : (
+                        tempTechs.map((item, i) => (
+                          <tr key={i} className="hover:bg-slate-50 dark:hover:bg-slate-900/40">
+                            <td className="py-2 px-4 text-center text-slate-400 font-mono">{i + 1}</td>
+                            <td className="py-2 px-4 font-bold">
+                              <input
+                                type="text"
+                                value={item.name}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setTempTechs(prev => {
+                                    const cloned = [...prev];
+                                    cloned[i] = { ...cloned[i], name: val };
+                                    return cloned;
+                                  });
+                                }}
+                                className="w-full bg-white dark:bg-slate-950/60 border border-border dark:border-slate-700/80 rounded px-2 py-1 text-xs text-fg dark:text-slate-200 focus:outline-none focus:border-cyan-500 font-sans font-medium"
+                              />
+                            </td>
+                            <td className="py-2 px-4 text-center">
+                              <button
+                                onClick={() => handleRemoveTech(i)}
+                                className="text-slate-400 hover:text-rose-500 text-sm transition bg-slate-100 dark:bg-slate-950/20 hover:bg-slate-200 dark:hover:bg-slate-900 p-1 rounded cursor-pointer"
+                                title="ลบรายชื่อช่างคนนี้"
+                              >
+                                &times;
+                              </button>
+                            </td>
+                          </tr>
+                        ))
+                      )}
                     </tbody>
                   </table>
                 </div>
@@ -827,6 +860,52 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
         </div>
 
       </div>
+
+      {/* CONFIRMATION FOR DATABASE RESET */}
+      {showResetDbConfirm && (
+        <div 
+          id="modal-reset-db-confirm"
+          className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4 animate-in fade-in duration-100"
+        >
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-6 rounded-2xl max-w-md w-full space-y-4 shadow-2xl text-xs text-slate-900 dark:text-slate-200">
+            <div className="flex items-center gap-3 text-rose-600 dark:text-rose-500 border-b border-slate-200 dark:border-slate-800 pb-3">
+              <AlertTriangle size={24} className="shrink-0" />
+              <div>
+                <h3 className="text-sm font-extrabold text-slate-900 dark:text-slate-100">🚨 คำเตือนรุนแรงระดับความมั่นคง!</h3>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-normal">ล้างและตั้งค่าระบบใหม่ทั้งหมดเป็นค่าเริ่มต้น</p>
+              </div>
+            </div>
+            
+            <div className="space-y-3 text-slate-700 dark:text-slate-300">
+              <p className="leading-relaxed font-semibold text-rose-600 dark:text-rose-400">
+                คุณต้องการตั้งค่าระบบใหม่ทั้งหมดใช่หรือไม่?
+              </p>
+              <div className="p-3 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 rounded-xl space-y-1.5 text-[11px] text-rose-800 dark:text-rose-300">
+                <p>ประวัติการแจ้งประเมินวิเคราะห์ชำรุด งาน PM โครงการ Kaizen ทั้งหมดจะถูกลบกลายเป็นดีฟอลต์พรีโหลด</p>
+              </div>
+            </div>
+
+            <div className="flex gap-2.5 justify-end pt-2">
+              <button
+                type="button"
+                id="btn-cancel-reset-db"
+                onClick={() => setShowResetDbConfirm(false)}
+                className="border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 px-4 py-2 rounded-xl transition cursor-pointer font-medium"
+              >
+                ยกเลิก
+              </button>
+              <button
+                type="button"
+                id="btn-confirm-reset-db"
+                onClick={confirmResetDatabase}
+                className="bg-rose-600 hover:bg-rose-500 text-white font-extrabold px-4.5 py-2 rounded-xl transition shadow-lg shadow-rose-600/20 cursor-pointer"
+              >
+                ยืนยันรีเซ็ตระบบ
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

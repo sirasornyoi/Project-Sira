@@ -63,6 +63,9 @@ export const SchedulePage: React.FC = () => {
   const [formTaskType, setFormTaskType] = useState<'PM' | 'Repair' | 'Other'>('PM');
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
 
+  // Delete Confirmation modal state
+  const [taskToDelete, setTaskToDelete] = useState<{ id: string; type: 'PM' | 'Repair' | 'Other' } | null>(null);
+
   // Common Form states
   const [formDate, setFormDate] = useState<string>(todayDateStr);
   const [formDestination, setFormDestination] = useState<string>('');
@@ -558,16 +561,21 @@ export const SchedulePage: React.FC = () => {
     setShowTaskForm(false);
   };
 
-  // Delete task
+  // Delete task trigger (in-app modal confirmation)
   const handleDeleteTask = (taskId: string, type: 'PM' | 'Repair' | 'Other') => {
-    if (window.confirm('คุณต้องการลบงานนี้ออกจากตารางงานใช่หรือไม่?')) {
-      if (type === 'Repair') {
-        setRepairs(prev => prev.filter(r => r.id !== taskId));
-      } else {
-        setSchedules(prev => prev.filter(s => s.id !== taskId));
-      }
-      setToast({ text: 'ลบรายการงานเรียบร้อยแล้ว', type: 'info' });
+    setTaskToDelete({ id: taskId, type });
+  };
+
+  const confirmDeleteTask = () => {
+    if (!taskToDelete) return;
+    const { id: taskId, type } = taskToDelete;
+    if (type === 'Repair') {
+      setRepairs(prev => prev.filter(r => r.id !== taskId));
+    } else {
+      setSchedules(prev => prev.filter(s => s.id !== taskId));
     }
+    setToast({ text: 'ลบรายการงานเรียบร้อยแล้ว', type: 'info' });
+    setTaskToDelete(null);
   };
 
   // Quick toggle status for task
@@ -1739,6 +1747,43 @@ export const SchedulePage: React.FC = () => {
               </div>
 
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* CONFIRMATION MODAL FOR DELETING TASK FROM CALENDAR */}
+      {taskToDelete && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4 animate-in fade-in duration-100">
+          <div id="schedule-delete-task-modal" className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-750 rounded-2xl max-w-sm w-full p-6 space-y-5 shadow-2xl">
+            <div className="flex flex-col items-center text-center space-y-3">
+              <div className="w-12 h-12 rounded-full bg-rose-500/15 flex items-center justify-center text-rose-500">
+                <Trash2 size={24} />
+              </div>
+              <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                {taskToDelete.type === 'PM' ? 'ลบงาน PM จากตารางงาน?' : taskToDelete.type === 'Repair' ? 'ลบงานซ่อมจากตารางงาน?' : 'ลบงานติดต่อ/อื่นๆ?'}
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                คุณแน่ใจหรือไม่ว่าต้องการลบรายการนี้ออกจากตารางงานประจำเดือน?
+              </p>
+            </div>
+            <div className="flex gap-3 justify-end text-xs font-bold">
+              <button
+                type="button"
+                id="btn-cancel-delete-schedule-task"
+                onClick={() => setTaskToDelete(null)}
+                className="w-1/2 border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 py-2.5 rounded-xl cursor-pointer transition font-medium"
+              >
+                ยกเลิก
+              </button>
+              <button
+                type="button"
+                id="btn-confirm-delete-schedule-task"
+                onClick={confirmDeleteTask}
+                className="w-1/2 bg-rose-600 hover:bg-rose-500 text-white py-2.5 rounded-xl cursor-pointer transition shadow-lg shadow-rose-600/20"
+              >
+                ยืนยันลบ
+              </button>
+            </div>
           </div>
         </div>
       )}
