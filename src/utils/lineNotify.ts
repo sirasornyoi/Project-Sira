@@ -1,4 +1,5 @@
 import { RepairLog, PMScheduleItem, OperationScheduleItem, SetupLog, Machine, PMPlan } from '../types';
+import { getTodayDateString } from './pmAlerts';
 
 /**
  * Send a notification to LINE via our server-side proxy
@@ -186,7 +187,7 @@ export function buildMorningSummaryMessage(pmItemsToday: PMScheduleItem[], machi
     return `${idx + 1}. [${pm.machineId}] ${mName} - ${pm.title || 'บำรุงรักษา PM'}\n   👤 ช่าง: ${techs} | ⏱️ ${pm.duration} นาที | 🎯 สถานะ: ${pm.status}`;
   }).join('\n');
 
-  const dateStr = pmItemsToday[0]?.date || new Date().toISOString().split('T')[0];
+  const dateStr = pmItemsToday[0]?.date || getTodayDateString();
   return `
 🌅 [สรุปแผนงาน PM ประจำวัน - ${dateStr}]
 📋 รวมทั้งหมด: ${pmItemsToday.length} รายการ

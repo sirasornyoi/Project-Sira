@@ -10,6 +10,7 @@ import {
   PRELOADED_SPARE_PARTS, PRELOADED_CD5_PROJECTS, PRELOADED_TIME_BREAK_PARTS
 } from '../data/preloaded';
 import { sendMorningSummary } from '../utils/lineNotify';
+import { getTodayDateString } from '../utils/pmAlerts';
 
 interface AppContextType {
   machines: Machine[];
@@ -418,7 +419,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const autoMorning = settings.lineAutoEvents?.morningSummary !== false; // default true
         if (!isEnabled || !autoMorning) return;
 
-        const today = new Date().toISOString().split('T')[0];
+        const today = getTodayDateString();
         if (settings.lastMorningSummaryDate === today) return;
 
         // Double check localStorage in case state was initialized before update
