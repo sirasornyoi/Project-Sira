@@ -10,6 +10,7 @@ import {
   getTodayDateString, getPMOverdueDays, isPMOverdue, isPMRescheduled,
   getOverdueAndRescheduledSummary, formatOverduePMLineMessage
 } from '../utils/pmAlerts';
+import { sendLineNotification } from '../utils/lineNotify';
 import { PMRescheduleModal } from './PMRescheduleModal';
 
 interface PMOverdueAlertModalProps {
@@ -56,12 +57,14 @@ export const PMOverdueAlertModal: React.FC<PMOverdueAlertModalProps> = ({
   // Handle Send LINE alert for all overdue jobs
   const handleBroadcastLineAlert = async () => {
     if (overdueJobs.length === 0) {
-      alert('ไม่มีงาน PM ที่เลยกำหนดในขณะนี้');
+      setLineStatusMessage('⚠️ ไม่มีงาน PM ที่เลยกำหนดในขณะนี้');
+      setTimeout(() => setLineStatusMessage(null), 4000);
       return;
     }
 
     if (!settings.lineNotifyEnabled || !settings.lineNotifyToken) {
-      alert('กรุณาเปิดใช้งาน LINE Notify และระบุ Token ในหน้าต่างตั้งค่า (ไอคอนฟันเฟือง)');
+      setLineStatusMessage('⚠️ กรุณาเปิดใช้งาน LINE Notify และระบุ Token ในหน้าต่างตั้งค่า (ไอคอนฟันเฟือง)');
+      setTimeout(() => setLineStatusMessage(null), 5000);
       return;
     }
 
@@ -70,20 +73,12 @@ export const PMOverdueAlertModal: React.FC<PMOverdueAlertModalProps> = ({
 
     try {
       const msg = formatOverduePMLineMessage(overdueJobs, machines, pmPlans, todayStr);
-      const res = await fetch('/api/line-notify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: msg,
-          token: settings.lineNotifyToken
-        })
-      });
+      const res = await sendLineNotification(msg, settings.lineNotifyToken, settings.lineTargetId);
 
-      if (res.ok) {
+      if (res.success) {
         setLineStatusMessage('✅ ส่งการแจ้งเตือนงาน PM เลยกำหนดเข้า LINE เรียบร้อยแล้ว!');
       } else {
-        const data = await res.json();
-        setLineStatusMessage(`❌ ส่งไม่สำเร็จ: ${data.message || 'Error'}`);
+        setLineStatusMessage(`❌ ส่งไม่สำเร็จ: ${res.message || 'Error'}`);
       }
     } catch (err) {
       setLineStatusMessage(`❌ เกิดข้อผิดพลาดในการเชื่อมต่อ: ${(err as Error).message}`);

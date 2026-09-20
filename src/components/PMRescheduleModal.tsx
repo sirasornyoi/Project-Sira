@@ -6,6 +6,7 @@ import {
   X, HelpCircle, User, Wrench, FileText, ArrowRight, History, AlertCircle
 } from 'lucide-react';
 import { RESCHEDULE_REASONS, getTodayDateString, getPMOverdueDays, isPMOverdue } from '../utils/pmAlerts';
+import { sendLineNotification } from '../utils/lineNotify';
 
 interface PMRescheduleModalProps {
   job: PMScheduleItem;
@@ -43,6 +44,7 @@ export const PMRescheduleModal: React.FC<PMRescheduleModalProps> = ({ job, onClo
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [showHistory, setShowHistory] = useState<boolean>(false);
   const [showSameDateConfirm, setShowSameDateConfirm] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Quick date jump helpers
   const handleQuickAddDays = (days: number) => {
@@ -52,6 +54,7 @@ export const PMRescheduleModal: React.FC<PMRescheduleModalProps> = ({ job, onClo
     const m = String(base.getMonth() + 1).padStart(2, '0');
     const d = String(base.getDate()).padStart(2, '0');
     setNewDate(`${y}-${m}-${d}`);
+    setErrorMessage(null);
   };
 
   const handleToggleCoTech = (tech: string) => {
@@ -111,14 +114,7 @@ export const PMRescheduleModal: React.FC<PMRescheduleModalProps> = ({ job, onClo
           `------------------------------------\n` +
           `ระบบลงบันทึกประวัติการเลื่อนแผนเรียบร้อยแล้ว`;
 
-        await fetch('/api/line-notify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            message: lineMsg,
-            token: settings.lineNotifyToken
-          })
-        });
+        await sendLineNotification(lineMsg, settings.lineNotifyToken, settings.lineTargetId);
       } catch (err) {
         console.error('Failed to send LINE notification for reschedule:', err);
       }
@@ -133,7 +129,7 @@ export const PMRescheduleModal: React.FC<PMRescheduleModalProps> = ({ job, onClo
     e.preventDefault();
 
     if (!newDate) {
-      alert('กรุณาระบุกำหนดการวันที่ใหม่');
+      setErrorMessage('กรุณาระบุกำหนดการวันที่ใหม่');
       return;
     }
 
@@ -411,6 +407,14 @@ export const PMRescheduleModal: React.FC<PMRescheduleModalProps> = ({ job, onClo
                 <span>ส่งข้อความแจ้งเตือนการเลื่อนแผนเข้ากลุ่ม LINE ซ่อมบำรุงทันที</span>
               </span>
             </label>
+          )}
+
+          {/* ERROR MESSAGE */}
+          {errorMessage && (
+            <div className="p-2.5 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 rounded-xl flex items-center gap-2 text-rose-700 dark:text-rose-400 text-xs">
+              <AlertCircle size={15} className="shrink-0" />
+              <span>{errorMessage}</span>
+            </div>
           )}
 
           {/* ACTION BUTTONS */}

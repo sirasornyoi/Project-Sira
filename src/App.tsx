@@ -11,7 +11,6 @@ import { SetupPage } from './components/SetupPage';
 import { PresentationPage } from './components/PresentationPage';
 import { SettingsModal } from './components/SettingsModal';
 import { InventoryPage } from './components/InventoryPage';
-import { PMHistoryPage } from './components/PMHistoryPage';
 import { TimeBreakPage } from './components/TimeBreakPage';
 import { TechnicianPortfolioPage } from './components/TechnicianPortfolioPage';
 import { CostDown5Page } from './components/CostDown5Page';

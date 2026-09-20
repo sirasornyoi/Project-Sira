@@ -511,7 +511,7 @@ export const SchedulePage: React.FC = () => {
     } else {
       // Contact / Other
       if (!formTitle.trim()) {
-        alert('กรุณาระบุชื่องานหรือภารกิจติดต่อ/อื่นๆ');
+        setToast({ text: 'กรุณาระบุชื่องานหรือภารกิจติดต่อ/อื่นๆ', type: 'error' });
         return;
       }
 
