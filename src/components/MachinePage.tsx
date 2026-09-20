@@ -12,6 +12,7 @@ import {
 import { MachineImportModal } from './MachineImportModal';
 import { ZoneRoomManagerModal } from './ZoneRoomManagerModal';
 import { ZoneRoomFieldGroup } from './ZoneRoomFieldGroup';
+import { getTodayDateString } from '../utils/pmAlerts';
 
 interface MachineGroup {
   name: string;
@@ -73,7 +74,7 @@ export const MachinePage: React.FC = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   
   // Get active breakdown status based on the latest repairs
-  const currentMonth = "2026-06"; // Current local time is June 2026
+  const currentMonth = getTodayDateString().slice(0, 7);
 
   const getMachineStats = (mId: string) => {
     // Breakdown count of current month

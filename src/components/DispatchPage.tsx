@@ -11,6 +11,7 @@ import {
   Search, Info, Lock, Unlock, HelpCircle, SlidersHorizontal, Check
 } from 'lucide-react';
 import { notifyPMDispatched, notifyRepairOpened, notifyRepairClosed } from '../utils/lineNotify';
+import { getTodayDateString } from '../utils/pmAlerts';
 
 export const DispatchPage: React.FC = () => {
   const { 
@@ -23,8 +24,8 @@ export const DispatchPage: React.FC = () => {
     spareParts, setSpareParts
   } = useApp();
 
-  // Active Date selector for dispatching and tracking (defaults to today 2026-06-10)
-  const [selectedDate, setSelectedDate] = useState<string>("2026-06-10");
+  // Active Date selector for dispatching and tracking (defaults to today)
+  const [selectedDate, setSelectedDate] = useState<string>(() => getTodayDateString());
   const [activeFormTab, setActiveFormTab] = useState<'Operation' | 'PM' | 'Repair' | 'Improvement'>('Operation');
 
   // --- MASTER VIEW TABS - CHOOSE CREATOR OR SUMMARY TAB ---
