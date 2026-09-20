@@ -3,11 +3,12 @@ import { useApp } from '../context/AppContext';
 import { RepairLog, WhyWhyAnalysis } from '../types';
 import { 
   Plus, Search, SlidersHorizontal, Image as ImageIcon, 
-  Trash2, AlertTriangle, CheckCircle, HelpCircle, ArrowUpDown,
-  Edit, FileSpreadsheet, Upload, X, Send, GitFork, Target
+  Trash2, AlertTriangle, CheckCircle, CheckCircle2, HelpCircle, ArrowUpDown,
+  Edit, FileSpreadsheet, Upload, X, Send, GitFork, Target, Wrench
 } from 'lucide-react';
 import { notifyRepairOpened, notifyRepairClosed, sendLineNotification } from '../utils/lineNotify';
 import { compressImageFile } from '../utils/imageUtils';
+import { WhyWhySubTab } from './WhyWhySubTab';
 import { 
   createDefaultWhyWhyAnalysis, 
   migrateLegacyWhyToTree, 
@@ -16,12 +17,12 @@ import {
 } from '../utils/whyWhyUtils';
 import * as XLSX from 'xlsx';
 
-interface RepairPageProps {
-  onNavigateToWhyWhy?: (repairId: string) => void;
-}
-
-export const RepairPage: React.FC<RepairPageProps> = ({ onNavigateToWhyWhy }) => {
+export const RepairPage: React.FC = () => {
   const { repairs, setRepairs, machines, technicians, spareParts, setSpareParts, settings } = useApp();
+
+  // Segmented sub-tab: 'bd' (Breakdown & History) | 'whywhy' (Why-Why Diagram Tree)
+  const [activeSubTab, setActiveSubTab] = useState<'bd' | 'whywhy'>('bd');
+  const [focusedWhyWhyRepairId, setFocusedWhyWhyRepairId] = useState<string | null>(null);
 
   // Search/Filters states
   const [machineFilter, setMachineFilter] = useState('');
@@ -863,16 +864,68 @@ export const RepairPage: React.FC<RepairPageProps> = ({ onNavigateToWhyWhy }) =>
   return (
     <div className="space-y-6" id="repair-page-root">
       
-      {/* Header action */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold text-cyan-400 tracking-tight flex items-center gap-2">
-            🔧 Breakdownและประวัติการซ่อม (Breakdown Logs)
-          </h1>
-          <p className="text-slate-400 text-sm mt-1">
-            ลงด่วนรายงานการทำงานซ่อมบำรุง วิเคราะห์หาปัจจัยรากเหง้า Why-Why อนุมัติบันทึกเข้าตารางปฏิบัติงาน
-          </p>
+      {/* SEGMENTED SUB-TABS: BD vs Why-Why */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border dark:border-slate-800 pb-3">
+        <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-xl w-fit border border-slate-200 dark:border-slate-700">
+          <button
+            type="button"
+            id="subtab-btn-bd"
+            onClick={() => setActiveSubTab('bd')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition cursor-pointer ${
+              activeSubTab === 'bd'
+                ? 'bg-white dark:bg-slate-900 text-cyan-600 dark:text-cyan-400 shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+            }`}
+          >
+            <Wrench size={14} />
+            <span>แจ้งซ่อม/ประวัติ (BD)</span>
+          </button>
+          <button
+            type="button"
+            id="subtab-btn-whywhy"
+            onClick={() => setActiveSubTab('whywhy')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition cursor-pointer ${
+              activeSubTab === 'whywhy'
+                ? 'bg-white dark:bg-slate-900 text-cyan-600 dark:text-cyan-400 shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+            }`}
+          >
+            <GitFork size={14} />
+            <span>ผัง Why-Why</span>
+          </button>
         </div>
+
+        <div className="text-xs text-slate-400 font-medium">
+          {activeSubTab === 'bd' ? 'มุมมองรายการแจ้งซ่อมและประวัติการซ่อมบำรุง' : 'มุมมองผังวิเคราะห์สาเหตุรากเหง้าเชิงลึก'}
+        </div>
+      </div>
+
+      {/* SUB-TAB: WHY-WHY TREE ANALYSIS */}
+      {activeSubTab === 'whywhy' ? (
+        <WhyWhySubTab
+          repairs={repairs}
+          setRepairs={setRepairs}
+          machines={machines}
+          technicians={technicians}
+          focusedRepairId={focusedWhyWhyRepairId}
+          onClearFocusedRepairId={() => setFocusedWhyWhyRepairId(null)}
+          onNavigateToBdCase={(repair) => {
+            setActiveSubTab('bd');
+            setSelectedRepairDetail(repair);
+          }}
+        />
+      ) : (
+        <>
+          {/* Header action */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <h1 className="text-2xl font-semibold text-cyan-400 tracking-tight flex items-center gap-2">
+                🔧 แจ้งซ่อมและประวัติการซ่อม (Breakdown Logs)
+              </h1>
+              <p className="text-slate-400 text-sm mt-1">
+                ลงด่วนรายงานการทำงานซ่อมบำรุง วิเคราะห์หาปัจจัยรากเหง้า Why-Why อนุมัติบันทึกเข้าตารางปฏิบัติงาน
+              </p>
+            </div>
         <div className="flex flex-wrap items-center gap-3 self-stretch sm:self-auto shrink-0">
           <button
             type="button"
@@ -1025,7 +1078,7 @@ export const RepairPage: React.FC<RepairPageProps> = ({ onNavigateToWhyWhy }) =>
                 <th className="py-4 px-3 text-center">MTTR (นาที)</th>
                 <th className="py-4 px-3 text-center">Std. MTTR</th>
                 <th className="py-4 px-4">อาการเสียชำรุด</th>
-                <th className="py-4 px-4">Why 1 (วิเคราะห์แรกพบ)</th>
+                <th className="py-4 px-3 text-center">สถานะ Why-Why</th>
                 <th className="py-4 px-3 text-right">ค่าซ่อมทั้งหมด</th>
                 <th className="py-4 px-3 text-center">ช่างซ่อม</th>
                 <th className="py-4 px-3 text-center w-24 font-semibold text-slate-500 dark:text-slate-350">จัดการ</th>
@@ -1094,8 +1147,52 @@ export const RepairPage: React.FC<RepairPageProps> = ({ onNavigateToWhyWhy }) =>
                           )}
                         </div>
                       </td>
-                      <td className="py-4 px-4 max-w-[180px] truncate text-slate-600 dark:text-slate-350 italic" title={r.why1}>
-                        {r.why1 || "-"}
+                      <td className="py-4 px-3 text-center">
+                        <div className="flex flex-col items-center gap-1.5">
+                          {(() => {
+                            const whyWhy = r.whyWhy;
+                            const hasDirectWhyWhy = Boolean(whyWhy && whyWhy.branches && whyWhy.branches.length > 0);
+                            const hasLegacy = Boolean(r.why1 || r.why2 || r.why3 || r.why4 || r.why5);
+                            const analysis = whyWhy || (hasLegacy ? migrateLegacyWhyToTree(r) : null);
+                            const stats = analysis ? getWhyWhyAnalysisStats(analysis) : null;
+                            const hasRoot = stats ? stats.rootCauseCount > 0 : false;
+
+                            if (hasRoot) {
+                              return (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 whitespace-nowrap">
+                                  <CheckCircle2 size={10} />
+                                  <span>พบรากเหง้าแล้ว</span>
+                                </span>
+                              );
+                            }
+                            if (hasDirectWhyWhy || hasLegacy) {
+                              return (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-cyan-100 text-cyan-800 dark:bg-cyan-950/60 dark:text-cyan-300 border border-cyan-300 dark:border-cyan-800 whitespace-nowrap">
+                                  <GitFork size={10} />
+                                  <span>มีผัง Why-Why</span>
+                                </span>
+                              );
+                            }
+                            return (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9.5px] font-medium bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border border-slate-200 dark:border-slate-700 whitespace-nowrap">
+                                <span>ยังไม่มีผัง</span>
+                              </span>
+                            );
+                          })()}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setFocusedWhyWhyRepairId(r.id);
+                              setActiveSubTab('whywhy');
+                            }}
+                            className="inline-flex items-center gap-1 px-2 py-0.5 bg-cyan-50 hover:bg-cyan-100 dark:bg-cyan-950/40 dark:hover:bg-cyan-900/60 text-cyan-700 dark:text-cyan-300 rounded text-[10px] font-bold border border-cyan-200 dark:border-cyan-800 transition cursor-pointer whitespace-nowrap"
+                            title="เปิดดู/แก้ไขผัง Why-Why ในแท็บผัง Why-Why"
+                          >
+                            <GitFork size={10} />
+                            <span>ดู/แก้ Why-Why</span>
+                          </button>
+                        </div>
                       </td>
                       <td className="py-4 px-3 text-right font-mono font-semibold text-cyan-700 dark:text-cyan-400 whitespace-nowrap">
                         {((r.usedParts?.reduce((sum, item) => sum + item.totalCost, 0) || 0) + (r.otherCost || 0)).toLocaleString()} ฿
@@ -1157,6 +1254,8 @@ export const RepairPage: React.FC<RepairPageProps> = ({ onNavigateToWhyWhy }) =>
           </table>
         </div>
       </div>
+      </>
+      )}
 
       {/* [+ บันทึกงานซ่อม] FORM MODAL DIALOG */}
       {showFormModal && (
@@ -1289,16 +1388,17 @@ export const RepairPage: React.FC<RepairPageProps> = ({ onNavigateToWhyWhy }) =>
                       ผังวิเคราะห์สาเหตุรากเหง้า (Why-Why Analysis)
                     </span>
                   </div>
-                  {editingId && onNavigateToWhyWhy && (
+                  {editingId && (
                     <button
                       type="button"
                       onClick={() => {
                         setShowFormModal(false);
-                        onNavigateToWhyWhy(editingId);
+                        setFocusedWhyWhyRepairId(editingId);
+                        setActiveSubTab('whywhy');
                       }}
                       className="text-[11px] font-bold text-cyan-600 dark:text-cyan-400 hover:underline flex items-center gap-1 cursor-pointer"
                     >
-                      <span>เปิดในหน้า Why-Why เต็ม</span>
+                      <span>เปิดในแท็บผัง Why-Why</span>
                       <span>→</span>
                     </button>
                   )}
@@ -1312,7 +1412,7 @@ export const RepairPage: React.FC<RepairPageProps> = ({ onNavigateToWhyWhy }) =>
                   </div>
                 ) : (
                   <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                    สามารถวิเคราะห์เจาะลึกแบบต้นไม้แตกกิ่งไม่จำกัดชั้น (Occurrence, Detection, Recurrence) ได้ที่หน้า <strong>ผังวิเคราะห์ Why-Why</strong>
+                    สามารถวิเคราะห์เจาะลึกแบบต้นไม้แตกกิ่งไม่จำกัดชั้น (Occurrence, Detection, Recurrence) ได้ที่แท็บ <strong>ผัง Why-Why</strong>
                   </p>
                 )}
 
@@ -1747,20 +1847,19 @@ export const RepairPage: React.FC<RepairPageProps> = ({ onNavigateToWhyWhy }) =>
                         )}
                       </div>
 
-                      {onNavigateToWhyWhy && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const repId = selectedRepairDetail.id;
-                            setSelectedRepairDetail(null);
-                            onNavigateToWhyWhy(repId);
-                          }}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white rounded-lg text-xs font-bold shadow-xs transition cursor-pointer"
-                        >
-                          <GitFork size={13} />
-                          <span>เปิดในหน้า Why-Why</span>
-                        </button>
-                      )}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const repId = selectedRepairDetail.id;
+                          setSelectedRepairDetail(null);
+                          setFocusedWhyWhyRepairId(repId);
+                          setActiveSubTab('whywhy');
+                        }}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white rounded-lg text-xs font-bold shadow-xs transition cursor-pointer"
+                      >
+                        <GitFork size={13} />
+                        <span>ดู/แก้ในแท็บผัง Why-Why</span>
+                      </button>
                     </div>
 
                     {hasWhys ? (
@@ -1835,19 +1934,18 @@ export const RepairPage: React.FC<RepairPageProps> = ({ onNavigateToWhyWhy }) =>
                         <p className="text-xs text-slate-500 dark:text-slate-400">
                           ยังไม่มีการบันทึกผังวิเคราะห์ Why-Why สำหรับเคสนี้
                         </p>
-                        {onNavigateToWhyWhy && (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const repId = selectedRepairDetail.id;
-                              setSelectedRepairDetail(null);
-                              onNavigateToWhyWhy(repId);
-                            }}
-                            className="text-xs font-bold text-cyan-600 dark:text-cyan-400 hover:underline cursor-pointer"
-                          >
-                            + คลิกเพื่อสร้างผังวิเคราะห์ในหน้า Why-Why
-                          </button>
-                        )}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const repId = selectedRepairDetail.id;
+                            setSelectedRepairDetail(null);
+                            setFocusedWhyWhyRepairId(repId);
+                            setActiveSubTab('whywhy');
+                          }}
+                          className="text-xs font-bold text-cyan-600 dark:text-cyan-400 hover:underline cursor-pointer"
+                        >
+                          + คลิกเพื่อสร้างผังวิเคราะห์ในแท็บผัง Why-Why
+                        </button>
                       </div>
                     )}
                   </div>

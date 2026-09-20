@@ -4,7 +4,6 @@ import { MachinePage } from './components/MachinePage';
 import { PMPlanPage } from './components/PMPlanPage';
 import { SchedulePage } from './components/SchedulePage';
 import { RepairPage } from './components/RepairPage';
-import { WhyWhyPage } from './components/WhyWhyPage';
 import { ImprovementPage } from './components/ImprovementPage';
 import { DashboardPage } from './components/DashboardPage';
 import { DispatchPage } from './components/DispatchPage';
@@ -21,7 +20,7 @@ import { getOverdueAndRescheduledSummary, getTodayDateString } from './utils/pmA
 import { 
   Wrench, Activity, CalendarDays, ClipboardList, PenTool, 
   BarChart3, Settings, Menu, ChevronLeft, ChevronRight, Clock, ShieldCheck, Send, Presentation, Users,
-  Sun, Moon, Package, ClipboardCheck, WifiOff, Award, Sparkles, TrendingDown, AlertTriangle, Bell, GitFork
+  Sun, Moon, Package, ClipboardCheck, WifiOff, Award, Sparkles, TrendingDown, AlertTriangle, Bell
 } from 'lucide-react';
 
 function AppContent() {
@@ -30,7 +29,6 @@ function AppContent() {
   const [activePage, setActivePage] = useState<number>(3); // Default to Page 3 (📅 ตารางงานช่าง) as requested as master planner
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(true); // Collapsible fixed 220px
   const [showOverdueModal, setShowOverdueModal] = useState<boolean>(false);
-  const [selectedWhyWhyRepairId, setSelectedWhyWhyRepairId] = useState<string | null>(null);
 
   const todayStr = getTodayDateString();
   const { totalOverdueCount, totalRescheduledCount } = getOverdueAndRescheduledSummary(schedules, todayStr);
@@ -99,23 +97,7 @@ function AppContent() {
       case 1: return <MachinePage />;
       case 2: return <PMPlanPage />;
       case 3: return <SchedulePage />;
-      case 4: return (
-        <RepairPage 
-          onNavigateToWhyWhy={(repairId) => {
-            setSelectedWhyWhyRepairId(repairId);
-            setActivePage(14);
-          }} 
-        />
-      );
-      case 14: return (
-        <WhyWhyPage
-          initialSelectedRepairId={selectedWhyWhyRepairId}
-          onClearInitialSelectedRepairId={() => setSelectedWhyWhyRepairId(null)}
-          onNavigateToRepair={(repairId) => {
-            setActivePage(4);
-          }}
-        />
-      );
+      case 4: return <RepairPage />;
       case 11: return <TimeBreakPage />;
       case 5: return <ImprovementPage />;
       case 13: return <CostDown5Page />;
@@ -134,8 +116,7 @@ function AppContent() {
     { id: 3, label: "ตารางงาน", icon: CalendarDays, desc: "ปฏิทินงานประจำเดือน" },
     { id: 1, label: "เครื่องจักร", icon: Activity, desc: "ทะเบียนระบบ/สถานะ" },
     { id: 2, label: "แผน PM", icon: ClipboardList, desc: "ความถี่อิ่มกาก/กระบวน" },
-    { id: 4, label: "BD และ ประวัติการซ่อม", icon: Wrench, desc: "ประวัติการซ่อมบำรุง" },
-    { id: 14, label: "ผังวิเคราะห์ Why-Why", icon: GitFork, desc: "วิเคราะห์รากเหง้า 3 มิติ" },
+    { id: 4, label: "BD และ Why-Why", icon: Wrench, desc: "แจ้งซ่อม, ประวัติ, และผังวิเคราะห์" },
     { id: 11, label: "เปลี่ยนอะไหล่ Time-Break", icon: Clock, desc: "ระบุเครื่อง/รอบเปลี่ยนอะไหล่" },
     { id: 5, label: "งานพัฒนา Kaizen", icon: PenTool, desc: "บอร์ดสเตตัสงาน" },
     { id: 13, label: "Cost Down 5 (CD5)", icon: TrendingDown, desc: "ยืดอายุอะไหล่/สั่งทำเอง" },
