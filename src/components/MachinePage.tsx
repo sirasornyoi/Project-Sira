@@ -983,7 +983,7 @@ export const MachinePage: React.FC = () => {
                 <input
                   id={`input-import-pm-form-${m.id}`}
                   type="file"
-                  accept=".xlsx"
+                  accept=".xlsx,.xls,.csv"
                   className="hidden"
                   onChange={(e) => {
                     const file = e.target.files?.[0];
@@ -1020,7 +1020,7 @@ export const MachinePage: React.FC = () => {
                   <input
                     id={`input-import-pm-empty-${m.id}`}
                     type="file"
-                    accept=".xlsx"
+                    accept=".xlsx,.xls,.csv"
                     className="hidden"
                     onChange={(e) => {
                       const file = e.target.files?.[0];
@@ -1088,7 +1088,7 @@ export const MachinePage: React.FC = () => {
                           <input
                             id={`input-import-plan-${plan.id}`}
                             type="file"
-                            accept=".xlsx"
+                            accept=".xlsx,.xls,.csv"
                             className="hidden"
                             onChange={(e) => {
                               const file = e.target.files?.[0];

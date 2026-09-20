@@ -1976,7 +1976,7 @@ export const RepairPage: React.FC = () => {
                     เลือกไฟล์ในเครื่อง
                     <input 
                       type="file" 
-                      accept=".xlsx, .xls, .csv" 
+                      accept=".xlsx,.xls,.csv" 
                       className="hidden" 
                       onChange={(e) => handleExcelUpload(e, false)} 
                     />
