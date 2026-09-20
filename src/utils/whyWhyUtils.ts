@@ -76,7 +76,7 @@ export function migrateLegacyWhyToTree(repair: Partial<RepairLog>): WhyWhyAnalys
       children: [],
       changePointOk: true,
       judgement: 'PENDING',
-      isRootCause: true,
+      isRootCause: false,
       countermeasure: repair.correctiveAction || ''
     };
 
@@ -87,7 +87,7 @@ export function migrateLegacyWhyToTree(repair: Partial<RepairLog>): WhyWhyAnalys
         description: whys[i],
         children: [current],
         changePointOk: true,
-        judgement: 'OK',
+        judgement: 'PENDING',
         isRootCause: false
       };
     }
