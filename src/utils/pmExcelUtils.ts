@@ -1,4 +1,5 @@
 import * as XLSX from 'xlsx-js-style';
+import * as XLSXRead from 'xlsx';
 import { PMPlan, PMStep, PMFrequency, Machine } from '../types';
 
 export interface ParsedPMReportResult {
@@ -396,12 +397,12 @@ export const exportPMReportToExcel = (
  * Parse Excel file (.xlsx / .xls / .csv) into structured PM Plan & Checklist items
  */
 export const parsePMReportExcel = (data: ArrayBuffer): ParsedPMReportResult => {
-  const wb = XLSX.read(data, { type: 'array' });
+  const wb = XLSXRead.read(data, { type: 'array' });
   const sheetName = wb.SheetNames[0];
   const ws = wb.Sheets[sheetName];
 
   // Convert to 2D array of strings
-  const rawRows: any[][] = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+  const rawRows: any[][] = XLSXRead.utils.sheet_to_json(ws, { header: 1, defval: '' });
 
   let machineId = '';
   let machineName = '';

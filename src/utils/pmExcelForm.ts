@@ -1,4 +1,5 @@
 import * as XLSX from 'xlsx-js-style';
+import * as XLSXRead from 'xlsx';
 import { Machine, PMPlan, PMStep } from '../types';
 
 /**
@@ -387,7 +388,7 @@ export function importPMForm(file: File): Promise<{ machineName: string; machine
     reader.onload = (e) => {
       try {
         const data = new Uint8Array(e.target?.result as ArrayBuffer);
-        const workbook = XLSX.read(data, { type: 'array' });
+        const workbook = XLSXRead.read(data, { type: 'array' });
 
         if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
           throw new Error('ไม่พบแผ่นงาน (Sheet) ในไฟล์ Excel นี้');
@@ -399,7 +400,7 @@ export function importPMForm(file: File): Promise<{ machineName: string; machine
           throw new Error('ไม่สามารถอ่านข้อมูลแผ่นงานในไฟล์ Excel ได้');
         }
 
-        const rows: any[][] = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+        const rows: any[][] = XLSXRead.utils.sheet_to_json(ws, { header: 1, defval: '' });
 
         // Find machine name and code from top rows
         let machineName = '';
