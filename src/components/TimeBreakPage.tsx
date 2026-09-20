@@ -1316,8 +1316,8 @@ export const TimeBreakPage: React.FC = () => {
                 <tbody className="divide-y divide-border dark:divide-slate-800/70">
                   {filteredMachines.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="py-12 text-center text-fg-muted dark:text-slate-500">
-                        <Clock className="w-10 h-10 mx-auto text-fg-muted/60 dark:text-slate-600 mb-2 opacity-60" />
+                      <td colSpan={7} className="py-12 text-center text-fg-muted dark:text-slate-400">
+                        <Clock className="w-10 h-10 mx-auto text-fg-muted/60 dark:text-cyan-400/80 mb-2 opacity-80" />
                         <p className="text-sm">ไม่พบรายการเครื่องจักรหรืออะไหล่ที่ตรงกับเงื่อนไขการค้นหา</p>
                       </td>
                     </tr>
@@ -1407,7 +1407,7 @@ export const TimeBreakPage: React.FC = () => {
                             {/* Group Parts summary */}
                             <td className="py-3.5 px-4">
                               {group.totalParts === 0 ? (
-                                <span className="text-fg-muted/60 dark:text-slate-500 italic">ยังไม่มีการกำหนดอะไหล่ในกลุ่มนี้</span>
+                                <span className="text-fg-muted/60 dark:text-slate-400 italic">ยังไม่มีการกำหนดอะไหล่ในกลุ่มนี้</span>
                               ) : (
                                 <div className="space-y-1">
                                   <div className="flex items-center gap-1.5 flex-wrap">
@@ -1566,7 +1566,7 @@ export const TimeBreakPage: React.FC = () => {
                               {/* Machine specific parts */}
                               <td className="py-3 px-4">
                                 {parts.length === 0 ? (
-                                  <span className="text-fg-muted/60 dark:text-slate-500 italic text-[11px]">ยังไม่มีอะไหล่ Time-Break</span>
+                                  <span className="text-fg-muted/60 dark:text-slate-400 italic text-[11px]">ยังไม่มีอะไหล่ Time-Break</span>
                                 ) : (
                                   <div className="space-y-1.5">
                                     {parts.map((p) => {
@@ -1711,7 +1711,7 @@ export const TimeBreakPage: React.FC = () => {
                           {/* Parts installed & component location */}
                           <td className="py-3.5 px-4">
                             {parts.length === 0 ? (
-                              <span className="text-fg-muted/60 dark:text-slate-500 italic">ยังไม่มีการกำหนดอะไหล่ Time-Break</span>
+                              <span className="text-fg-muted/60 dark:text-slate-400 italic">ยังไม่มีการกำหนดอะไหล่ Time-Break</span>
                             ) : (
                               <div className="space-y-1.5">
                                 {parts.slice(0, 3).map((p) => {
@@ -1933,10 +1933,10 @@ export const TimeBreakPage: React.FC = () => {
             {/* Modal Body */}
             <div className="p-4 sm:p-6 overflow-y-auto space-y-4 flex-1">
               {activeMachineParts.length === 0 ? (
-                <div className="py-12 text-center text-fg-muted dark:text-slate-500 bg-slate-50 dark:bg-slate-950/40 rounded-xl border border-dashed border-border dark:border-slate-800">
-                  <Clock className="w-12 h-12 mx-auto text-fg-muted/60 dark:text-slate-600 mb-3 opacity-60" />
-                  <h4 className="text-sm font-semibold text-fg dark:text-slate-300">ยังไม่มีการระบุ Part อะไหล่ Time-Break สำหรับเครื่องนี้</h4>
-                  <p className="text-xs text-fg-muted dark:text-slate-500 max-w-sm mx-auto mt-1 mb-4">
+                <div className="py-12 text-center text-fg-muted dark:text-slate-300 bg-slate-50 dark:bg-slate-950/40 rounded-xl border border-dashed border-border dark:border-slate-800">
+                  <Clock className="w-12 h-12 mx-auto text-fg-muted/60 dark:text-cyan-400/80 mb-3 opacity-80" />
+                  <h4 className="text-sm font-semibold text-fg dark:text-slate-200">ยังไม่มีการระบุ Part อะไหล่ Time-Break สำหรับเครื่องนี้</h4>
+                  <p className="text-xs text-fg-muted dark:text-slate-400 max-w-sm mx-auto mt-1 mb-4">
                     กดปุ่มด้านล่างเพื่อเพิ่มอะไหล่ที่ต้องเปลี่ยน ระบุส่วนที่ติดตั้ง วันที่เริ่ม และรอบความถี่
                   </p>
                   <button

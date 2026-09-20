@@ -651,7 +651,7 @@ export const SchedulePage: React.FC = () => {
                 <p className="text-sm font-bold text-cyan-300 font-sans">
                   {TH_MONTHS[calMonth - 1]} {calYear + 543}
                 </p>
-                <p className="text-[10px] text-slate-500 font-mono">
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">
                   {currentYearStr}-{currentMonthStr} ({daysInMonth} วัน)
                 </p>
               </div>
@@ -854,7 +854,7 @@ export const SchedulePage: React.FC = () => {
                   {/* Task Chips Container */}
                   <div className="flex-1 space-y-1 overflow-y-auto max-h-[85px] scrollbar-none py-0.5">
                     {visibleTotal === 0 ? (
-                      <div className="h-full flex items-center justify-center opacity-0 group-hover:opacity-60 transition text-[10px] text-slate-500 italic">
+                      <div className="h-full flex items-center justify-center opacity-0 group-hover:opacity-80 transition text-[10px] text-slate-500 dark:text-slate-400 italic">
                         + คลิกเพื่อจัดงาน
                       </div>
                     ) : (
@@ -946,7 +946,7 @@ export const SchedulePage: React.FC = () => {
                   </div>
 
                   {/* Bottom Hover Hint */}
-                  <div className="pt-1 border-t border-slate-800/80 flex items-center justify-between text-[8px] text-slate-500">
+                  <div className="pt-1 border-t border-slate-800/80 flex items-center justify-between text-[8px] text-slate-500 dark:text-slate-400">
                     <span className="opacity-0 group-hover:opacity-100 transition text-cyan-400 font-semibold">
                       คลิกดู / จัดงาน
                     </span>
@@ -971,7 +971,7 @@ export const SchedulePage: React.FC = () => {
           onClick={() => setActiveDateStr(null)}
         >
           <div 
-            className="bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-700 rounded-2xl max-w-3xl w-full overflow-hidden shadow-2xl animate-in zoom-in-95 duration-150 my-6 text-slate-900 dark:text-slate-100"
+            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl max-w-3xl w-full overflow-hidden shadow-2xl animate-in zoom-in-95 duration-150 my-6 text-slate-900 dark:text-slate-100"
             id="active-date-modal"
             onClick={(e) => e.stopPropagation()}
           >
@@ -1039,7 +1039,7 @@ export const SchedulePage: React.FC = () => {
                 </div>
 
                 {activeDateTasks.pmList.length === 0 ? (
-                  <div className="bg-slate-50 dark:bg-slate-900/50 border border-dashed border-slate-300 dark:border-slate-800 rounded-xl p-4 text-center text-xs text-slate-500">
+                  <div className="bg-slate-50 dark:bg-slate-900/60 border border-dashed border-slate-300 dark:border-slate-700/80 rounded-xl p-4 text-center text-xs text-slate-600 dark:text-slate-300 font-medium">
                     ไม่มีงานบำรุงรักษา PM ที่ลงตารางไว้ในวันนี้
                   </div>
                 ) : (
@@ -1146,7 +1146,7 @@ export const SchedulePage: React.FC = () => {
                 </div>
 
                 {activeDateTasks.repairList.length === 0 ? (
-                  <div className="bg-slate-50 dark:bg-slate-900/50 border border-dashed border-slate-300 dark:border-slate-800 rounded-xl p-4 text-center text-xs text-slate-500">
+                  <div className="bg-slate-50 dark:bg-slate-900/60 border border-dashed border-slate-300 dark:border-slate-700/80 rounded-xl p-4 text-center text-xs text-slate-600 dark:text-slate-300 font-medium">
                     ไม่มีรายการงานซ่อมหรือเครื่องจักรเสียในวันนี้
                   </div>
                 ) : (
@@ -1248,7 +1248,7 @@ export const SchedulePage: React.FC = () => {
                 </div>
 
                 {activeDateTasks.otherList.length === 0 ? (
-                  <div className="bg-slate-50 dark:bg-slate-900/50 border border-dashed border-slate-300 dark:border-slate-800 rounded-xl p-4 text-center text-xs text-slate-500">
+                  <div className="bg-slate-50 dark:bg-slate-900/60 border border-dashed border-slate-300 dark:border-slate-700/80 rounded-xl p-4 text-center text-xs text-slate-600 dark:text-slate-300 font-medium">
                     ไม่มีรายการงานติดต่อ ซัพพลายเออร์ หรือภารกิจภายนอกในวันนี้
                   </div>
                 ) : (
@@ -1359,7 +1359,7 @@ export const SchedulePage: React.FC = () => {
           id="task-form-modal-overlay"
         >
           <div 
-            className="bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-700 rounded-2xl max-w-xl w-full overflow-hidden shadow-2xl animate-in zoom-in-95 duration-150 my-6 text-slate-900 dark:text-slate-100"
+            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl max-w-xl w-full overflow-hidden shadow-2xl animate-in zoom-in-95 duration-150 my-6 text-slate-900 dark:text-slate-100"
             id="task-form-modal"
           >
             {/* Form Header */}
@@ -1614,7 +1614,7 @@ export const SchedulePage: React.FC = () => {
 
                 {/* Destination Presets */}
                 <div className="flex flex-wrap gap-1.5 pt-1">
-                  <span className="text-[10px] text-slate-500 self-center">คลิกเลือกด่วน:</span>
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 self-center">คลิกเลือกด่วน:</span>
                   {DESTINATION_PRESETS.map((preset, idx) => (
                     <button
                       type="button"
@@ -1697,7 +1697,7 @@ export const SchedulePage: React.FC = () => {
                     className={`py-1.5 px-3 rounded-xl text-xs font-bold transition border cursor-pointer ${
                       formStatus === 'รอดำเนินการ'
                         ? 'bg-slate-200 text-slate-900 border-slate-400 dark:bg-slate-700 dark:text-slate-100 dark:border-slate-500 shadow-sm'
-                        : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-300 dark:border-slate-750 hover:bg-slate-50'
+                        : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 dark:hover:text-slate-200'
                     }`}
                   >
                     • รอดำเนินการ
@@ -1708,7 +1708,7 @@ export const SchedulePage: React.FC = () => {
                     className={`py-1.5 px-3 rounded-xl text-xs font-bold transition border cursor-pointer ${
                       formStatus === 'กำลังทำ'
                         ? 'bg-amber-100 text-amber-950 border-amber-400 dark:bg-amber-500 dark:text-slate-950 dark:border-amber-400 shadow-sm'
-                        : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-300 dark:border-slate-750 hover:bg-slate-50'
+                        : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 dark:hover:text-slate-200'
                     }`}
                   >
                     ⏳ กำลังทำ
@@ -1719,7 +1719,7 @@ export const SchedulePage: React.FC = () => {
                     className={`py-1.5 px-3 rounded-xl text-xs font-bold transition border cursor-pointer ${
                       formStatus === 'เสร็จสิ้น'
                         ? 'bg-emerald-100 text-emerald-950 border-emerald-400 dark:bg-emerald-500 dark:text-slate-950 dark:border-emerald-400 shadow-sm'
-                        : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-300 dark:border-slate-750 hover:bg-slate-50'
+                        : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 dark:hover:text-slate-200'
                     }`}
                   >
                     ✓ เสร็จสิ้น

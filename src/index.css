@@ -167,6 +167,80 @@ html.dark {
   color: var(--fg-muted-on-dark) !important;
 }
 
+/* Ensure empty state containers and placeholder texts have clear contrast in dark mode */
+body:not(.light-theme) #active-date-modal .border-dashed,
+.dark #active-date-modal .border-dashed,
+[data-theme="dark"] #active-date-modal .border-dashed {
+  color: #cbd5e1;
+}
+
+body:not(.light-theme) #active-date-modal .border-dashed p,
+.dark #active-date-modal .border-dashed p,
+[data-theme="dark"] #active-date-modal .border-dashed p {
+  color: #94a3b8;
+}
+
+/* Dark mode PM Plan Card Header & Title High-Contrast Rules */
+body:not(.light-theme) [id^="pm-plan-card-"] > div:first-child,
+.dark [id^="pm-plan-card-"] > div:first-child,
+[data-theme="dark"] [id^="pm-plan-card-"] > div:first-child {
+  background-color: rgba(15, 23, 42, 0.95) !important;
+  border-bottom-color: rgba(51, 65, 85, 0.8) !important;
+}
+
+body:not(.light-theme) [id^="pm-plan-card-"] h3,
+.dark [id^="pm-plan-card-"] h3,
+[data-theme="dark"] [id^="pm-plan-card-"] h3 {
+  color: #f8fafc !important;
+}
+
+/* Fallback utilities for custom slate classes */
+.bg-slate-850 {
+  background-color: #0b1329 !important;
+}
+.border-slate-850 {
+  border-color: #1e293b !important;
+}
+.divide-slate-850 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #1e293b !important;
+}
+.bg-slate-750 {
+  background-color: #1a233a !important;
+}
+.border-slate-750 {
+  border-color: #334155 !important;
+}
+.divide-slate-750 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #334155 !important;
+}
+
+/* Dark mode hover safeguards: prevent hover turning elements bright white in dark mode */
+body:not(.light-theme) [id^="pm-mach-btn-"]:hover,
+.dark [id^="pm-mach-btn-"]:hover,
+[data-theme="dark"] [id^="pm-mach-btn-"]:hover {
+  background-color: rgba(30, 41, 59, 0.85) !important;
+}
+
+body:not(.light-theme) [id^="repair-row-"]:hover,
+.dark [id^="repair-row-"]:hover,
+[data-theme="dark"] [id^="repair-row-"]:hover {
+  background-color: rgba(51, 65, 85, 0.6) !important;
+}
+
+.hover\:bg-slate-750:hover,
+.dark .dark\:hover\:bg-slate-750:hover,
+body:not(.light-theme) .dark\:hover\:bg-slate-750:hover,
+[data-theme="dark"] .dark\:hover\:bg-slate-750:hover {
+  background-color: #1a233a !important;
+}
+
+.hover\:bg-slate-850:hover,
+.dark .dark\:hover\:bg-slate-850:hover,
+body:not(.light-theme) .dark\:hover\:bg-slate-850:hover,
+[data-theme="dark"] .dark\:hover\:bg-slate-850:hover {
+  background-color: #0b1329 !important;
+}
+
 /* Sidebar Semantic Utility Classes */
 .bg-sidebar {
   background-color: var(--sidebar-bg) !important;

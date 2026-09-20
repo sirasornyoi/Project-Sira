@@ -603,9 +603,9 @@ export const PMPlanPage: React.FC = () => {
 
         <div className="flex-1 overflow-y-auto space-y-1.5 pr-1" id="pm-machine-list">
           {filteredPmMachines.length === 0 ? (
-            <div className="p-6 text-center text-slate-400 dark:text-slate-500 text-xs flex flex-col items-center justify-center h-48 border border-dashed border-slate-300 dark:border-slate-700/60 rounded-xl">
-              <PackageOpen size={32} className="text-slate-400 dark:text-slate-600 mb-2" />
-              <p className="font-semibold text-slate-700 dark:text-slate-300">
+            <div className="p-6 text-center text-slate-500 dark:text-slate-300 text-xs flex flex-col items-center justify-center h-48 border border-dashed border-slate-300 dark:border-slate-700 rounded-xl">
+              <PackageOpen size={32} className="text-slate-400 dark:text-slate-400 mb-2" />
+              <p className="font-semibold text-slate-700 dark:text-slate-200">
                 {pmMachines.length === 0 ? 'ยังไม่มีเครื่องจักรในรายการ PM' : 'ไม่พบเครื่องจักรที่ตรงกับคำค้นหา'}
               </p>
               <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
@@ -624,8 +624,8 @@ export const PMPlanPage: React.FC = () => {
                   onClick={() => setSelectedMachineId(m.id)}
                   className={`group relative w-full text-left p-3 rounded-xl border transition flex justify-between items-center cursor-pointer ${
                     isSelected 
-                      ? 'bg-white border-2 border-cyan-600 text-slate-900 shadow-sm dark:bg-slate-900/90 dark:border-cyan-500 dark:text-cyan-400 dark:shadow-cyan-500/10' 
-                      : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-900 hover:border-slate-300 dark:bg-slate-900/30 dark:border-slate-700/60 dark:hover:border-slate-600 dark:text-slate-300'
+                      ? 'bg-white border-2 border-cyan-600 text-slate-900 shadow-sm dark:bg-slate-900/90 dark:border-cyan-500 dark:text-cyan-400 dark:shadow-cyan-500/10 dark:hover:bg-slate-900' 
+                      : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-900 hover:border-slate-300 dark:bg-slate-900/30 dark:border-slate-700/60 dark:hover:bg-slate-800/80 dark:hover:border-slate-500 dark:text-slate-300'
                   }`}
                 >
                   <div className="min-w-0 pr-2 flex-1">
@@ -764,7 +764,7 @@ export const PMPlanPage: React.FC = () => {
                 // Export first or primary plan
                 exportPMReportToExcel(activeMachinePlans[0], selectedMachine);
               }}
-              className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-300 text-cyan-800 hover:bg-slate-50 hover:border-cyan-400 dark:bg-slate-900 dark:border-slate-700 dark:text-cyan-300 dark:hover:bg-slate-750 dark:hover:border-slate-600 rounded-xl text-xs font-bold transition cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-300 text-cyan-800 hover:bg-slate-50 hover:border-cyan-400 dark:bg-slate-900 dark:border-slate-700 dark:text-cyan-300 dark:hover:bg-slate-800 dark:hover:border-slate-600 rounded-xl text-xs font-bold transition cursor-pointer"
               title="ส่งออกใบรายงาน PM เป็นไฟล์ Excel (.xlsx) ตามแบบฟอร์ม"
             >
               <Download size={14} className="text-cyan-600 dark:text-cyan-400" />
@@ -801,9 +801,9 @@ export const PMPlanPage: React.FC = () => {
         {/* List of plans with Interactive Checklist */}
         <div className="flex-1 overflow-y-auto space-y-4 pr-1" id="pm-plan-container">
           {activeMachinePlans.length === 0 ? (
-            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-12 text-center text-slate-400 dark:text-slate-500 h-full flex flex-col justify-center items-center shadow-sm">
-              <PackageOpen size={48} className="text-slate-400 dark:text-slate-600 mb-3" />
-              <p className="text-sm font-semibold text-slate-800 dark:text-slate-300">ยังไม่มีแผนบำรุงรักษาเชิงป้องกัน (PM) สำหรับเครื่องนี้</p>
+            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-12 text-center text-slate-500 dark:text-slate-300 h-full flex flex-col justify-center items-center shadow-sm">
+              <PackageOpen size={48} className="text-slate-400 dark:text-slate-400 mb-3" />
+              <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">ยังไม่มีแผนบำรุงรักษาเชิงป้องกัน (PM) สำหรับเครื่องนี้</p>
               <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 max-w-md">
                 คุณสามารถกด <b>"+ เพิ่มงานแผน PM ใหม่"</b> หรือกด <b>"นำเข้า Excel"</b> เพื่อนำเข้าใบรายงาน PM ที่มีเช็คลิสต์และเกณฑ์มาตรฐานได้ทันที
               </p>
@@ -820,10 +820,10 @@ export const PMPlanPage: React.FC = () => {
                 <div 
                   key={plan.id} 
                   id={`pm-plan-card-${plan.id}`}
-                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden shadow-sm dark:shadow-lg transition-all"
+                  className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm dark:shadow-lg transition-all"
                 >
                   {/* Card Header */}
-                  <div className="p-4 bg-slate-50 dark:bg-slate-850 border-b border-slate-200 dark:border-slate-700/80 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                  <div className="p-4 bg-slate-50 dark:bg-slate-900/90 border-b border-slate-200 dark:border-slate-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
                     <div className="flex items-start gap-3 flex-1 min-w-0">
                       <button 
                         onClick={() => togglePlanExpanded(plan.id)}
@@ -982,10 +982,10 @@ export const PMPlanPage: React.FC = () => {
                           <tbody className="divide-y divide-border dark:divide-slate-800 text-fg dark:text-slate-300">
                             {plan.steps.length === 0 ? (
                               <tr>
-                                <td colSpan={9} className="py-8 text-center text-slate-400 dark:text-slate-500">
+                                <td colSpan={9} className="py-8 text-center text-slate-500 dark:text-slate-300">
                                   <div className="flex flex-col items-center justify-center gap-2">
-                                    <PackageOpen size={28} className="text-slate-400 dark:text-slate-600" />
-                                    <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">ยังไม่มีข้อตรวจในแผนนี้ (สามารถกดเพิ่มข้อตรวจใหม่ได้ตลอดเวลา)</p>
+                                    <PackageOpen size={28} className="text-slate-400 dark:text-slate-400" />
+                                    <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">ยังไม่มีข้อตรวจในแผนนี้ (สามารถกดเพิ่มข้อตรวจใหม่ได้ตลอดเวลา)</p>
                                     <button
                                       type="button"
                                       onClick={() => handleOpenAddStepModal(plan.id)}
@@ -1166,7 +1166,7 @@ export const PMPlanPage: React.FC = () => {
                             )}
                           </div>
                           <p className="text-slate-800 dark:text-slate-200">
-                            {plan.spareParts || <span className="text-slate-400 dark:text-slate-500 italic">ไม่มีระบุอะไหล่ล่วงหน้า</span>}
+                            {plan.spareParts || <span className="text-slate-500 dark:text-slate-400 italic">ไม่มีระบุอะไหล่ล่วงหน้า</span>}
                           </p>
                         </div>
 
@@ -1208,7 +1208,7 @@ export const PMPlanPage: React.FC = () => {
       {/* ---------------------------------------------------- */}
       {showImportModal && (
         <div className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/70 dark:bg-slate-950/85 backdrop-blur-sm p-4 animate-in fade-in duration-150">
-          <div id="pm-excel-import-modal" className="bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-700 rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl text-xs text-slate-900 dark:text-slate-200">
+          <div id="pm-excel-import-modal" className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl text-xs text-slate-900 dark:text-slate-200">
             
             {/* Header */}
             <div className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 p-4.5 flex justify-between items-center shrink-0">
@@ -1401,7 +1401,7 @@ export const PMPlanPage: React.FC = () => {
       {/* ---------------------------------------------------- */}
       {stepModalPlanId && (
         <div className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-950/70 dark:bg-slate-950/85 backdrop-blur-sm p-4 animate-in fade-in duration-100">
-          <div className="bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-700 rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl text-xs text-slate-900 dark:text-slate-200">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl text-xs text-slate-900 dark:text-slate-200">
             <div className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 p-4 flex justify-between items-center">
               <h3 className="font-bold text-cyan-800 dark:text-cyan-400 text-sm">
                 {editingStepIndex !== null ? '✏️ แก้ไขข้อตรวจวัด PM' : '➕ เพิ่มข้อตรวจวัด PM (เพิ่มการทำ PM)'}
@@ -1519,7 +1519,7 @@ export const PMPlanPage: React.FC = () => {
       {/* ---------------------------------------------------- */}
       {showFormModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 dark:bg-slate-950/85 backdrop-blur-sm p-4">
-          <div id="pm-form-modal" className="bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-700 rounded-2xl max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl text-xs text-slate-900 dark:text-slate-200">
+          <div id="pm-form-modal" className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl text-xs text-slate-900 dark:text-slate-200">
             {/* Header */}
             <div className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 p-4.5 flex justify-between items-center shrink-0">
               <h3 className="text-sm font-bold text-cyan-800 dark:text-cyan-400">
@@ -1777,7 +1777,7 @@ export const PMPlanPage: React.FC = () => {
       {/* ---------------------------------------------------- */}
       {showCopyModal && (
         <div className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/70 dark:bg-slate-950/85 backdrop-blur-sm p-4">
-          <div id="pm-copy-modal" className="bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-700 rounded-2xl max-w-lg w-full max-h-[85vh] flex flex-col overflow-hidden shadow-2xl text-xs text-slate-900 dark:text-slate-200">
+          <div id="pm-copy-modal" className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-lg w-full max-h-[85vh] flex flex-col overflow-hidden shadow-2xl text-xs text-slate-900 dark:text-slate-200">
             <div className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 p-4.5 flex justify-between items-center shrink-0">
               <div className="flex items-center gap-2">
                 <ArrowLeftRight className="text-cyan-700 dark:text-cyan-400" size={16} />
@@ -1997,7 +1997,7 @@ export const PMPlanPage: React.FC = () => {
       {/* ---------------------------------------------------- */}
       {showMachinePickerModal && (
         <div className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/70 dark:bg-slate-950/85 backdrop-blur-sm p-4">
-          <div id="modal-pm-machine-picker" className="bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-700 rounded-2xl max-w-2xl w-full max-h-[85vh] flex flex-col overflow-hidden shadow-2xl text-xs text-slate-900 dark:text-slate-200">
+          <div id="modal-pm-machine-picker" className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-2xl w-full max-h-[85vh] flex flex-col overflow-hidden shadow-2xl text-xs text-slate-900 dark:text-slate-200">
             {/* Header */}
             <div className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 p-4.5 flex justify-between items-center shrink-0">
               <div className="flex items-center gap-2.5">

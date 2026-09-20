@@ -997,7 +997,7 @@ export const RepairPage: React.FC = () => {
             <tbody className="divide-y divide-border dark:divide-slate-700/50">
               {filteredRepairs.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="py-12 text-center text-slate-500 bg-slate-50 dark:bg-slate-900/10">
+                  <td colSpan={10} className="py-12 text-center text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/10">
                     ไม่พบข้อมูลแจ้งซ่อมสำหรับตัวกรองที่เลือก
                   </td>
                 </tr>
@@ -1012,7 +1012,7 @@ export const RepairPage: React.FC = () => {
                     <tr 
                       key={r.id}
                       id={`repair-row-${r.id}`}
-                      className={`hover:bg-slate-50 dark:hover:bg-slate-750/90 transition-colors cursor-pointer select-none ${
+                      className={`hover:bg-slate-100 dark:hover:bg-slate-700/60 transition-colors cursor-pointer select-none ${
                         isRedRow ? 'bg-red-50 dark:bg-red-500/10 border-l-4 border-l-red-500' : ''
                       }`}
                       onDoubleClick={() => setSelectedRepairDetail(r)}
@@ -1471,7 +1471,7 @@ export const RepairPage: React.FC = () => {
                     </table>
                   </div>
                 ) : (
-                  <p className="text-[10px] text-slate-500 italic text-center py-2 bg-slate-100 dark:bg-slate-950/30 rounded border border-border dark:border-slate-850/60 select-none">
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400 italic text-center py-2 bg-slate-100 dark:bg-slate-950/30 rounded border border-border dark:border-slate-850/60 select-none">
                     ยังไม่มีการใช้อะไหล่ในใบงานนี้
                   </p>
                 )}
@@ -1554,9 +1554,9 @@ export const RepairPage: React.FC = () => {
                     </div>
                   ) : (
                     <div className="flex flex-col items-center space-y-1 text-slate-500 dark:text-slate-400 group-hover:text-fg dark:group-hover:text-slate-300">
-                      <Upload size={22} className="text-slate-400 dark:text-slate-500" />
+                      <Upload size={22} className="text-slate-400 dark:text-slate-400" />
                       <p className="font-sans font-medium text-[11px]">คลิก หรือ ลากวางเพื่อแนบไฟล์ Excel (.xlsx, .xls, .csv)</p>
-                      <p className="text-[9px] text-slate-500">รองรับไฟล์ตารางคำนวณหรือแผนงานเพื่อแนบเข้าบันทึกซ่อม</p>
+                      <p className="text-[9px] text-slate-500 dark:text-slate-400">รองรับไฟล์ตารางคำนวณหรือแผนงานเพื่อแนบเข้าบันทึกซ่อม</p>
                     </div>
                   )}
                 </div>
@@ -1758,7 +1758,7 @@ export const RepairPage: React.FC = () => {
                     </table>
                   </div>
                 ) : (
-                  <p className="text-[11px] text-slate-500 italic text-center py-2 bg-slate-100 dark:bg-slate-950/20 rounded border border-border dark:border-slate-850 select-none">
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 italic text-center py-2 bg-slate-100 dark:bg-slate-950/20 rounded border border-border dark:border-slate-850 select-none">
                     ไม่มีรายงานการเบิกเปลี่ยนอะไหล่สำหรับประวัติซ่อมนี้
                   </p>
                 )}
@@ -1925,7 +1925,7 @@ export const RepairPage: React.FC = () => {
               <button 
                 type="button" 
                 onClick={() => setShowImportModal(false)}
-                className="text-slate-400 hover:text-fg dark:text-slate-400 dark:hover:text-fg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-750 p-1.5 rounded-lg transition shrink-0 cursor-pointer"
+                className="text-slate-400 hover:text-fg dark:text-slate-400 dark:hover:text-fg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 p-1.5 rounded-lg transition shrink-0 cursor-pointer"
               >
                 <X size={18} />
               </button>
@@ -1949,7 +1949,7 @@ export const RepairPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={downloadImportTemplate}
-                    className="w-full flex items-center justify-center gap-1.8 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-750 border border-border dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:text-fg font-bold py-2 rounded-lg transition text-xs cursor-pointer shadow-sm"
+                    className="w-full flex items-center justify-center gap-1.8 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-border dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:text-fg font-bold py-2 rounded-lg transition text-xs cursor-pointer shadow-sm"
                   >
                     <FileSpreadsheet size={15} className="text-emerald-600 dark:text-emerald-400" />
                     ดาวน์โหลดไฟล์ตัวอย่าง (.xlsx)
@@ -1964,11 +1964,11 @@ export const RepairPage: React.FC = () => {
                   onDragLeave={() => setIsDragging(false)}
                   onDrop={(e) => { setIsDragging(false); handleExcelUpload(e, true); }}
                 >
-                  <Upload size={38} className="text-slate-400 dark:text-slate-500 mb-2.5" />
+                  <Upload size={38} className="text-slate-400 dark:text-cyan-400/80 mb-2.5" />
                   <span className="text-xs font-bold text-slate-700 dark:text-slate-200">
                     {fileName ? `ไฟล์ที่เลือก: ${fileName}` : 'ลากไฟล์ Excel มาวางที่นี่ หรือ คลิกเพื่อเลือกไฟล์'}
                   </span>
-                  <span className="text-[10px] text-slate-500 mt-1 block">
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 block">
                     รองรับไฟล์นามสกุล .xlsx, .xls, .csv เท่านั้น
                   </span>
                   
@@ -2101,7 +2101,7 @@ export const RepairPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setShowImportModal(false)}
-                className="border border-border dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-850 text-slate-700 dark:text-slate-300 font-bold text-xs px-5 py-2.5 rounded-lg transition cursor-pointer"
+                className="border border-border dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs px-5 py-2.5 rounded-lg transition cursor-pointer"
               >
                 ยกเลิก
               </button>
@@ -2139,7 +2139,7 @@ export const RepairPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setDeleteConfirmId(null)}
-                className="border border-border dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-850 text-slate-700 dark:text-slate-300 text-xs px-4 py-2 rounded-lg transition cursor-pointer"
+                className="border border-border dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs px-4 py-2 rounded-lg transition cursor-pointer"
               >
                 ยกเลิก
               </button>

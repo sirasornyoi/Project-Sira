@@ -522,7 +522,7 @@ export const PMHistoryPage: React.FC = () => {
           <button
             id="btn-export-pm-excel"
             onClick={handleExportToExcel}
-            className="flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700/80 hover:border-slate-400 dark:hover:border-slate-600 rounded-xl text-xs font-bold transition duration-150 cursor-pointer shadow-xs"
+            className="flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700/80 hover:border-slate-400 dark:hover:border-slate-600 rounded-xl text-xs font-bold transition duration-150 cursor-pointer shadow-xs"
             title="ออกรายงานเอกสารเปรียบเทียบความเป๊ะ PM ลง Excel/CSV"
           >
             <FileSpreadsheet size={14} className="text-emerald-600 dark:text-emerald-400" />
@@ -781,10 +781,10 @@ export const PMHistoryPage: React.FC = () => {
       {/* CORE LOGS TABULAR LISTING */}
       <div className="bg-white dark:bg-[#0b1222] border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-xs" id="pmhistory-table-container">
         {filteredPmJobs.length === 0 ? (
-          <div className="p-12 text-center text-slate-500">
-            <ClipboardCheck size={45} className="mx-auto block text-slate-400 dark:text-slate-700 mb-3 animate-bounce" />
-            <p className="text-sm font-bold text-slate-700 dark:text-slate-400">ไม่พบข้อมูลประวัติ PM ตามเงื่อนไขค้นหาเปรียบเทียบที่ระบุ</p>
-            <p className="text-xs text-slate-500 dark:text-slate-600 mt-1">ลองล้างตัวกรองหรือเพิ่มบันทึกประวัติ PM ด้วยงานใหม่ผ่านปุ่มด้านขวาบน</p>
+          <div className="p-12 text-center text-slate-600 dark:text-slate-300">
+            <ClipboardCheck size={45} className="mx-auto block text-slate-400 dark:text-cyan-400/80 mb-3 animate-bounce" />
+            <p className="text-sm font-bold text-slate-700 dark:text-slate-200">ไม่พบข้อมูลประวัติ PM ตามเงื่อนไขค้นหาเปรียบเทียบที่ระบุ</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">ลองล้างตัวกรองหรือเพิ่มบันทึกประวัติ PM ด้วยงานใหม่ผ่านปุ่มด้านขวาบน</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -939,7 +939,7 @@ export const PMHistoryPage: React.FC = () => {
                             {actTime} Mins
                           </span>
                         ) : (
-                          <span className="text-slate-400 dark:text-slate-500 italic text-[11px]">- (รอดำเนินการ)</span>
+                          <span className="text-slate-400 dark:text-slate-400 italic text-[11px]">- (รอดำเนินการ)</span>
                         )}
                       </td>
 
@@ -1560,7 +1560,7 @@ export const PMHistoryPage: React.FC = () => {
                 {/* Add spare part widget */}
                 <div className="grid grid-cols-1 sm:grid-cols-12 gap-2 pt-1">
                   <div className="sm:col-span-7 space-y-1">
-                    <label className="text-[9px] text-slate-600 dark:text-slate-500 uppercase flex justify-between items-center">
+                    <label className="text-[9px] text-slate-600 dark:text-slate-400 uppercase flex justify-between items-center">
                       <span>เลือกรายการอะไหล่ในคลัง</span>
                       {partSearchQuery && (
                         <button 
@@ -1617,7 +1617,7 @@ export const PMHistoryPage: React.FC = () => {
                   </div>
 
                   <div className="sm:col-span-3 space-y-1">
-                    <label className="text-[9px] text-slate-600 dark:text-slate-500 text-center block uppercase">จำนวน</label>
+                    <label className="text-[9px] text-slate-600 dark:text-slate-400 text-center block uppercase">จำนวน</label>
                     <input
                       type="number"
                       min="1"

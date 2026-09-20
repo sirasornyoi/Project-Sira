@@ -1743,7 +1743,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
               </h4>
 
               {techPMs.length === 0 ? (
-                <p className="text-xs text-slate-500 py-2">ยังไม่มีประวัติงาน PM ที่เสร็จสิ้น</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 py-2">ยังไม่มีประวัติงาน PM ที่เสร็จสิ้น</p>
               ) : (
                 <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
                   {techPMs.map(pm => (
@@ -1769,7 +1769,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
               </h4>
 
               {techSetups.length === 0 ? (
-                <p className="text-xs text-slate-500 py-2">ยังไม่มีประวัติงาน Setup สำหรับช่างคนนี้</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 py-2">ยังไม่มีประวัติงาน Setup สำหรับช่างคนนี้</p>
               ) : (
                 <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
                   {techSetups.map(st => (
@@ -2210,7 +2210,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
                 </div>
 
                 {techImprovements.length === 0 ? (
-                  <div className="border border-dashed border-slate-300 rounded-xl p-6 text-center text-slate-500 text-xs">
+                  <div className="border border-dashed border-slate-300 dark:border-slate-700 rounded-xl p-6 text-center text-slate-500 dark:text-slate-300 text-xs">
                     ยังไม่มีรายการบันทึกผลงาน Kaizen สำหรับช่างคนนี้
                   </div>
                 ) : (
@@ -2331,7 +2331,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
                     </thead>
                     <tbody className="divide-y divide-slate-200">
                       {techRepairs.slice(0, 5).map((rep) => (
-                        <tr key={rep.id} className="hover:bg-slate-50">
+                        <tr key={rep.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
                           <td className="p-2 font-mono text-slate-600">{rep.date}</td>
                           <td className="p-2 font-semibold text-slate-900">{getMachineName(rep.machineId)}</td>
                           <td className="p-2 text-slate-800 max-w-[180px] truncate">{rep.symptoms}</td>
@@ -2373,7 +2373,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
                           <span className="font-bold text-emerald-700 font-mono">สำเร็จ</span>
                         </div>
                       ))}
-                      {techPMs.length === 0 && <p className="text-slate-500 text-[10px]">ไม่มีข้อมูล PM ที่บันทึก</p>}
+                      {techPMs.length === 0 && <p className="text-slate-500 dark:text-slate-400 text-[10px]">ไม่มีข้อมูล PM ที่บันทึก</p>}
                     </div>
                   </div>
 
@@ -2386,7 +2386,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
                           <span className="font-bold text-cyan-700 font-mono">{set.totalDuration} นาที</span>
                         </div>
                       ))}
-                      {techSetups.length === 0 && <p className="text-slate-500 text-[10px]">ไม่มีข้อมูล Setup ที่บันทึก</p>}
+                      {techSetups.length === 0 && <p className="text-slate-500 dark:text-slate-400 text-[10px]">ไม่มีข้อมูล Setup ที่บันทึก</p>}
                     </div>
                   </div>
                 </div>

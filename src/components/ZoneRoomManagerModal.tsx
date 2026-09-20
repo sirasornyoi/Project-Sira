@@ -598,7 +598,7 @@ export const ZoneRoomManagerModal: React.FC<ZoneRoomManagerModalProps> = ({
                 </div>
               </>
             ) : (
-              <div className="flex-1 flex items-center justify-center p-8 text-center text-slate-500">
+              <div className="flex-1 flex items-center justify-center p-8 text-center text-slate-500 dark:text-slate-300">
                 กรุณาเลือกโซนทางด้านซ้าย หรือกด "+ เพิ่มโซน"
               </div>
             )}

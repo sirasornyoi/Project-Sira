@@ -1823,7 +1823,7 @@ export const DashboardPage: React.FC = () => {
 
                     <div className="flex-1 overflow-y-auto max-h-[290px] pr-1 space-y-2.5 scrollbar-thin">
                       {techMonthLeaves.length === 0 ? (
-                        <div className="p-8 text-center text-xs text-slate-500 italic border border-dashed border-slate-800/80 rounded-xl">
+                        <div className="p-8 text-center text-xs text-slate-500 dark:text-slate-300 italic border border-dashed border-slate-300 dark:border-slate-800/80 rounded-xl">
                           ไม่มีบันทึกการลากิจ/ลาหยุด ในฐานข้อมูลสำหรับเดือนนี้
                         </div>
                       ) : (
@@ -1872,7 +1872,7 @@ export const DashboardPage: React.FC = () => {
 
                     <div className="flex-1 overflow-y-auto max-h-[290px] pr-1 space-y-2.5 scrollbar-thin">
                       {individualRepairsWithDeviation.length === 0 ? (
-                        <div className="p-8 text-center text-xs text-slate-500 italic border border-dashed border-slate-800/80 rounded-xl">
+                        <div className="p-8 text-center text-xs text-slate-500 dark:text-slate-300 italic border border-dashed border-slate-300 dark:border-slate-800/80 rounded-xl">
                           ไม่มีบันทึกประวัติลุยงานซ่อมหยุดด่วน (Emergency Repairs) ในประวัติ
                         </div>
                       ) : (

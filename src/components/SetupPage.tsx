@@ -950,7 +950,7 @@ export const SetupPage: React.FC = () => {
                   ))}
 
                   {steps.length === 0 && (
-                    <div className="p-4 border border-dashed border-slate-800 rounded-lg text-center text-[10px] text-slate-500 italic">
+                    <div className="p-4 border border-dashed border-slate-700 rounded-lg text-center text-[10px] text-slate-500 dark:text-slate-300 italic">
                       ไม่มีขั้นตอนย่อย กรุณาเพิ่มขั้นตอนใหม่ที่ปุ่มด้านล่าง
                     </div>
                   )}
@@ -1305,10 +1305,10 @@ export const SetupPage: React.FC = () => {
 
             {/* List */}
             {filteredLogs.length === 0 ? (
-              <div className="py-12 border border-dashed border-slate-800 rounded-2xl bg-slate-950/20 text-center text-slate-500 text-xs flex flex-col items-center justify-center gap-2">
-                <HelpCircle size={32} className="text-slate-600 animate-bounce" />
-                <p className="font-semibold text-slate-400">ไม่พบข้อมูลบันทึกตามเงื่อนไขที่กรอง</p>
-                <p className="text-[10px] text-slate-500">กรุณาคลิกสร้างบันทึกเวลางานจากฝั่งซ้ายมือ</p>
+              <div className="py-12 border border-dashed border-slate-700 rounded-2xl bg-slate-950/20 text-center text-slate-500 dark:text-slate-300 text-xs flex flex-col items-center justify-center gap-2">
+                <HelpCircle size={32} className="text-cyan-400/80 animate-bounce" />
+                <p className="font-semibold text-slate-700 dark:text-slate-200">ไม่พบข้อมูลบันทึกตามเงื่อนไขที่กรอง</p>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400">กรุณาคลิกสร้างบันทึกเวลางานจากฝั่งซ้ายมือ</p>
               </div>
             ) : (
               <div className="space-y-3 max-h-[580px] overflow-y-auto pr-1 scrollbar-thin">
@@ -2006,7 +2006,7 @@ export const SetupPage: React.FC = () => {
                     </div>
                   ))}
                   {gSteps.length === 0 && (
-                    <p className="text-center text-[10px] text-slate-500 italic py-2">ยังไม่มีขั้นตอนย่อย กรุณาเพิ่มสเต็ปที่ช่องกรอกข้อมูลด้านล่าง</p>
+                    <p className="text-center text-[10px] text-slate-500 dark:text-slate-400 italic py-2">ยังไม่มีขั้นตอนย่อย กรุณาเพิ่มสเต็ปที่ช่องกรอกข้อมูลด้านล่าง</p>
                   )}
                 </div>
 

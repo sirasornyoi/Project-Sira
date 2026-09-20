@@ -599,7 +599,7 @@ export const PresentationPage: React.FC = () => {
 
           <div className="space-y-4">
             {completedPMs.length === 0 ? (
-              <div className="p-8 border border-dashed border-slate-800 rounded-xl text-center text-xs text-slate-500 italic">
+              <div className="p-8 border border-dashed border-slate-700 rounded-xl text-center text-xs text-slate-500 dark:text-slate-300 italic">
                 ไม่พบประวัติใบงาน PM ที่ขึ้นสเตตัส "เสร็จสิ้น" ในขณะนี้
               </div>
             ) : (
@@ -993,7 +993,7 @@ export const PresentationPage: React.FC = () => {
 
           <div className="space-y-4">
             {repairs.length === 0 ? (
-              <div className="p-8 border border-dashed border-slate-800 rounded-xl text-center text-xs text-slate-500 italic">
+              <div className="p-8 border border-dashed border-slate-700 rounded-xl text-center text-xs text-slate-500 dark:text-slate-300 italic">
                 ไม่พบบันทึกประวัติซ่อมพังด่วนในระบบข้อมูล
               </div>
             ) : (
@@ -1379,7 +1379,7 @@ export const PresentationPage: React.FC = () => {
                   })}
 
                   {stepSummaries.filter(s => s.diff < 0).length === 0 && (
-                    <div className="p-6 text-center border border-dashed border-slate-800 rounded-xl text-slate-500 italic text-xs">
+                    <div className="p-6 text-center border border-dashed border-slate-700 rounded-xl text-slate-500 dark:text-slate-300 italic text-xs">
                       🎉 ยอดเยี่ยมมาก ทุกขั้นตอนการตั้งเครื่อง Setup ผ่านด่านและเร็วกว่าเวลามาตรฐานทั้งหมด! 
                     </div>
                   )}
@@ -1657,7 +1657,7 @@ export const PresentationPage: React.FC = () => {
                   const machineRepairs = repairs.filter(r => r.machineId === selectedMachineForHistory);
                   if (machineRepairs.length === 0) {
                     return (
-                      <div className="p-8 text-center text-xs text-slate-500 italic border border-dashed border-slate-800 rounded-xl">
+                      <div className="p-8 text-center text-xs text-slate-500 dark:text-slate-300 italic border border-dashed border-slate-700 rounded-xl">
                         ไม่มีประวัติการซ่อมบำรุงรักษากลุ่มทางด่วน
                       </div>
                     );
