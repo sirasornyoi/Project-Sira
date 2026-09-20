@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { RepairLog } from '../types';
+import { RepairLog, WhyWhyAnalysis } from '../types';
 import { 
   Plus, Search, SlidersHorizontal, Image as ImageIcon, 
   Trash2, AlertTriangle, CheckCircle, HelpCircle, ArrowUpDown,
@@ -8,6 +8,12 @@ import {
 } from 'lucide-react';
 import { notifyRepairOpened, notifyRepairClosed, sendLineNotification } from '../utils/lineNotify';
 import { compressImageFile } from '../utils/imageUtils';
+import { WhyWhyTreeEditor } from './WhyWhyTreeEditor';
+import { 
+  createDefaultWhyWhyAnalysis, 
+  migrateLegacyWhyToTree, 
+  extractLegacyWhys 
+} from '../utils/whyWhyUtils';
 import * as XLSX from 'xlsx';
 
 export const RepairPage: React.FC = () => {
@@ -126,6 +132,9 @@ export const RepairPage: React.FC = () => {
   const [why4, setWhy4] = useState('');
   const [why5, setWhy5] = useState('');
   const [whyCount, setWhyCount] = useState(1); // Click to add Why levels up to 5
+  const [formWhyWhy, setFormWhyWhy] = useState<WhyWhyAnalysis>(() =>
+    createDefaultWhyWhyAnalysis('', '', [])
+  );
 
   // Photo
   const [photoBase64, setPhotoBase64] = useState<string>('');
@@ -233,6 +242,13 @@ export const RepairPage: React.FC = () => {
       const oldRepair = repairs.find(r => r.id === editingId);
       const isStatusChangedToClosed = oldRepair && oldRepair.status === 'กำลังซ่อม' && formStatus === 'ปิดงาน';
 
+      const legacyWhys = extractLegacyWhys(formWhyWhy);
+      const finalWhy1 = why1.trim() || legacyWhys.why1;
+      const finalWhy2 = why2.trim() || legacyWhys.why2;
+      const finalWhy3 = why3.trim() || legacyWhys.why3;
+      const finalWhy4 = why4.trim() || legacyWhys.why4;
+      const finalWhy5 = why5.trim() || legacyWhys.why5;
+
       const updatedRepair: RepairLog = {
         id: editingId,
         type: 'Repair',
@@ -243,11 +259,12 @@ export const RepairPage: React.FC = () => {
         breakdownTime: formBreakdown,
         repairDoneTime: formDone,
         symptoms: formSymptoms.trim(),
-        why1: why1.trim(),
-        why2: why2.trim(),
-        why3: why3.trim(),
-        why4: why4.trim(),
-        why5: why5.trim(),
+        why1: finalWhy1,
+        why2: finalWhy2,
+        why3: finalWhy3,
+        why4: finalWhy4,
+        why5: finalWhy5,
+        whyWhy: formWhyWhy,
         correctiveAction: formCorrection.trim() || 'ทำความสะอาดเครื่องและทดสอบเดินระบบ',
         photo: photoBase64 || undefined,
         duration: calculatedDuration,
@@ -267,6 +284,13 @@ export const RepairPage: React.FC = () => {
         notifyRepairClosed(updatedRepair, machineObj?.name || '', stdMttr).catch(console.error);
       }
     } else {
+      const legacyWhys = extractLegacyWhys(formWhyWhy);
+      const finalWhy1 = why1.trim() || legacyWhys.why1;
+      const finalWhy2 = why2.trim() || legacyWhys.why2;
+      const finalWhy3 = why3.trim() || legacyWhys.why3;
+      const finalWhy4 = why4.trim() || legacyWhys.why4;
+      const finalWhy5 = why5.trim() || legacyWhys.why5;
+
       const newLog: RepairLog = {
         id: `rep-${Date.now()}`,
         type: 'Repair',
@@ -277,11 +301,12 @@ export const RepairPage: React.FC = () => {
         breakdownTime: formBreakdown,
         repairDoneTime: formDone,
         symptoms: formSymptoms.trim(),
-        why1: why1.trim(),
-        why2: why2.trim(),
-        why3: why3.trim(),
-        why4: why4.trim(),
-        why5: why5.trim(),
+        why1: finalWhy1,
+        why2: finalWhy2,
+        why3: finalWhy3,
+        why4: finalWhy4,
+        why5: finalWhy5,
+        whyWhy: formWhyWhy,
         correctiveAction: formCorrection.trim() || 'ทำความสะอาดเครื่องและทดสอบเดินระบบ',
         photo: photoBase64 || undefined,
         duration: calculatedDuration,
@@ -354,6 +379,13 @@ export const RepairPage: React.FC = () => {
     else if (log.why3) count = 3;
     else if (log.why2) count = 2;
     setWhyCount(count);
+
+    // Lazy migration / load whyWhy
+    if (log.whyWhy) {
+      setFormWhyWhy(log.whyWhy);
+    } else {
+      setFormWhyWhy(migrateLegacyWhyToTree(log));
+    }
 
     setPhotoBase64(log.photo || '');
     setFormExcelName(log.excelFile?.name || '');
@@ -881,6 +913,7 @@ export const RepairPage: React.FC = () => {
               setWhy1(''); setWhy2(''); setWhy3(''); setWhy4(''); setWhy5('');
               setWhyCount(1);
               setPhotoBase64('');
+              setFormWhyWhy(createDefaultWhyWhyAnalysis('', technicians[0] || 'ช่าง 1', []));
               setShowFormModal(true);
             }}
             className="flex items-center gap-2 bg-gradient-to-r from-rose-500 to-red-650 hover:from-rose-400 hover:to-red-500 text-fg font-bold px-4 py-2.5 rounded-lg transition-all shadow-md focus:outline-none text-xs"
@@ -1231,90 +1264,35 @@ export const RepairPage: React.FC = () => {
                   required
                   placeholder="เช่น ลูกปืนพัดลมฝืดจัดและหน้าจอละลายควันขึ้น"
                   value={formSymptoms}
-                  onChange={(e) => setFormSymptoms(e.target.value)}
+                  onChange={(e) => {
+                    const nextVal = e.target.value;
+                    setFormSymptoms(nextVal);
+                    // Sync phenomenon if it was empty or matched previous symptoms
+                    if (!formWhyWhy.phenomenon || formWhyWhy.phenomenon === formSymptoms) {
+                      setFormWhyWhy(prev => ({ ...prev, phenomenon: nextVal }));
+                    }
+                  }}
                   className="w-full bg-white dark:bg-slate-900 border border-border dark:border-slate-700 rounded-lg px-3.5 py-2 text-fg dark:text-slate-200 focus:outline-none"
                 />
               </div>
 
-              {/* Row 4: Why-Why analysis 1-5 (Cascading dynamic display) */}
-              <div className="bg-slate-50 dark:bg-slate-900/40 p-4 border border-border dark:border-slate-700 rounded-xl space-y-3">
-                <div className="flex justify-between items-center select-none pb-1.5 border-b border-border dark:border-slate-700/50">
-                  <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide">
-                    ❓ วิเคราะห์ Why-Why หาปัจจัยรากเหง้าแฝง
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setWhyCount(prev => Math.min(5, prev + 1))}
-                    disabled={whyCount === 5}
-                    className="text-[10px] font-bold bg-cyan-50 dark:bg-cyan-500/10 hover:bg-cyan-100 dark:hover:bg-cyan-550 border border-cyan-300 dark:border-cyan-550/20 text-cyan-800 dark:text-cyan-400 hover:text-cyan-900 dark:hover:text-slate-950 px-2.5 py-1 rounded transition disabled:opacity-40 cursor-pointer"
-                  >
-                    + เพิ่มคำถาม Why ({whyCount}/5)
-                  </button>
-                </div>
-
-                <div className="space-y-2 pt-1" id="why-cascading-inputs">
-                  {whyCount >= 1 && (
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-bold text-red-600 dark:text-red-400 w-12 shrink-0">Why 1 :</span>
-                      <input
-                        type="text"
-                        placeholder="ทำไมจึงแจ้งเสีย? (เช่น ตัวเซ็นเซอร์ไม่ตัดรอบแกนลูกถ้วย)"
-                        value={why1}
-                        onChange={(e) => setWhy1(e.target.value)}
-                        className="flex-1 bg-white dark:bg-slate-900 border border-border dark:border-slate-700 rounded px-2 py-1 text-fg dark:text-slate-300 focus:outline-none"
-                      />
-                    </div>
-                  )}
-                  {whyCount >= 2 && (
-                    <div className="flex items-center gap-2 animate-in fade-in slide-in-from-top-1">
-                      <span className="text-[10px] font-bold text-red-600 dark:text-red-400 w-12 shrink-0">Why 2 :</span>
-                      <input
-                        type="text"
-                        placeholder="ทำไมไม่ตัดรอบ? (เช่น คราบจาระบีเกาะแห้งหนาก็เลยบังลำแสง)"
-                        value={why2}
-                        onChange={(e) => setWhy2(e.target.value)}
-                        className="flex-1 bg-white dark:bg-slate-900 border border-border dark:border-slate-700 rounded px-2 py-1 text-fg dark:text-slate-300 focus:outline-none"
-                      />
-                    </div>
-                  )}
-                  {whyCount >= 3 && (
-                    <div className="flex items-center gap-2 animate-in fade-in slide-in-from-top-1">
-                      <span className="text-[10px] font-bold text-red-600 dark:text-red-400 w-12 shrink-0">Why 3 :</span>
-                      <input
-                        type="text"
-                        placeholder="ทำไมมีคราบบังแสง? (เช่น ฝาครอบเซ็นเซอร์บิดตัวเปิดกว้างออก)"
-                        value={why3}
-                        onChange={(e) => setWhy3(e.target.value)}
-                        className="flex-1 bg-white dark:bg-slate-900 border border-border dark:border-slate-700 rounded px-2 py-1 text-fg dark:text-slate-300 focus:outline-none"
-                      />
-                    </div>
-                  )}
-                  {whyCount >= 4 && (
-                    <div className="flex items-center gap-2 animate-in fade-in slide-in-from-top-1">
-                      <span className="text-[10px] font-bold text-red-600 dark:text-red-400 w-12 shrink-0">Why 4 :</span>
-                      <input
-                        type="text"
-                        placeholder="ทำไมฝาบิดตัว? (เช่น ช่างซ่อมคนก่อนยึดสลักเกลียวแค่ตัวเดียวเวลาขันเกลียว)"
-                        value={why4}
-                        onChange={(e) => setWhy4(e.target.value)}
-                        className="flex-1 bg-white dark:bg-slate-900 border border-border dark:border-slate-700 rounded px-2 py-1 text-fg dark:text-slate-300 focus:outline-none"
-                      />
-                    </div>
-                  )}
-                  {whyCount >= 5 && (
-                    <div className="flex items-center gap-2 animate-in fade-in slide-in-from-top-1">
-                      <span className="text-[10px] font-bold text-red-600 dark:text-red-400 w-12 shrink-0">Why 5 :</span>
-                      <input
-                        type="text"
-                        placeholder="ทำไมช่างไม่ตรวจ? (เช่น ขอบเขตการยึดน็อตเซ็นเซอร์ไม่มีระบุในขั้นตอนมาตรฐาน)"
-                        value={why5}
-                        onChange={(e) => setWhy5(e.target.value)}
-                        className="flex-1 bg-white dark:bg-slate-900 border border-border dark:border-slate-700 rounded px-2 py-1 text-fg dark:text-slate-300 focus:outline-none"
-                      />
-                    </div>
-                  )}
-                </div>
-              </div>
+              {/* Row 4: Unlimited Branching Why-Why Analysis */}
+              <WhyWhyTreeEditor
+                value={formWhyWhy}
+                onChange={(updated) => {
+                  setFormWhyWhy(updated);
+                  const extracted = extractLegacyWhys(updated);
+                  setWhy1(extracted.why1);
+                  setWhy2(extracted.why2);
+                  setWhy3(extracted.why3);
+                  setWhy4(extracted.why4);
+                  setWhy5(extracted.why5);
+                }}
+                machineId={formMachine}
+                repairs={repairs}
+                currentRepairId={editingId || undefined}
+                symptoms={formSymptoms}
+              />
 
               {/* Row 5: Corrective action */}
               <div className="space-y-1.5">
@@ -1676,51 +1654,15 @@ export const RepairPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Why Why Analysis */}
-              <div className="bg-slate-50 dark:bg-slate-900/40 p-4 rounded-xl border border-border dark:border-slate-750 space-y-3">
-                <h4 className="text-[11px] font-bold text-slate-700 dark:text-slate-300 tracking-wide uppercase flex items-center gap-1.5 border-b border-border dark:border-slate-700/60 pb-2">
-                  ❓ ลำดับการวิเคราะห์หาสาเหตุรากเหง้าแฝง (Why-Why Analysis)
-                </h4>
-                
-                <div className="space-y-2.5 pl-2 font-mono">
-                  {selectedRepairDetail.why1 ? (
-                    <div className="flex items-start gap-2.5">
-                      <span className="text-[11px] font-bold text-red-600 dark:text-red-400 shrink-0 w-14">Why 1 :</span>
-                      <p className="text-slate-700 dark:text-slate-300 italic">{selectedRepairDetail.why1}</p>
-                    </div>
-                  ) : (
-                    <p className="text-slate-500 italic text-[11px]">ไม่ได้บันทึกข้อมูลวิเคราะห์ Why 1</p>
-                  )}
-
-                  {selectedRepairDetail.why2 && (
-                    <div className="flex items-start gap-2.5 border-t border-border dark:border-slate-800/65 pt-2">
-                      <span className="text-[11px] font-bold text-red-600 dark:text-red-400 shrink-0 w-14">Why 2 :</span>
-                      <p className="text-slate-700 dark:text-slate-300 italic">{selectedRepairDetail.why2}</p>
-                    </div>
-                  )}
-
-                  {selectedRepairDetail.why3 && (
-                    <div className="flex items-start gap-2.5 border-t border-border dark:border-slate-800/65 pt-2">
-                      <span className="text-[11px] font-bold text-red-600 dark:text-red-400 shrink-0 w-14">Why 3 :</span>
-                      <p className="text-slate-700 dark:text-slate-300 italic">{selectedRepairDetail.why3}</p>
-                    </div>
-                  )}
-
-                  {selectedRepairDetail.why4 && (
-                    <div className="flex items-start gap-2.5 border-t border-border dark:border-slate-800/65 pt-2">
-                      <span className="text-[11px] font-bold text-red-600 dark:text-red-400 shrink-0 w-14">Why 4 :</span>
-                      <p className="text-slate-700 dark:text-slate-300 italic">{selectedRepairDetail.why4}</p>
-                    </div>
-                  )}
-
-                  {selectedRepairDetail.why5 && (
-                    <div className="flex items-start gap-2.5 border-t border-border dark:border-slate-800/65 pt-2">
-                      <span className="text-[11px] font-bold text-red-600 dark:text-red-400 shrink-0 w-14">Why 5 :</span>
-                      <p className="text-slate-700 dark:text-slate-300 italic">{selectedRepairDetail.why5}</p>
-                    </div>
-                  )}
-                </div>
-              </div>
+              {/* Why Why Analysis (Unlimited Branching Tree & Legacy Migration) */}
+              <WhyWhyTreeEditor
+                value={selectedRepairDetail.whyWhy || migrateLegacyWhyToTree(selectedRepairDetail)}
+                machineId={selectedRepairDetail.machineId}
+                repairs={repairs}
+                currentRepairId={selectedRepairDetail.id}
+                symptoms={selectedRepairDetail.symptoms}
+                readOnly={true}
+              />
 
               {/* Used Spare Parts & Cost breakdown in Detail Modal */}
               <div className="bg-slate-50 dark:bg-slate-900/30 border border-border dark:border-slate-750 p-4 rounded-xl space-y-3">

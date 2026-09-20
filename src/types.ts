@@ -91,6 +91,42 @@ export interface OperationScheduleItem {
   duration: number; // in minutes (end - start)
 }
 
+export type Judgement = 'NG' | 'OK' | 'PENDING';
+export type BranchAxis = 'occurrence' | 'detection' | 'recurrence';
+
+export interface WhyNode {
+  id: string;
+  description: string;
+  children: WhyNode[];
+  changePointOk: boolean;
+  humanErrorFlag?: boolean;
+  judgement: Judgement;
+  isRootCause: boolean;
+  evidence?: string;
+  countermeasure?: string;
+  kaizen?: string;
+  personResponsible?: string;
+  deadline?: string;
+}
+
+export interface WhyWhyBranch {
+  id: string;
+  axis: BranchAxis;
+  root: WhyNode;
+  reverseLogicCheck: string;
+  closedByEvidence?: string;
+}
+
+export interface WhyWhyAnalysis {
+  id: string;
+  phenomenon: string;
+  occurrenceType: 'first' | 'recurrence';
+  relatedRepairIds: string[];
+  branches: WhyWhyBranch[];
+  analyzedBy: string;
+  updatedAt: string;
+}
+
 export interface RepairLog {
   id: string;
   type: 'Repair';
@@ -115,6 +151,7 @@ export interface RepairLog {
   usedParts?: { partId: string; quantity: number; pricePerUnit: number; totalCost: number }[];
   otherCost?: number;
   excelFile?: { name: string; content: string }; // ไฟล์ Excel แนบประกอบใบซ่อม (Base64)
+  whyWhy?: WhyWhyAnalysis; // Unlimited Branching Tree Why-Why Analysis
 }
 
 export interface ContactOtherTask {
