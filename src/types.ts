@@ -119,6 +119,8 @@ export interface WhyWhyBranch {
 
 export interface WhyWhyAnalysis {
   id: string;
+  repairId?: string;
+  machineId?: string;
   phenomenon: string;
   occurrenceType: 'first' | 'recurrence';
   relatedRepairIds: string[];

@@ -4,19 +4,23 @@ import { RepairLog, WhyWhyAnalysis } from '../types';
 import { 
   Plus, Search, SlidersHorizontal, Image as ImageIcon, 
   Trash2, AlertTriangle, CheckCircle, HelpCircle, ArrowUpDown,
-  Edit, FileSpreadsheet, Upload, X, Send
+  Edit, FileSpreadsheet, Upload, X, Send, GitFork, Target
 } from 'lucide-react';
 import { notifyRepairOpened, notifyRepairClosed, sendLineNotification } from '../utils/lineNotify';
 import { compressImageFile } from '../utils/imageUtils';
-import { WhyWhyTreeEditor } from './WhyWhyTreeEditor';
 import { 
   createDefaultWhyWhyAnalysis, 
   migrateLegacyWhyToTree, 
-  extractLegacyWhys 
+  extractLegacyWhys,
+  getWhyWhyAnalysisStats 
 } from '../utils/whyWhyUtils';
 import * as XLSX from 'xlsx';
 
-export const RepairPage: React.FC = () => {
+interface RepairPageProps {
+  onNavigateToWhyWhy?: (repairId: string) => void;
+}
+
+export const RepairPage: React.FC<RepairPageProps> = ({ onNavigateToWhyWhy }) => {
   const { repairs, setRepairs, machines, technicians, spareParts, setSpareParts, settings } = useApp();
 
   // Search/Filters states
@@ -1276,23 +1280,86 @@ export const RepairPage: React.FC = () => {
                 />
               </div>
 
-              {/* Row 4: Unlimited Branching Why-Why Analysis */}
-              <WhyWhyTreeEditor
-                value={formWhyWhy}
-                onChange={(updated) => {
-                  setFormWhyWhy(updated);
-                  const extracted = extractLegacyWhys(updated);
-                  setWhy1(extracted.why1);
-                  setWhy2(extracted.why2);
-                  setWhy3(extracted.why3);
-                  setWhy4(extracted.why4);
-                  setWhy5(extracted.why5);
-                }}
-                machineId={formMachine}
-                repairs={repairs}
-                currentRepairId={editingId || undefined}
-                symptoms={formSymptoms}
-              />
+              {/* Row 4: Why-Why Analysis Summary & Quick Inputs */}
+              <div className="bg-slate-50 dark:bg-slate-900/40 border border-border dark:border-slate-800 rounded-xl p-3.5 space-y-3">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <GitFork size={15} className="text-cyan-600 dark:text-cyan-400" />
+                    <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                      ผังวิเคราะห์สาเหตุรากเหง้า (Why-Why Analysis)
+                    </span>
+                  </div>
+                  {editingId && onNavigateToWhyWhy && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowFormModal(false);
+                        onNavigateToWhyWhy(editingId);
+                      }}
+                      className="text-[11px] font-bold text-cyan-600 dark:text-cyan-400 hover:underline flex items-center gap-1 cursor-pointer"
+                    >
+                      <span>เปิดในหน้า Why-Why เต็ม</span>
+                      <span>→</span>
+                    </button>
+                  )}
+                </div>
+
+                {editingId && formWhyWhy?.branches && formWhyWhy.branches.length > 0 ? (
+                  <div className="text-xs text-slate-600 dark:text-slate-400 flex items-center gap-3">
+                    <span>ผัง: {formWhyWhy.branches.length} กิ่ง</span>
+                    <span>•</span>
+                    <span>อาการ: {formWhyWhy.phenomenon || formSymptoms || '-'}</span>
+                  </div>
+                ) : (
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                    สามารถวิเคราะห์เจาะลึกแบบต้นไม้แตกกิ่งไม่จำกัดชั้น (Occurrence, Detection, Recurrence) ได้ที่หน้า <strong>ผังวิเคราะห์ Why-Why</strong>
+                  </p>
+                )}
+
+                {/* Quick Why 1-5 Inputs */}
+                <div className="space-y-1.5 pt-1">
+                  <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400">
+                    ลำดับการซักถาม Why 1 - 5 (ย่อ):
+                  </span>
+                  <div className="grid grid-cols-1 gap-1.5">
+                    <input
+                      type="text"
+                      placeholder="Why 1: ทำไมเกิดอาการนี้?"
+                      value={why1}
+                      onChange={(e) => setWhy1(e.target.value)}
+                      className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded px-2.5 py-1 text-xs text-fg dark:text-slate-200 focus:outline-none focus:border-cyan-500"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Why 2: ทำไมจึงเป็นเช่นนั้น?"
+                      value={why2}
+                      onChange={(e) => setWhy2(e.target.value)}
+                      className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded px-2.5 py-1 text-xs text-fg dark:text-slate-200 focus:outline-none focus:border-cyan-500"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Why 3: ทำไม?"
+                      value={why3}
+                      onChange={(e) => setWhy3(e.target.value)}
+                      className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded px-2.5 py-1 text-xs text-fg dark:text-slate-200 focus:outline-none focus:border-cyan-500"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Why 4: ทำไม?"
+                      value={why4}
+                      onChange={(e) => setWhy4(e.target.value)}
+                      className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded px-2.5 py-1 text-xs text-fg dark:text-slate-200 focus:outline-none focus:border-cyan-500"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Why 5: ทำไม? (สาเหตุรากเหง้า)"
+                      value={why5}
+                      onChange={(e) => setWhy5(e.target.value)}
+                      className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded px-2.5 py-1 text-xs text-fg dark:text-slate-200 focus:outline-none focus:border-cyan-500"
+                    />
+                  </div>
+                </div>
+              </div>
 
               {/* Row 5: Corrective action */}
               <div className="space-y-1.5">
@@ -1654,15 +1721,138 @@ export const RepairPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Why Why Analysis (Unlimited Branching Tree & Legacy Migration) */}
-              <WhyWhyTreeEditor
-                value={selectedRepairDetail.whyWhy || migrateLegacyWhyToTree(selectedRepairDetail)}
-                machineId={selectedRepairDetail.machineId}
-                repairs={repairs}
-                currentRepairId={selectedRepairDetail.id}
-                symptoms={selectedRepairDetail.symptoms}
-                readOnly={true}
-              />
+              {/* Why Why Analysis Read-only Summary */}
+              {(() => {
+                const analysis = selectedRepairDetail.whyWhy || migrateLegacyWhyToTree(selectedRepairDetail);
+                const stats = getWhyWhyAnalysisStats(analysis);
+                const hasWhys = stats.totalNodes > 0 || Boolean(selectedRepairDetail.why1);
+                const isRecurrence = analysis.occurrenceType === 'recurrence';
+
+                return (
+                  <div className="bg-slate-50 dark:bg-slate-900/30 border border-border dark:border-slate-800 p-4 rounded-xl space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border dark:border-slate-800 pb-2.5">
+                      <div className="flex items-center gap-2">
+                        <GitFork size={16} className="text-cyan-600 dark:text-cyan-400" />
+                        <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                          ผังวิเคราะห์สาเหตุรากเหง้า (Why-Why Analysis)
+                        </h4>
+                        {isRecurrence ? (
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300">
+                            ⚠️ เกิดซ้ำ
+                          </span>
+                        ) : (
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300">
+                            เกิดครั้งแรก
+                          </span>
+                        )}
+                      </div>
+
+                      {onNavigateToWhyWhy && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const repId = selectedRepairDetail.id;
+                            setSelectedRepairDetail(null);
+                            onNavigateToWhyWhy(repId);
+                          }}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white rounded-lg text-xs font-bold shadow-xs transition cursor-pointer"
+                        >
+                          <GitFork size={13} />
+                          <span>เปิดในหน้า Why-Why</span>
+                        </button>
+                      )}
+                    </div>
+
+                    {hasWhys ? (
+                      <div className="space-y-2.5">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                          <div className="p-2 rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+                            <span className="text-[10px] text-slate-400 block">กิ่งวิเคราะห์</span>
+                            <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                              {analysis.branches?.length || 1} กิ่ง
+                            </span>
+                          </div>
+                          <div className="p-2 rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+                            <span className="text-[10px] text-slate-400 block">ความลึกสูงสุด</span>
+                            <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                              {stats.maxDepth} ชั้น
+                            </span>
+                          </div>
+                          <div className="p-2 rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+                            <span className="text-[10px] text-slate-400 block">จุดผิดปกติ (NG)</span>
+                            <span className="text-xs font-bold text-rose-600 dark:text-rose-400">
+                              {stats.ngCount} จุด
+                            </span>
+                          </div>
+                          <div className="p-2 rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+                            <span className="text-[10px] text-slate-400 block">สาเหตุรากเหง้า</span>
+                            <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                              {stats.rootCauseCount > 0 ? `${stats.rootCauseCount} จุด` : 'รอพิสูจน์'}
+                            </span>
+                          </div>
+                        </div>
+
+                        {stats.rootCauses.length > 0 && (
+                          <div className="p-2.5 rounded-lg bg-rose-50/70 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/60">
+                            <div className="text-[10px] font-bold text-rose-700 dark:text-rose-300 mb-1 flex items-center gap-1">
+                              <Target size={12} />
+                              <span>สาเหตุรากเหง้าที่ระบุ:</span>
+                            </div>
+                            <ul className="text-xs text-slate-800 dark:text-slate-200 space-y-1 list-disc list-inside">
+                              {stats.rootCauses.map((rc, i) => (
+                                <li key={i}>{rc}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+
+                        {/* Quick 5 Whys summary view */}
+                        <div className="space-y-1 pt-1">
+                          <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400">
+                            ลำดับการวิเคราะห์ (Why 1-5):
+                          </span>
+                          <div className="grid grid-cols-1 gap-1 text-[11px]">
+                            {[
+                              selectedRepairDetail.why1, 
+                              selectedRepairDetail.why2, 
+                              selectedRepairDetail.why3, 
+                              selectedRepairDetail.why4, 
+                              selectedRepairDetail.why5
+                            ]
+                              .map((w, idx) => (w ? { text: w, idx: idx + 1 } : null))
+                              .filter((x): x is { text: string; idx: number } => Boolean(x))
+                              .map((item) => (
+                                <div key={item.idx} className="flex items-center gap-2 px-2.5 py-1 bg-white dark:bg-slate-950 rounded border border-slate-200 dark:border-slate-800">
+                                  <span className="font-bold text-cyan-600 dark:text-cyan-400 w-12 shrink-0">Why {item.idx}:</span>
+                                  <span className="text-slate-700 dark:text-slate-300 truncate">{item.text}</span>
+                                </div>
+                              ))}
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="p-4 rounded-lg bg-white dark:bg-slate-950 border border-dashed border-slate-300 dark:border-slate-800 text-center space-y-2">
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                          ยังไม่มีการบันทึกผังวิเคราะห์ Why-Why สำหรับเคสนี้
+                        </p>
+                        {onNavigateToWhyWhy && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const repId = selectedRepairDetail.id;
+                              setSelectedRepairDetail(null);
+                              onNavigateToWhyWhy(repId);
+                            }}
+                            className="text-xs font-bold text-cyan-600 dark:text-cyan-400 hover:underline cursor-pointer"
+                          >
+                            + คลิกเพื่อสร้างผังวิเคราะห์ในหน้า Why-Why
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
 
               {/* Used Spare Parts & Cost breakdown in Detail Modal */}
               <div className="bg-slate-50 dark:bg-slate-900/30 border border-border dark:border-slate-750 p-4 rounded-xl space-y-3">

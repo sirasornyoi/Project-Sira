@@ -103,6 +103,8 @@ export function migrateLegacyWhyToTree(repair: Partial<RepairLog>): WhyWhyAnalys
 
   return {
     id: `ww-${repair.id || Date.now()}`,
+    repairId: repair.id,
+    machineId: repair.machineId,
     phenomenon: repair.symptoms || '',
     occurrenceType: 'first',
     relatedRepairIds: [],
@@ -110,6 +112,49 @@ export function migrateLegacyWhyToTree(repair: Partial<RepairLog>): WhyWhyAnalys
     analyzedBy: repair.technician || 'ช่างซ่อมบำรุง',
     updatedAt: new Date().toISOString()
   };
+}
+
+/**
+ * Analyzes all branches to count NG nodes, Root Cause nodes, maximum depth, and root causes
+ */
+export function getWhyWhyAnalysisStats(analysis?: WhyWhyAnalysis): {
+  totalNodes: number;
+  ngCount: number;
+  rootCauseCount: number;
+  maxDepth: number;
+  rootCauses: string[];
+} {
+  const result = {
+    totalNodes: 0,
+    ngCount: 0,
+    rootCauseCount: 0,
+    maxDepth: 0,
+    rootCauses: [] as string[]
+  };
+
+  if (!analysis || !analysis.branches || analysis.branches.length === 0) {
+    return result;
+  }
+
+  function traverse(node: WhyNode) {
+    result.totalNodes++;
+    if (node.judgement === 'NG') result.ngCount++;
+    if (node.isRootCause) {
+      result.rootCauseCount++;
+      if (node.description?.trim()) result.rootCauses.push(node.description.trim());
+    }
+    node.children?.forEach(traverse);
+  }
+
+  analysis.branches.forEach(b => {
+    if (b.root) {
+      traverse(b.root);
+      const d = getMaxDepth(b.root);
+      if (d > result.maxDepth) result.maxDepth = d;
+    }
+  });
+
+  return result;
 }
 
 /**
