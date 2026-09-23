@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useApp } from '../context/AppContext';
 import { RepairLog, Machine, WhyWhyAnalysis } from '../types';
 import { WhyWhyTreeEditor } from './WhyWhyTreeEditor';
+import { WhyWhyCanvasBuilder } from './WhyWhyCanvasBuilder';
 import { 
   migrateLegacyWhyToTree, 
   extractLegacyWhys, 
@@ -20,7 +21,8 @@ import {
   Wrench,
   HelpCircle,
   Sparkles,
-  ArrowRight
+  ArrowRight,
+  SlidersHorizontal
 } from 'lucide-react';
 
 interface WhyWhySubTabProps {
@@ -50,6 +52,7 @@ export const WhyWhySubTab: React.FC<WhyWhySubTabProps> = ({
 
   // Selected repair for full-screen Why-Why editor
   const [activeRepairId, setActiveRepairId] = useState<string | null>(focusedRepairId || null);
+  const [viewMode, setViewMode] = useState<'indent' | 'canvas'>('indent');
 
   // Filters & Search
   const [searchTerm, setSearchTerm] = useState('');
@@ -297,7 +300,37 @@ export const WhyWhySubTab: React.FC<WhyWhySubTabProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex flex-wrap items-center gap-2 shrink-0">
+            {/* View Mode Toggle: Indent vs Canvas */}
+            <div className="flex items-center p-1 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700/60 shadow-inner">
+              <button
+                type="button"
+                onClick={() => setViewMode('indent')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+                  viewMode === 'indent'
+                    ? 'bg-white dark:bg-slate-900 text-cyan-600 dark:text-cyan-400 shadow-xs'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                }`}
+                title="มุมมองแบบรายการลำดับชั้นแตกกิ่ง (Indent)"
+              >
+                <GitFork size={13} />
+                <span>ลำดับชั้น (Indent)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode('canvas')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+                  viewMode === 'canvas'
+                    ? 'bg-white dark:bg-slate-900 text-cyan-600 dark:text-cyan-400 shadow-xs'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                }`}
+                title="มุมมองผังสร้าง Why-Why แบบ Canvas ซ้าย→ขวา"
+              >
+                <SlidersHorizontal size={13} />
+                <span>ผัง Canvas (ซ้าย→ขวา)</span>
+              </button>
+            </div>
+
             <button
               type="button"
               onClick={() => onNavigateToBdCase(activeRepair)}
@@ -310,18 +343,27 @@ export const WhyWhySubTab: React.FC<WhyWhySubTabProps> = ({
           </div>
         </div>
 
-        {/* Full Tree Editor */}
-        <div className="bg-white dark:bg-slate-900 border border-border dark:border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xs">
-          <WhyWhyTreeEditor
+        {/* Editor Body: Indent Tree or Canvas Builder */}
+        {viewMode === 'indent' ? (
+          <div className="bg-white dark:bg-slate-900 border border-border dark:border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xs">
+            <WhyWhyTreeEditor
+              value={activeAnalysis}
+              onChange={(updated) => handleSaveAnalysis(updated, activeRepair.id)}
+              machineId={activeRepair.machineId}
+              repairs={repairs}
+              currentRepairId={activeRepair.id}
+              symptoms={activeRepair.symptoms}
+              readOnly={false}
+            />
+          </div>
+        ) : (
+          <WhyWhyCanvasBuilder
             value={activeAnalysis}
             onChange={(updated) => handleSaveAnalysis(updated, activeRepair.id)}
-            machineId={activeRepair.machineId}
-            repairs={repairs}
-            currentRepairId={activeRepair.id}
-            symptoms={activeRepair.symptoms}
+            machineName={machine?.name}
             readOnly={false}
           />
-        </div>
+        )}
       </div>
     );
   }
