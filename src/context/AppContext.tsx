@@ -470,6 +470,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     if (!isLoaded) return;
 
+    // Immediately record local edit time to prevent polling from overwriting state during debounce
+    lastLocalSaveTimeRef.current = Date.now();
+
     // Save to localStorage as backup safely
     try {
       localStorage.setItem('maint_machines', JSON.stringify(machines));

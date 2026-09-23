@@ -66,6 +66,13 @@ async function startServer() {
         });
       }
 
+      if (!data.machines || !Array.isArray(data.machines)) {
+        return res.status(400).json({
+          success: false,
+          message: "Refusing to save: missing required 'machines' array."
+        });
+      }
+
       // 1. Write atomically to temporary file first
       fs.writeFileSync(tmpFile, JSON.stringify(data, null, 2), "utf-8");
 
