@@ -47,7 +47,7 @@ export const PresentationPage: React.FC = () => {
         if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) return parsed;
       }
     } catch (e) {
-      console.warn('Failed to parse pm_delay_reasons_v2 from localStorage:', e);
+      console.warn('parse pm_delay_reasons_v2 failed', e);
     }
     return {};
   });
@@ -60,7 +60,7 @@ export const PresentationPage: React.FC = () => {
         if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) return parsed;
       }
     } catch (e) {
-      console.warn('Failed to parse repair_delay_reasons_v2 from localStorage:', e);
+      console.warn('parse repair_delay_reasons_v2 failed', e);
     }
     return {};
   });
