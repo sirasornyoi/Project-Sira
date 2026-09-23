@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useApp } from '../context/AppContext';
 import { RepairLog, Machine, WhyWhyAnalysis } from '../types';
-import { WhyWhyTreeEditor } from './WhyWhyTreeEditor';
 import { WhyWhyCanvasBuilder } from './WhyWhyCanvasBuilder';
 import { 
   migrateLegacyWhyToTree, 
@@ -22,7 +21,6 @@ import {
   HelpCircle,
   Sparkles,
   ArrowRight,
-  SlidersHorizontal,
   Trash2,
   Link2,
   Unlink
@@ -57,7 +55,6 @@ export const WhyWhySubTab: React.FC<WhyWhySubTabProps> = ({
   // Selected repair or draft for full-screen Why-Why editor
   const [activeRepairId, setActiveRepairId] = useState<string | null>(focusedRepairId || null);
   const [activeDraftId, setActiveDraftId] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'indent' | 'canvas'>('indent');
 
   // If pairingDraftId is set, the repair selection modal pairs this draft to the selected repair
   const [pairingDraftId, setPairingDraftId] = useState<string | null>(null);
@@ -73,6 +70,10 @@ export const WhyWhySubTab: React.FC<WhyWhySubTabProps> = ({
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [createSearchTerm, setCreateSearchTerm] = useState('');
   const [createMachineFilter, setCreateMachineFilter] = useState('');
+
+  // Delete confirmation state (prevents window.confirm iframe blockage)
+  const [confirmDeleteDraftId, setConfirmDeleteDraftId] = useState<string | null>(null);
+  const [confirmDeleteActiveDraft, setConfirmDeleteActiveDraft] = useState<boolean>(false);
 
   // Sync when focusedRepairId changes from parent
   useEffect(() => {
@@ -307,23 +308,12 @@ export const WhyWhySubTab: React.FC<WhyWhySubTabProps> = ({
     setWhyWhyDrafts(prev => [newDraft, ...prev]);
     setActiveRepairId(null);
     setActiveDraftId(newDraft.id);
-    setViewMode('canvas');
   };
 
   // Pair Draft with a Breakdown Case
   const handlePairDraftWithRepair = (draftId: string, targetRepair: RepairLog) => {
     const draft = whyWhyDrafts.find(d => d.id === draftId);
     if (!draft) return;
-
-    const hasExistingTree = Boolean(
-      targetRepair.whyWhy?.branches && targetRepair.whyWhy.branches.length > 0
-    );
-    if (hasExistingTree) {
-      const ok = window.confirm(
-        `เคส ${targetRepair.machineId} (${targetRepair.symptoms}) มีผัง Why-Why อยู่แล้ว คุณต้องการเขียนทับด้วยผังร่างนี้หรือไม่?`
-      );
-      if (!ok) return;
-    }
 
     const branchesWithRecomputedRoots = draft.branches?.map(b => ({
       ...b,
@@ -372,11 +362,6 @@ export const WhyWhySubTab: React.FC<WhyWhySubTabProps> = ({
     const targetRepair = repairs.find(r => r.id === repairId);
     if (!targetRepair) return;
 
-    const ok = window.confirm(
-      'คุณต้องการถอดผังนี้ออกจากเคส BD และย้ายไปเป็นผังลอย (Draft) ใช่หรือไม่?\\n(ค่า why1..why5 เดิมในเคสแจ้งซ่อมจะยังคงอยู่)'
-    );
-    if (!ok) return;
-
     const currentAnalysis = targetRepair.whyWhy || migrateLegacyWhyToTree(targetRepair);
     const uncoupledDraft: WhyWhyAnalysis = {
       ...currentAnalysis,
@@ -406,13 +391,12 @@ export const WhyWhySubTab: React.FC<WhyWhySubTabProps> = ({
 
   // Delete Draft
   const handleDeleteDraft = (draftId: string) => {
-    const ok = window.confirm('คุณต้องการลบผังร่างนี้ใช่หรือไม่?');
-    if (!ok) return;
-
     setWhyWhyDrafts(prev => prev.filter(d => d.id !== draftId));
     if (activeDraftId === draftId) {
       setActiveDraftId(null);
     }
+    setConfirmDeleteDraftId(null);
+    setConfirmDeleteActiveDraft(false);
   };
 
   // Create new analysis paired with a selected repair case
@@ -502,36 +486,6 @@ export const WhyWhySubTab: React.FC<WhyWhySubTabProps> = ({
           </div>
 
           <div className="flex flex-wrap items-center gap-2 shrink-0">
-            {/* View Mode Toggle: Indent vs Canvas */}
-            <div className="flex items-center p-1 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700/60 shadow-inner">
-              <button
-                type="button"
-                onClick={() => setViewMode('indent')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
-                  viewMode === 'indent'
-                    ? 'bg-white dark:bg-slate-900 text-cyan-600 dark:text-cyan-400 shadow-xs'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
-                }`}
-                title="มุมมองแบบรายการลำดับชั้นแตกกิ่ง (Indent)"
-              >
-                <GitFork size={13} />
-                <span>ลำดับชั้น (Indent)</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewMode('canvas')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
-                  viewMode === 'canvas'
-                    ? 'bg-white dark:bg-slate-900 text-cyan-600 dark:text-cyan-400 shadow-xs'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
-                }`}
-                title="มุมมองผังสร้าง Why-Why แบบ Canvas ซ้าย→ขวา"
-              >
-                <SlidersHorizontal size={13} />
-                <span>ผัง Canvas (ซ้าย→ขวา)</span>
-              </button>
-            </div>
-
             {/* Uncouple / Decouple to Draft */}
             <button
               type="button"
@@ -555,27 +509,13 @@ export const WhyWhySubTab: React.FC<WhyWhySubTabProps> = ({
           </div>
         </div>
 
-        {/* Editor Body: Indent Tree or Canvas Builder */}
-        {viewMode === 'indent' ? (
-          <div className="bg-white dark:bg-slate-900 border border-border dark:border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xs">
-            <WhyWhyTreeEditor
-              value={activeAnalysis}
-              onChange={(updated) => handleSaveAnalysis(updated, activeRepair.id)}
-              machineId={activeRepair.machineId}
-              repairs={repairs}
-              currentRepairId={activeRepair.id}
-              symptoms={activeRepair.symptoms}
-              readOnly={false}
-            />
-          </div>
-        ) : (
-          <WhyWhyCanvasBuilder
-            value={activeAnalysis}
-            onChange={(updated) => handleSaveAnalysis(updated, activeRepair.id)}
-            machineName={machine?.name}
-            readOnly={false}
-          />
-        )}
+        {/* Editor Body: Visual Canvas Builder */}
+        <WhyWhyCanvasBuilder
+          value={activeAnalysis}
+          onChange={(updated) => handleSaveAnalysis(updated, activeRepair.id)}
+          machineName={machine?.name}
+          readOnly={false}
+        />
       </div>
     );
   }
@@ -616,36 +556,6 @@ export const WhyWhySubTab: React.FC<WhyWhySubTabProps> = ({
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            {/* View Mode Switcher */}
-            <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700/60">
-              <button
-                type="button"
-                onClick={() => setViewMode('indent')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
-                  viewMode === 'indent'
-                    ? 'bg-white dark:bg-slate-900 text-cyan-600 dark:text-cyan-400 shadow-xs'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
-                }`}
-                title="มุมมองแบบรายการลำดับชั้นแตกกิ่ง (Indent)"
-              >
-                <GitFork size={13} />
-                <span>ลำดับชั้น (Indent)</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewMode('canvas')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
-                  viewMode === 'canvas'
-                    ? 'bg-white dark:bg-slate-900 text-cyan-600 dark:text-cyan-400 shadow-xs'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
-                }`}
-                title="มุมมองผังสร้าง Why-Why แบบ Canvas ซ้าย→ขวา"
-              >
-                <SlidersHorizontal size={13} />
-                <span>ผัง Canvas (ซ้าย→ขวา)</span>
-              </button>
-            </div>
-
             {/* Pair with BD Case Button */}
             <button
               type="button"
@@ -662,36 +572,47 @@ export const WhyWhySubTab: React.FC<WhyWhySubTabProps> = ({
               <span>จับคู่เคส BD</span>
             </button>
 
-            {/* Delete Draft Button */}
-            <button
-              type="button"
-              onClick={() => handleDeleteDraft(activeDraft.id)}
-              className="flex items-center gap-1 px-2.5 py-1.5 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg text-xs font-bold transition cursor-pointer"
-              title="ลบผังร่างนี้"
-            >
-              <Trash2 size={13} />
-              <span className="hidden sm:inline">ลบร่าง</span>
-            </button>
+            {/* Delete Draft Button (Inline confirmation to prevent iframe dialog block) */}
+            {confirmDeleteActiveDraft ? (
+              <div className="flex items-center gap-1.5 bg-rose-50 dark:bg-rose-950/60 p-1 rounded-lg border border-rose-200 dark:border-rose-900 animate-in fade-in duration-100">
+                <span className="text-xs font-bold text-rose-700 dark:text-rose-300 pl-1">
+                  ลบผังร่างนี้?
+                </span>
+                <button
+                  type="button"
+                  onClick={() => handleDeleteDraft(activeDraft.id)}
+                  className="px-2.5 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded text-xs font-bold transition cursor-pointer"
+                >
+                  ลบทันที
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setConfirmDeleteActiveDraft(false)}
+                  className="px-2 py-1 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 rounded text-xs transition cursor-pointer"
+                >
+                  ยกเลิก
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setConfirmDeleteActiveDraft(true)}
+                className="flex items-center gap-1 px-2.5 py-1.5 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg text-xs font-bold transition cursor-pointer border border-rose-200 dark:border-rose-900/60"
+                title="ลบผังร่างนี้"
+              >
+                <Trash2 size={13} />
+                <span className="hidden sm:inline">ลบร่าง</span>
+              </button>
+            )}
           </div>
         </div>
 
-        {/* Editor Body */}
-        {viewMode === 'indent' ? (
-          <div className="bg-white dark:bg-slate-900 border border-border dark:border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xs">
-            <WhyWhyTreeEditor
-              value={activeDraft}
-              onChange={(updated) => handleSaveDraft(updated, activeDraft.id)}
-              symptoms={activeDraft.phenomenon || 'ผังร่าง'}
-              readOnly={false}
-            />
-          </div>
-        ) : (
-          <WhyWhyCanvasBuilder
-            value={activeDraft}
-            onChange={(updated) => handleSaveDraft(updated, activeDraft.id)}
-            readOnly={false}
-          />
-        )}
+        {/* Editor Body: Visual Canvas Builder */}
+        <WhyWhyCanvasBuilder
+          value={activeDraft}
+          onChange={(updated) => handleSaveDraft(updated, activeDraft.id)}
+          readOnly={false}
+        />
       </div>
     );
   }
@@ -905,11 +826,10 @@ export const WhyWhySubTab: React.FC<WhyWhySubTabProps> = ({
                               onClick={() => {
                                 setActiveRepairId(null);
                                 setActiveDraftId(draft.id);
-                                setViewMode('canvas');
                               }}
                               className="px-2.5 py-1.5 rounded-lg bg-cyan-50 dark:bg-cyan-950/50 hover:bg-cyan-100 text-cyan-700 dark:text-cyan-300 text-xs font-bold border border-cyan-200 dark:border-cyan-800 transition cursor-pointer"
                             >
-                              เปิดแก้ (Canvas)
+                              เปิดแก้ผัง
                             </button>
                             <button
                               type="button"
@@ -925,14 +845,33 @@ export const WhyWhySubTab: React.FC<WhyWhySubTabProps> = ({
                               <span>จับคู่เคส BD</span>
                             </button>
                           </div>
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteDraft(draft.id)}
-                            className="p-1.5 text-slate-400 hover:text-rose-600 rounded transition cursor-pointer"
-                            title="ลบผังร่างนี้"
-                          >
-                            <Trash2 size={14} />
-                          </button>
+                          {confirmDeleteDraftId === draft.id ? (
+                            <div className="flex items-center gap-1 bg-rose-50 dark:bg-rose-950/60 p-1 rounded-lg border border-rose-200 dark:border-rose-900 animate-in fade-in duration-100">
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteDraft(draft.id)}
+                                className="px-2 py-0.5 bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-bold rounded cursor-pointer"
+                              >
+                                ยืนยันลบ
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setConfirmDeleteDraftId(null)}
+                                className="px-1.5 py-0.5 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 text-[11px] rounded cursor-pointer"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => setConfirmDeleteDraftId(draft.id)}
+                              className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded transition cursor-pointer"
+                              title="ลบผังร่างนี้"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          )}
                         </div>
                       </div>
                     );
@@ -1027,145 +966,94 @@ export const WhyWhySubTab: React.FC<WhyWhySubTabProps> = ({
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredAnalyzedItems.map(item => {
-            const { repair, analysis, stats, machine } = item;
-            const isRecurrence = analysis.occurrenceType === 'recurrence';
-            const hasRoot = stats.rootCauseCount > 0;
+        <div className="bg-white dark:bg-slate-900 border border-border dark:border-slate-800 rounded-xl overflow-hidden shadow-xs">
+          {/* Header Row */}
+          <div className="hidden md:grid md:grid-cols-12 gap-3 px-4 py-2.5 bg-slate-50 dark:bg-slate-950/60 border-b border-border dark:border-slate-800 text-[11px] font-bold text-slate-500 dark:text-slate-400">
+            <div className="md:col-span-3">เครื่องจักร</div>
+            <div className="md:col-span-4">อาการเสีย (เคส BD)</div>
+            <div className="md:col-span-3">สาเหตุที่พบ (รากเหง้า)</div>
+            <div className="md:col-span-2 text-right">ดำเนินการ</div>
+          </div>
 
-            return (
-              <div
-                key={repair.id}
-                className="group bg-white dark:bg-slate-900 border border-border dark:border-slate-800 hover:border-cyan-500/70 dark:hover:border-cyan-500 rounded-2xl p-4 shadow-xs hover:shadow-md transition flex flex-col justify-between space-y-3 relative overflow-hidden"
-              >
-                {/* Top Row: Machine & Occurrence Type */}
-                <div className="space-y-2">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-cyan-100 text-cyan-800 dark:bg-cyan-950/60 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800">
-                        {repair.machineId}
-                      </span>
-                      <span className="font-bold text-xs text-slate-900 dark:text-slate-100 truncate max-w-[150px]">
-                        {machine?.name || 'เครื่องจักร'}
-                      </span>
-                    </div>
+          {/* Data Rows */}
+          <div className="divide-y divide-slate-100 dark:divide-slate-800">
+            {filteredAnalyzedItems.map(item => {
+              const { repair, analysis, stats, machine } = item;
+              const hasRoot = stats.rootCauseCount > 0;
+              const rootCauseText = hasRoot 
+                ? stats.rootCauses[0] 
+                : (analysis.branches?.[0]?.root?.children?.[0]?.description || '');
 
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      {isRecurrence ? (
-                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
-                          ⚠️ เกิดซ้ำ
-                        </span>
-                      ) : (
-                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-                          เกิดครั้งแรก
-                        </span>
-                      )}
-                    </div>
+              return (
+                <div
+                  key={repair.id}
+                  className="flex flex-col md:grid md:grid-cols-12 gap-2 md:gap-3 px-4 py-3 items-start md:items-center hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition"
+                >
+                  {/* Machine */}
+                  <div className="md:col-span-3 flex items-center gap-2 min-w-0">
+                    <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-cyan-100 text-cyan-800 dark:bg-cyan-950/60 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800 shrink-0">
+                      {repair.machineId}
+                    </span>
+                    <span className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">
+                      {machine?.name || 'เครื่องจักร'}
+                    </span>
                   </div>
 
-                  {/* Phenomenon / Symptoms */}
-                  <div>
-                    <h3 className="text-xs font-bold text-slate-800 dark:text-slate-200 line-clamp-2 leading-relaxed">
+                  {/* Symptom */}
+                  <div className="md:col-span-4 min-w-0">
+                    <p className="text-xs text-slate-800 dark:text-slate-200 line-clamp-1" title={analysis.phenomenon || repair.symptoms}>
                       {analysis.phenomenon || repair.symptoms}
-                    </h3>
-                    {analysis.phenomenon && analysis.phenomenon !== repair.symptoms && (
-                      <p className="text-[11px] text-slate-400 dark:text-slate-500 truncate mt-0.5">
-                        อาการเดิม: {repair.symptoms}
-                      </p>
+                    </p>
+                  </div>
+
+                  {/* Root Cause / Cause */}
+                  <div className="md:col-span-3 min-w-0">
+                    {hasRoot ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300 border border-rose-200 dark:border-rose-900 truncate max-w-full">
+                        <Target size={11} className="shrink-0" />
+                        <span className="truncate">{stats.rootCauses[0]}</span>
+                      </span>
+                    ) : rootCauseText ? (
+                      <span className="text-xs text-slate-600 dark:text-slate-400 truncate block">
+                        สาเหตุ: {rootCauseText}
+                      </span>
+                    ) : (
+                      <span className="text-[11px] text-slate-400 dark:text-slate-500 italic">
+                        รอพิสูจน์ (ยังไม่ระบุสาเหตุ)
+                      </span>
                     )}
                   </div>
 
-                  {/* Root Cause or Pending Banner */}
-                  {hasRoot ? (
-                    <div className="p-2 rounded-lg bg-rose-50/70 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/60 space-y-1">
-                      <div className="flex items-center gap-1 text-[10px] font-bold text-rose-700 dark:text-rose-300">
-                        <Target size={12} />
-                        <span>สาเหตุรากเหง้า (Root Cause):</span>
-                      </div>
-                      <p className="text-[11px] text-slate-700 dark:text-slate-300 line-clamp-2 font-medium pl-3.5">
-                        {stats.rootCauses[0]}
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-                      <HelpCircle size={13} className="text-amber-500" />
-                      <span>ยังไม่ได้ระบุสาเหตุรากเหง้า (รอพิสูจน์)</span>
-                    </div>
-                  )}
-
-                  {/* Paired BD Case Info Reference */}
-                  <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-950/40 border border-slate-200/80 dark:border-slate-800/80 text-[10.5px] space-y-1 text-slate-600 dark:text-slate-400">
-                    <div className="flex items-center justify-between gap-1">
-                      <span className="font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1">
-                        <Wrench size={11} className="text-cyan-600 dark:text-cyan-400" />
-                        <span>อ้างอิงเคส BD:</span>
-                      </span>
-                      <span className="font-mono text-[10px]">{repair.date}</span>
-                    </div>
-                    <p className="truncate text-slate-600 dark:text-slate-400 italic">
-                      "{repair.symptoms}"
-                    </p>
-                  </div>
-                </div>
-
-                {/* Bottom Footer: Stats Badges, Date, and Actions */}
-                <div className="space-y-2 pt-2 border-t border-border dark:border-slate-800/80">
-                  <div className="flex items-center justify-between gap-2 text-[11px] text-slate-500 dark:text-slate-400">
-                    <div className="flex items-center gap-1.5">
-                      <span className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 font-mono text-[10px]">
-                        ลึก {stats.maxDepth} ชั้น
-                      </span>
-                      <span className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 font-mono text-[10px]">
-                        {analysis.branches?.length || 1} กิ่ง
-                      </span>
-                      {stats.ngCount > 0 && (
-                        <span className="px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 dark:bg-rose-950/50 dark:text-rose-400 font-mono text-[10px] font-bold">
-                          NG {stats.ngCount}
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="flex items-center gap-1 font-mono text-[10px]">
-                      <Calendar size={11} />
-                      <span>{repair.date}</span>
-                    </div>
-                  </div>
-
-                  {/* Two-way action buttons */}
-                  <div className="flex items-center gap-1.5 pt-1">
-                    <button
-                      type="button"
-                      onClick={() => onNavigateToBdCase(repair)}
-                      className="flex-1 inline-flex items-center justify-center gap-1 px-2 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-xs font-bold transition cursor-pointer"
-                      title="สลับไปที่แท็บแจ้งซ่อม/ประวัติ (BD) เพื่อดูหรือแก้ไขเคสนี้"
-                    >
-                      <Wrench size={12} className="text-cyan-600 dark:text-cyan-400" />
-                      <span>ไปเคส BD</span>
-                    </button>
-
+                  {/* Actions */}
+                  <div className="md:col-span-2 flex items-center justify-end gap-1.5 w-full md:w-auto">
                     <button
                       type="button"
                       onClick={() => setActiveRepairId(repair.id)}
-                      className="flex-1 inline-flex items-center justify-center gap-1 px-2 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-xs font-bold transition cursor-pointer shadow-xs"
-                      title="เปิดผัง Why-Why เต็มหน้าเพื่อดูหรือแก้ไข"
+                      className="px-2.5 py-1 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-xs font-bold transition cursor-pointer shadow-xs whitespace-nowrap"
                     >
-                      <GitFork size={12} />
-                      <span>ดู/แก้ Why-Why</span>
+                      ดู/แก้ Why-Why
                     </button>
-
+                    <button
+                      type="button"
+                      onClick={() => onNavigateToBdCase(repair)}
+                      className="p-1.5 text-slate-500 hover:text-cyan-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition cursor-pointer"
+                      title="ไปเคส BD"
+                    >
+                      <Wrench size={13} />
+                    </button>
                     <button
                       type="button"
                       onClick={() => handleUncouplePairedToDraft(repair.id)}
-                      className="p-1.5 bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/40 dark:hover:bg-amber-900/60 border border-amber-200 dark:border-amber-800/80 text-amber-700 dark:text-amber-300 rounded-lg text-xs font-bold transition cursor-pointer shrink-0"
-                      title="ถอดผังออกจากเคส BD และย้ายไปเป็นผังลอย (Draft)"
+                      className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/40 rounded-lg transition cursor-pointer"
+                      title="ถอดผังเป็นผังร่าง (Draft)"
                     >
                       <Unlink size={13} />
                     </button>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       )}
 

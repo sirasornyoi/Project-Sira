@@ -14,7 +14,8 @@ import {
   updateNodeInTree, 
   deleteNodeFromTree, 
   recomputeRootCauses, 
-  checkHumanErrorDescription 
+  checkHumanErrorDescription,
+  getBranchRoots
 } from '../utils/whyWhyUtils';
 import { 
   Target, 
@@ -33,7 +34,10 @@ import {
   Sparkles,
   GitFork,
   Maximize2,
-  Minimize2
+  Minimize2,
+  Undo2,
+  Redo2,
+  Check
 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -92,6 +96,8 @@ const JUDGEMENT_BADGES: Record<Judgement, { label: string; badgeStyle: string; i
 interface LayoutNode {
   node: WhyNode;
   depth: number;
+  treeIndex: number;
+  whyLabel: string;
   x: number;
   y: number;
   width: number;
@@ -111,14 +117,14 @@ interface LayoutLink {
 }
 
 function computeTidyTreeLayout(
-  root: WhyNode,
+  roots: WhyNode[],
   collapsedIds: Set<string>
 ): { nodes: LayoutNode[]; links: LayoutLink[]; bounds: { width: number; height: number } } {
   const nodes: LayoutNode[] = [];
   const links: LayoutLink[] = [];
   let leafCounter = 0;
 
-  function traverse(node: WhyNode, depth: number, parentId?: string): { x: number; y: number } {
+  function traverse(node: WhyNode, depth: number, treeIndex: number, parentId?: string): { x: number; y: number } {
     const isCollapsed = collapsedIds.has(node.id);
     const hasChildren = Boolean(node.children && node.children.length > 0);
     const visibleChildren = (!isCollapsed && hasChildren) ? node.children : [];
@@ -132,15 +138,19 @@ function computeTidyTreeLayout(
       leafCounter++;
     } else {
       // Internal node: recursively layout children first
-      const childPositions = visibleChildren.map(child => traverse(child, depth + 1, node.id));
+      const childPositions = visibleChildren.map(child => traverse(child, depth + 1, treeIndex, node.id));
       const firstChildY = childPositions[0].y;
       const lastChildY = childPositions[childPositions.length - 1].y;
       y = (firstChildY + lastChildY) / 2;
     }
 
+    const whyLabel = `Why ${treeIndex}.${depth}`;
+
     const layoutNode: LayoutNode = {
       node,
       depth,
+      treeIndex,
+      whyLabel,
       x,
       y,
       width: NODE_W,
@@ -154,7 +164,13 @@ function computeTidyTreeLayout(
     return { x, y };
   }
 
-  traverse(root, 1);
+  roots.forEach((root, idx) => {
+    if (idx > 0) {
+      leafCounter += 0.25; // Clean separation between root trees
+    }
+    const treeIndex = idx + 1; // 1, 2, 3...
+    traverse(root, 1, treeIndex);
+  });
 
   // Build links between parent and visible child nodes
   const nodeMap = new Map<string, LayoutNode>();
@@ -229,6 +245,10 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
     return value.branches?.find(b => b.id === activeBranchId) || value.branches?.[0] || null;
   }, [value.branches, activeBranchId]);
 
+  const branchRoots = useMemo(() => {
+    return getBranchRoots(activeBranch);
+  }, [activeBranch]);
+
   // Collapsed nodes state
   const [collapsedIds, setCollapsedIds] = useState<Set<string>>(new Set());
 
@@ -242,6 +262,8 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
   const [canvasMode, setCanvasMode] = useState<'view' | 'edit'>('view');
   // Fullscreen state
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+  // Selected node state for visual focus and keyboard Delete
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
 
   // Esc key listener to exit fullscreen
   useEffect(() => {
@@ -259,6 +281,37 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
   const viewportRef = useRef<HTMLDivElement>(null);
   const contentWrapperRef = useRef<HTMLDivElement>(null);
 
+  // Editing node text state (supports double click in view mode or focus edit)
+  const [editingNodeId, setEditingNodeId] = useState<string | null>(null);
+
+  // Undo / Redo History Stacks
+  const [history, setHistory] = useState<WhyWhyAnalysis[]>([]);
+  const [redoStack, setRedoStack] = useState<WhyWhyAnalysis[]>([]);
+
+  // Push snapshot to history before mutating
+  const pushHistorySnapshot = useCallback(() => {
+    setHistory(prev => [...prev.slice(-25), JSON.parse(JSON.stringify(value))]);
+    setRedoStack([]);
+  }, [value]);
+
+  // Undo Handler
+  const handleUndo = useCallback(() => {
+    if (readOnly || history.length === 0) return;
+    const previous = history[history.length - 1];
+    setHistory(prev => prev.slice(0, -1));
+    setRedoStack(prev => [...prev, JSON.parse(JSON.stringify(value))]);
+    onChange(previous);
+  }, [history, onChange, readOnly, value]);
+
+  // Redo Handler
+  const handleRedo = useCallback(() => {
+    if (readOnly || redoStack.length === 0) return;
+    const next = redoStack[redoStack.length - 1];
+    setRedoStack(prev => prev.slice(0, -1));
+    setHistory(prev => [...prev, JSON.parse(JSON.stringify(value))]);
+    onChange(next);
+  }, [onChange, readOnly, redoStack, value]);
+
   // Helper to count nodes
   const countNodes = useCallback((node: WhyNode): number => {
     let count = 1;
@@ -270,13 +323,19 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
     return count;
   }, []);
 
+  const countBranchTotalNodes = useCallback((branch?: WhyWhyBranch | null): number => {
+    if (!branch) return 0;
+    const roots = getBranchRoots(branch);
+    return roots.reduce((acc, r) => acc + countNodes(r), 0);
+  }, [countNodes]);
+
   // Compute Layout
   const layout = useMemo(() => {
-    if (!activeBranch || !activeBranch.root) {
+    if (!activeBranch || branchRoots.length === 0) {
       return { nodes: [], links: [], bounds: { width: 880, height: 540 } };
     }
-    return computeTidyTreeLayout(activeBranch.root, collapsedIds);
-  }, [activeBranch, collapsedIds]);
+    return computeTidyTreeLayout(branchRoots, collapsedIds);
+  }, [activeBranch, branchRoots, collapsedIds]);
 
   // Non-passive wheel handler for zoom
   useEffect(() => {
@@ -305,10 +364,12 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
       target.tagName === 'TEXTAREA' || 
       target.tagName === 'BUTTON' ||
       target.closest('button') ||
-      target.closest('input')
+      target.closest('input') ||
+      target.closest('.canvas-node-card')
     ) {
       return;
     }
+    setSelectedNodeId(null);
     setIsPanning(true);
     setDragStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
   };
@@ -326,8 +387,11 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
   };
 
   // Branch updates
-  const handleUpdateActiveBranch = useCallback((patch: Partial<WhyWhyBranch>) => {
+  const handleUpdateActiveBranch = useCallback((patch: Partial<WhyWhyBranch>, skipHistory: boolean = false) => {
     if (readOnly || !activeBranch) return;
+    if (!skipHistory) {
+      pushHistorySnapshot();
+    }
     const updatedBranches = value.branches.map(b => 
       b.id === activeBranch.id ? { ...b, ...patch } : b
     );
@@ -336,18 +400,37 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
       branches: updatedBranches,
       updatedAt: new Date().toISOString()
     });
-  }, [activeBranch, onChange, readOnly, value]);
+  }, [activeBranch, onChange, pushHistorySnapshot, readOnly, value]);
 
-  // Node Mutations (Funneled through whyWhyUtils)
+  // Node Mutations across multiple roots
   const handleUpdateNodeDescription = (nodeId: string, description: string) => {
     if (readOnly || !activeBranch) return;
     const hasHumanError = checkHumanErrorDescription(description);
-    const rawRoot = updateNodeInTree(activeBranch.root, nodeId, {
-      description,
-      humanErrorFlag: hasHumanError
+    const updatedRoots = branchRoots.map(r => {
+      const raw = updateNodeInTree(r, nodeId, {
+        description,
+        humanErrorFlag: hasHumanError
+      });
+      return recomputeRootCauses(raw);
     });
-    const updatedRoot = recomputeRootCauses(rawRoot);
-    handleUpdateActiveBranch({ root: updatedRoot });
+    // Skip history snapshot on every keystroke
+    handleUpdateActiveBranch({
+      roots: updatedRoots,
+      root: updatedRoots[0]
+    }, true);
+  };
+
+  // Node Judgement update (รอพิสูจน์, OK, NG)
+  const handleUpdateNodeJudgement = (nodeId: string, judgement: Judgement) => {
+    if (readOnly || !activeBranch) return;
+    const updatedRoots = branchRoots.map(r => {
+      const raw = updateNodeInTree(r, nodeId, { judgement });
+      return recomputeRootCauses(raw);
+    });
+    handleUpdateActiveBranch({
+      roots: updatedRoots,
+      root: updatedRoots[0]
+    });
   };
 
   const handleAddChild = (parentId: string) => {
@@ -361,31 +444,125 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
       });
     }
     const newNode = createWhyNode();
-    const rawRoot = addChildNode(activeBranch.root, parentId, newNode);
-    const updatedRoot = recomputeRootCauses(rawRoot);
-    handleUpdateActiveBranch({ root: updatedRoot });
+    const updatedRoots = branchRoots.map(r => {
+      const raw = addChildNode(r, parentId, newNode);
+      return recomputeRootCauses(raw);
+    });
+    handleUpdateActiveBranch({
+      roots: updatedRoots,
+      root: updatedRoots[0]
+    });
   };
 
   const handleAddSibling = (targetId: string) => {
     if (readOnly || !activeBranch) return;
     const newNode = createWhyNode();
-    const res = addSiblingNode(activeBranch.root, targetId, newNode);
-    const baseRoot = res.added
-      ? res.root
-      : addChildNode(activeBranch.root, targetId, newNode);
-    const updatedRoot = recomputeRootCauses(baseRoot);
-    handleUpdateActiveBranch({ root: updatedRoot });
+    const updatedRoots = branchRoots.map(r => {
+      const res = addSiblingNode(r, targetId, newNode);
+      const base = res.added ? res.root : r;
+      return recomputeRootCauses(base);
+    });
+    handleUpdateActiveBranch({
+      roots: updatedRoots,
+      root: updatedRoots[0]
+    });
   };
 
-  const handleDeleteNode = (targetId: string) => {
+  // Add another starting root cause Why 1 (Why พ่ออีก - จุดเริ่มของสาเหตุอื่น)
+  const handleAddRoot = () => {
     if (readOnly || !activeBranch) return;
-    if (targetId === activeBranch.root.id) return;
-    const res = deleteNodeFromTree(activeBranch.root, targetId);
-    if (res.deleted) {
-      const updatedRoot = recomputeRootCauses(res.root);
-      handleUpdateActiveBranch({ root: updatedRoot });
-    }
+    const newRoot = createWhyNode('', true);
+    const updatedRoots = [...branchRoots, newRoot];
+    handleUpdateActiveBranch({
+      roots: updatedRoots,
+      root: updatedRoots[0]
+    });
   };
+
+  const handleDeleteNode = useCallback((targetId: string) => {
+    if (readOnly || !activeBranch) return;
+    const isRoot = branchRoots.some(r => r.id === targetId);
+    if (isRoot) {
+      if (branchRoots.length > 1) {
+        // Delete this Why 1 root
+        const updatedRoots = branchRoots.filter(r => r.id !== targetId);
+        handleUpdateActiveBranch({
+          roots: updatedRoots,
+          root: updatedRoots[0]
+        });
+      } else {
+        // Clear text and children of the only root
+        const resetRoot: WhyNode = {
+          ...branchRoots[0],
+          description: '',
+          children: [],
+          isRootCause: false
+        };
+        handleUpdateActiveBranch({
+          roots: [resetRoot],
+          root: resetRoot
+        });
+      }
+      return;
+    }
+
+    const updatedRoots = branchRoots.map(r => {
+      const res = deleteNodeFromTree(r, targetId);
+      return res.deleted ? recomputeRootCauses(res.root) : r;
+    });
+    handleUpdateActiveBranch({
+      roots: updatedRoots,
+      root: updatedRoots[0]
+    });
+  }, [readOnly, activeBranch, branchRoots, handleUpdateActiveBranch]);
+
+  // Keyboard shortcut listener: Undo (Ctrl+Z / Cmd+Z), Redo (Ctrl+Y / Ctrl+Shift+Z), and Delete
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Check for Ctrl+Z / Cmd+Z (Undo) and Ctrl+Y / Ctrl+Shift+Z (Redo)
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+        const activeTag = document.activeElement?.tagName;
+        // If actively typing inside input or textarea, let browser handle native text undo
+        if (activeTag === 'INPUT' || activeTag === 'TEXTAREA') {
+          return;
+        }
+        e.preventDefault();
+        if (e.shiftKey) {
+          handleRedo();
+        } else {
+          handleUndo();
+        }
+        return;
+      }
+
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') {
+        const activeTag = document.activeElement?.tagName;
+        if (activeTag === 'INPUT' || activeTag === 'TEXTAREA') {
+          return;
+        }
+        e.preventDefault();
+        handleRedo();
+        return;
+      }
+
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        const activeTag = document.activeElement?.tagName;
+        // Do not intercept if typing in text inputs
+        if (activeTag === 'INPUT' || activeTag === 'TEXTAREA') {
+          return;
+        }
+
+        if (selectedNodeId && !readOnly && activeBranch) {
+          e.preventDefault();
+          handleDeleteNode(selectedNodeId);
+          setSelectedNodeId(null);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedNodeId, readOnly, activeBranch, handleDeleteNode, handleUndo, handleRedo]);
 
   const toggleCollapse = (nodeId: string) => {
     setCollapsedIds(prev => {
@@ -412,18 +589,12 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
     setActiveBranchId(newBranch.id);
   };
 
-  const handleDeleteBranch = (branchId: string, e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleDeleteBranch = (branchId: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
     if (readOnly) return;
     if (!value.branches || value.branches.length <= 1) {
-      alert('ต้องมีอย่างน้อย 1 กิ่งวิเคราะห์');
       return;
     }
-    const branchToDelete = value.branches.find(b => b.id === branchId);
-    const axisLabel = branchToDelete ? AXIS_CONFIG[branchToDelete.axis]?.label || branchToDelete.axis : 'กิ่งนี้';
-    const ok = window.confirm(`คุณต้องการลบกิ่ง "${axisLabel}" ใช่หรือไม่?\nข้อมูลการวิเคราะห์ในกิ่งนี้จะถูกลบออกทั้งหมด`);
-    if (!ok) return;
-
     const remaining = value.branches.filter(b => b.id !== branchId);
     if (activeBranchId === branchId && remaining.length > 0) {
       setActiveBranchId(remaining[0].id);
@@ -665,7 +836,7 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
             {value.branches?.map(b => {
               const cfg = AXIS_CONFIG[b.axis];
               const isActive = b.id === activeBranchId;
-              const count = countNodes(b.root);
+              const count = countBranchTotalNodes(b);
 
               return (
                 <div
@@ -721,6 +892,31 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
 
         {/* Viewport & Export Action Group */}
         <div className="flex flex-wrap items-center gap-2">
+          {/* Undo / Redo Controls */}
+          {!readOnly && (
+            <div className="flex items-center bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700/60 p-0.5">
+              <button
+                type="button"
+                disabled={history.length === 0}
+                onClick={handleUndo}
+                className="p-1.5 text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700 rounded transition cursor-pointer disabled:opacity-35 disabled:cursor-not-allowed"
+                title="ย้อนกลับ (Ctrl+Z)"
+              >
+                <Undo2 size={14} />
+              </button>
+              <div className="h-4 w-px bg-slate-300 dark:bg-slate-700 mx-0.5" />
+              <button
+                type="button"
+                disabled={redoStack.length === 0}
+                onClick={handleRedo}
+                className="p-1.5 text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700 rounded transition cursor-pointer disabled:opacity-35 disabled:cursor-not-allowed"
+                title="ทำซ้ำ (Ctrl+Y หรือ Ctrl+Shift+Z)"
+              >
+                <Redo2 size={14} />
+              </button>
+            </div>
+          )}
+
           {/* Zoom & Pan Controls */}
           <div className="flex items-center bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700/60 p-0.5">
             <button
@@ -801,12 +997,20 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
 
       {/* Guide Banner */}
       <div className="px-4 py-2 bg-cyan-50/70 dark:bg-cyan-950/20 border-b border-cyan-100 dark:border-cyan-900/40 text-[11px] text-cyan-900 dark:text-cyan-300 flex flex-wrap items-center justify-between gap-2">
-        <div className="flex items-center gap-1.5">
-          <span>💡 <strong>ผังสร้างซ้าย→ขวา:</strong> กด <strong>"➕ ลูกศร→ลูก"</strong> เพื่อแตกสาเหตุลึกลงไปทางขวา หรือ <strong>"➕ ช่องขนาน"</strong> เพื่อเพิ่มสาเหตุร่วมไล่ลงล่าง</span>
+        <div className="flex items-center gap-2 flex-wrap">
+          <span>💡 <strong>คำแนะนำ:</strong> <strong>ดับเบิ้ลคลิก</strong>ที่การ์ดเพื่อแก้ไขงาน | คลิกที่ผลเพื่อเปลี่ยน <strong>"รอพิสูจน์"</strong> เป็น <strong>"OK (เป็นจริง)"</strong> หรือ <strong>"NG (ไม่จริง)"</strong> | กด <strong>Ctrl+Z</strong> เพื่อย้อนกลับ</span>
         </div>
-        <span className="text-slate-400 dark:text-slate-500 text-[10px]">
-          (ลากพื้นหลังเพื่อเลื่อนดู / หมุนล้อเมาส์เพื่อซูม {isFullscreen ? '/ กด Esc เพื่อออกจากโหมดเต็มจอ' : ''})
-        </span>
+        {!readOnly && canvasMode === 'edit' && (
+          <button
+            type="button"
+            onClick={handleAddRoot}
+            className="flex items-center gap-1.5 px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition cursor-pointer shadow-xs shrink-0"
+            title={`เพิ่มจุดเริ่มสาเหตุอื่น (Why ${branchRoots.length + 1}.1)`}
+          >
+            <Plus size={13} />
+            <span>+ เพิ่ม Why {branchRoots.length + 1}.1</span>
+          </button>
+        )}
       </div>
 
       {/* -------------------------------------------------------------------- */}
@@ -882,26 +1086,45 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
           {/* LAYER 2: HTML Absolute Positioned Cards (In Front) */}
           <div className="absolute inset-0 pointer-events-none">
             {layout.nodes.map(item => {
-              const { node, depth, x, y, width, height, isCollapsed, hasChildren } = item;
+              const { node, depth, whyLabel, x, y, width, height, isCollapsed, hasChildren } = item;
               const judgementInfo = JUDGEMENT_BADGES[node.judgement];
-              const isRootNode = activeBranch && node.id === activeBranch.root.id;
+              const isRootNode = depth === 1;
+
+              const isSelected = selectedNodeId === node.id;
+              const isInlineEditing = editingNodeId === node.id || canvasMode === 'edit';
 
               return (
                 <div
                   key={node.id}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedNodeId(node.id);
+                  }}
+                  onDoubleClick={(e) => {
+                    e.stopPropagation();
+                    if (!readOnly) {
+                      setEditingNodeId(node.id);
+                      setSelectedNodeId(node.id);
+                    }
+                  }}
                   style={{
                     left: `${x}px`,
                     top: `${y}px`,
                     width: `${width}px`,
                     minHeight: `${height}px`
                   }}
-                  className={`absolute pointer-events-auto rounded-xl flex flex-col justify-between transition-all duration-150 border shadow-xs ${
+                  className={`canvas-node-card absolute pointer-events-auto rounded-xl flex flex-col justify-between transition-all duration-150 border cursor-pointer select-none ${
                     canvasMode === 'view' ? 'p-2' : 'p-2.5'
+                  } ${
+                    isSelected
+                      ? 'ring-2 ring-cyan-500 shadow-lg border-cyan-500'
+                      : ''
                   } ${
                     node.isRootCause
                       ? 'bg-rose-50/95 dark:bg-rose-950/80 border-rose-500 dark:border-rose-600 ring-2 ring-rose-500/20 shadow-md'
                       : 'bg-white/95 dark:bg-slate-900/95 border-slate-300 dark:border-slate-700 hover:border-cyan-400 dark:hover:border-cyan-600'
                   }`}
+                  title={readOnly ? undefined : "ดับเบิ้ลคลิก (Double-click) เพื่อแก้ไขข้อความ"}
                 >
                   {/* Card Header: Level Indicator + Status Badge + Root Cause */}
                   <div className={`flex items-center justify-between gap-1 pb-1 ${
@@ -909,13 +1132,31 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
                   }`}>
                     <div className="flex items-center gap-1.5 flex-wrap">
                       <span className="px-2 py-0.5 rounded font-mono font-bold text-[11px] bg-cyan-100 text-cyan-800 dark:bg-cyan-950/60 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800">
-                        Why {depth}
+                        {whyLabel}
                       </span>
 
-                      {/* Judgement Badge (Read-only on canvas per standard) */}
-                      <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold border ${judgementInfo.badgeStyle}`}>
-                        {judgementInfo.icon} {judgementInfo.label}
-                      </span>
+                      {/* Judgement Badge / Selector (Clickable to switch รอพิสูจน์, OK, NG) */}
+                      {!readOnly ? (
+                        <div className="relative inline-flex items-center" onClick={(e) => e.stopPropagation()}>
+                          <select
+                            value={node.judgement}
+                            onChange={(e) => {
+                              handleUpdateNodeJudgement(node.id, e.target.value as Judgement);
+                            }}
+                            className={`appearance-none cursor-pointer pl-1.5 pr-4 py-0.5 rounded text-[10px] font-bold border ${judgementInfo.badgeStyle} focus:outline-none focus:ring-1 focus:ring-cyan-500`}
+                            title="คลิกเพื่อเปลี่ยนผลการพิสูจน์ (รอพิสูจน์ / เป็นจริง (OK) / ไม่จริง (NG))"
+                          >
+                            <option value="PENDING">⏳ รอพิสูจน์</option>
+                            <option value="OK">✓ เป็นจริง (OK)</option>
+                            <option value="NG">✕ ไม่จริง (NG)</option>
+                          </select>
+                          <ChevronDown size={10} className="absolute right-1 pointer-events-none opacity-60" />
+                        </div>
+                      ) : (
+                        <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold border ${judgementInfo.badgeStyle}`}>
+                          {judgementInfo.icon} {judgementInfo.label}
+                        </span>
+                      )}
 
                       {/* Root Cause Badge */}
                       {node.isRootCause && (
@@ -940,7 +1181,10 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
                     {canvasMode === 'edit' && hasChildren && (
                       <button
                         type="button"
-                        onClick={() => toggleCollapse(node.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleCollapse(node.id);
+                        }}
                         className="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition cursor-pointer"
                         title={isCollapsed ? 'ขยายกิ่งลูก' : 'ยุบกิ่งลูก'}
                       >
@@ -949,25 +1193,50 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
                     )}
                   </div>
 
-                  {/* Card Description: Plain text in view mode, textarea in edit mode */}
-                  {canvasMode === 'view' ? (
-                    <div className="my-1 px-0.5 text-xs text-slate-800 dark:text-slate-100 leading-snug break-words">
+                  {/* Card Description: Plain text in view mode, or editable textarea */}
+                  {!isInlineEditing ? (
+                    <div 
+                      className="my-1 px-0.5 text-xs text-slate-800 dark:text-slate-100 leading-snug break-words select-text cursor-text"
+                      title={readOnly ? undefined : "ดับเบิ้ลคลิกเพื่อแก้ไข"}
+                    >
                       {node.description?.trim() ? (
                         node.description
                       ) : (
-                        <span className="text-slate-400 dark:text-slate-500 italic font-normal">(ยังไม่ระบุ)</span>
+                        <span className="text-slate-400 dark:text-slate-500 italic font-normal">(ดับเบิ้ลคลิกเพื่อระบุข้อความ)</span>
                       )}
                     </div>
                   ) : (
-                    <div className="my-1.5">
+                    <div className="my-1.5 select-text" onClick={(e) => e.stopPropagation()}>
                       <textarea
+                        autoFocus={editingNodeId === node.id}
                         rows={2}
                         disabled={readOnly}
                         value={node.description}
                         onChange={(e) => handleUpdateNodeDescription(node.id, e.target.value)}
-                        placeholder={`ทำไมในชั้นที่ ${depth}?`}
+                        onBlur={() => {
+                          if (editingNodeId === node.id) {
+                            setEditingNodeId(null);
+                          }
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Escape') {
+                            setEditingNodeId(null);
+                          }
+                        }}
+                        placeholder={`ทำไมในชั้น ${whyLabel}?`}
                         className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 dark:focus:border-cyan-500 rounded-lg p-1.5 text-xs text-slate-800 dark:text-slate-100 resize-none focus:outline-none transition leading-tight"
                       />
+                      {canvasMode === 'view' && editingNodeId === node.id && (
+                        <div className="flex justify-end gap-1 mt-0.5">
+                          <button
+                            type="button"
+                            onClick={() => setEditingNodeId(null)}
+                            className="flex items-center gap-0.5 px-2 py-0.5 text-[10px] font-bold bg-cyan-600 hover:bg-cyan-700 text-white rounded transition cursor-pointer"
+                          >
+                            <Check size={11} /> เสร็จสิ้น
+                          </button>
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -978,7 +1247,10 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
                         {/* Add Child (Creates arrow to child on right) */}
                         <button
                           type="button"
-                          onClick={() => handleAddChild(node.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddChild(node.id);
+                          }}
                           className="flex items-center gap-1 px-2 py-0.5 bg-cyan-50 hover:bg-cyan-100 dark:bg-cyan-950/60 dark:hover:bg-cyan-900 border border-cyan-300 dark:border-cyan-800 text-cyan-800 dark:text-cyan-300 rounded text-[10px] font-bold transition cursor-pointer"
                           title="เพิ่มลูกศรไปช่องลูกทางขวา (Child Why)"
                         >
@@ -986,29 +1258,54 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
                           <span>ลูกศร→ลูก</span>
                         </button>
 
-                        {/* Add Parallel Sibling (Fans down) */}
-                        <button
-                          type="button"
-                          onClick={() => handleAddSibling(node.id)}
-                          className="flex items-center gap-1 px-2 py-0.5 bg-white hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded text-[10px] font-bold transition cursor-pointer"
-                          title="เพิ่มช่องคู่ขนานใต้พ่อเดียวกัน (Sibling)"
-                        >
-                          <Plus size={11} />
-                          <span>ช่องขนาน</span>
-                        </button>
+                        {/* For Why 1 (Root): Do NOT show "ช่องขนาน" per user request! */}
+                        {/* Instead, allow adding another root Why (Why 2.1, Why 3.1...) */}
+                        {isRootNode ? (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleAddRoot();
+                            }}
+                            className="flex items-center gap-1 px-2 py-0.5 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 rounded text-[10px] font-bold transition cursor-pointer"
+                            title={`เพิ่มจุดเริ่มสาเหตุใหม่ (Why ${branchRoots.length + 1}.1)`}
+                          >
+                            <Plus size={11} />
+                            <span>Why {branchRoots.length + 1}.1</span>
+                          </button>
+                        ) : (
+                          /* Add Parallel Sibling for non-root nodes (Fans down under same parent) */
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleAddSibling(node.id);
+                            }}
+                            className="flex items-center gap-1 px-2 py-0.5 bg-white hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded text-[10px] font-bold transition cursor-pointer"
+                            title="เพิ่มช่องคู่ขนานใต้พ่อเดียวกัน (Sibling)"
+                          >
+                            <Plus size={11} />
+                            <span>ช่องขนาน</span>
+                          </button>
+                        )}
                       </div>
 
-                      {/* Delete Node (Cannot delete root of branch) */}
-                      {!isRootNode && (
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteNode(node.id)}
-                          className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 rounded transition cursor-pointer"
-                          title="ลบ Why นี้และลูกทั้งหมด"
-                        >
-                          <Trash2 size={12} />
-                        </button>
-                      )}
+                      {/* Delete Node Button */}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteNode(node.id);
+                        }}
+                        className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 rounded transition cursor-pointer"
+                        title={
+                          isRootNode
+                            ? (branchRoots.length > 1 ? `ลบจุดเริ่มสาเหตุนี้ (${whyLabel})` : "ล้างข้อความและกิ่งลูก")
+                            : `ลบ ${whyLabel} นี้และลูกทั้งหมด (หรือกด Delete บนแป้นพิมพ์)`
+                        }
+                      >
+                        <Trash2 size={12} />
+                      </button>
                     </div>
                   )}
                 </div>

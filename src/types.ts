@@ -113,6 +113,7 @@ export interface WhyWhyBranch {
   id: string;
   axis: BranchAxis;
   root: WhyNode;
+  roots?: WhyNode[]; // Multiple Why 1 (พ่อ) starting points
   reverseLogicCheck: string;
   closedByEvidence?: string;
 }

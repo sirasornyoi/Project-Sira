@@ -154,6 +154,17 @@ export function migrateLegacyWhyToTree(repair: Partial<RepairLog>): WhyWhyAnalys
 }
 
 /**
+ * Gets all root Why 1 nodes of a branch (supporting multiple starting points)
+ */
+export function getBranchRoots(branch?: WhyWhyBranch | null): WhyNode[] {
+  if (!branch) return [];
+  if (branch.roots && branch.roots.length > 0) {
+    return branch.roots;
+  }
+  return branch.root ? [branch.root] : [];
+}
+
+/**
  * Analyzes all branches to count NG nodes, Root Cause nodes, maximum depth, and root causes
  */
 export function getWhyWhyAnalysisStats(analysis?: WhyWhyAnalysis): {
@@ -186,11 +197,12 @@ export function getWhyWhyAnalysisStats(analysis?: WhyWhyAnalysis): {
   }
 
   analysis.branches.forEach(b => {
-    if (b.root) {
-      traverse(b.root);
-      const d = getMaxDepth(b.root);
+    const branchRoots = getBranchRoots(b);
+    branchRoots.forEach(r => {
+      traverse(r);
+      const d = getMaxDepth(r);
       if (d > result.maxDepth) result.maxDepth = d;
-    }
+    });
   });
 
   return result;
