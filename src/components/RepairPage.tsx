@@ -17,6 +17,8 @@ import {
 } from '../utils/whyWhyUtils';
 import * as XLSX from 'xlsx';
 
+const getTodayDateString = () => new Date().toISOString().slice(0, 10);
+
 export const RepairPage: React.FC = () => {
   const { repairs, setRepairs, machines, technicians, spareParts, setSpareParts, settings } = useApp();
 
@@ -263,7 +265,7 @@ export const RepairPage: React.FC = () => {
         type: 'Repair',
         technician: primaryTech,
         technicians: formTechnicians,
-        date: formBreakdown.split('T')[0],
+        date: (formBreakdown || '').split('T')[0] || getTodayDateString(),
         machineId: formMachine,
         breakdownTime: formBreakdown,
         repairDoneTime: formDone,
@@ -311,7 +313,7 @@ export const RepairPage: React.FC = () => {
         type: 'Repair',
         technician: primaryTech,
         technicians: formTechnicians,
-        date: formBreakdown.split('T')[0],
+        date: (formBreakdown || '').split('T')[0] || getTodayDateString(),
         machineId: formMachine,
         breakdownTime: formBreakdown,
         repairDoneTime: formDone,
@@ -636,7 +638,7 @@ export const RepairPage: React.FC = () => {
         type: 'Repair',
         technician: primaryTechInput,
         technicians: [primaryTechInput],
-        date: breakdownTime.split('T')[0] || new Date().toISOString().slice(0, 10),
+        date: (breakdownTime || '').split('T')[0] || getTodayDateString(),
         machineId: machineIdInput || 'UNKNOWN',
         breakdownTime,
         repairDoneTime: status === 'ปิดงาน' ? repairDoneTime : '',
@@ -1223,7 +1225,7 @@ export const RepairPage: React.FC = () => {
                         </div>
                       </td>
                       <td className="py-4 px-3 text-right font-mono font-semibold text-cyan-700 dark:text-cyan-400 whitespace-nowrap">
-                        {((r.usedParts?.reduce((sum, item) => sum + item.totalCost, 0) || 0) + (r.otherCost || 0)).toLocaleString()} ฿
+                        {((r.usedParts?.reduce((sum, item) => sum + (Number(item.totalCost) || 0), 0) ?? 0) + (Number(r.otherCost) || 0)).toLocaleString()} ฿
                       </td>
                       <td className="py-4 px-3 text-center">
                         <div className="flex flex-wrap gap-1 justify-center max-w-[140px] mx-auto">
@@ -1666,7 +1668,7 @@ export const RepairPage: React.FC = () => {
                   <div className="flex flex-col justify-center items-end pr-2">
                     <span className="text-[9px] text-slate-600 dark:text-slate-400 uppercase font-bold tracking-wider">รวมค่าซ่อมทั้งสิ้น</span>
                     <span className="text-sm font-black font-mono text-cyan-700 dark:text-cyan-400 mt-1">
-                      {(formUsedParts.reduce((sum, item) => sum + item.totalCost, 0) + Number(formOtherCost || 0)).toLocaleString()} บาท
+                      {(formUsedParts.reduce((sum, item) => sum + (Number(item.totalCost) || 0), 0) + (Number(formOtherCost) || 0)).toLocaleString()} บาท
                     </span>
                   </div>
                 </div>
@@ -2031,7 +2033,7 @@ export const RepairPage: React.FC = () => {
                   <div className="flex flex-col items-end pr-2">
                     <span className="text-[10px] text-slate-600 dark:text-slate-400 font-bold">รวมค่าใช้จ่ายทั้งสิ้น</span>
                     <span className="text-sm font-black text-cyan-700 dark:text-cyan-400 font-mono mt-0.5">
-                      {((selectedRepairDetail.usedParts?.reduce((sum, i) => sum + i.totalCost, 0) || 0) + (selectedRepairDetail.otherCost || 0)).toLocaleString()} บาท
+                      {((selectedRepairDetail.usedParts?.reduce((sum, i) => sum + (Number(i.totalCost) || 0), 0) ?? 0) + (Number(selectedRepairDetail.otherCost) || 0)).toLocaleString()} บาท
                     </span>
                   </div>
                 </div>

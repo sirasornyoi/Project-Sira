@@ -626,6 +626,20 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
     });
   }, [readOnly, activeBranch, branchRoots, handleUpdateActiveBranch]);
 
+  // References for keyboard shortcuts to always access latest state without stale closure
+  const selectedNodeIdRef = useRef(selectedNodeId);
+  selectedNodeIdRef.current = selectedNodeId;
+  const readOnlyRef = useRef(readOnly);
+  readOnlyRef.current = readOnly;
+  const activeBranchRef = useRef(activeBranch);
+  activeBranchRef.current = activeBranch;
+  const handleDeleteNodeRef = useRef(handleDeleteNode);
+  handleDeleteNodeRef.current = handleDeleteNode;
+  const handleUndoRef = useRef(handleUndo);
+  handleUndoRef.current = handleUndo;
+  const handleRedoRef = useRef(handleRedo);
+  handleRedoRef.current = handleRedo;
+
   // Keyboard shortcut listener: Undo (Ctrl+Z / Cmd+Z), Redo (Ctrl+Y / Ctrl+Shift+Z), and Delete
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -638,9 +652,9 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
         }
         e.preventDefault();
         if (e.shiftKey) {
-          handleRedo();
+          handleRedoRef.current();
         } else {
-          handleUndo();
+          handleUndoRef.current();
         }
         return;
       }
@@ -651,7 +665,7 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
           return;
         }
         e.preventDefault();
-        handleRedo();
+        handleRedoRef.current();
         return;
       }
 
@@ -662,9 +676,10 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
           return;
         }
 
-        if (selectedNodeId && !readOnly && activeBranch) {
+        const currentNodeId = selectedNodeIdRef.current;
+        if (currentNodeId && !readOnlyRef.current && activeBranchRef.current) {
           e.preventDefault();
-          handleDeleteNode(selectedNodeId);
+          handleDeleteNodeRef.current(currentNodeId);
           setSelectedNodeId(null);
         }
       }
@@ -672,7 +687,7 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedNodeId, readOnly, activeBranch, handleDeleteNode, handleUndo, handleRedo]);
+  }, []);
 
   const toggleCollapse = (nodeId: string) => {
     setCollapsedIds(prev => {

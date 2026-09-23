@@ -179,7 +179,7 @@ export const PMPlanPage: React.FC = () => {
   const handleToggleStepDone = (planId: string, stepIndex: number) => {
     setPmPlans(prev => prev.map(plan => {
       if (plan.id !== planId) return plan;
-      const updatedSteps = [...plan.steps];
+      const updatedSteps = [...(plan.steps || [])];
       const targetStep = updatedSteps[stepIndex];
       if (!targetStep) return plan;
 
@@ -207,7 +207,7 @@ export const PMPlanPage: React.FC = () => {
   const handleSetStepResult = (planId: string, stepIndex: number, result: 'ปกติ' | 'ไม่ปกติ' | 'ยังไม่ตรวจ') => {
     setPmPlans(prev => prev.map(plan => {
       if (plan.id !== planId) return plan;
-      const updatedSteps = [...plan.steps];
+      const updatedSteps = [...(plan.steps || [])];
       const targetStep = updatedSteps[stepIndex];
       if (!targetStep) return plan;
 
@@ -231,7 +231,7 @@ export const PMPlanPage: React.FC = () => {
   const handleUpdateStepField = (planId: string, stepIndex: number, field: 'abnormalDetail' | 'remark', val: string) => {
     setPmPlans(prev => prev.map(plan => {
       if (plan.id !== planId) return plan;
-      const updatedSteps = [...plan.steps];
+      const updatedSteps = [...(plan.steps || [])];
       if (!updatedSteps[stepIndex]) return plan;
 
       updatedSteps[stepIndex] = {
@@ -250,7 +250,7 @@ export const PMPlanPage: React.FC = () => {
       return {
         ...plan,
         lastCheckedDate: new Date().toISOString().split('T')[0],
-        steps: plan.steps.map(s => ({
+        steps: (plan.steps || []).map(s => ({
           ...s,
           done: true,
           result: s.result && s.result !== 'ยังไม่ตรวจ' ? s.result : 'ปกติ'
@@ -270,7 +270,7 @@ export const PMPlanPage: React.FC = () => {
       if (plan.id !== resetChecklistPlanId) return plan;
       return {
         ...plan,
-        steps: plan.steps.map(s => ({
+        steps: (plan.steps || []).map(s => ({
           ...s,
           done: false,
           result: 'ยังไม่ตรวจ'
@@ -284,7 +284,7 @@ export const PMPlanPage: React.FC = () => {
   const handleDeleteStepFromPlan = (planId: string, stepIndex: number) => {
     setPmPlans(prev => prev.map(plan => {
       if (plan.id !== planId) return plan;
-      const updatedSteps = plan.steps.filter((_, idx) => idx !== stepIndex);
+      const updatedSteps = (plan.steps || []).filter((_, idx) => idx !== stepIndex);
       const newTtm = updatedSteps.reduce((sum, s) => sum + (s.stdTime || 0), 0);
       return {
         ...plan,
@@ -297,7 +297,7 @@ export const PMPlanPage: React.FC = () => {
   // Open modal to add a new step directly into an existing plan (เพิ่มการทำ PM)
   const handleOpenAddStepModal = (planId: string) => {
     const targetPlan = pmPlans.find(p => p.id === planId);
-    const nextItemNo = (targetPlan?.steps.length || 0) + 1;
+    const nextItemNo = ((targetPlan?.steps || []).length) + 1;
     setStepModalPlanId(planId);
     setEditingStepIndex(null);
     setStepForm({
@@ -317,7 +317,7 @@ export const PMPlanPage: React.FC = () => {
   // Open modal to edit an existing step in a plan
   const handleOpenEditStepModal = (planId: string, stepIndex: number) => {
     const targetPlan = pmPlans.find(p => p.id === planId);
-    const step = targetPlan?.steps[stepIndex];
+    const step = targetPlan?.steps?.[stepIndex];
     if (!step) return;
 
     setStepModalPlanId(planId);
@@ -335,7 +335,7 @@ export const PMPlanPage: React.FC = () => {
 
     setPmPlans(prev => prev.map(plan => {
       if (plan.id !== stepModalPlanId) return plan;
-      const updatedSteps = [...plan.steps];
+      const updatedSteps = [...(plan.steps || [])];
 
       const stepPayload: PMStep = {
         id: stepForm.id || `step-${Date.now()}`,
@@ -463,7 +463,7 @@ export const PMPlanPage: React.FC = () => {
     setPlanAcknowledgingDept(plan.acknowledgingDept || '');
     setPlanSupervisorName(plan.supervisorName || '');
     setPlanLastCheckedDate(plan.lastCheckedDate || '');
-    setPlanSteps([...plan.steps]);
+    setPlanSteps([...(plan.steps || [])]);
     setFormError('');
     setShowFormModal(true);
   };
@@ -547,7 +547,7 @@ export const PMPlanPage: React.FC = () => {
       ...p,
       id: `plan-pm-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
       machineId: selectedMachineId,
-      steps: p.steps.map(s => ({ ...s }))
+      steps: (p.steps || []).map(s => ({ ...s }))
     }));
 
     setPmPlans(prev => [...prev, ...newlyCloned]);
@@ -980,7 +980,7 @@ export const PMPlanPage: React.FC = () => {
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-border dark:divide-slate-800 text-fg dark:text-slate-300">
-                            {plan.steps.length === 0 ? (
+                            {(plan.steps || []).length === 0 ? (
                               <tr>
                                 <td colSpan={9} className="py-8 text-center text-slate-500 dark:text-slate-300">
                                   <div className="flex flex-col items-center justify-center gap-2">
@@ -998,7 +998,7 @@ export const PMPlanPage: React.FC = () => {
                                 </td>
                               </tr>
                             ) : (
-                              plan.steps.map((step, idx) => {
+                              (plan.steps || []).map((step, idx) => {
                               const isDone = !!step.done;
                               const isNormal = step.result === 'ปกติ';
                               const isAbnormal = step.result === 'ไม่ปกติ';

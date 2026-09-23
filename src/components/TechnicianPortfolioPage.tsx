@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Award, PenTool, Wrench, ClipboardCheck, Clock, User, Sparkles, 
   Search, Filter, CheckCircle2, AlertCircle, Calendar, Shield, 
@@ -28,6 +28,12 @@ export const TechnicianPortfolioPage: React.FC = () => {
 
   // Selected technician state - default to first technician
   const [selectedTech, setSelectedTech] = useState<string>(technicians[0] || 'ช่าง 1');
+
+  useEffect(() => {
+    if (technicians.length > 0 && !technicians.includes(selectedTech)) {
+      setSelectedTech(technicians[0]);
+    }
+  }, [technicians, selectedTech]);
   const [activeTab, setActiveTab] = useState<'all' | 'kaizen' | 'repairs' | 'pm'>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
