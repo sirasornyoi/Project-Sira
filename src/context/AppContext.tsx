@@ -130,6 +130,16 @@ export const mergeZonesWithMachines = (baseZones: ZoneStructure[], machinesList:
   return Array.from(zoneMap.values()).sort((a, b) => a.name.localeCompare(b.name, 'th'));
 };
 
+function safeJsonParse<T>(raw: string | null, fallback: T): T {
+  if (!raw) return fallback;
+  try {
+    const parsed = JSON.parse(raw);
+    return parsed !== undefined && parsed !== null ? parsed : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [machines, setMachines] = useState<Machine[]>([]);
   const [technicians, setTechnicians] = useState<string[]>([]);
