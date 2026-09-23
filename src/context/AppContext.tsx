@@ -175,6 +175,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     workingHoursPerDay: 8, // 8 hours * 60 = 480 mins
     lineNotifyEnabled: false,
     lineNotifyToken: '',
+    lineTargetId: '',
     lineAutoEvents: {
       breakdown: true,
       morningSummary: true,
