@@ -12,12 +12,22 @@ import {
   addChildNode, 
   addSiblingNode, 
   updateNodeInTree, 
-  updateNodeJudgementInTree,
   deleteNodeFromTree, 
   recomputeRootCauses, 
   checkHumanErrorDescription,
   getBranchRoots
 } from '../utils/whyWhyUtils';
+
+function findNodeInRoots(roots: WhyNode[], id: string): WhyNode | null {
+  for (const r of roots) {
+    if (r.id === id) return r;
+    if (r.children && r.children.length > 0) {
+      const found = findNodeInRoots(r.children, id);
+      if (found) return found;
+    }
+  }
+  return null;
+}
 import { 
   Target, 
   AlertTriangle, 
@@ -285,6 +295,9 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
   // Editing node text state (supports double click in view mode or focus edit)
   const [editingNodeId, setEditingNodeId] = useState<string | null>(null);
 
+  // Inline Guardrail errors per node
+  const [nodeErrors, setNodeErrors] = useState<Record<string, string>>({});
+
   // Undo / Redo History Stacks
   const [history, setHistory] = useState<WhyWhyAnalysis[]>([]);
   const [redoStack, setRedoStack] = useState<WhyWhyAnalysis[]>([]);
@@ -421,12 +434,61 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
     }, true);
   };
 
-  // Node Judgement update (รอพิสูจน์, OK, NG)
-  // If changed to 'NG': all downstream child nodes turn to 'NG' (red), EXCEPT any that was chosen as 'OK'
+  // Node Judgement update with guardrails (เหมือน indent, ไม่ลามลงลูก)
   const handleUpdateNodeJudgement = (nodeId: string, judgement: Judgement) => {
     if (readOnly || !activeBranch) return;
+
+    if (judgement === 'NG') {
+      const targetNode = findNodeInRoots(branchRoots, nodeId);
+
+      // Guardrail 1: Block NG if changePointOk is false
+      if (targetNode && targetNode.changePointOk === false) {
+        setNodeErrors(prev => ({
+          ...prev,
+          [nodeId]: 'สภาพคงที่เป็นรากเหง้าไม่ได้ — ปรับเป็นจุดเปลี่ยนก่อน'
+        }));
+        return;
+      }
+
+      // Guardrail 2: Reverse logic check is mandatory before confirming NG
+      if (!activeBranch.reverseLogicCheck || !activeBranch.reverseLogicCheck.trim()) {
+        setNodeErrors(prev => ({
+          ...prev,
+          [nodeId]: 'กรอกการอ่านย้อนกลับ (Reverse Logic) ก่อนสรุป NG'
+        }));
+        return;
+      }
+    }
+
+    // Clear error on this node if valid or setting PENDING/OK
+    setNodeErrors(prev => {
+      if (!prev[nodeId]) return prev;
+      const next = { ...prev };
+      delete next[nodeId];
+      return next;
+    });
+
     const updatedRoots = branchRoots.map(r => {
-      const raw = updateNodeJudgementInTree(r, nodeId, judgement);
+      const raw = updateNodeInTree(r, nodeId, { judgement });
+      return recomputeRootCauses(raw);
+    });
+    handleUpdateActiveBranch({
+      roots: updatedRoots,
+      root: updatedRoots[0]
+    });
+  };
+
+  // Toggle 4M Change Point on node
+  const handleToggleChangePoint = (nodeId: string, currentVal: boolean = true) => {
+    if (readOnly || !activeBranch) return;
+    setNodeErrors(prev => {
+      if (!prev[nodeId]) return prev;
+      const next = { ...prev };
+      delete next[nodeId];
+      return next;
+    });
+    const updatedRoots = branchRoots.map(r => {
+      const raw = updateNodeInTree(r, nodeId, { changePointOk: !currentVal });
       return recomputeRootCauses(raw);
     });
     handleUpdateActiveBranch({
@@ -1015,6 +1077,42 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
         )}
       </div>
 
+      {/* Guardrail: Reverse Logic Check Input Bar for Active Branch */}
+      {activeBranch && (
+        <div className="px-4 py-2 bg-slate-100/90 dark:bg-slate-900/90 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center gap-2 text-xs">
+          <div className="flex items-center gap-1.5 font-bold text-slate-700 dark:text-slate-300 shrink-0">
+            <span className="text-cyan-600 dark:text-cyan-400">🔄</span>
+            <span>การอ่านย้อนกลับ (Reverse Logic Check):</span>
+          </div>
+          <div className="flex-1">
+            <input
+              type="text"
+              disabled={readOnly}
+              value={activeBranch.reverseLogicCheck || ''}
+              onChange={(e) => {
+                const newVal = e.target.value;
+                if (newVal.trim()) {
+                  setNodeErrors(prev => {
+                    const next = { ...prev };
+                    let changed = false;
+                    Object.keys(next).forEach(k => {
+                      if (next[k].includes('Reverse Logic') || next[k].includes('การอ่านย้อนกลับ')) {
+                        delete next[k];
+                        changed = true;
+                      }
+                    });
+                    return changed ? next : prev;
+                  });
+                }
+                handleUpdateActiveBranch({ reverseLogicCheck: newVal });
+              }}
+              placeholder="เช่น เพราะขันสลักเกลียวเพียงตัวเดียว → จึงทำให้ฝาครอบเปิดอ้า → จึงบังแสงเซ็นเซอร์ (จำเป็นต้องกรอกก่อนสรุป NG)"
+              className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 focus:border-cyan-500 rounded-lg px-2.5 py-1 text-xs text-slate-800 dark:text-slate-200 font-mono focus:outline-none transition shadow-2xs"
+            />
+          </div>
+        </div>
+      )}
+
       {/* -------------------------------------------------------------------- */}
       {/* Interactive Infinite Canvas Viewport                                 */}
       {/* -------------------------------------------------------------------- */}
@@ -1204,6 +1302,16 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
                         </span>
                       )}
 
+                      {/* 4M Constant State Warning in view mode */}
+                      {node.changePointOk === false && canvasMode === 'view' && (
+                        <span 
+                          className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800"
+                          title="สภาพคงที่ (มีทั้งก่อน/หลังเสีย) — เป็นรากเหง้าไม่ได้"
+                        >
+                          ⚠️ สภาพคงที่
+                        </span>
+                      )}
+
                       {/* Human Error Flag */}
                       {node.humanErrorFlag && (
                         <span
@@ -1231,6 +1339,14 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
                       </button>
                     )}
                   </div>
+
+                  {/* Guardrail Inline Error */}
+                  {nodeErrors[node.id] && (
+                    <div className="my-1 text-[10px] font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/80 border border-rose-200 dark:border-rose-800 rounded px-2 py-1 flex items-start gap-1 animate-in fade-in duration-150 leading-tight">
+                      <AlertTriangle size={12} className="shrink-0 mt-0.5 text-rose-500" />
+                      <span>{nodeErrors[node.id]}</span>
+                    </div>
+                  )}
 
                   {/* Card Description: Plain text in view mode, or editable textarea */}
                   {!isInlineEditing ? (
@@ -1276,6 +1392,30 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
                           </button>
                         </div>
                       )}
+                    </div>
+                  )}
+
+                  {/* 4M Change Point Toggle on Card (Edit mode) */}
+                  {canvasMode === 'edit' && (
+                    <div className="pt-1 pb-0.5" onClick={(e) => e.stopPropagation()}>
+                      <button
+                        type="button"
+                        disabled={readOnly}
+                        onClick={() => handleToggleChangePoint(node.id, node.changePointOk !== false)}
+                        className={`w-full py-0.5 px-1.5 rounded text-[10px] font-bold border transition text-left cursor-pointer flex items-center justify-between gap-1 ${
+                          node.changePointOk !== false
+                            ? 'bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800'
+                            : 'bg-amber-100 text-amber-900 border-amber-400 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-700'
+                        }`}
+                        title="คลิกสลับ: จุดเปลี่ยนแปลง 4M (วิเคราะห์เป็นรากเหง้าได้) vs สภาพคงที่ (เป็นรากไม่ได้)"
+                      >
+                        <span className="truncate">
+                          {node.changePointOk !== false ? '✓ จุดเปลี่ยน 4M' : '⚠️ สภาพคงที่'}
+                        </span>
+                        <span className="text-[9px] opacity-75 shrink-0">
+                          {node.changePointOk !== false ? 'รากเหง้าได้' : 'รากไม่ได้'}
+                        </span>
+                      </button>
                     </div>
                   )}
 

@@ -6,21 +6,18 @@ import { SchedulePage } from './components/SchedulePage';
 import { RepairPage } from './components/RepairPage';
 import { ImprovementPage } from './components/ImprovementPage';
 import { DashboardPage } from './components/DashboardPage';
-import { DispatchPage } from './components/DispatchPage';
-import { SetupPage } from './components/SetupPage';
 import { PresentationPage } from './components/PresentationPage';
 import { SettingsModal } from './components/SettingsModal';
 import { InventoryPage } from './components/InventoryPage';
 import { TimeBreakPage } from './components/TimeBreakPage';
 import { TechnicianPortfolioPage } from './components/TechnicianPortfolioPage';
-import { CostDown5Page } from './components/CostDown5Page';
 import { PMOverdueAlertModal } from './components/PMOverdueAlertModal';
 import { getOverdueAndRescheduledSummary, getTodayDateString } from './utils/pmAlerts';
 
 import { 
   Wrench, Activity, CalendarDays, ClipboardList, PenTool, 
-  BarChart3, Settings, Menu, ChevronLeft, ChevronRight, Clock, ShieldCheck, Send, Presentation, Users,
-  Sun, Moon, Package, ClipboardCheck, WifiOff, Award, Sparkles, TrendingDown, AlertTriangle, Bell
+  BarChart3, Settings, Menu, ChevronLeft, ChevronRight, Clock, ShieldCheck, Presentation, Users,
+  Sun, Moon, Package, ClipboardCheck, WifiOff, Award, Sparkles, AlertTriangle, Bell
 } from 'lucide-react';
 
 function AppContent() {
@@ -100,9 +97,6 @@ function AppContent() {
       case 4: return <RepairPage />;
       case 11: return <TimeBreakPage />;
       case 5: return <ImprovementPage />;
-      case 13: return <CostDown5Page />;
-      case 8: return <SetupPage />;
-      case 7: return <DispatchPage />;
       case 10: return <InventoryPage />;
       case 6: return <DashboardPage />;
       case 9: return <PresentationPage />;
@@ -119,9 +113,6 @@ function AppContent() {
     { id: 4, label: "BD และ Why-Why", icon: Wrench, desc: "แจ้งซ่อม, ประวัติ, และผังวิเคราะห์" },
     { id: 11, label: "เปลี่ยนอะไหล่ Time-Break", icon: Clock, desc: "ระบุเครื่อง/รอบเปลี่ยนอะไหล่" },
     { id: 5, label: "งานพัฒนา Kaizen", icon: PenTool, desc: "บอร์ดสเตตัสงาน" },
-    { id: 13, label: "Cost Down 5 (CD5)", icon: TrendingDown, desc: "ยืดอายุอะไหล่/สั่งทำเอง" },
-    { id: 8, label: "งาน Setup เครื่อง", icon: Clock, desc: "เตรียมเครื่องก่อนและระหว่างวัน" },
-    { id: 7, label: "ระบบจ่ายงาน", icon: Send, desc: "ศูนย์ควบคุมสั่งจ่ายงาน" },
     { id: 10, label: "คลังอะไหล่สำรอง", icon: Package, desc: "ควบคุมความปลอดภัยสต็อก" },
     { id: 6, label: "ระบบสถิติ", icon: BarChart3, desc: "Dashboard/MTTR" },
     { id: 9, label: "สรุปนำเสนอ", icon: Presentation, desc: "บอร์ดนำเสนอผู้บริหาร" },
