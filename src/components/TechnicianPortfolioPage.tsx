@@ -11,7 +11,7 @@ import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { useApp } from '../context/AppContext';
-import { ImprovementProject, RepairLog, PMScheduleItem, SetupLog } from '../types';
+import { ImprovementProject, RepairLog, PMScheduleItem } from '../types';
 import { compressImageFile } from '../utils/imageUtils';
 
 export const TechnicianPortfolioPage: React.FC = () => {
@@ -21,7 +21,6 @@ export const TechnicianPortfolioPage: React.FC = () => {
     improvements, 
     repairs, 
     schedules, 
-    setupLogs, 
     machines,
     pmPlans,
     setImprovements
@@ -29,7 +28,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
 
   // Selected technician state - default to first technician
   const [selectedTech, setSelectedTech] = useState<string>(technicians[0] || 'ช่าง 1');
-  const [activeTab, setActiveTab] = useState<'all' | 'kaizen' | 'repairs' | 'pm_setup'>('all');
+  const [activeTab, setActiveTab] = useState<'all' | 'kaizen' | 'repairs' | 'pm'>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
 
@@ -198,10 +197,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
     return isTechInvolved && pm.status === 'เสร็จสิ้น';
   }) as PMScheduleItem[];
 
-  // Filter Setup logs for selected technician
-  const techSetups = setupLogs.filter(set => {
-    return set.technicians && set.technicians.includes(selectedTech);
-  });
+  const totalPMCompleted = techPMs.length;
 
   // Calculate Aggregated Metrics for selected technician
   const totalKaizenProjects = improvements.filter(imp => imp.technician === selectedTech || imp.technicians?.includes(selectedTech)).length;
@@ -218,9 +214,6 @@ export const TechnicianPortfolioPage: React.FC = () => {
   const avgRepairMttr = totalRepairsHandled > 0 
     ? Math.round(repairs.filter(rep => rep.technician === selectedTech || rep.technicians?.includes(selectedTech)).reduce((sum, r) => sum + r.duration, 0) / totalRepairsHandled)
     : 0;
-
-  const totalPMCompleted = techPMs.length;
-  const totalSetups = techSetups.length;
 
   // Function to handle adding a new Kaizen project
   const handleCreateKaizen = (e: React.FormEvent) => {
@@ -277,7 +270,6 @@ export const TechnicianPortfolioPage: React.FC = () => {
     const techKaizens = improvements.filter(imp => imp.technician === selectedTech || imp.technicians?.includes(selectedTech));
     const techRepairList = repairs.filter(rep => rep.technician === selectedTech || rep.technicians?.includes(selectedTech));
     const techPmList = techPMs;
-    const techSetupList = techSetups;
 
     // 1. Summary Sheet
     const summaryData = [
@@ -298,8 +290,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
       ['ชั่วโมงที่ลงแรงพัฒนา Kaizen รวม (ชั่วโมง):', totalKaizenHours],
       ['จำนวนงานซ่อมเครื่องจักรที่รับผิดชอบ (งาน):', totalRepairsHandled],
       ['ค่าเฉลี่ยเวลาซ่อม MTTR (นาที):', avgRepairMttr],
-      ['จำนวนงานบำรุงรักษาเชิงป้องกัน PM ที่ทำสำเร็จ (งาน):', totalPMCompleted],
-      ['จำนวนงาน Setup/ปรับตั้งเครื่องจักร (งาน):', totalSetups]
+      ['จำนวนงานบำรุงรักษาเชิงป้องกัน PM ที่ทำสำเร็จ (งาน):', totalPMCompleted]
     ];
 
     // 2. Kaizen Sheet
@@ -403,34 +394,6 @@ export const TechnicianPortfolioPage: React.FC = () => {
       ];
     });
 
-    // 5. Setup Sheet
-    const setupHeaders = [
-      'ลำดับ',
-      'รหัสงาน Setup',
-      'วันที่',
-      'เครื่องจักร',
-      'ประเภทงาน Setup',
-      'เวลาที่ใช้รวม (นาที)',
-      'ขั้นตอนที่ทำ',
-      'หมายเหตุ / ความเบี่ยงเบน',
-      'ช่างผู้ปฏิบัติงาน'
-    ];
-
-    const setupRows = techSetupList.map((s, idx) => {
-      const stepSummary = s.steps?.map(st => `${st.stepName}: ${st.duration} นาที`).join(', ') || '-';
-      return [
-        idx + 1,
-        s.id,
-        s.date,
-        getMachineName(s.machineId),
-        s.type,
-        s.totalDuration,
-        stepSummary,
-        s.deviationReason || s.note || '-',
-        s.technicians?.join(', ') || selectedTech
-      ];
-    });
-
     // Create workbook and append sheets
     const wb = XLSX.utils.book_new();
 
@@ -461,15 +424,6 @@ export const TechnicianPortfolioPage: React.FC = () => {
       { wch: 15 }, { wch: 22 }
     ];
     XLSX.utils.book_append_sheet(wb, wsPM, 'ประวัติงาน PM');
-
-    if (setupRows.length > 0) {
-      const wsSetup = XLSX.utils.aoa_to_sheet([setupHeaders, ...setupRows]);
-      wsSetup['!cols'] = [
-        { wch: 6 }, { wch: 14 }, { wch: 14 }, { wch: 25 },
-        { wch: 20 }, { wch: 18 }, { wch: 40 }, { wch: 30 }, { wch: 22 }
-      ];
-      XLSX.utils.book_append_sheet(wb, wsSetup, 'ประวัติการ Setup');
-    }
 
     const dateStr = new Date().toISOString().split('T')[0];
     const cleanTechName = selectedTech.replace(/[^a-zA-Z0-9ก-๙]/g, '_');
@@ -1190,9 +1144,9 @@ export const TechnicianPortfolioPage: React.FC = () => {
               </div>
 
               <div className="text-center px-3">
-                <p className="text-[10px] text-slate-400 font-bold uppercase">PM & Setup</p>
-                <p className="text-lg font-black text-purple-400 mt-0.5">{totalPMCompleted + totalSetups} <span className="text-[10px] text-slate-400 font-normal">รายการ</span></p>
-                <p className="text-[9px] text-slate-400">PM {totalPMCompleted} | Setup {totalSetups}</p>
+                <p className="text-[10px] text-slate-400 font-bold uppercase">งาน PM</p>
+                <p className="text-lg font-black text-purple-400 mt-0.5">{totalPMCompleted} <span className="text-[10px] text-slate-400 font-normal">รายการ</span></p>
+                <p className="text-[9px] text-slate-400">บำรุงรักษาเชิงป้องกัน</p>
               </div>
             </div>
 
@@ -1246,16 +1200,16 @@ export const TechnicianPortfolioPage: React.FC = () => {
           </button>
 
           <button
-            id="tab-btn-pm-setup"
-            onClick={() => setActiveTab('pm_setup')}
+            id="tab-btn-pm"
+            onClick={() => setActiveTab('pm')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shrink-0 ${
-              activeTab === 'pm_setup' 
+              activeTab === 'pm' 
                 ? 'bg-purple-600 dark:bg-purple-500 text-white dark:text-slate-950 font-bold shadow-sm' 
                 : 'bg-slate-100 dark:bg-slate-950 text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-fg border border-slate-200 dark:border-slate-800'
             }`}
           >
             <ClipboardCheck size={14} />
-            <span>⏱ PM & Setup ({totalPMCompleted + totalSetups})</span>
+            <span>⏱ ปฏิบัติการ PM ({totalPMCompleted})</span>
           </button>
         </div>
 
@@ -1719,8 +1673,8 @@ export const TechnicianPortfolioPage: React.FC = () => {
         </div>
       )}
 
-      {/* SECTION C: PM & SETUP CONTRIBUTIONS */}
-      {(activeTab === 'all' || activeTab === 'pm_setup') && (
+      {/* SECTION C: PM CONTRIBUTIONS */}
+      {(activeTab === 'all' || activeTab === 'pm') && (
         <div className="space-y-4 pt-4">
           <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
             <div className="flex items-center gap-2">
@@ -1728,12 +1682,12 @@ export const TechnicianPortfolioPage: React.FC = () => {
                 <ClipboardCheck size={16} />
               </div>
               <h3 className="text-sm font-black text-fg uppercase tracking-wider">
-                ⏱ ผลงานปฏิบัติการ PM & การปรับตั้งเครื่อง Setup ({techPMs.length + techSetups.length} รายการ)
+                ⏱ ผลงานปฏิบัติการ PM ({techPMs.length} รายการ)
               </h3>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4">
             
             {/* PM Card */}
             <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
@@ -1754,32 +1708,6 @@ export const TechnicianPortfolioPage: React.FC = () => {
                       </div>
                       <span className="px-2 py-0.5 bg-purple-500/10 text-purple-400 border border-purple-500/20 rounded font-mono font-bold text-[10px]">
                         {pm.duration} นาที
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Setup Card */}
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
-              <h4 className="text-xs font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-1.5">
-                <Clock size={14} />
-                <span>งานปรับตั้งเครื่องก่อนและระหว่างวัน (Setup Logs): {techSetups.length} งาน</span>
-              </h4>
-
-              {techSetups.length === 0 ? (
-                <p className="text-xs text-slate-500 dark:text-slate-400 py-2">ยังไม่มีประวัติงาน Setup สำหรับช่างคนนี้</p>
-              ) : (
-                <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
-                  {techSetups.map(st => (
-                    <div key={st.id} className="bg-slate-950/80 border border-slate-850 rounded-lg p-2.5 text-xs flex items-center justify-between gap-2">
-                      <div>
-                        <p className="font-bold text-fg text-[11px]">{st.machineId} ({st.type})</p>
-                        <p className="text-[10px] text-slate-400">วันที่: {st.date}</p>
-                      </div>
-                      <span className="px-2 py-0.5 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded font-mono font-bold text-[10px]">
-                        {st.totalDuration} นาที
                       </span>
                     </div>
                   ))}
@@ -2190,9 +2118,9 @@ export const TechnicianPortfolioPage: React.FC = () => {
                   </div>
 
                   <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-center">
-                    <p className="text-[10px] font-bold text-slate-500 uppercase">งาน PM & Setup</p>
-                    <p className="text-xl font-black text-emerald-700 mt-1">{totalPMCompleted + totalSetups} งาน</p>
-                    <p className="text-[10px] text-slate-500 mt-0.5">PM {totalPMCompleted} / Setup {totalSetups}</p>
+                    <p className="text-[10px] font-bold text-slate-500 uppercase">งาน PM</p>
+                    <p className="text-xl font-black text-emerald-700 mt-1">{totalPMCompleted} งาน</p>
+                    <p className="text-[10px] text-slate-500 mt-0.5">บำรุงรักษาเชิงป้องกัน</p>
                   </div>
                 </div>
               </div>
@@ -2356,38 +2284,23 @@ export const TechnicianPortfolioPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Section 5: PM & Setup Tasks Summary */}
+              {/* Section 5: PM Tasks Summary */}
               <div className="mb-8 print:break-inside-avoid">
                 <h3 className="text-xs font-black uppercase tracking-wider text-slate-800 mb-2.5 flex items-center gap-1.5">
                   <ClipboardCheck size={14} className="text-emerald-600" />
-                  <span>ประวัติงานบำรุงรักษาเชิงป้องกัน (PM) และงาน Setup เครื่อง</span>
+                  <span>ประวัติงานบำรุงรักษาเชิงป้องกัน (PM)</span>
                 </h3>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                  <div className="border border-slate-200 rounded-xl p-3 bg-slate-50/50">
-                    <p className="font-bold text-slate-800 mb-2">📋 งาน PM ที่ทำสำเร็จล่าสุด ({techPMs.length} รายการ):</p>
-                    <div className="space-y-1.5 text-[11px]">
-                      {techPMs.slice(0, 4).map((pm) => (
-                        <div key={pm.id} className="flex justify-between items-center bg-surface p-2 rounded border border-slate-200">
-                          <span>{pm.date} - {getMachineName(pm.machineId)}</span>
-                          <span className="font-bold text-emerald-700 font-mono">สำเร็จ</span>
-                        </div>
-                      ))}
-                      {techPMs.length === 0 && <p className="text-slate-500 dark:text-slate-400 text-[10px]">ไม่มีข้อมูล PM ที่บันทึก</p>}
-                    </div>
-                  </div>
-
-                  <div className="border border-slate-200 rounded-xl p-3 bg-slate-50/50">
-                    <p className="font-bold text-slate-800 mb-2">⏱️ งาน Setup / ปรับตั้งเครื่องจักรล่าสุด ({techSetups.length} รายการ):</p>
-                    <div className="space-y-1.5 text-[11px]">
-                      {techSetups.slice(0, 4).map((set) => (
-                        <div key={set.id} className="flex justify-between items-center bg-surface p-2 rounded border border-slate-200">
-                          <span>{set.date} - {getMachineName(set.machineId)} ({set.type})</span>
-                          <span className="font-bold text-cyan-700 font-mono">{set.totalDuration} นาที</span>
-                        </div>
-                      ))}
-                      {techSetups.length === 0 && <p className="text-slate-500 dark:text-slate-400 text-[10px]">ไม่มีข้อมูล Setup ที่บันทึก</p>}
-                    </div>
+                <div className="border border-slate-200 rounded-xl p-3 bg-slate-50/50">
+                  <p className="font-bold text-slate-800 mb-2">📋 งาน PM ที่ทำสำเร็จล่าสุด ({techPMs.length} รายการ):</p>
+                  <div className="space-y-1.5 text-[11px]">
+                    {techPMs.slice(0, 4).map((pm) => (
+                      <div key={pm.id} className="flex justify-between items-center bg-surface p-2 rounded border border-slate-200">
+                        <span>{pm.date} - {getMachineName(pm.machineId)}</span>
+                        <span className="font-bold text-emerald-700 font-mono">สำเร็จ</span>
+                      </div>
+                    ))}
+                    {techPMs.length === 0 && <p className="text-slate-500 dark:text-slate-400 text-[10px]">ไม่มีข้อมูล PM ที่บันทึก</p>}
                   </div>
                 </div>
               </div>

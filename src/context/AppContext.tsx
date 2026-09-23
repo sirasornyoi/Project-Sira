@@ -1,14 +1,14 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { 
   Machine, PMPlan, PMScheduleItem, OperationScheduleItem, 
-  RepairLog, ImprovementProject, SystemSettings, ScheduleItem, SetupLog, Employee,
-  TechnicianLeave, SparePart, CD5Project, TimeBreakPartItem, ZoneStructure,
+  RepairLog, ImprovementProject, SystemSettings, ScheduleItem, Employee,
+  TechnicianLeave, SparePart, TimeBreakPartItem, ZoneStructure,
   WhyWhyAnalysis
 } from '../types';
 import { 
   PRELOADED_MACHINES, PRELOADED_TECHNICIANS, PRELOADED_PM_PLANS, 
-  PRELOADED_REPAIRS, PRELOADED_IMPROVEMENTS, PRELOADED_SCHEDULES, PRELOADED_SETUPS,
-  PRELOADED_SPARE_PARTS, PRELOADED_CD5_PROJECTS, PRELOADED_TIME_BREAK_PARTS
+  PRELOADED_REPAIRS, PRELOADED_IMPROVEMENTS, PRELOADED_SCHEDULES,
+  PRELOADED_SPARE_PARTS, PRELOADED_TIME_BREAK_PARTS
 } from '../data/preloaded';
 import { sendMorningSummary } from '../utils/lineNotify';
 import { getTodayDateString } from '../utils/pmAlerts';
@@ -30,16 +30,12 @@ interface AppContextType {
   setRepairs: React.Dispatch<React.SetStateAction<RepairLog[]>>;
   improvements: ImprovementProject[];
   setImprovements: React.Dispatch<React.SetStateAction<ImprovementProject[]>>;
-  setupLogs: SetupLog[];
-  setSetupLogs: React.Dispatch<React.SetStateAction<SetupLog[]>>;
   leaves: TechnicianLeave[];
   setLeaves: React.Dispatch<React.SetStateAction<TechnicianLeave[]>>;
   settings: SystemSettings;
   setSettings: React.Dispatch<React.SetStateAction<SystemSettings>>;
   spareParts: SparePart[];
   setSpareParts: React.Dispatch<React.SetStateAction<SparePart[]>>;
-  cd5Projects: CD5Project[];
-  setCd5Projects: React.Dispatch<React.SetStateAction<CD5Project[]>>;
   timeBreakParts: TimeBreakPartItem[];
   setTimeBreakParts: React.Dispatch<React.SetStateAction<TimeBreakPartItem[]>>;
   zones: ZoneStructure[];
@@ -159,10 +155,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [schedules, setSchedules] = useState<ScheduleItem[]>([]);
   const [repairs, setRepairs] = useState<RepairLog[]>([]);
   const [improvements, setImprovements] = useState<ImprovementProject[]>([]);
-  const [setupLogs, setSetupLogs] = useState<SetupLog[]>([]);
   const [leaves, setLeaves] = useState<TechnicianLeave[]>([]);
   const [spareParts, setSpareParts] = useState<SparePart[]>([]);
-  const [cd5Projects, setCd5Projects] = useState<CD5Project[]>([]);
   const [timeBreakParts, setTimeBreakParts] = useState<TimeBreakPartItem[]>([]);
   const [zones, setZones] = useState<ZoneStructure[]>([]);
   const [whyWhyDrafts, setWhyWhyDrafts] = useState<WhyWhyAnalysis[]>(() => {
@@ -185,8 +179,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       breakdown: true,
       morningSummary: true,
       repairClosed: false,
-      pmDispatched: false,
-      setupLogged: false,
     },
     stdMttr: {
       "RIM": 60,
@@ -212,14 +204,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const lastLocalSaveTimeRef = useRef<number>(0);
   const currentStateRef = useRef({
     machines, technicians, employees, pmPlans, pmMachineIds, schedules,
-    repairs, improvements, setupLogs, leaves, spareParts, cd5Projects, timeBreakParts, settings, zones, whyWhyDrafts
+    repairs, improvements, leaves, spareParts, timeBreakParts, settings, zones, whyWhyDrafts
   });
 
   // Always keep currentStateRef up-to-date with the latest state values
   useEffect(() => {
     currentStateRef.current = {
       machines, technicians, employees, pmPlans, pmMachineIds, schedules,
-      repairs, improvements, setupLogs, leaves, spareParts, cd5Projects, timeBreakParts, settings, zones, whyWhyDrafts
+      repairs, improvements, leaves, spareParts, timeBreakParts, settings, zones, whyWhyDrafts
     };
   });
 
@@ -276,10 +268,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             setSchedules(deduplicateById(serverData.schedules || PRELOADED_SCHEDULES));
             setRepairs(deduplicateById(serverData.repairs || PRELOADED_REPAIRS));
             setImprovements(deduplicateById(serverData.improvements || PRELOADED_IMPROVEMENTS));
-            setSetupLogs(deduplicateById(serverData.setupLogs || PRELOADED_SETUPS));
             setSpareParts(deduplicateById(serverData.spareParts || PRELOADED_SPARE_PARTS));
             setLeaves(deduplicateById(serverData.leaves || []));
-            setCd5Projects(deduplicateById(serverData.cd5Projects || PRELOADED_CD5_PROJECTS));
             setTimeBreakParts(deduplicateById(serverData.timeBreakParts || PRELOADED_TIME_BREAK_PARTS));
             if (serverData.zones && Array.isArray(serverData.zones)) {
               setZones(mergeZonesWithMachines(serverData.zones, enriched));
@@ -309,12 +299,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const storedSchedules = localStorage.getItem('maint_schedule');
         const storedRepairs = localStorage.getItem('maint_repairs');
         const storedImprovements = localStorage.getItem('maint_improvements');
-        const storedSetups = localStorage.getItem('maint_setup_logs');
         const storedSettings = localStorage.getItem('maint_settings');
         const storedEmployees = localStorage.getItem('maint_employees');
         const storedSpareParts = localStorage.getItem('maint_spare_parts');
         const storedLeaves = localStorage.getItem('maint_leaves');
-        const storedCd5 = localStorage.getItem('maint_cd5_projects');
         const storedTimeBreakParts = localStorage.getItem('maint_time_break_parts');
         const storedZones = localStorage.getItem('maint_zones');
 
@@ -379,14 +367,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (storedImprovements) setImprovements(deduplicateById(JSON.parse(storedImprovements)));
         else setImprovements(PRELOADED_IMPROVEMENTS);
 
-        if (storedSetups) setSetupLogs(deduplicateById(JSON.parse(storedSetups)));
-        else setSetupLogs(PRELOADED_SETUPS);
-
         if (storedSpareParts) setSpareParts(deduplicateById(JSON.parse(storedSpareParts)));
         else setSpareParts(PRELOADED_SPARE_PARTS);
-
-        if (storedCd5) setCd5Projects(deduplicateById(JSON.parse(storedCd5)));
-        else setCd5Projects(PRELOADED_CD5_PROJECTS);
 
         if (storedTimeBreakParts) setTimeBreakParts(deduplicateById(JSON.parse(storedTimeBreakParts)));
         else setTimeBreakParts(PRELOADED_TIME_BREAK_PARTS);
@@ -496,10 +478,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       localStorage.setItem('maint_schedule', JSON.stringify(schedules));
       localStorage.setItem('maint_repairs', JSON.stringify(repairs));
       localStorage.setItem('maint_improvements', JSON.stringify(improvements));
-      localStorage.setItem('maint_setup_logs', JSON.stringify(setupLogs));
       localStorage.setItem('maint_leaves', JSON.stringify(leaves));
       localStorage.setItem('maint_spare_parts', JSON.stringify(spareParts));
-      localStorage.setItem('maint_cd5_projects', JSON.stringify(cd5Projects));
       localStorage.setItem('maint_time_break_parts', JSON.stringify(timeBreakParts));
       localStorage.setItem('maint_settings', JSON.stringify(settings));
       localStorage.setItem('maint_zones', JSON.stringify(zones));
@@ -518,10 +498,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       schedules: deduplicateById(schedules),
       repairs: deduplicateById(repairs),
       improvements: deduplicateById(improvements),
-      setupLogs: deduplicateById(setupLogs),
       leaves: deduplicateById(leaves),
       spareParts: deduplicateById(spareParts),
-      cd5Projects: deduplicateById(cd5Projects),
       timeBreakParts: deduplicateById(timeBreakParts),
       settings,
       zones,
@@ -548,7 +526,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return () => clearTimeout(timerId);
   }, [
     machines, technicians, employees, pmPlans, pmMachineIds, schedules,
-    repairs, improvements, setupLogs, leaves, spareParts, cd5Projects, timeBreakParts, settings, zones, whyWhyDrafts, isLoaded
+    repairs, improvements, leaves, spareParts, timeBreakParts, settings, zones, whyWhyDrafts, isLoaded
   ]);
 
   // Polling for updates from other LAN clients
@@ -599,10 +577,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             checkAndSet(curr.schedules, serverData.schedules, setSchedules);
             checkAndSet(curr.repairs, serverData.repairs, setRepairs);
             checkAndSet(curr.improvements, serverData.improvements, setImprovements);
-            checkAndSet(curr.setupLogs, serverData.setupLogs, setSetupLogs);
             checkAndSet(curr.leaves, serverData.leaves, setLeaves);
             checkAndSet(curr.spareParts, serverData.spareParts, setSpareParts);
-            checkAndSet(curr.cd5Projects, serverData.cd5Projects, setCd5Projects);
             checkAndSet(curr.timeBreakParts, serverData.timeBreakParts, setTimeBreakParts);
             checkAndSet(curr.settings, serverData.settings, setSettings);
             if (serverData.zones) {
@@ -767,8 +743,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setSchedules(PRELOADED_SCHEDULES);
     setRepairs(PRELOADED_REPAIRS);
     setImprovements(PRELOADED_IMPROVEMENTS);
-    setSetupLogs(PRELOADED_SETUPS);
-    setCd5Projects(PRELOADED_CD5_PROJECTS);
     setTimeBreakParts(PRELOADED_TIME_BREAK_PARTS);
     const defZones = extractDefaultZones(PRELOADED_MACHINES);
     setZones(defZones);
@@ -811,11 +785,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.setItem('maint_schedule', JSON.stringify(PRELOADED_SCHEDULES));
     localStorage.setItem('maint_repairs', JSON.stringify(PRELOADED_REPAIRS));
     localStorage.setItem('maint_improvements', JSON.stringify(PRELOADED_IMPROVEMENTS));
-    localStorage.setItem('maint_setup_logs', JSON.stringify(PRELOADED_SETUPS));
     localStorage.setItem('maint_leaves', JSON.stringify(preloadingLeaves));
     setSpareParts(PRELOADED_SPARE_PARTS);
     localStorage.setItem('maint_spare_parts', JSON.stringify(PRELOADED_SPARE_PARTS));
-    localStorage.setItem('maint_cd5_projects', JSON.stringify(PRELOADED_CD5_PROJECTS));
     localStorage.setItem('maint_time_break_parts', JSON.stringify(PRELOADED_TIME_BREAK_PARTS));
     localStorage.setItem('maint_zones', JSON.stringify(defZones));
     setWhyWhyDrafts([]);
@@ -835,10 +807,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       schedules,
       repairs,
       improvements,
-      setupLogs,
       leaves,
       spareParts,
-      cd5Projects,
       timeBreakParts,
       settings,
       zones,
@@ -858,10 +828,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (dataObj.schedules) setSchedules(dataObj.schedules);
       if (dataObj.repairs) setRepairs(dataObj.repairs);
       if (dataObj.improvements) setImprovements(dataObj.improvements);
-      if (dataObj.setupLogs) setSetupLogs(dataObj.setupLogs);
       if (dataObj.leaves) setLeaves(dataObj.leaves);
       if (dataObj.spareParts) setSpareParts(dataObj.spareParts);
-      if (dataObj.cd5Projects) setCd5Projects(dataObj.cd5Projects);
       if (dataObj.timeBreakParts) setTimeBreakParts(dataObj.timeBreakParts);
       if (dataObj.settings) setSettings(dataObj.settings);
       if (dataObj.zones) setZones(dataObj.zones);
@@ -884,11 +852,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       schedules, setSchedules,
       repairs, setRepairs,
       improvements, setImprovements,
-      setupLogs, setSetupLogs,
       leaves, setLeaves,
       settings, setSettings,
       spareParts, setSpareParts,
-      cd5Projects, setCd5Projects,
       timeBreakParts, setTimeBreakParts,
       zones, setZones,
       whyWhyDrafts, setWhyWhyDrafts,

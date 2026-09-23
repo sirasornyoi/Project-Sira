@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { RepairLog, SetupLog, Machine, PMScheduleItem } from '../types';
+import { RepairLog, Machine, PMScheduleItem } from '../types';
 import { 
   BarChart as RechartsBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer
 } from 'recharts';
@@ -14,7 +14,6 @@ import {
 export const PresentationPage: React.FC = () => {
   const { 
     repairs, 
-    setupLogs, 
     machines, 
     technicians, 
     settings,
@@ -23,8 +22,8 @@ export const PresentationPage: React.FC = () => {
   } = useApp();
 
   // Selected Presentation Navigation Mode
-  // 'dashboard' | 'pm-analysis' | 'repair-analysis' | 'setup-analysis' | 'tree'
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'pm-analysis' | 'repair-analysis' | 'setup-analysis' | 'tree'>('dashboard');
+  // 'dashboard' | 'pm-analysis' | 'repair-analysis' | 'tree'
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'pm-analysis' | 'repair-analysis' | 'tree'>('dashboard');
 
   // Selected Machine for Repair History Modal
   const [selectedMachineForHistory, setSelectedMachineForHistory] = useState<string | null>(null);
@@ -50,11 +49,6 @@ export const PresentationPage: React.FC = () => {
     return saved ? JSON.parse(saved) : {};
   });
 
-  const [setupDelayDetails, setSetupDelayDetails] = useState<Record<string, { reason: string; why1: string; why2: string; why3: string; why4: string; why5: string; countermeasure: string }>>(() => {
-    const saved = localStorage.getItem('setup_delay_reasons_v2');
-    return saved ? JSON.parse(saved) : {};
-  });
-
   // Track currently expanded item ID for editing why-why
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
 
@@ -66,10 +60,6 @@ export const PresentationPage: React.FC = () => {
   useEffect(() => {
     localStorage.setItem('repair_delay_reasons_v2', JSON.stringify(repairDelayDetails));
   }, [repairDelayDetails]);
-
-  useEffect(() => {
-    localStorage.setItem('setup_delay_reasons_v2', JSON.stringify(setupDelayDetails));
-  }, [setupDelayDetails]);
 
   // General presets for delays to make UX very friendly and rapid
   const PM_PRESETS = [
@@ -120,27 +110,6 @@ export const PresentationPage: React.FC = () => {
       why4: "ไม่ได้ใช้สายไฟประเภททนการดัดงอพรีเมี่ยม (Flexible Chain Cable)",
       why5: "เน้นสั่งซื้อประเภทสายไฟทั่วไปทดแทนเพื่อประหยัดต้นทุนตั้งต้น",
       countermeasure: "พาดเดินสายส่งสัญญาณภายนอกใหม่ ใช้สายประเภท Super Flex ทนการเคลื่อนไหว 10 ล้านรอบพาดหุ้มสปริงเกลียวเหล็ก"
-    }
-  ];
-
-  const SETUP_PRESETS = [
-    {
-      reason: "แกนโรลของม้วนฟิล์มเบียดขอบรางเหล็กฝืดดึงและหมุนคลายใบมีดขัดตัว",
-      why1: "ขนาดความหนาแกนกระดาษล็อตใหม่เกินค่าเบิกมาตรฐานบวก 2 มิลลิเมตร",
-      why2: "ฝ่ายจัดซื้อเปลี่ยนซัพพลายเออร์รายใหม่โดยไม่ส่งตัวอย่างเข้าลองเทสหน้าไลน์ล่วงหน้า",
-      why3: "โปรโตคอลตรวจสอบรับอะไหล่วัตถุดิบ (IQC) ไม่ครอบคลุมมิติของมม.ข้างในแกนสวิตช์",
-      why4: "คู่มือการจัดซื้อเน้นประเมินคะแนนราคาถูกสุดมากกว่าความแม่นยำทางวิศวกรรม",
-      why5: "ไม่มีนโยบายร่วมเซ็นรับรองแบบเทคนิคม้วนฟิล์มระหว่างหน่วยวิศวกรกับฝ่ายจัดซื้อ",
-      countermeasure: "ออกระเบียบร่วมประสานงานให้มีใบ QC ผ่านมาตรฐานขนาดแกนม้วนฟิล์มก่อนนำเข้าเก็บที่คลังพัสดุการผลิต"
-    },
-    {
-      reason: "เซ็นเซอร์ตัวจับเป้าดวงตาดึงเพี้ยน คลาดเคลื่อน และต้องชะลอการปรับออฟเซ็ตบ่อย",
-      why1: "แสงนำทางสแกนอ่อนกำลังจากฝุ่นและคราบน้ำมันเกาะหน้าต่างกระจกเลนส์ออปติกัล",
-      why2: "หัวเครื่องฉีดฝอยไอเสียเป่าทิศฝอยไอน้ำมันตรงเข้าจุดรับแสงเลนส์พอดี",
-      why3: "ไม่มีฝาครอบกันน้ำมันกระเซ็นที่ตัวติดตั้งเซ็นเซอร์สายพานสเตจหลัก",
-      why4: "ลืมติดตั้งฝาคัพครอบเนื่องจากตอนปรับโครงสร้างใหม่เพื่อเพิ่มความกว้างไลน์",
-      why5: "ช่างที่คุมไลน์ประกอบติดตั้งไม่ได้นำทีมงานตรวจสอบความปลอดภัยการกระเซ็นรอบข้าง",
-      countermeasure: "ติดตั้งท่อลมอัดเล็กเป่าลมแฝงล้างฝุ่นหน้าเลนส์อัตโนมัติ (Air purge unit) ป้องกันสิ่งสกปรกสะสม"
     }
   ];
 
@@ -218,59 +187,6 @@ export const PresentationPage: React.FC = () => {
   
   const totalDelayedRepairs = repairs.filter(rep => rep.duration > getStandardMttr(rep.machineId));
 
-  // 3. Machine Setup stats
-  const totalSetups = setupLogs.length;
-  const totalSetupMin = setupLogs.reduce((sum, s) => sum + s.totalDuration, 0);
-  const avgSetupMin = totalSetups > 0 ? Math.round(totalSetupMin / totalSetups) : 0;
-  
-  const BENCHMARK_SETUP_STD = 50; 
-  const totalStepBenchmarks: Record<string, number> = {
-    'ตั้งเครื่อง': 15,
-    'ร้อยฟิล์ม': 12,
-    'ตั้งฟิล์ม': 10,
-    'ต่อฟิล์ม': 5,
-    'ตั้งเครื่องพิมพ์วันที่': 8,
-  };
-
-  const getStepsSummary = () => {
-    const stepStats: Record<string, { durationSum: number; count: number; delayedCount: number; logs: SetupLog[] }> = {};
-    
-    setupLogs.forEach(log => {
-      log.steps.forEach(s => {
-        if (s.completed && s.duration > 0) {
-          if (!stepStats[s.stepName]) {
-            stepStats[s.stepName] = { durationSum: 0, count: 0, delayedCount: 0, logs: [] };
-          }
-          stepStats[s.stepName].durationSum += s.duration;
-          stepStats[s.stepName].count += 1;
-          stepStats[s.stepName].logs.push(log);
-          
-          const std = totalStepBenchmarks[s.stepName] || 10;
-          if (s.duration > std) {
-            stepStats[s.stepName].delayedCount += 1;
-          }
-        }
-      });
-    });
-
-    return Object.keys(stepStats).map(stepName => {
-      const avg = Math.round(stepStats[stepName].durationSum / stepStats[stepName].count);
-      const std = totalStepBenchmarks[stepName] || 10;
-      return {
-        stepName,
-        avgActual: avg,
-        stdBenchmark: std,
-        diff: std - avg,
-        totalRuns: stepStats[stepName].count,
-        delayedRuns: stepStats[stepName].delayedCount,
-        status: avg <= std ? 'optimized' : 'delayed',
-        logs: stepStats[stepName].logs
-      };
-    });
-  };
-
-  const stepSummaries = getStepsSummary();
-
   // Safe handler to update PM delay detail
   const handleUpdatePmDelay = (id: string, field: string, value: string) => {
     setPmDelayDetails(prev => ({
@@ -309,25 +225,6 @@ export const PresentationPage: React.FC = () => {
     }));
   };
 
-  // Safe handler to update Setup step delay
-  const handleUpdateSetupDelay = (key: string, field: string, value: string) => {
-    setSetupDelayDetails(prev => ({
-      ...prev,
-      [key]: {
-        ...(prev[key] || { reason: '', why1: '', why2: '', why3: '', why4: '', why5: '', countermeasure: '' }),
-        [field]: value
-      }
-    }));
-  };
-
-  // Safe handler to apply preset to Setup Delay
-  const applySetupPreset = (key: string, preset: typeof SETUP_PRESETS[0]) => {
-    setSetupDelayDetails(prev => ({
-      ...prev,
-      [key]: { ...preset }
-    }));
-  };
-
   return (
     <div className="space-y-6 text-slate-100" id="executive-presentation-dashboard">
       
@@ -351,8 +248,8 @@ export const PresentationPage: React.FC = () => {
               ศูนย์ควบคุมและวิเคราะห์นำเสนอระดับผู้บริหาร
             </h1>
             <p className="text-xs text-slate-400 mt-1.5 max-w-3xl">
-              รายงานเปรียบเทียบมาตรฐานเทียบงานจริงครบถ้วนทั้ง 3 กลุ่มงาน 
-              <b className="text-cyan-400"> (1. ผลของ PM, 2. งานซ่อมด่วน Breakdown, 3. งานจัดตั้ง Setup เครื่อง) </b> 
+              รายงานเปรียบเทียบมาตรฐานเทียบงานจริงครบถ้วน
+              <b className="text-cyan-400"> (1. ผลของ PM, 2. งานซ่อมด่วน Breakdown) </b> 
               แสดงความล่าช้ารายขั้นตอนพร้อมระบบป้อนผลการวิเคราะห์ Why-Why Analysis และเสนอแนวทางแก้ไขให้ผู้บริหารถูกใจ
             </p>
           </div>
@@ -388,16 +285,6 @@ export const PresentationPage: React.FC = () => {
               }`}
             >
               🔧 2. ซ่อมด่วน ({repairs.length})
-            </button>
-            <button
-              onClick={() => setActiveTab('setup-analysis')}
-              className={`px-3 py-1.5 text-[11px] font-black rounded-lg transition-all ${
-                activeTab === 'setup-analysis' 
-                  ? 'bg-cyan-500 text-slate-950 font-black' 
-                  : 'text-slate-400 hover:text-fg hover:bg-slate-900'
-              }`}
-            >
-              ⏱️ 3. ตั้งเครื่อง ({totalSetups})
             </button>
             <button
               onClick={() => setActiveTab('tree')}
@@ -467,31 +354,6 @@ export const PresentationPage: React.FC = () => {
                 </div>
               </div>
             </div>
-
-            {/* Setup Card */}
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 relative overflow-hidden transition hover:-translate-y-1 shadow-lg">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
-              <div className="flex justify-between items-start">
-                <span className="p-2.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-xl">
-                  <Clock size={24} />
-                </span>
-                <span className="text-[10px] font-black text-slate-500 uppercase">Category 03</span>
-              </div>
-              <div className="mt-4">
-                <h3 className="text-sm font-black text-fg">การลงเวลาตั้งจัดเครื่อง (Setup SOP)</h3>
-                <p className="text-[10px] text-slate-400 mt-1">ยอดรวมเฉลี่ยรายด่านการสลับเปลี่ยนไลน์</p>
-                <div className="flex items-baseline gap-2.5 mt-3">
-                  <span className="text-2xl font-black text-emerald-400 font-mono">{avgSetupMin}m</span>
-                  <span className="text-xs text-slate-400 font-medium">เป้าหมายรวม {BENCHMARK_SETUP_STD}m</span>
-                </div>
-                <div className="mt-3.5 pt-3.5 border-t border-slate-850 flex justify-between items-center text-[11px]">
-                  <span className="text-slate-400">ด่านย่อยเฉลี่ยที่สูงกว่ามาตรฐาน:</span>
-                  <span className="font-mono font-bold px-2 py-0.5 rounded bg-amber-500/10 text-amber-400">
-                    {stepSummaries.filter(s => s.avgActual > s.stdBenchmark).length} ด่าน
-                  </span>
-                </div>
-              </div>
-            </div>
           </div>
 
           {/* Quick analysis section & recommendations for executive presenting */}
@@ -520,7 +382,7 @@ export const PresentationPage: React.FC = () => {
                   </p>
                   <ul className="text-[11px] text-slate-350 space-y-1.5 list-disc pl-4 leading-relaxed">
                     <li>บรรจุวาระฉีดสเปรย์หล่อลื่นกันสนิมในฐานเกรด PM 100%</li>
-                    <li>ติดตั้งชุดเป่าลมไล่ละอองน้ำมันหน้าเลนส์เซ็นเซอร์สำหรับกระบวนการ Setup</li>
+                    <li>ติดตั้งชุดเป่าลมไล่ละอองน้ำมันหน้าเลนส์เซ็นเซอร์สำหรับกระบวนการผลิต</li>
                     <li>ปรับเปลี่ยนระบบจัดเก็บอะไหล่วิกฤต (Critical Parts) ป้องกันขัดข้องเกียร์</li>
                   </ul>
                 </div>
@@ -553,17 +415,6 @@ export const PresentationPage: React.FC = () => {
                       </div>
                       <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
                         <div style={{ width: `${Math.min(100, (avgActualMttr / (avgStandardMttr || 1)) * 100)}%` }} className={`h-full ${avgActualMttr <= avgStandardMttr ? 'bg-cyan-500' : 'bg-rose-500'}`}></div>
-                      </div>
-                    </div>
-
-                    {/* Setup Progress */}
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-[11px]">
-                        <span className="text-slate-300 font-semibold">3. เวลารวมการจัดเตรียมตั้งเครื่อง (Setup Time)</span>
-                        <span className="font-mono text-emerald-400 font-bold">{avgSetupMin}m <span className="text-slate-500">/ Std {BENCHMARK_SETUP_STD}m</span></span>
-                      </div>
-                      <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
-                        <div style={{ width: `${Math.min(100, (avgSetupMin / BENCHMARK_SETUP_STD) * 100)}%` }} className={`h-full ${avgSetupMin <= BENCHMARK_SETUP_STD ? 'bg-emerald-500' : 'bg-amber-500'}`}></div>
                       </div>
                     </div>
                   </div>
@@ -1186,207 +1037,6 @@ export const PresentationPage: React.FC = () => {
                 );
               })
             )}
-          </div>
-        </div>
-      )}
-
-      {/* ======================= TAB 3: MACHINE SETUP DETAILS (งาน set up เครื่อง) ======================= */}
-      {activeTab === 'setup-analysis' && (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-6">
-          <div className="space-y-1 border-b border-slate-850 pb-4">
-            <h3 className="text-base font-black text-fg flex items-center gap-2">
-              <Clock className="text-emerald-400" size={18} />
-              รายงานชั่วโมงการตั้งเครื่องจักร (Setup SOP) และเกณฑ์วิเคราะห์เปรียบเทียบมาตรฐานรายด่าน
-            </h3>
-            <p className="text-xs text-slate-400">
-              วิเคราะห์รายขั้นตอนสำหรับการ Setup และปรับอุณหภูมิ (เปรียบเทียบเวลามาตรฐานด่านต่อด่าน) 
-              หากตรวจพบว่าด่านเฉลี่ยจริงกินเวลา <b>สูงกว่าเป้าหมายที่โรงงานกำหนด</b> จะแสดงรายงานชี้แจงเหตุผลและ Why-Why โดยทันที
-            </p>
-          </div>
-
-          {/* Grid Overview step analysis metrics */}
-          <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
-            
-            {/* Left side: Detailed step-by-step table comparing Actual vs Standard */}
-            <div className="xl:col-span-7 bg-[#0a0e1a] p-5 rounded-2xl border border-slate-850 space-y-4">
-              <h4 className="text-xs font-black text-cyan-400 uppercase tracking-widest flex items-center gap-1.5">
-                <LayoutGrid size={14} />
-                <span>ตารางเปรียบเทียบเวลาขวัญใจรายขั้นตอนย่อยในกระบวนการ Setup</span>
-              </h4>
-
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs border-collapse">
-                  <thead>
-                    <tr className="border-b border-slate-800 text-slate-400 font-extrabold uppercase bg-slate-950/60 text-[10.5px]">
-                      <th className="py-3 px-3">สเต็ปขั้นตอนปฏิบัติงาน</th>
-                      <th className="py-3 px-3 text-center">สถิติสุ่มตรวจ</th>
-                      <th className="py-3 px-3 text-center">เวลาสัมฤทธิ์จริง (เฉลี่ย)</th>
-                      <th className="py-3 px-3 text-center">พิกัด SOP มาตรฐาน</th>
-                      <th className="py-3 px-3 text-right">สภาวะเวลา</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-850">
-                    {stepSummaries.map(step => {
-                      const isSlower = step.diff < 0; // standard - actual < 0 meaning actual is higher
-                      
-                      return (
-                        <tr key={step.stepName} className="hover:bg-slate-950/30 transition">
-                          <td className="py-3 px-3 font-bold text-fg flex items-center gap-2">
-                            <span className={`w-2 h-2 rounded-full ${isSlower ? 'bg-red-400 animate-pulse' : 'bg-emerald-400'}`}></span>
-                            <span>{step.stepName}</span>
-                          </td>
-                          <td className="py-3 px-3 text-center font-mono text-slate-400">{step.totalRuns} ครั้ง</td>
-                          <td className={`py-3 px-3 text-center font-mono font-extrabold text-sm ${isSlower ? 'text-red-400' : 'text-cyan-300'}`}>
-                            {step.avgActual} นาที
-                          </td>
-                          <td className="py-3 px-3 text-center font-mono text-fg">
-                            {step.stdBenchmark} นาที
-                          </td>
-                          <td className="py-3 px-3 text-right">
-                            <span className={`px-2 py-1 rounded text-[9.5px] font-black tracking-wide ${
-                              !isSlower 
-                                ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/15' 
-                                : 'bg-red-500/10 text-red-400 border border-red-500/15'
-                            }`}>
-                              {!isSlower ? `✔️ เร็วกว่าเป้า ${step.diff}m` : `⚠️ เกินเวลาเกณฑ์ ${Math.abs(step.diff)}m`}
-                            </span>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-
-              <div className="p-3 bg-cyan-950/10 border border-cyan-500/10 rounded-xl text-[11px] text-slate-400 leading-relaxed text-cyan-200">
-                📌 <b>เกณฑ์เวลามาตรฐาน Setup (SOP Benchmark):</b> อ้างอิงสถิติจากคณะควบคุมวิศวกรรมการผลิต โดยแบ่งสเต็ปหลัก เช่น ร้อยฟิล์ม 12m, ปรับฟิล์ม 10m, และตั้งใบมีดความร้อน 15m หากผลการสลับไลน์ใช้เวลาเกิน แสดงว่าเครื่องจักรมีความแปรปรวนหน้าด่านสูง
-              </div>
-            </div>
-
-            {/* Right side: Dynamic Explanation & Why-Why inputs for steps exceeding standard */}
-            <div className="xl:col-span-5 space-y-4">
-              <div className="bg-slate-950/80 p-5 rounded-2xl border border-slate-800 space-y-4.5">
-                <h4 className="text-xs font-black text-rose-300 uppercase tracking-widest flex items-center gap-2">
-                  <AlertCircle size={14} className="text-rose-400" />
-                  <span>บันทึกชี้แจ้ง & วิเคราะห์ขั้นตอนย่อยที่ใช้เวลาเกินมาตรฐาน</span>
-                </h4>
-                <p className="text-[10.5px] text-slate-400 leading-relaxed">
-                  คลิกระบุเหตุผลและจำลองลูปการแก้ปัญหาระดับล่างสำหรับด่านปฏิบัติงานที่มีปัญหาสถิติเฉลี่ยช้ากว่ากำหนด 
-                </p>
-
-                {/* Iterate through delayed steps */}
-                <div className="space-y-4 max-h-[450px] overflow-y-auto pr-1">
-                  {stepSummaries.filter(s => s.diff < 0).map(step => {
-                    const delayKey = `setup-${step.stepName}`;
-                    const currentData = setupDelayDetails[delayKey] || { 
-                      reason: 'ขนาดความกว้างแกนกระดาษคลาดเคลื่อนทำให้ใบมีดรัดตึงแกนดึงคลายฝืดตัวช้า', 
-                      why1: 'ซัพพลายเออร์ล็อตใหม่แกนกระดาษอ้วนกว่าเกณฑ์บวกสองมิลลิเมตร', 
-                      why2: 'จัดซื้อไม่ได้ส่งสเปกตัวอย่างแกนให้ฝ่ายวิศวกรเทสหน้าไลน์ก่อนผลิตจริง', 
-                      why3: 'ขาดระบบ QC ชิ้นวัสดุขนาดแกนที่คลังรับฝากเก็บ', 
-                      why4: 'เน้นเกณฑ์ราคาซื้อถูกสุดมากกว่าความเสถียรของคุณภาพตัวม้วน', 
-                      why5: 'ไม่มีนโยบายการจัดซื้อจัดจ้างที่ประสานเสียงร่วมรับรองทางเทคนิค', 
-                      countermeasure: 'ปรับปรุง SOP บัญญัติให้สลักและวัดขอบข้างแกนฟิล์มก่อนขนถ่ายเข้าพื้นที่อย่างเข้มข้น' 
-                    };
-
-                    return (
-                      <div key={step.stepName} className="p-3 bg-red-950/5 border border-red-900/15 rounded-xl space-y-3">
-                        <div className="flex items-center justify-between border-b border-rose-900/15 pb-1.5 flex-wrap gap-2">
-                          <span className="text-xs font-black text-red-400">
-                            ⚙️ ด่าน: {step.stepName} <span className="font-mono text-[10px] text-slate-400">({step.avgActual}m เทียบ Std {step.stdBenchmark}m)</span>
-                          </span>
-                          
-                          {/* Apply Preset buttons */}
-                          <div className="flex items-center gap-1">
-                            {SETUP_PRESETS.map((preset, pIdx) => (
-                              <button
-                                key={pIdx}
-                                type="button"
-                                onClick={() => applySetupPreset(delayKey, preset)}
-                                className="px-1.5 py-0.5 bg-slate-900 hover:bg-slate-850 text-slate-400 hover:text-fg rounded text-[8.5px] transition cursor-pointer preset-btn"
-                              >
-                                เสนอ {pIdx + 1}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Reason forms */}
-                        <div className="space-y-2">
-                          <div className="space-y-1">
-                            <label className="text-[9.5px] font-bold text-slate-400 uppercase tracking-widest block">ระบุเหตุและด่านขัดข้องที่ช้ากว่าพิกัด *</label>
-                            <input
-                              type="text"
-                              value={currentData.reason}
-                              onChange={(e) => handleUpdateSetupDelay(delayKey, 'reason', e.target.value)}
-                              placeholder="..."
-                              className="w-full bg-slate-950 text-xs text-slate-200 px-2 py-1.5 border border-slate-800 rounded font-semibold focus:ring-1 focus:ring-cyan-500/40"
-                            />
-                          </div>
-
-                          <div className="space-y-1">
-                            <label className="text-[9.5px] font-bold text-slate-400 uppercase tracking-widest block">แผนงานสกัดกั้นซ้ำ (Action Plan)</label>
-                            <input
-                              type="text"
-                              value={currentData.countermeasure}
-                              onChange={(e) => handleUpdateSetupDelay(delayKey, 'countermeasure', e.target.value)}
-                              placeholder="..."
-                              className="w-full bg-slate-950 text-xs text-slate-200 px-2 py-1.5 border border-slate-800 rounded font-semibold focus:ring-1 focus:ring-cyan-500/40"
-                            />
-                          </div>
-
-                          {/* Level 5 Why-Why analysis cascade inside setup */}
-                          <div className="p-2.5 bg-slate-900/60 rounded border border-slate-850 text-[10px] space-y-1.5">
-                            <div className="flex justify-between items-center text-[8.5px] font-extrabold text-slate-400 uppercase">
-                              <span>ลำดับการวิเคราะห์ Why-Why ด่าน {step.stepName}</span>
-                              <button
-                                type="button"
-                                onClick={() => setEditingItemId(editingItemId === delayKey ? null : delayKey)}
-                                className="text-cyan-400 hover:underline cursor-pointer"
-                              >
-                                {editingItemId === delayKey ? 'ยึดคืน ▲' : 'เปิดกรอก 5-Why ▼'}
-                              </button>
-                            </div>
-
-                            {editingItemId === delayKey ? (
-                              <div className="space-y-1.5 pt-1.5 border-t border-slate-800">
-                                {['why1', 'why2', 'why3', 'why4', 'why5'].map((wField, idx) => (
-                                  <div key={wField} className="grid grid-cols-12 gap-1 items-center">
-                                    <span className="col-span-2 text-[8px] font-black text-slate-500">Why {idx + 1}:</span>
-                                    <input
-                                      type="text"
-                                      value={currentData[wField as keyof typeof currentData] || ''}
-                                      onChange={(e) => handleUpdateSetupDelay(delayKey, wField, e.target.value)}
-                                      placeholder={`ทำไม...`}
-                                      className="col-span-10 bg-slate-950 text-[9.5px] text-slate-200 px-1.5 py-0.5 border border-slate-800 rounded"
-                                    />
-                                  </div>
-                                ))}
-                              </div>
-                            ) : (
-                              <div className="space-y-1 text-slate-350 text-[9.5px]">
-                                {currentData.why1 && <p><b className="text-slate-500 font-bold">Why 1:</b> {currentData.why1}</p>}
-                                {currentData.why2 && <p><b className="text-slate-500 font-bold">Why 2:</b> {currentData.why2}</p>}
-                                {currentData.why3 && <p><b className="text-slate-500 font-bold">Why 3:</b> {currentData.why3}</p>}
-                                {currentData.why4 && <p><b className="text-slate-500 font-bold">Why 4:</b> {currentData.why4}</p>}
-                                {currentData.why5 && <p><b className="text-slate-500 font-bold font-black">Why 5:</b> {currentData.why5}</p>}
-                                {(!currentData.why1 && !currentData.why2) && <p className="text-slate-500 italic">ไม่มีข้อมูล Why-Why (คลิกเปิดกรอกขวาบน)</p>}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-
-                  {stepSummaries.filter(s => s.diff < 0).length === 0 && (
-                    <div className="p-6 text-center border border-dashed border-slate-700 rounded-xl text-slate-500 dark:text-slate-300 italic text-xs">
-                      🎉 ยอดเยี่ยมมาก ทุกขั้นตอนการตั้งเครื่อง Setup ผ่านด่านและเร็วกว่าเวลามาตรฐานทั้งหมด! 
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
           </div>
         </div>
       )}

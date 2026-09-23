@@ -26,8 +26,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
     breakdown: settings.lineAutoEvents?.breakdown !== false,
     morningSummary: settings.lineAutoEvents?.morningSummary !== false,
     repairClosed: !!settings.lineAutoEvents?.repairClosed,
-    pmDispatched: !!settings.lineAutoEvents?.pmDispatched,
-    setupLogged: !!settings.lineAutoEvents?.setupLogged,
   });
   const [testMessage, setTestMessage] = useState<string>('🚨 ทดสอบระบบแจ้งเตือน LINE จากระบบ FoodFab Maintenance!');
   const [testStatus, setTestStatus] = useState<{ type: 'idle' | 'success' | 'error'; msg: string }>({ type: 'idle', msg: '' });
@@ -768,32 +766,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                             <div>
                               <p className="font-bold text-slate-800 dark:text-slate-200">✅ ปิดใบงานซ่อม (Repair Closed)</p>
                               <p className="text-[10px] text-slate-500">สรุปมาตรการแก้ไขและ MTTR (ค่าเริ่มต้น: ปิด)</p>
-                            </div>
-                          </label>
-
-                          <label className="flex items-center gap-2 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-900/60 cursor-pointer border border-transparent hover:border-slate-300 dark:hover:border-slate-800 transition">
-                            <input
-                              type="checkbox"
-                              checked={autoEvents.pmDispatched}
-                              onChange={(e) => setAutoEvents(prev => ({ ...prev, pmDispatched: e.target.checked }))}
-                              className="rounded border-slate-300 text-cyan-600 focus:ring-cyan-500"
-                            />
-                            <div>
-                              <p className="font-bold text-slate-800 dark:text-slate-200">📋 สั่งการงาน PM (PM Dispatched)</p>
-                              <p className="text-[10px] text-slate-500">ส่งใบงาน PM เมื่อจ่ายงานช่าง (ค่าเริ่มต้น: ปิด)</p>
-                            </div>
-                          </label>
-
-                          <label className="flex items-center gap-2 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-900/60 cursor-pointer border border-transparent hover:border-slate-300 dark:hover:border-slate-800 transition">
-                            <input
-                              type="checkbox"
-                              checked={autoEvents.setupLogged}
-                              onChange={(e) => setAutoEvents(prev => ({ ...prev, setupLogged: e.target.checked }))}
-                              className="rounded border-slate-300 text-cyan-600 focus:ring-cyan-500"
-                            />
-                            <div>
-                              <p className="font-bold text-slate-800 dark:text-slate-200">⚙️ บันทึกการตั้งเครื่อง (Setup Log)</p>
-                              <p className="text-[10px] text-slate-500">สรุปเวลา Setup และขั้นตอน (ค่าเริ่มต้น: ปิด)</p>
                             </div>
                           </label>
                         </div>

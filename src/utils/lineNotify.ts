@@ -1,4 +1,4 @@
-import { RepairLog, PMScheduleItem, OperationScheduleItem, SetupLog, Machine, PMPlan } from '../types';
+import { RepairLog, PMScheduleItem, OperationScheduleItem, Machine, PMPlan } from '../types';
 import { getTodayDateString } from './pmAlerts';
 
 /**
@@ -124,52 +124,6 @@ export async function notifyRepairClosed(repair: RepairLog, machineName: string,
 👤 ช่างผู้ปิดงาน: ${techs}
 ⏱️ เวลาที่ใช้ (MTTR): ${mttrText} ${performanceEmoji}
 📅 วันที่ปิดงาน: ${repair.date}
-  `.trim();
-
-  return sendLineNotification(message);
-}
-
-/**
- * Format and send a PM Dispatched notification
- */
-export async function notifyPMDispatched(pm: PMScheduleItem, machineName: string, planTitle: string) {
-  const techs = pm.technicians && pm.technicians.length > 0 
-    ? pm.technicians.join(', ') 
-    : pm.technician;
-
-  const message = `
-📅 [ใบสั่งการบำรุงรักษาเชิงป้องกัน (PM)]
-📋 แผนงาน: ${planTitle}
-⚙️ เครื่องจักร: ${pm.machineId} (${machineName})
-👤 ช่างที่รับมอบหมาย: ${techs}
-⏱️ เกณฑ์เวลามาตรฐาน: ${pm.duration} นาที
-📅 วันที่เริ่มดำเนินการ: ${pm.date}
-🎯 สถานะ: ${pm.status}
-  `.trim();
-
-  return sendLineNotification(message);
-}
-
-/**
- * Format and send a Setup Log notification
- */
-export async function notifySetupLogged(setup: SetupLog, machineName: string) {
-  const techs = setup.technicians && setup.technicians.length > 0 
-    ? setup.technicians.join(', ') 
-    : 'ช่างบำรุงรักษา';
-
-  const stepsSummary = setup.steps
-    .map(s => `- ${s.stepName}: ${s.duration} นาที (${s.completed ? 'เสร็จ' : 'ไม่เสร็จ'})`)
-    .join('\n');
-
-  const message = `
-⚙️ [บันทึกประวัติการตั้งเครื่อง (Setup Log)]
-🔘 เครื่องจักร: ${setup.machineId} (${machineName})
-🔘 ประเภทงาน: ${setup.type}
-⏱️ เวลารวมทั้งหมด: ${setup.totalDuration} นาที
-👤 รายชื่อทีมช่าง: ${techs}
-📊 สรุปแต่ละขั้นตอน:
-${stepsSummary}
   `.trim();
 
   return sendLineNotification(message);
