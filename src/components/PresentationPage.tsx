@@ -40,13 +40,29 @@ export const PresentationPage: React.FC = () => {
 
   // State to store custom delay reasons and analyses (Persisted in localStorage)
   const [pmDelayDetails, setPmDelayDetails] = useState<Record<string, { reason: string; why1: string; why2: string; why3: string; why4: string; why5: string; countermeasure: string }>>(() => {
-    const saved = localStorage.getItem('pm_delay_reasons_v2');
-    return saved ? JSON.parse(saved) : {};
+    try {
+      const saved = localStorage.getItem('pm_delay_reasons_v2');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) return parsed;
+      }
+    } catch (e) {
+      console.warn('Failed to parse pm_delay_reasons_v2 from localStorage:', e);
+    }
+    return {};
   });
 
   const [repairDelayDetails, setRepairDelayDetails] = useState<Record<string, { reason: string; why1: string; why2: string; why3: string; why4: string; why5: string; countermeasure: string }>>(() => {
-    const saved = localStorage.getItem('repair_delay_reasons_v2');
-    return saved ? JSON.parse(saved) : {};
+    try {
+      const saved = localStorage.getItem('repair_delay_reasons_v2');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) return parsed;
+      }
+    } catch (e) {
+      console.warn('Failed to parse repair_delay_reasons_v2 from localStorage:', e);
+    }
+    return {};
   });
 
   // Track currently expanded item ID for editing why-why

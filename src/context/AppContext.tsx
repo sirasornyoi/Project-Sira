@@ -757,6 +757,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       workingHoursPerDay: 8,
       lineNotifyEnabled: false,
       lineNotifyToken: '',
+      lineTargetId: '',
+      lineAutoEvents: {
+        breakdown: true,
+        morningSummary: true,
+        repairClosed: false,
+      },
       stdMttr: {
         "RIM": 60,
         "TOC": 45,
