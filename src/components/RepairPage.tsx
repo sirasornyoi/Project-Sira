@@ -137,9 +137,7 @@ export const RepairPage: React.FC = () => {
   const [why4, setWhy4] = useState('');
   const [why5, setWhy5] = useState('');
   const [whyCount, setWhyCount] = useState(1); // Click to add Why levels up to 5
-  const [formWhyWhy, setFormWhyWhy] = useState<WhyWhyAnalysis>(() =>
-    createDefaultWhyWhyAnalysis('', '', [])
-  );
+  const [formWhyWhy, setFormWhyWhy] = useState<WhyWhyAnalysis | undefined>(undefined);
 
   // Photo
   const [photoBase64, setPhotoBase64] = useState<string>('');
@@ -247,12 +245,18 @@ export const RepairPage: React.FC = () => {
       const oldRepair = repairs.find(r => r.id === editingId);
       const isStatusChangedToClosed = oldRepair && oldRepair.status === 'กำลังซ่อม' && formStatus === 'ปิดงาน';
 
-      const legacyWhys = extractLegacyWhys(formWhyWhy);
-      const finalWhy1 = why1.trim() || legacyWhys.why1;
-      const finalWhy2 = why2.trim() || legacyWhys.why2;
-      const finalWhy3 = why3.trim() || legacyWhys.why3;
-      const finalWhy4 = why4.trim() || legacyWhys.why4;
-      const finalWhy5 = why5.trim() || legacyWhys.why5;
+      const hasTree = Boolean(
+        formWhyWhy &&
+        formWhyWhy.branches &&
+        formWhyWhy.branches.length > 0 &&
+        formWhyWhy.branches.some(b => b.root && (b.root.description?.trim() || (b.root.children && b.root.children.length > 0)))
+      );
+      const legacyWhys = hasTree && formWhyWhy ? extractLegacyWhys(formWhyWhy) : null;
+      const finalWhy1 = legacyWhys ? legacyWhys.why1 : why1.trim();
+      const finalWhy2 = legacyWhys ? legacyWhys.why2 : why2.trim();
+      const finalWhy3 = legacyWhys ? legacyWhys.why3 : why3.trim();
+      const finalWhy4 = legacyWhys ? legacyWhys.why4 : why4.trim();
+      const finalWhy5 = legacyWhys ? legacyWhys.why5 : why5.trim();
 
       const updatedRepair: RepairLog = {
         id: editingId,
@@ -269,7 +273,7 @@ export const RepairPage: React.FC = () => {
         why3: finalWhy3,
         why4: finalWhy4,
         why5: finalWhy5,
-        whyWhy: formWhyWhy,
+        whyWhy: hasTree ? formWhyWhy : (oldRepair?.whyWhy || undefined),
         correctiveAction: formCorrection.trim() || 'ทำความสะอาดเครื่องและทดสอบเดินระบบ',
         photo: photoBase64 || undefined,
         duration: calculatedDuration,
@@ -289,12 +293,18 @@ export const RepairPage: React.FC = () => {
         notifyRepairClosed(updatedRepair, machineObj?.name || '', stdMttr).catch(console.error);
       }
     } else {
-      const legacyWhys = extractLegacyWhys(formWhyWhy);
-      const finalWhy1 = why1.trim() || legacyWhys.why1;
-      const finalWhy2 = why2.trim() || legacyWhys.why2;
-      const finalWhy3 = why3.trim() || legacyWhys.why3;
-      const finalWhy4 = why4.trim() || legacyWhys.why4;
-      const finalWhy5 = why5.trim() || legacyWhys.why5;
+      const hasTree = Boolean(
+        formWhyWhy &&
+        formWhyWhy.branches &&
+        formWhyWhy.branches.length > 0 &&
+        formWhyWhy.branches.some(b => b.root && (b.root.description?.trim() || (b.root.children && b.root.children.length > 0)))
+      );
+      const legacyWhys = hasTree && formWhyWhy ? extractLegacyWhys(formWhyWhy) : null;
+      const finalWhy1 = legacyWhys ? legacyWhys.why1 : why1.trim();
+      const finalWhy2 = legacyWhys ? legacyWhys.why2 : why2.trim();
+      const finalWhy3 = legacyWhys ? legacyWhys.why3 : why3.trim();
+      const finalWhy4 = legacyWhys ? legacyWhys.why4 : why4.trim();
+      const finalWhy5 = legacyWhys ? legacyWhys.why5 : why5.trim();
 
       const newLog: RepairLog = {
         id: `rep-${Date.now()}`,
@@ -311,7 +321,7 @@ export const RepairPage: React.FC = () => {
         why3: finalWhy3,
         why4: finalWhy4,
         why5: finalWhy5,
-        whyWhy: formWhyWhy,
+        whyWhy: hasTree ? formWhyWhy : undefined,
         correctiveAction: formCorrection.trim() || 'ทำความสะอาดเครื่องและทดสอบเดินระบบ',
         photo: photoBase64 || undefined,
         duration: calculatedDuration,
@@ -359,6 +369,7 @@ export const RepairPage: React.FC = () => {
     setPartSearchQuery('');
     setSelectedPartQty(1);
     setSelectedPartPrice(0);
+    setFormWhyWhy(undefined);
   };
 
   const handleEditClick = (log: RepairLog) => {
@@ -385,11 +396,17 @@ export const RepairPage: React.FC = () => {
     else if (log.why2) count = 2;
     setWhyCount(count);
 
-    // Lazy migration / load whyWhy
+    // Sync legacy whys from tree if tree exists
     if (log.whyWhy) {
       setFormWhyWhy(log.whyWhy);
+      const legacyWhys = extractLegacyWhys(log.whyWhy);
+      setWhy1(legacyWhys.why1 || log.why1 || '');
+      setWhy2(legacyWhys.why2 || log.why2 || '');
+      setWhy3(legacyWhys.why3 || log.why3 || '');
+      setWhy4(legacyWhys.why4 || log.why4 || '');
+      setWhy5(legacyWhys.why5 || log.why5 || '');
     } else {
-      setFormWhyWhy(migrateLegacyWhyToTree(log));
+      setFormWhyWhy(undefined);
     }
 
     setPhotoBase64(log.photo || '');
@@ -883,7 +900,10 @@ export const RepairPage: React.FC = () => {
           <button
             type="button"
             id="subtab-btn-whywhy"
-            onClick={() => setActiveSubTab('whywhy')}
+            onClick={() => {
+              setFocusedWhyWhyRepairId(null);
+              setActiveSubTab('whywhy');
+            }}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition cursor-pointer ${
               activeSubTab === 'whywhy'
                 ? 'bg-white dark:bg-slate-900 text-cyan-600 dark:text-cyan-400 shadow-xs'
@@ -967,10 +987,18 @@ export const RepairPage: React.FC = () => {
               setFormTechnician(technicians[0] || 'ช่าง 1');
               setFormTechnicians([technicians[0] || 'ช่าง 1']);
               setFormCorrection('');
+              setFormStatus('ปิดงาน');
               setWhy1(''); setWhy2(''); setWhy3(''); setWhy4(''); setWhy5('');
               setWhyCount(1);
               setPhotoBase64('');
-              setFormWhyWhy(createDefaultWhyWhyAnalysis('', technicians[0] || 'ช่าง 1', []));
+              setFormExcelName('');
+              setFormExcelContent('');
+              setFormUsedParts([]);
+              setFormOtherCost(0);
+              setSelectedPartId('');
+              setSelectedPartQty(1);
+              setSelectedPartPrice(0);
+              setFormWhyWhy(undefined);
               setShowFormModal(true);
             }}
             className="flex items-center gap-2 bg-gradient-to-r from-rose-500 to-red-650 hover:from-rose-400 hover:to-red-500 text-fg font-bold px-4 py-2.5 rounded-lg transition-all shadow-md focus:outline-none text-xs"
@@ -1371,8 +1399,8 @@ export const RepairPage: React.FC = () => {
                     const nextVal = e.target.value;
                     setFormSymptoms(nextVal);
                     // Sync phenomenon if it was empty or matched previous symptoms
-                    if (!formWhyWhy.phenomenon || formWhyWhy.phenomenon === formSymptoms) {
-                      setFormWhyWhy(prev => ({ ...prev, phenomenon: nextVal }));
+                    if (formWhyWhy && (!formWhyWhy.phenomenon || formWhyWhy.phenomenon === formSymptoms)) {
+                      setFormWhyWhy(prev => prev ? ({ ...prev, phenomenon: nextVal }) : undefined);
                     }
                   }}
                   className="w-full bg-white dark:bg-slate-900 border border-border dark:border-slate-700 rounded-lg px-3.5 py-2 text-fg dark:text-slate-200 focus:outline-none"

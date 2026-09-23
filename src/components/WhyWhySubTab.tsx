@@ -6,7 +6,8 @@ import {
   migrateLegacyWhyToTree, 
   extractLegacyWhys, 
   createDefaultWhyWhyAnalysis,
-  getWhyWhyAnalysisStats 
+  getWhyWhyAnalysisStats,
+  recomputeRootCauses
 } from '../utils/whyWhyUtils';
 import { 
   GitFork, 
@@ -65,6 +66,8 @@ export const WhyWhySubTab: React.FC<WhyWhySubTabProps> = ({
   useEffect(() => {
     if (focusedRepairId) {
       setActiveRepairId(focusedRepairId);
+    } else if (focusedRepairId === null) {
+      setActiveRepairId(null);
     }
   }, [focusedRepairId]);
 
@@ -183,24 +186,31 @@ export const WhyWhySubTab: React.FC<WhyWhySubTabProps> = ({
     const targetRepair = repairs.find(r => r.id === targetRepairId);
     if (!targetRepair) return;
 
-    const legacyWhys = extractLegacyWhys(updatedAnalysis);
-    const analysisToSave: WhyWhyAnalysis = {
+    const branchesWithRecomputedRoots = updatedAnalysis.branches?.map(b => ({
+      ...b,
+      root: recomputeRootCauses(b.root)
+    })) || [];
+
+    const preparedAnalysis: WhyWhyAnalysis = {
       ...updatedAnalysis,
+      branches: branchesWithRecomputedRoots,
       repairId: targetRepair.id,
       machineId: targetRepair.machineId,
       updatedAt: new Date().toISOString()
     };
 
+    const legacyWhys = extractLegacyWhys(preparedAnalysis);
+
     setRepairs(prev => prev.map(r => {
       if (r.id === targetRepairId) {
         return {
           ...r,
-          whyWhy: analysisToSave,
-          why1: legacyWhys.why1 || r.why1 || '',
-          why2: legacyWhys.why2 || r.why2 || '',
-          why3: legacyWhys.why3 || r.why3 || '',
-          why4: legacyWhys.why4 || r.why4 || '',
-          why5: legacyWhys.why5 || r.why5 || ''
+          whyWhy: preparedAnalysis,
+          why1: legacyWhys.why1,
+          why2: legacyWhys.why2,
+          why3: legacyWhys.why3,
+          why4: legacyWhys.why4,
+          why5: legacyWhys.why5
         };
       }
       return r;

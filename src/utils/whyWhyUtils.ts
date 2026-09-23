@@ -1,6 +1,45 @@
 import { WhyWhyAnalysis, WhyWhyBranch, WhyNode, BranchAxis, Judgement, RepairLog } from '../types';
 
 /**
+ * JIPM derivation of Root Cause:
+ * A node is a root cause ONLY if:
+ * 1. Judgement is 'NG' (confirmed breakdown factor)
+ * 2. It is a leaf node (children.length === 0)
+ * 3. It is a Change Point (changePointOk === true)
+ */
+export function computeIsRootCause(node: WhyNode): boolean {
+  const isLeaf = !node.children || node.children.length === 0;
+  return node.judgement === 'NG' && isLeaf && node.changePointOk === true;
+}
+
+/**
+ * Recursively recomputes isRootCause for all nodes in the tree (immutable)
+ */
+export function recomputeRootCauses(root: WhyNode): WhyNode {
+  const updatedChildren = (root.children || []).map(child => recomputeRootCauses(child));
+  const isLeaf = updatedChildren.length === 0;
+  const isRootCause = root.judgement === 'NG' && isLeaf && root.changePointOk === true;
+  return {
+    ...root,
+    children: updatedChildren,
+    isRootCause
+  };
+}
+
+/**
+ * Keywords indicating human error in descriptions per JIPM standard
+ */
+export const HUMAN_ERROR_KEYWORDS = ['ลืม', 'ประมาท', 'ไม่ระวัง', 'พลาด'];
+
+/**
+ * Checks whether a description contains human error keywords
+ */
+export function checkHumanErrorDescription(description: string): boolean {
+  if (!description) return false;
+  return HUMAN_ERROR_KEYWORDS.some(keyword => description.includes(keyword));
+}
+
+/**
  * Creates an empty or initial WhyNode
  */
 export function createWhyNode(description: string = '', isRoot: boolean = false): WhyNode {

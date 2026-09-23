@@ -15,7 +15,9 @@ import {
   updateNodeInTree, 
   deleteNodeFromTree,
   countBranchNodes,
-  getMaxDepth 
+  getMaxDepth,
+  recomputeRootCauses,
+  checkHumanErrorDescription
 } from '../utils/whyWhyUtils';
 import { 
   GitFork, 
@@ -82,6 +84,7 @@ export const WhyWhyTreeEditor: React.FC<WhyWhyTreeEditorProps> = ({
   const [showAddBranchModal, setShowAddBranchModal] = useState(false);
   const [selectedAxisForNewBranch, setSelectedAxisForNewBranch] = useState<BranchAxis>('detection');
   const [showHistoryDrawer, setShowHistoryDrawer] = useState(false);
+  const [reverseLogicError, setReverseLogicError] = useState<string | null>(null);
 
   // Sync active branch if list changes
   useEffect(() => {
@@ -91,6 +94,32 @@ export const WhyWhyTreeEditor: React.FC<WhyWhyTreeEditorProps> = ({
       }
     }
   }, [value.branches, activeBranchId]);
+
+  // Clear reverse logic error when switching branch
+  useEffect(() => {
+    setReverseLogicError(null);
+  }, [activeBranchId]);
+
+  // Recompute root causes on initial load or incoming value
+  useEffect(() => {
+    if (value.branches && value.branches.length > 0 && onChange && !readOnly) {
+      let hasChanges = false;
+      const recomputedBranches = value.branches.map(b => {
+        const recomputedRoot = recomputeRootCauses(b.root);
+        if (JSON.stringify(recomputedRoot) !== JSON.stringify(b.root)) {
+          hasChanges = true;
+          return { ...b, root: recomputedRoot };
+        }
+        return b;
+      });
+      if (hasChanges) {
+        onChange({
+          ...value,
+          branches: recomputedBranches
+        });
+      }
+    }
+  }, [value.id]);
 
   // Previous breakdown cases for this machine
   const pastMachineRepairs = repairs.filter(
@@ -127,14 +156,11 @@ export const WhyWhyTreeEditor: React.FC<WhyWhyTreeEditorProps> = ({
   const handleDeleteBranch = (branchId: string) => {
     if (readOnly || !onChange) return;
     if (value.branches.length <= 1) {
-      alert('จำเป็นต้องมีอย่างน้อย 1 กิ่งวิเคราะห์ (Branch)');
       return;
     }
-    if (confirm('คุณต้องการลบกิ่งวิเคราะห์นี้ใช่หรือไม่?')) {
-      const remaining = value.branches.filter(b => b.id !== branchId);
-      handleUpdate({ branches: remaining });
-      setActiveBranchId(remaining[0]?.id || '');
-    }
+    const remaining = value.branches.filter(b => b.id !== branchId);
+    handleUpdate({ branches: remaining });
+    setActiveBranchId(remaining[0]?.id || '');
   };
 
   const handleToggleRelatedRepair = (repairId: string) => {
@@ -475,10 +501,23 @@ export const WhyWhyTreeEditor: React.FC<WhyWhyTreeEditorProps> = ({
                 type="text"
                 disabled={readOnly}
                 value={activeBranch.reverseLogicCheck || ''}
-                onChange={(e) => handleUpdateBranch(activeBranch.id, { reverseLogicCheck: e.target.value })}
+                onChange={(e) => {
+                  setReverseLogicError(null);
+                  handleUpdateBranch(activeBranch.id, { reverseLogicCheck: e.target.value });
+                }}
                 placeholder="เช่น เพราะขันสลักเกลียวเพียงตัวเดียว → จึงทำให้ฝาครอบเปิดอ้า → จึงมีคราบจาระบีเกาะหนา → จึงบังลำแสงเซ็นเซอร์"
-                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-1.5 text-slate-800 dark:text-slate-200 text-xs focus:outline-none focus:border-cyan-500 font-mono"
+                className={`w-full bg-slate-50 dark:bg-slate-950 border rounded-lg px-3 py-1.5 text-slate-800 dark:text-slate-200 text-xs focus:outline-none font-mono transition ${
+                  reverseLogicError
+                    ? 'border-rose-500 ring-2 ring-rose-500/20'
+                    : 'border-slate-300 dark:border-slate-700 focus:border-cyan-500'
+                }`}
               />
+              {reverseLogicError && (
+                <p className="text-[11px] font-bold text-rose-600 dark:text-rose-400 flex items-center gap-1.5 mt-1 animate-in fade-in duration-150">
+                  <AlertTriangle size={13} className="shrink-0" />
+                  <span>{reverseLogicError}</span>
+                </p>
+              )}
             </div>
           </div>
 
@@ -496,28 +535,30 @@ export const WhyWhyTreeEditor: React.FC<WhyWhyTreeEditorProps> = ({
                 node={activeBranch.root}
                 depth={1}
                 branch={activeBranch}
+                onReverseLogicRequired={(msg) => setReverseLogicError(msg)}
                 onUpdateNode={(nodeId, patch) => {
-                  const updatedRoot = updateNodeInTree(activeBranch.root, nodeId, patch);
+                  const rawRoot = updateNodeInTree(activeBranch.root, nodeId, patch);
+                  const updatedRoot = recomputeRootCauses(rawRoot);
                   handleUpdateBranch(activeBranch.id, { root: updatedRoot });
                 }}
                 onAddChild={(parentId) => {
-                  const updatedRoot = addChildNode(activeBranch.root, parentId, createWhyNode());
+                  const rawRoot = addChildNode(activeBranch.root, parentId, createWhyNode());
+                  const updatedRoot = recomputeRootCauses(rawRoot);
                   handleUpdateBranch(activeBranch.id, { root: updatedRoot });
                 }}
                 onAddSibling={(targetId) => {
                   const res = addSiblingNode(activeBranch.root, targetId, createWhyNode());
-                  if (res.added) {
-                    handleUpdateBranch(activeBranch.id, { root: res.root });
-                  } else {
-                    // If target was root, add another child to root or branch
-                    const updatedRoot = addChildNode(activeBranch.root, targetId, createWhyNode());
-                    handleUpdateBranch(activeBranch.id, { root: updatedRoot });
-                  }
+                  const baseRoot = res.added
+                    ? res.root
+                    : addChildNode(activeBranch.root, targetId, createWhyNode());
+                  const updatedRoot = recomputeRootCauses(baseRoot);
+                  handleUpdateBranch(activeBranch.id, { root: updatedRoot });
                 }}
                 onDeleteNode={(targetId) => {
                   const res = deleteNodeFromTree(activeBranch.root, targetId);
                   if (res.deleted) {
-                    handleUpdateBranch(activeBranch.id, { root: res.root });
+                    const updatedRoot = recomputeRootCauses(res.root);
+                    handleUpdateBranch(activeBranch.id, { root: updatedRoot });
                   }
                 }}
                 readOnly={readOnly}
@@ -546,6 +587,7 @@ interface TreeNodeItemProps {
   onAddChild: (parentId: string) => void;
   onAddSibling: (targetId: string) => void;
   onDeleteNode: (targetId: string) => void;
+  onReverseLogicRequired?: (msg: string) => void;
   readOnly?: boolean;
 }
 
@@ -557,9 +599,11 @@ const TreeNodeItem: React.FC<TreeNodeItemProps> = ({
   onAddChild,
   onAddSibling,
   onDeleteNode,
+  onReverseLogicRequired,
   readOnly = false
 }) => {
   const [collapsed, setCollapsed] = useState(false);
+  const [nodeError, setNodeError] = useState<string | null>(null);
   const isLeaf = !node.children || node.children.length === 0;
 
   const JUDGEMENT_BADGES: Record<Judgement, { label: string; activeStyle: string; icon: string }> = {
@@ -580,13 +624,32 @@ const TreeNodeItem: React.FC<TreeNodeItemProps> = ({
     }
   };
 
+  const handleJudgementClick = (j: Judgement) => {
+    if (readOnly) return;
+    if (j === 'NG') {
+      // Guardrail 1: Block NG if changePointOk is false
+      if (node.changePointOk === false) {
+        setNodeError('สภาพคงที่เป็นรากเหง้าไม่ได้ — ปรับเป็นจุดเปลี่ยนก่อน');
+        return;
+      }
+      // Guardrail 2: Reverse logic check is mandatory before confirming NG
+      if (!branch.reverseLogicCheck || !branch.reverseLogicCheck.trim()) {
+        onReverseLogicRequired?.('กรอกการอ่านย้อนกลับก่อนสรุป NG');
+        setNodeError('กรอกการอ่านย้อนกลับก่อนสรุป NG');
+        return;
+      }
+    }
+    setNodeError(null);
+    onUpdateNode(node.id, { judgement: j });
+  };
+
   return (
     <div className="relative group">
       {/* Current Node Card */}
       <div 
         className={`p-3 rounded-xl border transition space-y-2.5 ${
           node.isRootCause 
-            ? 'bg-rose-50/50 border-rose-400 dark:bg-rose-950/30 dark:border-rose-700 shadow-sm' 
+            ? 'bg-rose-50/50 border-rose-400 dark:bg-rose-950/30 dark:border-rose-700 shadow-sm ring-1 ring-rose-400/30' 
             : 'bg-slate-50 dark:bg-slate-950/60 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
         }`}
       >
@@ -609,7 +672,7 @@ const TreeNodeItem: React.FC<TreeNodeItemProps> = ({
             </span>
 
             {node.isRootCause && (
-              <span className="flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-rose-600 text-white shadow-xs">
+              <span className="flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-rose-600 text-white shadow-xs animate-in zoom-in-95 duration-150">
                 <Target size={11} /> สาเหตุรากเหง้า (Root Cause)
               </span>
             )}
@@ -626,7 +689,7 @@ const TreeNodeItem: React.FC<TreeNodeItemProps> = ({
                   key={j}
                   type="button"
                   disabled={readOnly}
-                  onClick={() => onUpdateNode(node.id, { judgement: j })}
+                  onClick={() => handleJudgementClick(j)}
                   className={`px-2 py-0.5 rounded text-[10px] font-bold border transition cursor-pointer ${
                     isSelected 
                       ? info.activeStyle 
@@ -642,11 +705,7 @@ const TreeNodeItem: React.FC<TreeNodeItemProps> = ({
             {!readOnly && node.id !== branch.root.id && (
               <button
                 type="button"
-                onClick={() => {
-                  if (confirm('คุณต้องการลบข้อวิเคราะห์นี้และกิ่งย่อยทั้งหมดใช่หรือไม่?')) {
-                    onDeleteNode(node.id);
-                  }
-                }}
+                onClick={() => onDeleteNode(node.id)}
                 className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 rounded transition ml-1"
                 title="ลบ Why นี้"
               >
@@ -656,52 +715,71 @@ const TreeNodeItem: React.FC<TreeNodeItemProps> = ({
           </div>
         </div>
 
+        {/* Node Guardrail Error (Inline) */}
+        {nodeError && (
+          <div className="text-[11px] font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 rounded-md px-2.5 py-1.5 flex items-center gap-1.5 animate-in fade-in duration-150">
+            <AlertTriangle size={13} className="shrink-0" />
+            <span>{nodeError}</span>
+          </div>
+        )}
+
         {/* Node Description Input */}
         <div className="space-y-1">
           <input
             type="text"
             disabled={readOnly}
             value={node.description}
-            onChange={(e) => onUpdateNode(node.id, { description: e.target.value })}
+            onChange={(e) => {
+              const text = e.target.value;
+              const hasHumanError = checkHumanErrorDescription(text);
+              onUpdateNode(node.id, {
+                description: text,
+                humanErrorFlag: hasHumanError
+              });
+            }}
             placeholder={`ทำไมในชั้นที่ ${depth}? (เช่น คราบจาระบีเกาะแห้งหนาจนบังลำแสง)`}
             className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-1.5 text-slate-900 dark:text-slate-100 text-xs focus:outline-none focus:border-cyan-500"
           />
+
+          {/* Guardrail 3: Human Error Warning (Non-blocking alert) */}
+          {node.humanErrorFlag && (
+            <div className="text-[11px] font-medium text-amber-800 dark:text-amber-200 bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 rounded-lg px-2.5 py-1.5 flex items-start gap-1.5 mt-1 animate-in fade-in duration-150">
+              <AlertTriangle size={14} className="text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+              <span>
+                <strong>อย่าจบที่คน — ถามต่อว่าระบบ/มาตรฐานใดทำให้คนพลาดได้</strong>
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Leaf Node Specific: 4M Change Point & Root Cause Countermeasure */}
         {isLeaf && (
           <div className="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-2">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              {/* 4M Change Point Toggle */}
-              <div className="flex items-center gap-2">
+              {/* 4M Change Point Toggle (Corrected Labels per JIPM standard) */}
+              <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2">
                 <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400">
                   จุดเปลี่ยนแปลง 4M (Man/Machine/Method/Material):
                 </span>
                 <button
                   type="button"
                   disabled={readOnly}
-                  onClick={() => onUpdateNode(node.id, { changePointOk: !node.changePointOk })}
-                  className={`px-2 py-0.5 rounded text-[10px] font-bold border transition cursor-pointer ${
+                  onClick={() => {
+                    const nextVal = !node.changePointOk;
+                    setNodeError(null);
+                    onUpdateNode(node.id, { changePointOk: nextVal });
+                  }}
+                  className={`px-2.5 py-1 rounded text-[10px] font-bold border transition cursor-pointer text-left sm:text-center ${
                     node.changePointOk
-                      ? 'bg-emerald-50 text-emerald-700 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800'
+                      ? 'bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800'
                       : 'bg-amber-100 text-amber-900 border-amber-400 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-700'
                   }`}
                 >
-                  {node.changePointOk ? '✓ 4M ปกติ (OK)' : '⚠️ พบจุดเปลี่ยนแปลง 4M'}
+                  {node.changePointOk
+                    ? '✓ เป็นจุดเปลี่ยน (Change Point) — วิเคราะห์เป็นรากได้'
+                    : '⚠️ สภาพคงที่ (มีทั้งก่อน/หลังเสีย) — เป็นรากเหง้าไม่ได้'}
                 </button>
               </div>
-
-              {/* Is Root Cause Toggle */}
-              <label className="flex items-center gap-1.5 cursor-pointer text-[11px] font-bold text-rose-700 dark:text-rose-400 select-none">
-                <input
-                  type="checkbox"
-                  disabled={readOnly}
-                  checked={node.isRootCause}
-                  onChange={(e) => onUpdateNode(node.id, { isRootCause: e.target.checked })}
-                  className="rounded text-rose-600 focus:ring-rose-500 dark:bg-slate-900 dark:border-slate-700"
-                />
-                <span>กำหนดเป็นสาเหตุรากเหง้า (Root Cause)</span>
-              </label>
             </div>
 
             {/* Countermeasure for Root Cause or Leaf */}
@@ -775,6 +853,7 @@ const TreeNodeItem: React.FC<TreeNodeItemProps> = ({
               onAddChild={onAddChild}
               onAddSibling={onAddSibling}
               onDeleteNode={onDeleteNode}
+              onReverseLogicRequired={onReverseLogicRequired}
               readOnly={readOnly}
             />
           ))}
