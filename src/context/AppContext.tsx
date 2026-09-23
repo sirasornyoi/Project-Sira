@@ -286,6 +286,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             } else {
               setZones(extractDefaultZones(enriched));
             }
+            if (serverData.whyWhyDrafts && Array.isArray(serverData.whyWhyDrafts)) {
+              setWhyWhyDrafts(deduplicateById(serverData.whyWhyDrafts));
+            }
             if (serverData.settings) {
               setSettings(serverData.settings);
             }
@@ -521,7 +524,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       cd5Projects: deduplicateById(cd5Projects),
       timeBreakParts: deduplicateById(timeBreakParts),
       settings,
-      zones
+      zones,
+      whyWhyDrafts: deduplicateById(whyWhyDrafts)
     };
 
     const saveToServer = async () => {
@@ -603,6 +607,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             checkAndSet(curr.settings, serverData.settings, setSettings);
             if (serverData.zones) {
               checkAndSet(curr.zones, serverData.zones, setZones);
+            }
+            if (serverData.whyWhyDrafts) {
+              checkAndSet(curr.whyWhyDrafts, serverData.whyWhyDrafts, setWhyWhyDrafts);
             }
           }
         }
@@ -811,6 +818,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.setItem('maint_cd5_projects', JSON.stringify(PRELOADED_CD5_PROJECTS));
     localStorage.setItem('maint_time_break_parts', JSON.stringify(PRELOADED_TIME_BREAK_PARTS));
     localStorage.setItem('maint_zones', JSON.stringify(defZones));
+    setWhyWhyDrafts([]);
+    localStorage.removeItem('tpm_whyWhyDrafts');
     localStorage.removeItem('maint_pm_machine_ids');
     setPmMachineIds(PRELOADED_MACHINES.map(m => m.id));
     localStorage.removeItem('maint_settings');
@@ -832,7 +841,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       cd5Projects,
       timeBreakParts,
       settings,
-      zones
+      zones,
+      whyWhyDrafts
     };
     return JSON.stringify(dataObj, null, 2);
   };
@@ -855,6 +865,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (dataObj.timeBreakParts) setTimeBreakParts(dataObj.timeBreakParts);
       if (dataObj.settings) setSettings(dataObj.settings);
       if (dataObj.zones) setZones(dataObj.zones);
+      if (dataObj.whyWhyDrafts && Array.isArray(dataObj.whyWhyDrafts)) setWhyWhyDrafts(dataObj.whyWhyDrafts);
       
       return true;
     } catch (e) {

@@ -64,6 +64,7 @@ export const WhyWhySubTab: React.FC<WhyWhySubTabProps> = ({
 
   // Filters & Search
   const [searchTerm, setSearchTerm] = useState('');
+  const [draftSearchTerm, setDraftSearchTerm] = useState('');
   const [machineFilter, setMachineFilter] = useState('');
   const [occurrenceFilter, setOccurrenceFilter] = useState<'all' | 'first' | 'recurrence'>('all');
   const [hasRootCauseFilter, setHasRootCauseFilter] = useState<'all' | 'has_root' | 'pending'>('all');
@@ -175,6 +176,49 @@ export const WhyWhySubTab: React.FC<WhyWhySubTabProps> = ({
       return true;
     });
   }, [analyzedItems, machineFilter, occurrenceFilter, hasRootCauseFilter, searchTerm]);
+
+  // Filtered and grouped Standalone Drafts
+  const filteredAndGroupedDrafts = useMemo(() => {
+    // 1. Sort by updatedAt descending
+    const sorted = [...whyWhyDrafts].sort((a, b) => {
+      const timeA = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
+      const timeB = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
+      return timeB - timeA;
+    });
+
+    // 2. Filter by search term
+    const q = draftSearchTerm.toLowerCase().trim();
+    const filtered = q
+      ? sorted.filter(d => 
+          (d.phenomenon || '').toLowerCase().includes(q) ||
+          (d.category || '').toLowerCase().includes(q) ||
+          (d.analyzedBy || '').toLowerCase().includes(q)
+        )
+      : sorted;
+
+    // 3. Group by category (empty/undefined = 'ไม่ระบุหมวด')
+    const map = new Map<string, WhyWhyAnalysis[]>();
+    filtered.forEach(d => {
+      const cat = d.category?.trim() || 'ไม่ระบุหมวด';
+      if (!map.has(cat)) {
+        map.set(cat, []);
+      }
+      map.get(cat)!.push(d);
+    });
+
+    const groups: { category: string; drafts: WhyWhyAnalysis[] }[] = [];
+    const keys = Array.from(map.keys()).sort((a, b) => {
+      if (a === 'ไม่ระบุหมวด') return 1;
+      if (b === 'ไม่ระบุหมวด') return -1;
+      return a.localeCompare(b, 'th');
+    });
+
+    keys.forEach(k => {
+      groups.push({ category: k, drafts: map.get(k)! });
+    });
+
+    return { filtered, groups };
+  }, [whyWhyDrafts, draftSearchTerm]);
 
   // Candidate repairs for Modal: when pairing a draft, show all repairs; when creating from scratch, show unanalyzed
   const candidateModalRepairs = useMemo(() => {
@@ -556,13 +600,18 @@ export const WhyWhySubTab: React.FC<WhyWhySubTabProps> = ({
 
             <div className="h-5 w-px bg-slate-200 dark:bg-slate-800 hidden sm:block" />
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/70 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
                 ผังลอย (ยังไม่จับคู่)
               </span>
               <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200">
                 {activeDraft.phenomenon || 'ผังร่างไม่มีชื่อ'}
               </span>
+              {activeDraft.category?.trim() && (
+                <span className="px-2 py-0.5 rounded text-[11px] font-medium bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                  📁 {activeDraft.category}
+                </span>
+              )}
             </div>
           </div>
 
@@ -739,19 +788,19 @@ export const WhyWhySubTab: React.FC<WhyWhySubTabProps> = ({
 
         <div className="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-border dark:border-slate-800 shadow-xs">
           <div className="flex items-center justify-between text-slate-400 text-xs mb-1">
-            <span>รอสร้างผัง</span>
-            <HelpCircle size={14} className="text-slate-400" />
+            <span>ผังจับคู่เคสแล้ว</span>
+            <Link2 size={14} className="text-cyan-500" />
           </div>
-          <div className="text-xl font-black text-slate-700 dark:text-slate-300 font-mono">
-            {unanalyzedRepairs.length}
+          <div className="text-xl font-black text-slate-900 dark:text-slate-100 font-mono">
+            {totalAnalyzed}
           </div>
-          <span className="text-[10px] text-slate-400">เคส BD ยังไม่มีผังต้นไม้</span>
+          <span className="text-[10px] text-slate-400">ผูกกับเคสแจ้งซ่อม (BD)</span>
         </div>
       </div>
 
       {/* SECTION 1: Standalone Drafts (Unpaired) */}
       <div className="space-y-3">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
               <span className="p-1 rounded-lg bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400">
@@ -760,94 +809,137 @@ export const WhyWhySubTab: React.FC<WhyWhySubTabProps> = ({
               <span>ผังร่าง (ยังไม่จับคู่) ({whyWhyDrafts.length})</span>
             </h3>
             <span className="text-xs text-slate-500 dark:text-slate-400 hidden sm:inline">
-              ผังอิสระที่วิเคราะห์ล่วงหน้า หรือถอดจากเคสมาพักไว้ สามารถจับคู่เข้าเคส BD ได้ตลอดเวลา
+              ผังอิสระที่วิเคราะห์ล่วงหน้า จัดหมวดหมู่และค้นหาได้ พร้อมจับคู่เข้าเคส BD
             </span>
           </div>
-          <button
-            type="button"
-            onClick={handleCreateStandaloneDraft}
-            className="text-xs font-bold text-cyan-600 hover:text-cyan-700 dark:text-cyan-400 flex items-center gap-1 cursor-pointer"
-          >
-            <Plus size={14} />
-            <span>สร้างผังลอยใหม่</span>
-          </button>
+
+          <div className="flex items-center gap-2">
+            {whyWhyDrafts.length > 0 && (
+              <div className="relative w-44 sm:w-60">
+                <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="ค้นหาผังร่าง (ชื่อ, หมวด)..."
+                  value={draftSearchTerm}
+                  onChange={(e) => setDraftSearchTerm(e.target.value)}
+                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-cyan-500"
+                />
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={handleCreateStandaloneDraft}
+              className="text-xs font-bold text-amber-700 hover:text-amber-800 dark:text-amber-300 dark:hover:text-amber-200 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 px-2.5 py-1.5 rounded-lg flex items-center gap-1 cursor-pointer shrink-0"
+            >
+              <Plus size={14} />
+              <span>สร้างผังลอยใหม่</span>
+            </button>
+          </div>
         </div>
 
         {whyWhyDrafts.length === 0 ? (
           <div className="p-4 text-center rounded-xl border border-dashed border-slate-300 dark:border-slate-800 text-slate-400 text-xs bg-slate-50/50 dark:bg-slate-900/30">
-            ยังไม่มีผังร่าง — คุณสามารถกด <span className="font-bold text-amber-600 dark:text-amber-400">"สร้างผังลอย (อิสระ)"</span> เพื่อเริ่มร่างสมมุติฐานได้ทันที
+            ยังไม่มีผังร่าง — คุณสามารถกด <span className="font-bold text-amber-600 dark:text-amber-400">"สร้างผังลอยใหม่"</span> เพื่อเริ่มร่างสมมุติฐานได้ทันที
+          </div>
+        ) : filteredAndGroupedDrafts.filtered.length === 0 ? (
+          <div className="p-4 text-center rounded-xl border border-slate-200 dark:border-slate-800 text-slate-400 text-xs bg-slate-50/50 dark:bg-slate-900/30">
+            ไม่พบผังร่างที่ตรงกับคำค้นหา "{draftSearchTerm}"
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {whyWhyDrafts.map(draft => {
-              const stats = getWhyWhyAnalysisStats(draft);
-              return (
-                <div
-                  key={draft.id}
-                  className="p-4 rounded-xl bg-white dark:bg-slate-900 border border-amber-200/90 dark:border-amber-900/40 hover:border-amber-400 dark:hover:border-amber-600 shadow-xs transition flex flex-col justify-between gap-3"
-                >
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/70 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
-                        ผังลอย (Draft)
-                      </span>
-                      <span className="text-[10px] text-slate-400 font-mono">
-                        {draft.updatedAt ? new Date(draft.updatedAt).toLocaleDateString('th-TH') : ''}
-                      </span>
-                    </div>
-                    <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 line-clamp-2">
-                      {draft.phenomenon?.trim() || <span className="text-slate-400 italic">ผังร่างไม่มีชื่อ</span>}
-                    </h4>
-                    <div className="flex items-center gap-3 pt-1 text-[11px] text-slate-500 dark:text-slate-400">
-                      <span>กิ่ง: <strong className="text-slate-700 dark:text-slate-200">{draft.branches?.length || 0}</strong></span>
-                      <span>โหนด: <strong className="text-slate-700 dark:text-slate-200">{stats.totalNodes}</strong></span>
-                      {stats.rootCauseCount > 0 && (
-                        <span className="text-rose-600 dark:text-rose-400 font-bold">
-                          รากเหง้า: {stats.rootCauseCount}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
-                    <div className="flex items-center gap-1.5">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setActiveRepairId(null);
-                          setActiveDraftId(draft.id);
-                          setViewMode('canvas');
-                        }}
-                        className="px-2.5 py-1.5 rounded-lg bg-cyan-50 dark:bg-cyan-950/50 hover:bg-cyan-100 text-cyan-700 dark:text-cyan-300 text-xs font-bold border border-cyan-200 dark:border-cyan-800 transition cursor-pointer"
-                      >
-                        เปิดแก้ (Canvas)
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setPairingDraftId(draft.id);
-                          setCreateSearchTerm('');
-                          setCreateMachineFilter('');
-                          setShowCreateModal(true);
-                        }}
-                        className="px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 text-xs font-bold transition cursor-pointer flex items-center gap-1"
-                      >
-                        <Link2 size={12} />
-                        <span>จับคู่เคส BD</span>
-                      </button>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteDraft(draft.id)}
-                      className="p-1.5 text-slate-400 hover:text-rose-600 rounded transition cursor-pointer"
-                      title="ลบผังร่างนี้"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
+          <div className="space-y-4">
+            {filteredAndGroupedDrafts.groups.map(group => (
+              <div key={group.category} className="space-y-2.5">
+                <div className="flex items-center gap-2 pt-1">
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                    <span className="text-amber-500 font-normal">📁</span>
+                    <span>{group.category}</span>
+                    <span className="text-[11px] font-mono font-normal text-slate-400">
+                      ({group.drafts.length})
+                    </span>
+                  </span>
+                  <div className="h-px bg-slate-200 dark:bg-slate-800 flex-1" />
                 </div>
-              );
-            })}
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {group.drafts.map(draft => {
+                    const stats = getWhyWhyAnalysisStats(draft);
+                    return (
+                      <div
+                        key={draft.id}
+                        className="p-4 rounded-xl bg-white dark:bg-slate-900 border border-amber-200/90 dark:border-amber-900/40 hover:border-amber-400 dark:hover:border-amber-600 shadow-xs transition flex flex-col justify-between gap-3"
+                      >
+                        <div className="space-y-1.5">
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/70 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
+                                ผังลอย (Draft)
+                              </span>
+                              {draft.category?.trim() && (
+                                <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                                  {draft.category}
+                                </span>
+                              )}
+                            </div>
+                            <span className="text-[10px] text-slate-400 font-mono shrink-0">
+                              {draft.updatedAt ? new Date(draft.updatedAt).toLocaleDateString('th-TH') : ''}
+                            </span>
+                          </div>
+                          <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 line-clamp-2">
+                            {draft.phenomenon?.trim() || <span className="text-slate-400 italic">ผังร่างไม่มีชื่อ</span>}
+                          </h4>
+                          <div className="flex items-center gap-3 pt-1 text-[11px] text-slate-500 dark:text-slate-400">
+                            <span>กิ่ง: <strong className="text-slate-700 dark:text-slate-200">{draft.branches?.length || 0}</strong></span>
+                            <span>โหนด: <strong className="text-slate-700 dark:text-slate-200">{stats.totalNodes}</strong></span>
+                            {stats.rootCauseCount > 0 && (
+                              <span className="text-rose-600 dark:text-rose-400 font-bold">
+                                รากเหง้า: {stats.rootCauseCount}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                          <div className="flex items-center gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setActiveRepairId(null);
+                                setActiveDraftId(draft.id);
+                                setViewMode('canvas');
+                              }}
+                              className="px-2.5 py-1.5 rounded-lg bg-cyan-50 dark:bg-cyan-950/50 hover:bg-cyan-100 text-cyan-700 dark:text-cyan-300 text-xs font-bold border border-cyan-200 dark:border-cyan-800 transition cursor-pointer"
+                            >
+                              เปิดแก้ (Canvas)
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setPairingDraftId(draft.id);
+                                setCreateSearchTerm('');
+                                setCreateMachineFilter('');
+                                setShowCreateModal(true);
+                              }}
+                              className="px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 text-xs font-bold transition cursor-pointer flex items-center gap-1"
+                            >
+                              <Link2 size={12} />
+                              <span>จับคู่เคส BD</span>
+                            </button>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteDraft(draft.id)}
+                            className="p-1.5 text-slate-400 hover:text-rose-600 rounded transition cursor-pointer"
+                            title="ลบผังร่างนี้"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>

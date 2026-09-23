@@ -122,6 +122,7 @@ export interface WhyWhyAnalysis {
   repairId?: string;
   machineId?: string;
   phenomenon: string;
+  category?: string;
   occurrenceType: 'first' | 'recurrence';
   relatedRepairIds: string[];
   branches: WhyWhyBranch[];

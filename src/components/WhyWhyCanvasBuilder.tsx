@@ -32,7 +32,8 @@ import {
   ArrowRight,
   Sparkles,
   GitFork,
-  Maximize2
+  Maximize2,
+  Minimize2
 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -239,6 +240,20 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
   const [isExporting, setIsExporting] = useState(false);
   // Canvas mode: 'edit' or 'view' (clean presentation mode, default 'view')
   const [canvasMode, setCanvasMode] = useState<'view' | 'edit'>('view');
+  // Fullscreen state
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+
+  // Esc key listener to exit fullscreen
+  useEffect(() => {
+    if (!isFullscreen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsFullscreen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isFullscreen]);
 
   // References
   const viewportRef = useRef<HTMLDivElement>(null);
@@ -397,6 +412,29 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
     setActiveBranchId(newBranch.id);
   };
 
+  const handleDeleteBranch = (branchId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (readOnly) return;
+    if (!value.branches || value.branches.length <= 1) {
+      alert('ต้องมีอย่างน้อย 1 กิ่งวิเคราะห์');
+      return;
+    }
+    const branchToDelete = value.branches.find(b => b.id === branchId);
+    const axisLabel = branchToDelete ? AXIS_CONFIG[branchToDelete.axis]?.label || branchToDelete.axis : 'กิ่งนี้';
+    const ok = window.confirm(`คุณต้องการลบกิ่ง "${axisLabel}" ใช่หรือไม่?\nข้อมูลการวิเคราะห์ในกิ่งนี้จะถูกลบออกทั้งหมด`);
+    if (!ok) return;
+
+    const remaining = value.branches.filter(b => b.id !== branchId);
+    if (activeBranchId === branchId && remaining.length > 0) {
+      setActiveBranchId(remaining[0].id);
+    }
+    onChange({
+      ...value,
+      branches: remaining,
+      updatedAt: new Date().toISOString()
+    });
+  };
+
   // Export File Names
   const generateExportBaseName = () => {
     const cleanMachine = (machineName || value.machineId || 'Machine')
@@ -514,12 +552,18 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
   };
 
   return (
-    <div className="flex flex-col bg-slate-50 dark:bg-slate-950 rounded-2xl border border-border dark:border-slate-800 overflow-hidden shadow-xs">
+    <div
+      className={
+        isFullscreen
+          ? 'fixed inset-0 z-[100] bg-white dark:bg-slate-950 flex flex-col w-screen h-screen overflow-hidden'
+          : 'flex flex-col bg-slate-50 dark:bg-slate-950 rounded-2xl border border-border dark:border-slate-800 overflow-hidden shadow-xs'
+      }
+    >
       {/* -------------------------------------------------------------------- */}
       {/* Top Header: Diagram Title Input & Clean Presentation Mode Toggle     */}
       {/* -------------------------------------------------------------------- */}
       <div className="p-3 sm:px-4 sm:py-3 bg-white dark:bg-slate-900 border-b border-border dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="flex-1 flex items-center gap-2 min-w-0">
+        <div className="flex-1 flex flex-wrap items-center gap-2 min-w-0">
           <span className="text-xs font-bold text-slate-500 dark:text-slate-400 shrink-0">
             ชื่อผัง:
           </span>
@@ -536,8 +580,39 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
                 updatedAt: new Date().toISOString()
               });
             }}
-            className="flex-1 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 dark:focus:border-cyan-500 rounded-lg px-3 py-1.5 text-xs sm:text-sm font-semibold text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none transition min-w-[200px]"
+            className="flex-1 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 dark:focus:border-cyan-500 rounded-lg px-3 py-1.5 text-xs sm:text-sm font-semibold text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none transition min-w-[150px]"
           />
+
+          {/* Category Input */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
+              หมวด:
+            </span>
+            <input
+              type="text"
+              list="whywhy-categories"
+              disabled={readOnly}
+              value={value.category || ''}
+              placeholder="ไม่ระบุหมวด"
+              onChange={(e) => {
+                onChange({
+                  ...value,
+                  category: e.target.value,
+                  updatedAt: new Date().toISOString()
+                });
+              }}
+              className="w-28 sm:w-36 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 dark:focus:border-cyan-500 rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none transition"
+            />
+            <datalist id="whywhy-categories">
+              <option value="ระบบไฟฟ้าและคอนโทรล" />
+              <option value="ระบบเครื่องกลและส่งกำลัง" />
+              <option value="ระบบนิวเมติกส์และไฮดรอลิกส์" />
+              <option value="คุณภาพและของเสีย (Quality)" />
+              <option value="การทำงาน/โอเปอเรเตอร์ (Human Error)" />
+              <option value="ความปลอดภัย (Safety)" />
+            </datalist>
+          </div>
+
           {machineName ? (
             <span className="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-cyan-100 text-cyan-800 dark:bg-cyan-950/60 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800 shrink-0">
               {machineName}
@@ -593,11 +668,10 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
               const count = countNodes(b.root);
 
               return (
-                <button
+                <div
                   key={b.id}
-                  type="button"
                   onClick={() => setActiveBranchId(b.id)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+                  className={`group flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer select-none ${
                     isActive
                       ? 'bg-white dark:bg-slate-900 text-cyan-600 dark:text-cyan-400 shadow-xs'
                       : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
@@ -608,7 +682,17 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
                   <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-slate-200 dark:bg-slate-700">
                     {count}
                   </span>
-                </button>
+                  {!readOnly && (value.branches?.length || 0) > 1 && (
+                    <button
+                      type="button"
+                      onClick={(e) => handleDeleteBranch(b.id, e)}
+                      title={`ลบกิ่ง ${cfg?.label}`}
+                      className="ml-0.5 p-0.5 rounded hover:bg-rose-100 hover:text-rose-600 dark:hover:bg-rose-950/60 dark:hover:text-rose-400 text-slate-400 transition cursor-pointer"
+                    >
+                      <span className="text-[11px] leading-none block px-0.5 font-sans">✕</span>
+                    </button>
+                  )}
+                </div>
               );
             })}
           </div>
@@ -672,6 +756,21 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
             </button>
           </div>
 
+          {/* Fullscreen Toggle */}
+          <button
+            type="button"
+            onClick={() => setIsFullscreen(prev => !prev)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer shadow-xs border ${
+              isFullscreen
+                ? 'bg-amber-500 hover:bg-amber-600 text-white border-amber-600'
+                : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-700'
+            }`}
+            title={isFullscreen ? 'ย่อกลับขนาดเดิม (Esc)' : 'ขยายเต็มหน้าจอ'}
+          >
+            {isFullscreen ? <Minimize2 size={13} /> : <Maximize2 size={13} />}
+            <span className="hidden sm:inline">{isFullscreen ? 'ย่อจอ' : 'เต็มจอ'}</span>
+          </button>
+
           {/* Export PNG */}
           <button
             type="button"
@@ -706,7 +805,7 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
           <span>💡 <strong>ผังสร้างซ้าย→ขวา:</strong> กด <strong>"➕ ลูกศร→ลูก"</strong> เพื่อแตกสาเหตุลึกลงไปทางขวา หรือ <strong>"➕ ช่องขนาน"</strong> เพื่อเพิ่มสาเหตุร่วมไล่ลงล่าง</span>
         </div>
         <span className="text-slate-400 dark:text-slate-500 text-[10px]">
-          (ลากพื้นหลังเพื่อเลื่อนดู / หมุนล้อเมาส์เพื่อซูม)
+          (ลากพื้นหลังเพื่อเลื่อนดู / หมุนล้อเมาส์เพื่อซูม {isFullscreen ? '/ กด Esc เพื่อออกจากโหมดเต็มจอ' : ''})
         </span>
       </div>
 
@@ -718,7 +817,7 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
-        className={`relative w-full h-[620px] overflow-hidden select-none cursor-grab active:cursor-grabbing bg-slate-50 dark:bg-slate-950 ${
+        className={`relative w-full ${isFullscreen ? 'flex-1' : 'h-[620px]'} overflow-hidden select-none cursor-grab active:cursor-grabbing bg-slate-50 dark:bg-slate-950 ${
           isPanning ? 'cursor-grabbing' : ''
         }`}
       >
