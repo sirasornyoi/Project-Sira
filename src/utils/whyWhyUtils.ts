@@ -300,6 +300,50 @@ export function updateNodeInTree(root: WhyNode, targetId: string, patch: Partial
 }
 
 /**
+ * Updates a node's judgement in the tree.
+ * If changed to 'NG' (ไม่จริง):
+ * All downstream descendant child nodes will turn to 'NG' (แดง)
+ * EXCEPT any node that was explicitly chosen as 'OK' (เป็นจริง).
+ */
+export function updateNodeJudgementInTree(root: WhyNode, targetId: string, newJudgement: Judgement): WhyNode {
+  function cascadeNG(node: WhyNode): WhyNode {
+    const updatedChildren = (node.children || []).map(child => {
+      const nextJudgement: Judgement = child.judgement === 'OK' ? 'OK' : 'NG';
+      const cascadedChild = cascadeNG(child);
+      return {
+        ...cascadedChild,
+        judgement: nextJudgement
+      };
+    });
+
+    return {
+      ...node,
+      children: updatedChildren
+    };
+  }
+
+  if (root.id === targetId) {
+    if (newJudgement === 'NG') {
+      const withCascadedChildren = cascadeNG(root);
+      return {
+        ...withCascadedChildren,
+        judgement: 'NG'
+      };
+    } else {
+      return {
+        ...root,
+        judgement: newJudgement
+      };
+    }
+  }
+
+  return {
+    ...root,
+    children: (root.children || []).map(child => updateNodeJudgementInTree(child, targetId, newJudgement))
+  };
+}
+
+/**
  * Recursively removes a node matching targetId from the tree (cannot delete root if it's the only one)
  */
 export function deleteNodeFromTree(root: WhyNode, targetId: string): { root: WhyNode; deleted: boolean } {

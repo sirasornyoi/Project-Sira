@@ -13,6 +13,7 @@ import {
   addChildNode, 
   addSiblingNode, 
   updateNodeInTree, 
+  updateNodeJudgementInTree,
   deleteNodeFromTree,
   countBranchNodes,
   getMaxDepth,
@@ -537,7 +538,9 @@ export const WhyWhyTreeEditor: React.FC<WhyWhyTreeEditorProps> = ({
                 branch={activeBranch}
                 onReverseLogicRequired={(msg) => setReverseLogicError(msg)}
                 onUpdateNode={(nodeId, patch) => {
-                  const rawRoot = updateNodeInTree(activeBranch.root, nodeId, patch);
+                  const rawRoot = patch.judgement
+                    ? updateNodeJudgementInTree(activeBranch.root, nodeId, patch.judgement)
+                    : updateNodeInTree(activeBranch.root, nodeId, patch);
                   const updatedRoot = recomputeRootCauses(rawRoot);
                   handleUpdateBranch(activeBranch.id, { root: updatedRoot });
                 }}

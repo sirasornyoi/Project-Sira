@@ -12,6 +12,7 @@ import {
   addChildNode, 
   addSiblingNode, 
   updateNodeInTree, 
+  updateNodeJudgementInTree,
   deleteNodeFromTree, 
   recomputeRootCauses, 
   checkHumanErrorDescription,
@@ -421,10 +422,11 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
   };
 
   // Node Judgement update (รอพิสูจน์, OK, NG)
+  // If changed to 'NG': all downstream child nodes turn to 'NG' (red), EXCEPT any that was chosen as 'OK'
   const handleUpdateNodeJudgement = (nodeId: string, judgement: Judgement) => {
     if (readOnly || !activeBranch) return;
     const updatedRoots = branchRoots.map(r => {
-      const raw = updateNodeInTree(r, nodeId, { judgement });
+      const raw = updateNodeJudgementInTree(r, nodeId, judgement);
       return recomputeRootCauses(raw);
     });
     handleUpdateActiveBranch({
@@ -1063,21 +1065,48 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
               >
                 <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#0891b2" />
               </marker>
+              <marker
+                id="canvas-arrow-ng"
+                viewBox="0 0 10 10"
+                refX="8"
+                refY="5"
+                markerWidth="6"
+                markerHeight="6"
+                orient="auto-start-reverse"
+              >
+                <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#f43f5e" />
+              </marker>
+              <marker
+                id="canvas-arrow-ok"
+                viewBox="0 0 10 10"
+                refX="8"
+                refY="5"
+                markerWidth="6"
+                markerHeight="6"
+                orient="auto-start-reverse"
+              >
+                <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#10b981" />
+              </marker>
             </defs>
 
             {layout.links.map(link => {
               const dx = Math.max((link.x2 - link.x1) * 0.5, 36);
               const pathD = `M ${link.x1} ${link.y1} C ${link.x1 + dx} ${link.y1}, ${link.x2 - dx} ${link.y2}, ${link.x2} ${link.y2}`;
+              const targetNode = layout.nodes.find(n => n.node.id === link.toNodeId)?.node;
+              const isNg = targetNode?.judgement === 'NG';
+              const isOk = targetNode?.judgement === 'OK';
+              const strokeColor = isNg ? '#f43f5e' : (isOk ? '#10b981' : '#0891b2');
+              const markerId = isNg ? 'canvas-arrow-ng' : (isOk ? 'canvas-arrow-ok' : 'canvas-arrow');
 
               return (
                 <path
                   key={`${link.fromNodeId}->${link.toNodeId}`}
                   d={pathD}
                   fill="none"
-                  stroke="#0891b2"
+                  stroke={strokeColor}
                   strokeWidth="2.5"
                   strokeLinecap="round"
-                  markerEnd="url(#canvas-arrow)"
+                  markerEnd={`url(#${markerId})`}
                 />
               );
             })}
@@ -1117,12 +1146,16 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
                     canvasMode === 'view' ? 'p-2' : 'p-2.5'
                   } ${
                     isSelected
-                      ? 'ring-2 ring-cyan-500 shadow-lg border-cyan-500'
+                      ? (node.judgement === 'NG' ? 'ring-2 ring-rose-500 shadow-lg border-rose-500' : 'ring-2 ring-cyan-500 shadow-lg border-cyan-500')
                       : ''
                   } ${
                     node.isRootCause
                       ? 'bg-rose-50/95 dark:bg-rose-950/80 border-rose-500 dark:border-rose-600 ring-2 ring-rose-500/20 shadow-md'
-                      : 'bg-white/95 dark:bg-slate-900/95 border-slate-300 dark:border-slate-700 hover:border-cyan-400 dark:hover:border-cyan-600'
+                      : node.judgement === 'NG'
+                        ? 'bg-rose-50/90 dark:bg-rose-950/60 border-rose-400 dark:border-rose-700/80 hover:border-rose-500 shadow-xs'
+                        : node.judgement === 'OK'
+                          ? 'bg-emerald-50/70 dark:bg-emerald-950/40 border-emerald-400 dark:border-emerald-700/80 hover:border-emerald-500'
+                          : 'bg-white/95 dark:bg-slate-900/95 border-slate-300 dark:border-slate-700 hover:border-cyan-400 dark:hover:border-cyan-600'
                   }`}
                   title={readOnly ? undefined : "ดับเบิ้ลคลิก (Double-click) เพื่อแก้ไขข้อความ"}
                 >
@@ -1131,7 +1164,13 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
                     canvasMode === 'view' ? '' : 'border-b border-slate-200/80 dark:border-slate-800'
                   }`}>
                     <div className="flex items-center gap-1.5 flex-wrap">
-                      <span className="px-2 py-0.5 rounded font-mono font-bold text-[11px] bg-cyan-100 text-cyan-800 dark:bg-cyan-950/60 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800">
+                      <span className={`px-2 py-0.5 rounded font-mono font-bold text-[11px] border ${
+                        node.judgement === 'NG'
+                          ? 'bg-rose-100 text-rose-800 dark:bg-rose-950/80 dark:text-rose-300 border-rose-200 dark:border-rose-800'
+                          : node.judgement === 'OK'
+                            ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'
+                            : 'bg-cyan-100 text-cyan-800 dark:bg-cyan-950/60 dark:text-cyan-300 border-cyan-200 dark:border-cyan-800'
+                      }`}>
                         {whyLabel}
                       </span>
 
