@@ -380,3 +380,18 @@ export function getMaxDepth(root: WhyNode, depth: number = 1): number {
   if (!root.children || root.children.length === 0) return depth;
   return Math.max(...root.children.map(child => getMaxDepth(child, depth + 1)));
 }
+
+/**
+ * Explanations and tooltips for 4M Change Point vs Constant State (JIPM Standard)
+ */
+export const CHANGE_POINT_EXPLANATION = {
+  header: 'จุดเปลี่ยน 4M = สิ่งที่เพิ่งเปลี่ยน (Man/Machine/Method/Material) • สภาพคงที่ = มีอยู่ก่อน-หลังเสีย เป็นรากไม่ได้',
+  tooltip: `✓ จุดเปลี่ยน: ใบมีดสึกตามอายุ / เปลี่ยนวัตถุดิบแข็งขึ้น / เพิ่งปรับตั้งเครื่อง
+⚠️ สภาพคงที่: ใบมีดเป็นสแตนเลส (เป็นมาตลอด เครื่องเคยเดินได้)`,
+  statusText: (isChangePoint: boolean) =>
+    isChangePoint
+      ? '✓ เป็นสิ่งที่เพิ่งเปลี่ยน (4M) — ตั้งเป็นรากเหง้าได้'
+      : '⚠️ มีอยู่ทั้งก่อน/หลังเสีย — ไม่ใช่ราก ให้ถามต่อว่าอะไรเปลี่ยน',
+  guardrailError: 'สภาพคงที่เป็นรากเหง้าไม่ได้ — ปรับเป็นจุดเปลี่ยนก่อน (สภาพคงที่ = มีอยู่ก่อนเครื่องเสียแล้ว)'
+};
+

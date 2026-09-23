@@ -15,7 +15,8 @@ import {
   deleteNodeFromTree, 
   recomputeRootCauses, 
   checkHumanErrorDescription,
-  getBranchRoots
+  getBranchRoots,
+  CHANGE_POINT_EXPLANATION
 } from '../utils/whyWhyUtils';
 
 function findNodeInRoots(roots: WhyNode[], id: string): WhyNode | null {
@@ -48,7 +49,8 @@ import {
   Minimize2,
   Undo2,
   Redo2,
-  Check
+  Check,
+  HelpCircle
 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -298,6 +300,9 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
   // Inline Guardrail errors per node
   const [nodeErrors, setNodeErrors] = useState<Record<string, string>>({});
 
+  // 4M & Constant State Side Guide visibility
+  const [show4MGuide, setShow4MGuide] = useState<boolean>(true);
+
   // Undo / Redo History Stacks
   const [history, setHistory] = useState<WhyWhyAnalysis[]>([]);
   const [redoStack, setRedoStack] = useState<WhyWhyAnalysis[]>([]);
@@ -445,7 +450,7 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
       if (targetNode && targetNode.changePointOk === false) {
         setNodeErrors(prev => ({
           ...prev,
-          [nodeId]: 'สภาพคงที่เป็นรากเหง้าไม่ได้ — ปรับเป็นจุดเปลี่ยนก่อน'
+          [nodeId]: CHANGE_POINT_EXPLANATION.guardrailError
         }));
         return;
       }
@@ -1395,7 +1400,7 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
                     </div>
                   )}
 
-                  {/* 4M Change Point Toggle on Card (Edit mode) */}
+                  {/* 4M Change Point Toggle on Card (Edit mode - compact format) */}
                   {canvasMode === 'edit' && (
                     <div className="pt-1 pb-0.5" onClick={(e) => e.stopPropagation()}>
                       <button
@@ -1492,6 +1497,75 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
             })}
           </div>
         </div>
+
+        {/* Floating Side Info Panel: 4M Change Point vs Constant State Guide (Wide side view) */}
+        <aside
+          aria-label="4M Change Point vs Constant State Guide"
+          className="absolute top-4 right-4 z-20 pointer-events-auto max-w-[280px] sm:max-w-[320px] transition-all duration-200 select-text"
+          onClick={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
+        >
+          {show4MGuide ? (
+            <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-300 dark:border-slate-800 rounded-xl shadow-xl p-3 text-xs space-y-2.5 animate-in fade-in zoom-in-95 duration-150">
+              <div className="flex items-center justify-between gap-2 border-b border-slate-200/80 dark:border-slate-800 pb-2">
+                <div className="flex items-center gap-1.5 font-bold text-slate-800 dark:text-slate-100">
+                  <span className="text-cyan-600 dark:text-cyan-400">💡</span>
+                  <span>คำอธิบาย 4M & สภาพคงที่</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShow4MGuide(false)}
+                  className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+                  title="ย่อแถบคำอธิบาย"
+                >
+                  <Minimize2 size={13} />
+                </button>
+              </div>
+
+              {/* 4M Change Point Box */}
+              <div className="space-y-1 bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200/90 dark:border-emerald-800/70 rounded-lg p-2.5">
+                <div className="flex items-center justify-between gap-1">
+                  <span className="font-bold text-emerald-800 dark:text-emerald-300">✓ จุดเปลี่ยน 4M</span>
+                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-200/70 dark:bg-emerald-900/60 text-emerald-900 dark:text-emerald-200">
+                    เป็นรากเหง้าได้
+                  </span>
+                </div>
+                <p className="text-[11px] text-emerald-950 dark:text-emerald-200 leading-relaxed font-medium">
+                  สิ่งที่เพิ่งเปลี่ยน (Man, Machine, Method, Material)
+                </p>
+                <div className="text-[10.5px] text-emerald-800 dark:text-emerald-300/90 pl-1.5 border-l-2 border-emerald-400 dark:border-emerald-600 leading-snug pt-0.5">
+                  <span className="font-semibold">ตัวอย่าง:</span> ใบมีดสึกตามอายุ / วัตถุดิบแข็งขึ้น / เพิ่งปรับตั้งเครื่อง
+                </div>
+              </div>
+
+              {/* Constant State Box */}
+              <div className="space-y-1 bg-amber-50/80 dark:bg-amber-950/40 border border-amber-200/90 dark:border-amber-800/70 rounded-lg p-2.5">
+                <div className="flex items-center justify-between gap-1">
+                  <span className="font-bold text-amber-800 dark:text-amber-300">⚠️ สภาพคงที่</span>
+                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-200/70 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200">
+                    ไม่ใช่รากเหง้า
+                  </span>
+                </div>
+                <p className="text-[11px] text-amber-950 dark:text-amber-200 leading-relaxed font-medium">
+                  มีอยู่ทั้งก่อน/หลังเสีย — ให้ถามต่อว่าอะไรเปลี่ยน
+                </p>
+                <div className="text-[10.5px] text-amber-800 dark:text-amber-300/90 pl-1.5 border-l-2 border-amber-400 dark:border-amber-600 leading-snug pt-0.5">
+                  <span className="font-semibold">ตัวอย่าง:</span> ใบมีดเป็นสแตนเลส (เป็นมาตลอด เครื่องเคยเดินงานได้)
+                </div>
+              </div>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setShow4MGuide(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-300 dark:border-slate-700 hover:border-cyan-500 rounded-lg shadow-lg text-xs font-bold text-slate-700 dark:text-slate-200 transition cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800"
+              title="เปิดคำอธิบายจุดเปลี่ยน 4M & สภาพคงที่"
+            >
+              <HelpCircle size={13} className="text-cyan-600 dark:text-cyan-400" />
+              <span>คำอธิบาย 4M & สภาพคงที่</span>
+            </button>
+          )}
+        </aside>
       </div>
     </div>
   );

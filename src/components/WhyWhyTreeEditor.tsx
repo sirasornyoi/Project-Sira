@@ -17,7 +17,8 @@ import {
   countBranchNodes,
   getMaxDepth,
   recomputeRootCauses,
-  checkHumanErrorDescription
+  checkHumanErrorDescription,
+  CHANGE_POINT_EXPLANATION
 } from '../utils/whyWhyUtils';
 import { 
   GitFork, 
@@ -629,7 +630,7 @@ const TreeNodeItem: React.FC<TreeNodeItemProps> = ({
     if (j === 'NG') {
       // Guardrail 1: Block NG if changePointOk is false
       if (node.changePointOk === false) {
-        setNodeError('สภาพคงที่เป็นรากเหง้าไม่ได้ — ปรับเป็นจุดเปลี่ยนก่อน');
+        setNodeError(CHANGE_POINT_EXPLANATION.guardrailError);
         return;
       }
       // Guardrail 2: Reverse logic check is mandatory before confirming NG
@@ -757,28 +758,42 @@ const TreeNodeItem: React.FC<TreeNodeItemProps> = ({
           <div className="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-2">
             <div className="flex flex-wrap items-center justify-between gap-2">
               {/* 4M Change Point Toggle (Corrected Labels per JIPM standard) */}
-              <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2">
-                <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400">
-                  จุดเปลี่ยนแปลง 4M (Man/Machine/Method/Material):
-                </span>
-                <button
-                  type="button"
-                  disabled={readOnly}
-                  onClick={() => {
-                    const nextVal = !node.changePointOk;
-                    setNodeError(null);
-                    onUpdateNode(node.id, { changePointOk: nextVal });
-                  }}
-                  className={`px-2.5 py-1 rounded text-[10px] font-bold border transition cursor-pointer text-left sm:text-center ${
-                    node.changePointOk
-                      ? 'bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800'
-                      : 'bg-amber-100 text-amber-900 border-amber-400 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-700'
-                  }`}
-                >
-                  {node.changePointOk
-                    ? '✓ เป็นจุดเปลี่ยน (Change Point) — วิเคราะห์เป็นรากได้'
-                    : '⚠️ สภาพคงที่ (มีทั้งก่อน/หลังเสีย) — เป็นรากเหง้าไม่ได้'}
-                </button>
+              <div className="flex flex-col gap-1 w-full sm:w-auto">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400">
+                    จุดเปลี่ยนแปลง 4M (Man/Machine/Method/Material):
+                  </span>
+                  <span 
+                    className="inline-flex items-center text-slate-400 hover:text-cyan-500 cursor-help transition"
+                    title={CHANGE_POINT_EXPLANATION.tooltip}
+                  >
+                    <HelpCircle size={12} />
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    disabled={readOnly}
+                    onClick={() => {
+                      const nextVal = !node.changePointOk;
+                      setNodeError(null);
+                      onUpdateNode(node.id, { changePointOk: nextVal });
+                    }}
+                    className={`px-2.5 py-1 rounded text-[10px] font-bold border transition cursor-pointer text-left sm:text-center ${
+                      node.changePointOk
+                        ? 'bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800'
+                        : 'bg-amber-100 text-amber-900 border-amber-400 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-700'
+                    }`}
+                    title={CHANGE_POINT_EXPLANATION.header}
+                  >
+                    {node.changePointOk
+                      ? '✓ เป็นจุดเปลี่ยน (Change Point) — วิเคราะห์เป็นรากได้'
+                      : '⚠️ สภาพคงที่ (มีทั้งก่อน/หลังเสีย) — เป็นรากเหง้าไม่ได้'}
+                  </button>
+                </div>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">
+                  {CHANGE_POINT_EXPLANATION.statusText(node.changePointOk !== false)}
+                </p>
               </div>
             </div>
 
