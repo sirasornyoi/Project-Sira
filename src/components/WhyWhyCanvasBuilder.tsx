@@ -237,6 +237,8 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
   const [isPanning, setIsPanning] = useState(false);
   const [dragStart, setDragStart] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [isExporting, setIsExporting] = useState(false);
+  // Canvas mode: 'edit' or 'view' (clean presentation mode, default 'view')
+  const [canvasMode, setCanvasMode] = useState<'view' | 'edit'>('view');
 
   // References
   const viewportRef = useRef<HTMLDivElement>(null);
@@ -406,18 +408,21 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
     return `WhyWhy_${cleanMachine}_${cleanPhenomenon}_${dateStr}`;
   };
 
-  // Export to PNG
+  // Export to PNG (temporarily capture in clean view mode)
   const handleExportPng = async () => {
     if (!contentWrapperRef.current) return;
     try {
       setIsExporting(true);
-      // Temporarily normalize pan & zoom for capture
       const prevPan = { ...pan };
       const prevZoom = zoom;
+      const prevMode = canvasMode;
+
+      // Temporarily switch to clean view mode and normalize viewport
+      setCanvasMode('view');
       setPan({ x: 30, y: 30 });
       setZoom(1);
 
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise(resolve => setTimeout(resolve, 150));
 
       const canvas = await html2canvas(contentWrapperRef.current, {
         backgroundColor: '#ffffff',
@@ -433,9 +438,10 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
       link.href = imgData;
       link.click();
 
-      // Restore pan and zoom
+      // Restore pan, zoom, and mode
       setPan(prevPan);
       setZoom(prevZoom);
+      setCanvasMode(prevMode);
     } catch (err) {
       console.error('PNG export failed:', err);
     } finally {
@@ -443,17 +449,21 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
     }
   };
 
-  // Export to PDF
+  // Export to PDF (temporarily capture in clean view mode)
   const handleExportPdf = async () => {
     if (!contentWrapperRef.current) return;
     try {
       setIsExporting(true);
       const prevPan = { ...pan };
       const prevZoom = zoom;
+      const prevMode = canvasMode;
+
+      // Temporarily switch to clean view mode and normalize viewport
+      setCanvasMode('view');
       setPan({ x: 30, y: 30 });
       setZoom(1);
 
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise(resolve => setTimeout(resolve, 150));
 
       const canvas = await html2canvas(contentWrapperRef.current, {
         backgroundColor: '#ffffff',
@@ -492,8 +502,10 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
       pdf.addImage(imgData, 'JPEG', x, y, finalW, finalH);
       pdf.save(`${generateExportBaseName()}.pdf`);
 
+      // Restore pan, zoom, and mode
       setPan(prevPan);
       setZoom(prevZoom);
+      setCanvasMode(prevMode);
     } catch (err) {
       console.error('PDF export failed:', err);
     } finally {
@@ -503,6 +515,71 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
 
   return (
     <div className="flex flex-col bg-slate-50 dark:bg-slate-950 rounded-2xl border border-border dark:border-slate-800 overflow-hidden shadow-xs">
+      {/* -------------------------------------------------------------------- */}
+      {/* Top Header: Diagram Title Input & Clean Presentation Mode Toggle     */}
+      {/* -------------------------------------------------------------------- */}
+      <div className="p-3 sm:px-4 sm:py-3 bg-white dark:bg-slate-900 border-b border-border dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex-1 flex items-center gap-2 min-w-0">
+          <span className="text-xs font-bold text-slate-500 dark:text-slate-400 shrink-0">
+            ชื่อผัง:
+          </span>
+          <input
+            type="text"
+            disabled={readOnly}
+            value={value.phenomenon || ''}
+            placeholder="ผังร่างไม่มีชื่อ (ระบุชื่อผัง/อาการเสีย)"
+            onChange={(e) => {
+              const newTitle = e.target.value;
+              onChange({
+                ...value,
+                phenomenon: newTitle,
+                updatedAt: new Date().toISOString()
+              });
+            }}
+            className="flex-1 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 dark:focus:border-cyan-500 rounded-lg px-3 py-1.5 text-xs sm:text-sm font-semibold text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none transition min-w-[200px]"
+          />
+          {machineName ? (
+            <span className="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-cyan-100 text-cyan-800 dark:bg-cyan-950/60 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800 shrink-0">
+              {machineName}
+            </span>
+          ) : (
+            <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-800 shrink-0">
+              ผังลอย (Draft)
+            </span>
+          )}
+        </div>
+
+        {/* View vs Edit Mode Switcher */}
+        <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700/60 shrink-0">
+          <button
+            type="button"
+            onClick={() => setCanvasMode('view')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+              canvasMode === 'view'
+                ? 'bg-white dark:bg-slate-900 text-cyan-600 dark:text-cyan-400 shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+            }`}
+            title="โหมดดู/นำเสนอ: แสดงผังคลีนแบบ Node-RED ซ่อนกล่องพิมพ์และปุ่มควบคุม"
+          >
+            <span>👁</span>
+            <span>ดู</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setCanvasMode('edit')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+              canvasMode === 'edit'
+                ? 'bg-white dark:bg-slate-900 text-cyan-600 dark:text-cyan-400 shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+            }`}
+            title="โหมดแก้ไข: แสดงกล่องพิมพ์และปุ่มเพิ่มลูกศร/ช่องขนาน"
+          >
+            <span>✏️</span>
+            <span>แก้ไข</span>
+          </button>
+        </div>
+      </div>
+
       {/* -------------------------------------------------------------------- */}
       {/* Header Toolbar: Branches, Viewport Controls, Export Buttons          */}
       {/* -------------------------------------------------------------------- */}
@@ -719,14 +796,18 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
                     width: `${width}px`,
                     minHeight: `${height}px`
                   }}
-                  className={`absolute pointer-events-auto rounded-xl p-2.5 flex flex-col justify-between transition-all duration-150 border shadow-xs ${
+                  className={`absolute pointer-events-auto rounded-xl flex flex-col justify-between transition-all duration-150 border shadow-xs ${
+                    canvasMode === 'view' ? 'p-2' : 'p-2.5'
+                  } ${
                     node.isRootCause
                       ? 'bg-rose-50/95 dark:bg-rose-950/80 border-rose-500 dark:border-rose-600 ring-2 ring-rose-500/20 shadow-md'
                       : 'bg-white/95 dark:bg-slate-900/95 border-slate-300 dark:border-slate-700 hover:border-cyan-400 dark:hover:border-cyan-600'
                   }`}
                 >
                   {/* Card Header: Level Indicator + Status Badge + Root Cause */}
-                  <div className="flex items-center justify-between gap-1 pb-1 border-b border-slate-200/80 dark:border-slate-800">
+                  <div className={`flex items-center justify-between gap-1 pb-1 ${
+                    canvasMode === 'view' ? '' : 'border-b border-slate-200/80 dark:border-slate-800'
+                  }`}>
                     <div className="flex items-center gap-1.5 flex-wrap">
                       <span className="px-2 py-0.5 rounded font-mono font-bold text-[11px] bg-cyan-100 text-cyan-800 dark:bg-cyan-950/60 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800">
                         Why {depth}
@@ -756,8 +837,8 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
                       )}
                     </div>
 
-                    {/* Collapse / Expand Toggle */}
-                    {hasChildren && (
+                    {/* Collapse / Expand Toggle (Hidden in view mode per spec) */}
+                    {canvasMode === 'edit' && hasChildren && (
                       <button
                         type="button"
                         onClick={() => toggleCollapse(node.id)}
@@ -769,20 +850,30 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
                     )}
                   </div>
 
-                  {/* Card Description Input */}
-                  <div className="my-1.5">
-                    <textarea
-                      rows={2}
-                      disabled={readOnly}
-                      value={node.description}
-                      onChange={(e) => handleUpdateNodeDescription(node.id, e.target.value)}
-                      placeholder={`ทำไมในชั้นที่ ${depth}?`}
-                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 dark:focus:border-cyan-500 rounded-lg p-1.5 text-xs text-slate-800 dark:text-slate-100 resize-none focus:outline-none transition leading-tight"
-                    />
-                  </div>
+                  {/* Card Description: Plain text in view mode, textarea in edit mode */}
+                  {canvasMode === 'view' ? (
+                    <div className="my-1 px-0.5 text-xs text-slate-800 dark:text-slate-100 leading-snug break-words">
+                      {node.description?.trim() ? (
+                        node.description
+                      ) : (
+                        <span className="text-slate-400 dark:text-slate-500 italic font-normal">(ยังไม่ระบุ)</span>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="my-1.5">
+                      <textarea
+                        rows={2}
+                        disabled={readOnly}
+                        value={node.description}
+                        onChange={(e) => handleUpdateNodeDescription(node.id, e.target.value)}
+                        placeholder={`ทำไมในชั้นที่ ${depth}?`}
+                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 dark:focus:border-cyan-500 rounded-lg p-1.5 text-xs text-slate-800 dark:text-slate-100 resize-none focus:outline-none transition leading-tight"
+                      />
+                    </div>
+                  )}
 
-                  {/* Card Actions Footer: ➕ Child Arrow | ➕ Sibling Fan | 🗑 Delete */}
-                  {!readOnly && (
+                  {/* Card Actions Footer: Hidden in view mode per spec */}
+                  {canvasMode === 'edit' && !readOnly && (
                     <div className="flex items-center justify-between gap-1 pt-1 border-t border-slate-100 dark:border-slate-800">
                       <div className="flex items-center gap-1">
                         {/* Add Child (Creates arrow to child on right) */}

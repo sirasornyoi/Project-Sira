@@ -2,7 +2,8 @@ import React, { createContext, useContext, useState, useEffect, useRef } from 'r
 import { 
   Machine, PMPlan, PMScheduleItem, OperationScheduleItem, 
   RepairLog, ImprovementProject, SystemSettings, ScheduleItem, SetupLog, Employee,
-  TechnicianLeave, SparePart, CD5Project, TimeBreakPartItem, ZoneStructure
+  TechnicianLeave, SparePart, CD5Project, TimeBreakPartItem, ZoneStructure,
+  WhyWhyAnalysis
 } from '../types';
 import { 
   PRELOADED_MACHINES, PRELOADED_TECHNICIANS, PRELOADED_PM_PLANS, 
@@ -43,6 +44,8 @@ interface AppContextType {
   setTimeBreakParts: React.Dispatch<React.SetStateAction<TimeBreakPartItem[]>>;
   zones: ZoneStructure[];
   setZones: React.Dispatch<React.SetStateAction<ZoneStructure[]>>;
+  whyWhyDrafts: WhyWhyAnalysis[];
+  setWhyWhyDrafts: React.Dispatch<React.SetStateAction<WhyWhyAnalysis[]>>;
   isLoaded: boolean;
   addZone: (zoneName: string) => boolean;
   addRoomToZone: (zoneName: string, roomName: string) => boolean;
@@ -162,6 +165,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [cd5Projects, setCd5Projects] = useState<CD5Project[]>([]);
   const [timeBreakParts, setTimeBreakParts] = useState<TimeBreakPartItem[]>([]);
   const [zones, setZones] = useState<ZoneStructure[]>([]);
+  const [whyWhyDrafts, setWhyWhyDrafts] = useState<WhyWhyAnalysis[]>(() => {
+    try {
+      const stored = localStorage.getItem('tpm_whyWhyDrafts');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch {}
+    return [];
+  });
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
   
   const [settings, setSettings] = useState<SystemSettings>({
@@ -199,14 +212,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const lastLocalSaveTimeRef = useRef<number>(0);
   const currentStateRef = useRef({
     machines, technicians, employees, pmPlans, pmMachineIds, schedules,
-    repairs, improvements, setupLogs, leaves, spareParts, cd5Projects, timeBreakParts, settings, zones
+    repairs, improvements, setupLogs, leaves, spareParts, cd5Projects, timeBreakParts, settings, zones, whyWhyDrafts
   });
 
   // Always keep currentStateRef up-to-date with the latest state values
   useEffect(() => {
     currentStateRef.current = {
       machines, technicians, employees, pmPlans, pmMachineIds, schedules,
-      repairs, improvements, setupLogs, leaves, spareParts, cd5Projects, timeBreakParts, settings, zones
+      repairs, improvements, setupLogs, leaves, spareParts, cd5Projects, timeBreakParts, settings, zones, whyWhyDrafts
     };
   });
 
@@ -388,6 +401,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
         if (storedSettings) setSettings(JSON.parse(storedSettings));
 
+        const storedDrafts = localStorage.getItem('tpm_whyWhyDrafts');
+        if (storedDrafts) {
+          try {
+            const parsedDrafts = JSON.parse(storedDrafts);
+            if (Array.isArray(parsedDrafts)) setWhyWhyDrafts(parsedDrafts);
+          } catch {}
+        }
+
         if (storedZones) {
           try {
             const parsedZones = JSON.parse(storedZones);
@@ -480,6 +501,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       localStorage.setItem('maint_settings', JSON.stringify(settings));
       localStorage.setItem('maint_zones', JSON.stringify(zones));
       localStorage.setItem('maint_pm_machine_ids', JSON.stringify(pmMachineIds));
+      localStorage.setItem('tpm_whyWhyDrafts', JSON.stringify(whyWhyDrafts));
     } catch (e) {
       console.warn("LocalStorage quota warning:", e);
     }
@@ -522,7 +544,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return () => clearTimeout(timerId);
   }, [
     machines, technicians, employees, pmPlans, pmMachineIds, schedules,
-    repairs, improvements, setupLogs, leaves, spareParts, cd5Projects, timeBreakParts, settings, zones, isLoaded
+    repairs, improvements, setupLogs, leaves, spareParts, cd5Projects, timeBreakParts, settings, zones, whyWhyDrafts, isLoaded
   ]);
 
   // Polling for updates from other LAN clients
@@ -858,6 +880,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       cd5Projects, setCd5Projects,
       timeBreakParts, setTimeBreakParts,
       zones, setZones,
+      whyWhyDrafts, setWhyWhyDrafts,
       isLoaded,
       addZone, addRoomToZone,
       removeZone, removeRoomFromZone,
