@@ -395,3 +395,44 @@ export const CHANGE_POINT_EXPLANATION = {
   guardrailError: 'สภาพคงที่เป็นรากเหง้าไม่ได้ — ปรับเป็นจุดเปลี่ยนก่อน (สภาพคงที่ = มีอยู่ก่อนเครื่องเสียแล้ว)'
 };
 
+/**
+ * Builds a reverse logic sentence (การอ่านย้อนกลับ: เพราะ {รากล่างสุด} จึง {ถัดขึ้น} ... จึง {อาการบนสุด})
+ * Traverses the primary path from root down to deepest leaf.
+ */
+export function buildReverseLogicSentence(root: WhyNode | null | undefined): string {
+  if (!root) return '';
+
+  // Get primary/deepest path from root following children[0] / deepest branch
+  const getPrimaryPath = (node: WhyNode): WhyNode[] => {
+    if (!node.children || node.children.length === 0) return [node];
+    let bestChild = node.children[0];
+    let maxDepth = getMaxDepth(bestChild);
+    for (let i = 1; i < node.children.length; i++) {
+      const d = getMaxDepth(node.children[i]);
+      if (d > maxDepth) {
+        maxDepth = d;
+        bestChild = node.children[i];
+      }
+    }
+    return [node, ...getPrimaryPath(bestChild)];
+  };
+
+  const path = getPrimaryPath(root);
+  const descriptions = path
+    .map(n => (n.description || '').trim())
+    .filter(desc => desc.length > 0);
+
+  // Less than 2 valid boxes with text -> cannot draft
+  if (descriptions.length < 2) {
+    return '';
+  }
+
+  // Reverse: root cause leaf (bottom) -> symptom (top)
+  const reversed = [...descriptions].reverse();
+  const rootCause = reversed[0].replace(/^(เพราะว่า|เพราะ)\s*/g, '').trim();
+  const chain = reversed.slice(1).map(d => d.replace(/^(จึงทำให้|จึงส่งผลให้|จึง)\s*/g, '').trim());
+
+  return `เพราะ ${rootCause} ${chain.map(d => `จึง ${d}`).join(' ')}`.replace(/\s+/g, ' ').trim();
+}
+
+

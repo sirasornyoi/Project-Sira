@@ -16,7 +16,8 @@ import {
   recomputeRootCauses, 
   checkHumanErrorDescription,
   getBranchRoots,
-  CHANGE_POINT_EXPLANATION
+  CHANGE_POINT_EXPLANATION,
+  buildReverseLogicSentence
 } from '../utils/whyWhyUtils';
 
 function findNodeInRoots(roots: WhyNode[], id: string): WhyNode | null {
@@ -303,6 +304,9 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
   // 4M & Constant State Side Guide visibility
   const [show4MGuide, setShow4MGuide] = useState<boolean>(true);
 
+  // Auto-draft Reverse Logic notification alert
+  const [draftAlert, setDraftAlert] = useState<string | null>(null);
+
   // Undo / Redo History Stacks
   const [history, setHistory] = useState<WhyWhyAnalysis[]>([]);
   const [redoStack, setRedoStack] = useState<WhyWhyAnalysis[]>([]);
@@ -482,6 +486,43 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
       root: updatedRoots[0]
     });
   };
+
+  // Auto-draft Reverse Logic sentence ("เพราะ...จึง...") from Why nodes
+  const handleAutoDraftReverseLogic = useCallback(() => {
+    if (readOnly || !activeBranch) return;
+
+    // Traces the primary root (activeBranch.root or branchRoots[0])
+    const targetRoot = branchRoots[0] || activeBranch.root;
+    const sentence = buildReverseLogicSentence(targetRoot);
+
+    if (!sentence) {
+      setDraftAlert('ใส่ข้อความในกล่อง Why อย่างน้อย 2 ชั้นก่อน');
+      setTimeout(() => setDraftAlert(null), 3500);
+      return;
+    }
+
+    if (activeBranch.reverseLogicCheck && activeBranch.reverseLogicCheck.trim()) {
+      const ok = typeof window !== 'undefined' && typeof window.confirm === 'function'
+        ? window.confirm('มีข้อความในช่อง Reverse Logic อยู่แล้ว ต้องการเขียนทับด้วยข้อความที่ช่วยร่างใหม่หรือไม่?')
+        : true;
+      if (!ok) return;
+    }
+
+    setDraftAlert(null);
+    setNodeErrors(prev => {
+      const next = { ...prev };
+      let changed = false;
+      Object.keys(next).forEach(k => {
+        if (next[k].includes('Reverse Logic') || next[k].includes('การอ่านย้อนกลับ')) {
+          delete next[k];
+          changed = true;
+        }
+      });
+      return changed ? next : prev;
+    });
+
+    handleUpdateActiveBranch({ reverseLogicCheck: sentence });
+  }, [readOnly, activeBranch, branchRoots, handleUpdateActiveBranch]);
 
   // Toggle 4M Change Point on node
   const handleToggleChangePoint = (nodeId: string, currentVal: boolean = true) => {
@@ -1084,36 +1125,59 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
 
       {/* Guardrail: Reverse Logic Check Input Bar for Active Branch */}
       {activeBranch && (
-        <div className="px-4 py-2 bg-slate-100/90 dark:bg-slate-900/90 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center gap-2 text-xs">
-          <div className="flex items-center gap-1.5 font-bold text-slate-700 dark:text-slate-300 shrink-0">
-            <span className="text-cyan-600 dark:text-cyan-400">🔄</span>
-            <span>การอ่านย้อนกลับ (Reverse Logic Check):</span>
-          </div>
-          <div className="flex-1">
-            <input
-              type="text"
-              disabled={readOnly}
-              value={activeBranch.reverseLogicCheck || ''}
-              onChange={(e) => {
-                const newVal = e.target.value;
-                if (newVal.trim()) {
-                  setNodeErrors(prev => {
-                    const next = { ...prev };
-                    let changed = false;
-                    Object.keys(next).forEach(k => {
-                      if (next[k].includes('Reverse Logic') || next[k].includes('การอ่านย้อนกลับ')) {
-                        delete next[k];
-                        changed = true;
-                      }
+        <div className="px-4 py-2 bg-slate-100/90 dark:bg-slate-900/90 border-b border-slate-200 dark:border-slate-800 flex flex-col gap-1 text-xs">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+            <div className="flex items-center gap-1.5 font-bold text-slate-700 dark:text-slate-300 shrink-0">
+              <span className="text-cyan-600 dark:text-cyan-400">🔄</span>
+              <span>การอ่านย้อนกลับ (Reverse Logic Check):</span>
+            </div>
+            <div className="flex-1 flex items-center gap-2">
+              <input
+                type="text"
+                disabled={readOnly}
+                value={activeBranch.reverseLogicCheck || ''}
+                onChange={(e) => {
+                  const newVal = e.target.value;
+                  if (newVal.trim()) {
+                    setNodeErrors(prev => {
+                      const next = { ...prev };
+                      let changed = false;
+                      Object.keys(next).forEach(k => {
+                        if (next[k].includes('Reverse Logic') || next[k].includes('การอ่านย้อนกลับ')) {
+                          delete next[k];
+                          changed = true;
+                        }
+                      });
+                      return changed ? next : prev;
                     });
-                    return changed ? next : prev;
-                  });
-                }
-                handleUpdateActiveBranch({ reverseLogicCheck: newVal });
-              }}
-              placeholder="เช่น เพราะขันสลักเกลียวเพียงตัวเดียว → จึงทำให้ฝาครอบเปิดอ้า → จึงบังแสงเซ็นเซอร์ (จำเป็นต้องกรอกก่อนสรุป NG)"
-              className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 focus:border-cyan-500 rounded-lg px-2.5 py-1 text-xs text-slate-800 dark:text-slate-200 font-mono focus:outline-none transition shadow-2xs"
-            />
+                  }
+                  handleUpdateActiveBranch({ reverseLogicCheck: newVal });
+                }}
+                placeholder="เช่น เพราะขันสลักเกลียวเพียงตัวเดียว → จึงทำให้ฝาครอบเปิดอ้า → จึงบังแสงเซ็นเซอร์ (จำเป็นต้องกรอกก่อนสรุป NG)"
+                className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 focus:border-cyan-500 rounded-lg px-2.5 py-1 text-xs text-slate-800 dark:text-slate-200 font-mono focus:outline-none transition shadow-2xs"
+              />
+              {!readOnly && (
+                <button
+                  type="button"
+                  onClick={handleAutoDraftReverseLogic}
+                  className="shrink-0 flex items-center gap-1 px-2.5 py-1 bg-cyan-600 hover:bg-cyan-700 active:bg-cyan-800 text-white rounded-lg font-bold text-xs shadow-xs transition cursor-pointer"
+                  title="สร้างประโยค เพราะ...จึง... จากกล่อง Why ตามเส้นลูกศร"
+                >
+                  <Sparkles size={12} />
+                  <span>✨ ช่วยร่าง</span>
+                </button>
+              )}
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center justify-between gap-2 text-[10px] text-slate-500 dark:text-slate-400 pl-0 sm:pl-1">
+            <span className="opacity-80">
+              💡 ระบบจะร้อยกล่อง Why ตามลูกศรเป็นประโยค เพราะ...จึง... — ตรวจ/แก้ก่อนใช้
+            </span>
+            {draftAlert && (
+              <span className="text-amber-600 dark:text-amber-400 font-bold animate-in fade-in duration-150">
+                ⚠️ {draftAlert}
+              </span>
+            )}
           </div>
         </div>
       )}
