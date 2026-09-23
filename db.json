@@ -1538,7 +1538,118 @@
       "why4": "สายไม่ได้ยึดเข้ากับสายเกลียวเก็บสายและแคลมป์ยึดแน่นพอ",
       "why5": "ไม่มีการตรวจสอบความแน่นของขั้วสายไฟในแผน PM ประจำเครื่อง",
       "correctiveAction": "เข้าสายไฟใหม่ ยึดแคลมป์ท่อหดแรงสั่นสะเทือน และเพิ่มจุดตรวจสอบขั้วไฟฟ้าลงในแผน PM ประจำสัปดาห์",
-      "duration": 90
+      "duration": 90,
+      "whyWhy": {
+        "id": "ww-rep-01",
+        "repairId": "rep-01",
+        "machineId": "FFS02",
+        "phenomenon": "เครื่องซีลแนวนอนไม่ร้อน ซีลปากถุงไม่ได้",
+        "occurrenceType": "first",
+        "relatedRepairIds": [],
+        "branches": [
+          {
+            "id": "br-rep-01-occ",
+            "axis": "occurrence",
+            "root": {
+              "id": "node-rep-01-1",
+              "description": "หัวฮีตเตอร์ไม่ร้อนและอุณหภูมิหน้าจอตกต่อเนื่อง",
+              "children": [
+                {
+                  "id": "node-rep-01-2",
+                  "description": "ไม่มีกระแสไฟฟ้าไหลผ่านขดลวดฮีตเตอร์ตัวนำความร้อน",
+                  "children": [
+                    {
+                      "id": "node-rep-01-3",
+                      "description": "ตรวจพบว่าสายไฟด้านล่างหลวมจากแรงสั่นสะเทือนเครื่องจักร",
+                      "children": [
+                        {
+                          "id": "node-rep-01-4",
+                          "description": "สายไม่ได้ยึดเข้ากับสายเกลียวเก็บสายและแคลมป์ยึดแน่นพอ",
+                          "children": [
+                            {
+                              "id": "node-rep-01-5",
+                              "description": "ไม่มีการตรวจสอบความแน่นของขั้วสายไฟในแผน PM ประจำเครื่อง",
+                              "children": [],
+                              "changePointOk": true,
+                              "judgement": "PENDING",
+                              "isRootCause": false,
+                              "countermeasure": "เข้าสายไฟใหม่ ยึดแคลมป์ท่อหดแรงสั่นสะเทือน และเพิ่มจุดตรวจสอบขั้วไฟฟ้าลงในแผน PM ประจำสัปดาห์"
+                            }
+                          ],
+                          "changePointOk": true,
+                          "judgement": "PENDING",
+                          "isRootCause": false
+                        }
+                      ],
+                      "changePointOk": true,
+                      "judgement": "OK",
+                      "isRootCause": false
+                    }
+                  ],
+                  "changePointOk": true,
+                  "judgement": "OK",
+                  "isRootCause": false
+                }
+              ],
+              "changePointOk": true,
+              "judgement": "OK",
+              "isRootCause": false,
+              "humanErrorFlag": false
+            },
+            "reverseLogicCheck": "เพราะ ไม่มีการตรวจสอบความแน่นของขั้วสายไฟในแผน PM ประจำเครื่อง จึง สายไม่ได้ยึดเข้ากับสายเกลียวเก็บสายและแคลมป์ยึดแน่นพอ จึง ตรวจพบว่าสายไฟด้านล่างหลวมจากแรงสั่นสะเทือนเครื่องจักร จึง ไม่มีกระแสไฟฟ้าไหลผ่านขดลวดฮีตเตอร์ตัวนำความร้อน จึง หัวฮีตเตอร์ไม่ร้อนและอุณหภูมิหน้าจอตกต่อเนื่อง",
+            "roots": [
+              {
+                "id": "node-rep-01-1",
+                "description": "หัวฮีตเตอร์ไม่ร้อนและอุณหภูมิหน้าจอตกต่อเนื่อง",
+                "children": [
+                  {
+                    "id": "node-rep-01-2",
+                    "description": "ไม่มีกระแสไฟฟ้าไหลผ่านขดลวดฮีตเตอร์ตัวนำความร้อน",
+                    "children": [
+                      {
+                        "id": "node-rep-01-3",
+                        "description": "ตรวจพบว่าสายไฟด้านล่างหลวมจากแรงสั่นสะเทือนเครื่องจักร",
+                        "children": [
+                          {
+                            "id": "node-rep-01-4",
+                            "description": "สายไม่ได้ยึดเข้ากับสายเกลียวเก็บสายและแคลมป์ยึดแน่นพอ",
+                            "children": [
+                              {
+                                "id": "node-rep-01-5",
+                                "description": "ไม่มีการตรวจสอบความแน่นของขั้วสายไฟในแผน PM ประจำเครื่อง",
+                                "children": [],
+                                "changePointOk": true,
+                                "judgement": "PENDING",
+                                "isRootCause": false,
+                                "countermeasure": "เข้าสายไฟใหม่ ยึดแคลมป์ท่อหดแรงสั่นสะเทือน และเพิ่มจุดตรวจสอบขั้วไฟฟ้าลงในแผน PM ประจำสัปดาห์"
+                              }
+                            ],
+                            "changePointOk": true,
+                            "judgement": "PENDING",
+                            "isRootCause": false
+                          }
+                        ],
+                        "changePointOk": true,
+                        "judgement": "OK",
+                        "isRootCause": false
+                      }
+                    ],
+                    "changePointOk": true,
+                    "judgement": "OK",
+                    "isRootCause": false
+                  }
+                ],
+                "changePointOk": true,
+                "judgement": "OK",
+                "isRootCause": false,
+                "humanErrorFlag": false
+              }
+            ]
+          }
+        ],
+        "analyzedBy": "ช่าง 1",
+        "updatedAt": "2026-09-23T09:23:45.650Z"
+      }
     },
     {
       "id": "rep-02",
@@ -2119,7 +2230,7 @@
   "zones": [
     {
       "id": "โซนตรวจสอบคุณภาพ",
-      "name": "โซนตรวจสอบคุณภาพ",
+      "name": "โซนตรวจสอบคุณภ��พ",
       "rooms": [
         "ห้องตรวจจับโลหะไลน์ 1",
         "ห้องตรวจจับโลหะไลน์ 2",
