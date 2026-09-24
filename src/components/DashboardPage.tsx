@@ -71,7 +71,7 @@ export const DashboardPage: React.FC = () => {
 
   // --- 2. WORKLOAD CALCULATION ---
   const pmHrsThisMonth = monthPMs.reduce((sum, s) => sum + s.duration, 0) / 60;
-  const repairHrsThisMonth = kpiSummary.totalBdHours;
+  const repairHrsThisMonth = monthRepairs.reduce((sum, r) => sum + r.duration, 0) / 60;
   
   const opHrsThisMonth = schedules.filter(s => {
     if (s.type !== 'Operation') return false;

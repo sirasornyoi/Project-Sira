@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useApp } from '../context/AppContext';
 import { calculateMachineKpi, calculateMultiMachineKpi } from '../utils/pmKpi';
+import { getTodayDateString } from '../utils/pmAlerts';
 import { 
   Calendar, AlertTriangle, CheckCircle2, TrendingDown, 
   Activity, Clock, ShieldCheck, Gauge, Info, Search
@@ -9,20 +10,41 @@ import {
 export const PMKpiPanel: React.FC = () => {
   const { machines, repairs, plannedProductionTimes, setPlannedProductionTimes } = useApp();
 
-  // Selected month for KPI analysis (default to current active dataset month 2026-09)
-  const [selectedMonth, setSelectedMonth] = useState<string>('2026-09');
+  // Selected month for KPI analysis (default to current active month YYYY-MM from getTodayDateString)
+  const [selectedMonth, setSelectedMonth] = useState<string>(() => getTodayDateString().slice(0, 7));
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [filterLine, setFilterLine] = useState<string>('all');
 
-  // Month list for selector (from past 12 months)
+  // Internal draft state for planned hours inputs while typing: Record<machineId, string>
+  const [draftInputs, setDraftInputs] = useState<Record<string, string>>({});
+
+  // Month list for selector: 12 months in the past to 2 months in the future from current month + any months in plannedProductionTimes, sorted newest to oldest
   const monthOptions = useMemo(() => {
-    const months: string[] = [];
-    const baseYear = 2026;
-    for (let m = 12; m >= 1; m--) {
-      months.push(`${baseYear}-${String(m).padStart(2, '0')}`);
+    const currentMonth = getTodayDateString().slice(0, 7);
+    const [currentYear, currentMonthNum] = currentMonth.split('-').map(Number);
+    const monthsSet = new Set<string>();
+
+    for (let offset = 2; offset >= -12; offset--) {
+      const d = new Date(currentYear, currentMonthNum - 1 + offset, 1);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      monthsSet.add(`${y}-${m}`);
     }
-    return months;
-  }, []);
+
+    plannedProductionTimes.forEach(pt => {
+      if (pt.month) {
+        monthsSet.add(pt.month);
+      }
+    });
+
+    return Array.from(monthsSet).sort((a, b) => b.localeCompare(a));
+  }, [plannedProductionTimes]);
+
+  // Reset drafts when switching month
+  const handleMonthChange = (newMonth: string) => {
+    setDraftInputs({});
+    setSelectedMonth(newMonth);
+  };
 
   // Filtered machine list for table
   const lines = useMemo(() => {
@@ -106,6 +128,28 @@ export const PMKpiPanel: React.FC = () => {
     });
   };
 
+  // Commit draft to context state
+  const commitDraft = (machineId: string) => {
+    if (machineId in draftInputs) {
+      const draftVal = draftInputs[machineId];
+      handlePlannedHoursChange(machineId, draftVal);
+      setDraftInputs(prev => {
+        const next = { ...prev };
+        delete next[machineId];
+        return next;
+      });
+    }
+  };
+
+  // Cancel draft and revert to stored value
+  const cancelDraft = (machineId: string) => {
+    setDraftInputs(prev => {
+      const next = { ...prev };
+      delete next[machineId];
+      return next;
+    });
+  };
+
   return (
     <div className="space-y-6">
       {/* Top Header & Controls */}
@@ -130,7 +174,7 @@ export const PMKpiPanel: React.FC = () => {
             <select
               id="kpi-month-selector"
               value={selectedMonth}
-              onChange={(e) => setSelectedMonth(e.target.value)}
+              onChange={(e) => handleMonthChange(e.target.value)}
               className="bg-slate-50 dark:bg-slate-900 border border-border dark:border-slate-700 text-fg text-xs font-semibold rounded-xl px-3 py-2 focus:outline-none focus:border-cyan-500 cursor-pointer"
             >
               {monthOptions.map(m => (
@@ -337,12 +381,33 @@ export const PMKpiPanel: React.FC = () => {
                       <td className="py-2.5 px-3 text-center">
                         <div className="inline-flex flex-col items-center">
                           <input
-                            type="number"
-                            min="0"
-                            step="0.5"
+                            type="text"
+                            inputMode="decimal"
                             placeholder="กรอก ชม."
-                            value={plannedVal !== null ? plannedVal : ''}
-                            onChange={(e) => handlePlannedHoursChange(machine.id, e.target.value)}
+                            value={
+                              machine.id in draftInputs
+                                ? draftInputs[machine.id]
+                                : (plannedVal !== null ? String(plannedVal) : '')
+                            }
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              if (val === '' || /^\d*\.?\d*$/.test(val)) {
+                                setDraftInputs(prev => ({
+                                  ...prev,
+                                  [machine.id]: val
+                                }));
+                              }
+                            }}
+                            onBlur={() => commitDraft(machine.id)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                commitDraft(machine.id);
+                                e.currentTarget.blur();
+                              } else if (e.key === 'Escape') {
+                                cancelDraft(machine.id);
+                                e.currentTarget.blur();
+                              }
+                            }}
                             className={`w-24 text-center font-mono py-1 px-2 text-xs rounded-lg border bg-surface dark:bg-slate-950 text-fg focus:outline-none focus:ring-1 ${
                               isWarning 
                                 ? 'border-amber-500 text-amber-600 focus:ring-amber-500' 

@@ -20,9 +20,10 @@ import { PMHistoryPage } from './PMHistoryPage';
 
 export interface PMPlanPageProps {
   initialSubTab?: 'plan' | 'kpi';
+  navToken?: number;
 }
 
-export const PMPlanPage: React.FC<PMPlanPageProps> = ({ initialSubTab = 'plan' }) => {
+export const PMPlanPage: React.FC<PMPlanPageProps> = ({ initialSubTab = 'plan', navToken = 0 }) => {
   const { machines, pmPlans, setPmPlans, pmMachineIds, setPmMachineIds } = useApp();
 
   const [activeSubTab, setActiveSubTab] = useState<'plan' | 'kpi'>(initialSubTab);
@@ -31,7 +32,7 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({ initialSubTab = 'plan' }
     if (initialSubTab) {
       setActiveSubTab(initialSubTab);
     }
-  }, [initialSubTab]);
+  }, [initialSubTab, navToken]);
   
   // Selected machine filter
   const [selectedMachineId, setSelectedMachineId] = useState<string>(() => {

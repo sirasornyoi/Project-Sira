@@ -60,6 +60,7 @@ function AppContent() {
 
   // Sub-tab control for PMPlanPage (plan vs kpi)
   const [pmPlanSubTab, setPmPlanSubTab] = useState<'plan' | 'kpi'>('plan');
+  const [pmPlanNavToken, setPmPlanNavToken] = useState<number>(0);
 
   // Dynamic live clock for Thailand local context
   const [liveTime, setLiveTime] = useState<string>('21:46:56');
@@ -94,7 +95,7 @@ function AppContent() {
   const renderActivePage = () => {
     switch (activePage) {
       case 1: return <MachinePage />;
-      case 2: return <PMPlanPage initialSubTab={pmPlanSubTab} />;
+      case 2: return <PMPlanPage initialSubTab={pmPlanSubTab} navToken={pmPlanNavToken} />;
       case 3: return <SchedulePage />;
       case 4: return <RepairPage />;
       case 11: return <TimeBreakPage />;
@@ -168,7 +169,7 @@ function AppContent() {
             {navigationItems.map((item) => {
               const IconComp = item.icon;
               const isSelected = item.id === 6 ? (activePage === 6 || activePage === 9) : activePage === item.id;
-              const hasOverdueBadge = (item.id === 11 || item.id === 3) && totalOverdueCount > 0;
+              const hasOverdueBadge = (item.id === 2 || item.id === 3) && totalOverdueCount > 0;
               
               return (
                 <button
@@ -177,6 +178,7 @@ function AppContent() {
                   onClick={() => {
                     if (item.id === 2) {
                       setPmPlanSubTab('plan');
+                      setPmPlanNavToken(prev => prev + 1);
                     }
                     setActivePage(item.id);
                   }}
@@ -347,6 +349,7 @@ function AppContent() {
           onClose={() => setShowOverdueModal(false)}
           onNavigateToPMHistory={() => {
             setPmPlanSubTab('kpi');
+            setPmPlanNavToken(prev => prev + 1);
             setActivePage(2);
             setShowOverdueModal(false);
           }}
