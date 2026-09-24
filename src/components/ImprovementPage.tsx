@@ -203,11 +203,11 @@ export const ImprovementPage: React.FC = () => {
 
     setImprovements(prev => prev.map(p => {
       if (p.id === selectedProject.id) {
-        return { ...p, workLogs: [...p.workLogs, newLogItem] };
+        return { ...p, workLogs: [...(p.workLogs || []), newLogItem] };
       }
       return p;
     }));
-    setSelectedProject(prev => prev ? { ...prev, workLogs: [...prev.workLogs, newLogItem] } : null);
+    setSelectedProject(prev => prev ? { ...prev, workLogs: [...(prev.workLogs || []), newLogItem] } : null);
 
     setLogNote('');
   };
@@ -220,11 +220,11 @@ export const ImprovementPage: React.FC = () => {
     if (!workLogToDelete || !selectedProject) return;
     setImprovements(prev => prev.map(p => {
       if (p.id === selectedProject.id) {
-        return { ...p, workLogs: p.workLogs.filter(w => w.id !== workLogToDelete) };
+        return { ...p, workLogs: (p.workLogs || []).filter(w => w.id !== workLogToDelete) };
       }
       return p;
     }));
-    setSelectedProject(prev => prev ? { ...prev, workLogs: prev.workLogs.filter(w => w.id !== workLogToDelete) } : null);
+    setSelectedProject(prev => prev ? { ...prev, workLogs: (prev.workLogs || []).filter(w => w.id !== workLogToDelete) } : null);
     setWorkLogToDelete(null);
   };
 
@@ -251,7 +251,7 @@ export const ImprovementPage: React.FC = () => {
     
     // In progress: standard ratio based on accumulated hours vs plan
     // Let's assume a plan target of 20 hours for progress representation
-    const totalHrs = proj.workLogs.reduce((sum, log) => sum + log.hours, 0);
+    const totalHrs = (proj.workLogs || []).reduce((sum, log) => sum + (Number(log.hours) || 0), 0);
     return Math.min(95, Math.max(10, Math.round((totalHrs / 16) * 100)));
   };
 
@@ -351,7 +351,7 @@ export const ImprovementPage: React.FC = () => {
             ) : (
               getProjsByStatus('กำลังดำเนินการ').map(proj => {
                 const progress = calculateProgress(proj);
-                const hrs = proj.workLogs.reduce((sum, log) => sum + log.hours, 0);
+                const hrs = (proj.workLogs || []).reduce((sum, log) => sum + (Number(log.hours) || 0), 0);
 
                 return (
                   <div 
@@ -420,7 +420,7 @@ export const ImprovementPage: React.FC = () => {
               </div>
             ) : (
               getProjsByStatus('เสร็จแล้ว').map(proj => {
-                const hrs = proj.workLogs.reduce((sum, log) => sum + log.hours, 0);
+                const hrs = (proj.workLogs || []).reduce((sum, log) => sum + (Number(log.hours) || 0), 0);
                 return (
                   <div 
                     key={proj.id}
@@ -739,7 +739,7 @@ export const ImprovementPage: React.FC = () => {
                   <p className="text-[10px] text-slate-400">ชั่วโมงสะสมทั้งหมด</p>
                   <p className="text-xs font-sans font-extrabold text-cyan-400 mt-1.5 flex items-center gap-1">
                     <Clock size={12} className="text-slate-400" />
-                    {selectedProject.workLogs.reduce((sum, l) => sum + l.hours, 0)} ชั่วโมง
+                    {(selectedProject.workLogs || []).reduce((sum, l) => sum + (Number(l.hours) || 0), 0)} ชั่วโมง
                   </p>
                 </div>
               </div>
@@ -1019,14 +1019,14 @@ export const ImprovementPage: React.FC = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-700/40 text-slate-300">
-                      {selectedProject.workLogs.length === 0 ? (
+                      {(selectedProject.workLogs || []).length === 0 ? (
                         <tr>
                           <td colSpan={4} className="py-6 text-center text-slate-550 italic">
                             ยังไม่มีการบันทึกชั่วโมงย่อยในวันนี้ (ความคืบหน้าปฏิทินจึงยังไม่ขึ้นไฟเตือน)
                           </td>
                         </tr>
                       ) : (
-                        selectedProject.workLogs.map(log => (
+                        (selectedProject.workLogs || []).map(log => (
                           <tr key={log.id} className="hover:bg-slate-900/30">
                             <td className="py-2.5 px-4 font-mono text-slate-400">{log.date}</td>
                             <td className="py-2.5 px-3 text-center font-mono font-bold text-cyan-400">{log.hours} ชม.</td>

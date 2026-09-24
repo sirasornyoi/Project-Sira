@@ -90,7 +90,7 @@ export const DashboardPage: React.FC = () => {
 
   let impHrsThisMonth = 0;
   improvements.forEach(proj => {
-    proj.workLogs.forEach(wl => {
+    (proj.workLogs || []).forEach(wl => {
       if (wl.date.startsWith(selectedMonth)) {
         impHrsThisMonth += wl.hours;
       }
@@ -156,7 +156,7 @@ export const DashboardPage: React.FC = () => {
     improvements.forEach(p => {
       const isMyImprovement = p.technicians ? p.technicians.includes(tech) : p.technician === tech;
       if (isMyImprovement) {
-        p.workLogs.forEach(wl => {
+        (p.workLogs || []).forEach(wl => {
           if (wl.date.startsWith(selectedMonth)) imp += wl.hours * 60;
         });
       }
@@ -274,7 +274,7 @@ export const DashboardPage: React.FC = () => {
       const isMyImprovement = proj.technicians ? proj.technicians.includes(tech) : proj.technician === tech;
       if (!isMyImprovement) return;
       impCount++;
-      proj.workLogs.forEach(wl => {
+      (proj.workLogs || []).forEach(wl => {
         if (wl.date.startsWith(selectedMonth)) {
           impMins += wl.hours * 60;
         }
@@ -1588,7 +1588,7 @@ export const DashboardPage: React.FC = () => {
 
         const techMonthImprovements = improvements.filter(proj => 
           (proj.technicians ? proj.technicians.includes(techName) : proj.technician === techName) &&
-          proj.workLogs.some(wl => wl.date.startsWith(selectedMonth))
+          (proj.workLogs || []).some(wl => wl.date.startsWith(selectedMonth))
         ).length;
 
         const totalMonthCompletedTasks = techMonthPM + techMonthRepairs + techMonthImprovements;
