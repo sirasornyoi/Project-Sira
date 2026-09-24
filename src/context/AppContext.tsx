@@ -320,42 +320,43 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         let currentLoadedMachines: Machine[] = PRELOADED_MACHINES;
 
         if (storedMachines) {
-          const parsed = JSON.parse(storedMachines);
-          const cleanZone = (z?: string) => z ? z.replace(/^โรงงาน\s*\d*\s*>\s*/i, '').trim() : z;
-          currentLoadedMachines = parsed.map((m: Machine) => {
-            const pre = PRELOADED_MACHINES.find(p => p.id === m.id);
-            if (!pre) return { ...m, locationZone: cleanZone(m.locationZone) };
-            return {
-              ...m,
-              model: m.model || pre.model,
-              powerVoltage: m.powerVoltage || pre.powerVoltage,
-              installDate: m.installDate || pre.installDate,
-              vendor: m.vendor || pre.vendor,
-              locationZone: cleanZone(m.locationZone || pre.locationZone),
-              locationRoom: m.locationRoom || pre.locationRoom,
-              serialNumber: m.serialNumber || pre.serialNumber,
-              notes: m.notes || pre.notes
-            };
-          });
-          setMachines(currentLoadedMachines);
-        } else setMachines(PRELOADED_MACHINES);
-
-        if (storedTechs) setTechnicians(JSON.parse(storedTechs));
-        else setTechnicians(PRELOADED_TECHNICIANS);
-
-        if (storedEmployees) setEmployees(JSON.parse(storedEmployees));
-        else {
-          const defaultEmployees = PRELOADED_TECHNICIANS.map((tech, idx) => ({
-            id: `ENG-${String(idx + 1).padStart(3, '0')}`,
-            name: tech,
-            position: 'ช่างบำรุงรักษา',
-            password: '1234'
-          }));
-          setEmployees(defaultEmployees);
+          try {
+            const parsed = JSON.parse(storedMachines);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              const cleanZone = (z?: string) => z ? z.replace(/^โรงงาน\s*\d*\s*>\s*/i, '').trim() : z;
+              currentLoadedMachines = parsed.map((m: Machine) => {
+                const pre = PRELOADED_MACHINES.find(p => p.id === m.id);
+                if (!pre) return { ...m, locationZone: cleanZone(m.locationZone) };
+                return {
+                  ...m,
+                  model: m.model || pre.model,
+                  powerVoltage: m.powerVoltage || pre.powerVoltage,
+                  installDate: m.installDate || pre.installDate,
+                  vendor: m.vendor || pre.vendor,
+                  locationZone: cleanZone(m.locationZone || pre.locationZone),
+                  locationRoom: m.locationRoom || pre.locationRoom,
+                  serialNumber: m.serialNumber || pre.serialNumber,
+                  notes: m.notes || pre.notes
+                };
+              });
+            }
+          } catch {
+            currentLoadedMachines = PRELOADED_MACHINES;
+          }
         }
+        setMachines(currentLoadedMachines);
 
-        if (storedPlans) setPmPlans(deduplicateById(JSON.parse(storedPlans)));
-        else setPmPlans(PRELOADED_PM_PLANS);
+        setTechnicians(safeJsonParse(storedTechs, PRELOADED_TECHNICIANS));
+
+        const defaultEmployees = PRELOADED_TECHNICIANS.map((tech, idx) => ({
+          id: `ENG-${String(idx + 1).padStart(3, '0')}`,
+          name: tech,
+          position: 'ช่างบำรุงรักษา',
+          password: '1234'
+        }));
+        setEmployees(safeJsonParse(storedEmployees, defaultEmployees));
+
+        setPmPlans(deduplicateById(safeJsonParse(storedPlans, PRELOADED_PM_PLANS)));
 
         if (storedPmMachines) {
           try {
@@ -369,33 +370,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           setPmMachineIds(currentLoadedMachines.map(m => m.id));
         }
 
-        if (storedSchedules) setSchedules(deduplicateById(JSON.parse(storedSchedules)));
-        else setSchedules(PRELOADED_SCHEDULES);
+        setSchedules(deduplicateById(safeJsonParse(storedSchedules, PRELOADED_SCHEDULES)));
+        setRepairs(deduplicateById(safeJsonParse(storedRepairs, PRELOADED_REPAIRS)));
+        setImprovements(deduplicateById(safeJsonParse(storedImprovements, PRELOADED_IMPROVEMENTS)));
+        setSpareParts(deduplicateById(safeJsonParse(storedSpareParts, PRELOADED_SPARE_PARTS)));
+        setTimeBreakParts(deduplicateById(safeJsonParse(storedTimeBreakParts, PRELOADED_TIME_BREAK_PARTS)));
 
-        if (storedRepairs) setRepairs(deduplicateById(JSON.parse(storedRepairs)));
-        else setRepairs(PRELOADED_REPAIRS);
+        const preloadingLeaves = [
+          { id: 'lv-001', technician: 'ช่าง 1', date: '2026-06-08', type: 'ลากิจ' as const, note: 'ติดต่อราชการครอบครัว' },
+          { id: 'lv-002', technician: 'ช่าง 2', date: '2026-06-11', type: 'ลาป่วย' as const, note: 'ปวดศีรษะ เป็นไข้หวัด' },
+          { id: 'lv-003', technician: 'ช่าง 3', date: '2026-06-12', type: 'ลาพักร้อน' as const, note: 'พักผ่อนประจำปีต่างจังหวัด (ภูเก็ต)' },
+          { id: 'lv-004', technician: 'ช่าง 4', date: '2026-06-14', type: 'วันหยุดประจำสัปดาห์' as const, note: 'สลับวันหยุดประจำโรงงาน' },
+        ];
+        setLeaves(deduplicateById(safeJsonParse(storedLeaves, preloadingLeaves)));
 
-        if (storedImprovements) setImprovements(deduplicateById(JSON.parse(storedImprovements)));
-        else setImprovements(PRELOADED_IMPROVEMENTS);
-
-        if (storedSpareParts) setSpareParts(deduplicateById(JSON.parse(storedSpareParts)));
-        else setSpareParts(PRELOADED_SPARE_PARTS);
-
-        if (storedTimeBreakParts) setTimeBreakParts(deduplicateById(JSON.parse(storedTimeBreakParts)));
-        else setTimeBreakParts(PRELOADED_TIME_BREAK_PARTS);
-
-        if (storedLeaves) setLeaves(deduplicateById(JSON.parse(storedLeaves)));
-        else {
-          const preloadingLeaves = [
-            { id: 'lv-001', technician: 'ช่าง 1', date: '2026-06-08', type: 'ลากิจ' as const, note: 'ติดต่อราชการครอบครัว' },
-            { id: 'lv-002', technician: 'ช่าง 2', date: '2026-06-11', type: 'ลาป่วย' as const, note: 'ปวดศีรษะ เป็นไข้หวัด' },
-            { id: 'lv-003', technician: 'ช่าง 3', date: '2026-06-12', type: 'ลาพักร้อน' as const, note: 'พักผ่อนประจำปีต่างจังหวัด (ภูเก็ต)' },
-            { id: 'lv-004', technician: 'ช่าง 4', date: '2026-06-14', type: 'วันหยุดประจำสัปดาห์' as const, note: 'สลับวันหยุดประจำโรงงาน' },
-          ];
-          setLeaves(preloadingLeaves);
+        if (storedSettings) {
+          try {
+            setSettings(JSON.parse(storedSettings));
+          } catch {}
         }
-
-        if (storedSettings) setSettings(JSON.parse(storedSettings));
 
         const storedDrafts = localStorage.getItem('tpm_whyWhyDrafts');
         if (storedDrafts) {
