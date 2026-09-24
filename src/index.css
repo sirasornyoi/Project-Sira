@@ -368,6 +368,37 @@ body {
   background-color: var(--bg);
   color: var(--fg);
   font-family: var(--font-sans);
+  line-height: 1.6;
+}
+
+/* Ensure buttons, inputs, selects, and textareas do not clip Thai vowels or tone marks */
+button, input, select, textarea {
+  line-height: 1.5;
+}
+
+/* Standardized Table Polish (Conservative, works across Light and Dark mode) */
+table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+table tbody tr {
+  transition: background-color 150ms ease-in-out;
+}
+
+body:not(.light-theme) table tbody tr:hover,
+.dark table tbody tr:hover,
+[data-theme="dark"] table tbody tr:hover {
+  background-color: rgba(30, 41, 59, 0.35);
+}
+
+.light-theme table tbody tr:hover {
+  background-color: rgba(241, 245, 249, 0.65);
+}
+
+table th.text-right,
+table td.text-right {
+  font-variant-numeric: tabular-nums;
 }
 
 /* SIDEBAR UNIVERSAL STYLES (binds to --sidebar-* tokens) */

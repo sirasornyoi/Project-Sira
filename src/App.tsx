@@ -177,7 +177,7 @@ function AppContent() {
                   title={item.label}
                   className={`w-full flex items-center justify-between rounded-xl p-2.5 transition-all text-xs font-semibold ${
                     isSelected
-                      ? 'sidebar-active bg-sidebar-active text-sidebar-active font-bold shadow-md'
+                      ? 'sidebar-active bg-sidebar-active text-sidebar-active font-bold shadow-sm'
                       : 'text-sidebar-fg hover:text-sidebar-fg hover:bg-[var(--sidebar-hover-bg)]'
                   }`}
                 >
@@ -186,8 +186,8 @@ function AppContent() {
                     
                     {sidebarOpen && (
                       <div className="ml-3 text-left">
-                        <p className={`leading-none text-xs ${isSelected ? 'text-sidebar-active font-bold' : 'text-sidebar-fg'}`}>{item.label}</p>
-                        <p className={`sidebar-desc text-[9px] mt-0.5 leading-none ${isSelected ? 'text-sidebar-active opacity-90' : 'text-sidebar-muted'}`}>{item.desc}</p>
+                        <p className={`leading-snug text-xs ${isSelected ? 'text-sidebar-active font-bold' : 'text-sidebar-fg'}`}>{item.label}</p>
+                        <p className={`sidebar-desc text-[9px] mt-0.5 leading-snug ${isSelected ? 'text-sidebar-active opacity-90' : 'text-sidebar-muted'}`}>{item.desc}</p>
                       </div>
                     )}
                   </div>
@@ -195,7 +195,7 @@ function AppContent() {
                   {/* Overdue badge indicator */}
                   {hasOverdueBadge && (
                     <span 
-                      className={`px-1.5 py-0.2 rounded-full text-[9px] font-mono font-bold shrink-0 ${
+                      className={`px-1.5 py-0.5 rounded-full text-[9px] font-mono font-bold shrink-0 ${
                         isSelected 
                           ? 'bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-200 border border-rose-300 dark:border-rose-500/30' 
                           : 'bg-rose-500 text-white animate-pulse'
@@ -271,14 +271,14 @@ function AppContent() {
             {/* Date badge */}
             <div className="text-right hidden md:block">
               <p className="text-[8px] text-slate-500 leading-none uppercase font-bold text-right">CALENDAR DATE</p>
-              <p className="text-[10px] text-slate-350 leading-none mt-1">{liveDate}</p>
+              <p className="text-[10px] text-slate-350 leading-normal mt-0.5">{liveDate}</p>
             </div>
 
             {/* Overdue PM Alert Trigger Button */}
             <button
               id="btn-trigger-overdue-pm-modal"
               onClick={() => setShowOverdueModal(true)}
-              className={`relative p-2 rounded-lg transition-all cursor-pointer shadow-md flex items-center gap-1.5 ${
+              className={`relative p-2 rounded-lg transition-all cursor-pointer shadow-xs flex items-center gap-1.5 ${
                 totalOverdueCount > 0
                   ? 'bg-rose-500/15 border border-rose-500/40 text-rose-300 hover:bg-rose-500/25 hover:border-rose-500'
                   : 'bg-slate-900 border border-slate-850 hover:bg-slate-850 text-slate-400 hover:text-cyan-400'
@@ -301,7 +301,7 @@ function AppContent() {
             <button
               id="btn-toggle-theme"
               onClick={() => setIsDarkMode(!isDarkMode)}
-              className="bg-slate-900 border border-slate-850 hover:bg-slate-850 p-2 rounded-lg text-slate-350 hover:text-cyan-400 transition-all cursor-pointer shadow-md flex items-center justify-center"
+              className="bg-slate-900 border border-slate-850 hover:bg-slate-850 p-2 rounded-lg text-slate-350 hover:text-cyan-400 transition-all cursor-pointer shadow-xs flex items-center justify-center"
               title={isDarkMode ? "เปลี่ยนเป็นโหมดสว่าง (Light Mode)" : "เปลี่ยนเป็นโหมดมืด (Dark Mode)"}
             >
               {isDarkMode ? <Sun size={16} className="text-yellow-400" /> : <Moon size={16} className="text-indigo-400" />}
@@ -311,7 +311,7 @@ function AppContent() {
             <button
               id="btn-trigger-settings-modal"
               onClick={() => setShowSettings(true)}
-              className="bg-slate-900 border border-slate-850 hover:bg-slate-850 p-2 rounded-lg text-slate-350 hover:text-cyan-400 transition-all cursor-pointer shadow-md"
+              className="bg-slate-900 border border-slate-850 hover:bg-slate-850 p-2 rounded-lg text-slate-350 hover:text-cyan-400 transition-all cursor-pointer shadow-xs"
               title="ตั้งค่ากะช่างและกำหนด Std.MTTR ในระบบ"
             >
               <Settings size={16} />

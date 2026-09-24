@@ -170,7 +170,7 @@ export const ZoneRoomManagerModal: React.FC<ZoneRoomManagerModalProps> = ({
     >
       <div 
         id="zone-room-manager-container"
-        className="bg-surface dark:bg-slate-900 text-fg dark:text-slate-100 rounded-2xl shadow-2xl w-full max-w-4xl border border-border dark:border-slate-700/90 overflow-hidden flex flex-col max-h-[90vh] relative"
+        className="bg-surface dark:bg-slate-900 text-fg dark:text-slate-100 rounded-2xl shadow-xl w-full max-w-4xl border border-border dark:border-slate-700/90 overflow-hidden flex flex-col max-h-[90vh] relative"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}

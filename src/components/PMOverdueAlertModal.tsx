@@ -96,7 +96,7 @@ export const PMOverdueAlertModal: React.FC<PMOverdueAlertModalProps> = ({
         onClick={onClose}
       >
         <div 
-          className="w-full max-w-3xl bg-surface dark:bg-[#0b1222] border border-border dark:border-rose-500/30 rounded-2xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-150 text-fg dark:text-slate-100 my-6 flex flex-col max-h-[90vh]"
+          className="w-full max-w-3xl bg-surface dark:bg-[#0b1222] border border-border dark:border-rose-500/30 rounded-2xl overflow-hidden shadow-xl animate-in zoom-in-95 duration-150 text-fg dark:text-slate-100 my-6 flex flex-col max-h-[90vh]"
           onClick={(e) => e.stopPropagation()}
           id="pm-overdue-alert-modal-container"
         >

@@ -141,7 +141,7 @@ export const ZoneRoomFieldGroup: React.FC<ZoneRoomFieldGroupProps> = ({
                 }
               }}
               placeholder="พิมพ์ชื่อโซนใหม่..."
-              className="flex-1 bg-white dark:bg-slate-950 border-2 border-cyan-500 rounded-lg px-3 py-1.5 text-fg placeholder:text-slate-400 font-semibold text-xs focus:outline-none focus:ring-2 focus:ring-cyan-300 shadow-inner"
+              className="flex-1 bg-white dark:bg-slate-950 border border-cyan-500 rounded-lg px-3 py-1.5 text-fg placeholder:text-slate-400 font-semibold text-xs focus:outline-none focus:ring-2 focus:ring-cyan-300 shadow-xs"
               autoFocus
               onKeyDown={e => {
                 if (e.key === 'Enter') handleSaveCustomZone();
@@ -246,7 +246,7 @@ export const ZoneRoomFieldGroup: React.FC<ZoneRoomFieldGroupProps> = ({
                 }
               }}
               placeholder={zone ? `พิมพ์ห้องใหม่ใน ${zone}...` : 'พิมพ์ชื่อห้องใหม่...'}
-              className="flex-1 bg-white dark:bg-slate-950 border-2 border-cyan-500 rounded-lg px-3 py-1.5 text-fg placeholder:text-slate-400 font-semibold text-xs focus:outline-none focus:ring-2 focus:ring-cyan-300 shadow-inner"
+              className="flex-1 bg-white dark:bg-slate-950 border border-cyan-500 rounded-lg px-3 py-1.5 text-fg placeholder:text-slate-400 font-semibold text-xs focus:outline-none focus:ring-2 focus:ring-cyan-300 shadow-xs"
               autoFocus
               onKeyDown={e => {
                 if (e.key === 'Enter') handleSaveCustomRoom();

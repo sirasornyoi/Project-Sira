@@ -281,7 +281,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg/80 backdrop-blur-sm p-4" id="settings-modal-overlay">
-      <div className="bg-surface dark:bg-slate-800 border border-border dark:border-slate-700 rounded-3xl max-w-2xl w-full h-[600px] flex flex-col overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-155" id="settings-modal">
+      <div className="bg-surface dark:bg-slate-800 border border-border dark:border-slate-700 rounded-2xl max-w-2xl w-full h-[600px] flex flex-col overflow-hidden shadow-xl animate-in fade-in zoom-in duration-155" id="settings-modal">
         
         {/* Top Header */}
         <div className="bg-slate-50 dark:bg-slate-900 border-b border-border dark:border-slate-700/80 p-5 shrink-0 flex justify-between items-center">
@@ -408,9 +408,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
                       <tr className="bg-slate-100 dark:bg-slate-900 border-b border-border dark:border-slate-700 text-slate-600 dark:text-slate-400 font-semibold uppercase text-[10px]">
-                        <th className="py-2 px-4 w-12 text-center">ลำดับ</th>
-                        <th className="py-2 px-4">ชื่อเรียก / ประจำเครื่อง</th>
-                        <th className="py-2 px-4 w-16 text-center">จัดการ</th>
+                        <th className="py-2.5 px-4 w-12 text-center">ลำดับ</th>
+                        <th className="py-2.5 px-4">ชื่อเรียก / ประจำเครื่อง</th>
+                        <th className="py-2.5 px-4 w-16 text-center">จัดการ</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-border dark:divide-slate-700/40 text-slate-700 dark:text-slate-300">
@@ -423,8 +423,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                       ) : (
                         tempTechs.map((item, i) => (
                           <tr key={i} className="hover:bg-slate-50 dark:hover:bg-slate-900/40">
-                            <td className="py-2 px-4 text-center text-slate-400 font-mono">{i + 1}</td>
-                            <td className="py-2 px-4 font-bold">
+                            <td className="py-2.5 px-4 text-center text-slate-400 font-mono">{i + 1}</td>
+                            <td className="py-2.5 px-4 font-bold">
                               <input
                                 type="text"
                                 value={item.name}
@@ -439,7 +439,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                                 className="w-full bg-white dark:bg-slate-950/60 border border-border dark:border-slate-700/80 rounded px-2 py-1 text-xs text-fg dark:text-slate-200 focus:outline-none focus:border-cyan-500 font-sans font-medium"
                               />
                             </td>
-                            <td className="py-2 px-4 text-center">
+                            <td className="py-2.5 px-4 text-center">
                               <button
                                 onClick={() => handleRemoveTech(i)}
                                 className="text-slate-400 hover:text-rose-500 text-sm transition bg-slate-100 dark:bg-slate-950/20 hover:bg-slate-200 dark:hover:bg-slate-900 p-1 rounded cursor-pointer"
@@ -535,7 +535,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                       <tr className="bg-slate-100 dark:bg-slate-900 border-b border-border dark:border-slate-700 text-slate-600 dark:text-slate-400 font-semibold uppercase text-[10px]">
                         <th className="py-2.5 px-4">กลุ่มจำพวกอักษรย่อ</th>
                         <th className="py-2.5 px-4">ชื่อประเภทเครื่องสากล</th>
-                        <th className="py-2.5 px-4 text-center w-28">Std.MTTR (นาที)</th>
+                        <th className="py-2.5 px-4 text-right w-28">Std.MTTR (นาที)</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-border dark:divide-slate-700/40 text-slate-700 dark:text-slate-310">
@@ -552,15 +552,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                         { prefix: "TLP", label: "THERMAL LABEL PRINTERS" }
                       ].map(item => (
                         <tr key={item.prefix} className="hover:bg-slate-50 dark:hover:bg-slate-900/40">
-                          <td className="py-2 px-4 font-mono font-bold text-rose-600 dark:text-rose-400">{item.prefix}</td>
-                          <td className="py-2 px-4 text-slate-700 dark:text-slate-300 font-sans">{item.label}</td>
-                          <td className="py-2 px-4 text-center">
+                          <td className="py-2.5 px-4 font-mono font-bold text-rose-600 dark:text-rose-400">{item.prefix}</td>
+                          <td className="py-2.5 px-4 text-slate-700 dark:text-slate-300 font-sans">{item.label}</td>
+                          <td className="py-2.5 px-4 text-right">
                             <input
                               type="number"
                               min={1}
                               value={tempStdMttr[item.prefix] || 60}
                               onChange={(e) => handleStdMttrChange(item.prefix, e.target.value)}
-                              className="w-16 bg-white dark:bg-slate-950 border border-border dark:border-slate-700 rounded text-center text-xs text-fg dark:text-slate-100 font-mono p-1"
+                              className="w-16 bg-white dark:bg-slate-950 border border-border dark:border-slate-700 rounded text-right text-xs text-fg dark:text-slate-100 font-mono p-1"
                             />
                           </td>
                         </tr>
@@ -839,7 +839,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
           id="modal-reset-db-confirm"
           className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4 animate-in fade-in duration-100"
         >
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-6 rounded-2xl max-w-md w-full space-y-4 shadow-2xl text-xs text-slate-900 dark:text-slate-200">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-6 rounded-2xl max-w-md w-full space-y-4 shadow-xl text-xs text-slate-900 dark:text-slate-200">
             <div className="flex items-center gap-3 text-rose-600 dark:text-rose-500 border-b border-slate-200 dark:border-slate-800 pb-3">
               <AlertTriangle size={24} className="shrink-0" />
               <div>

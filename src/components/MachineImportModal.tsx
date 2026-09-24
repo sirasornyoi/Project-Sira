@@ -246,7 +246,7 @@ export const MachineImportModal: React.FC<MachineImportModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 dark:bg-slate-950/80 backdrop-blur-xs p-3 sm:p-4 overflow-y-auto" id="machine-import-modal-overlay">
-      <div className="bg-surface dark:bg-slate-800 border border-border dark:border-slate-700 rounded-2xl max-w-4xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden my-auto" id="machine-import-modal">
+      <div className="bg-surface dark:bg-slate-800 border border-border dark:border-slate-700 rounded-2xl max-w-4xl w-full max-h-[92vh] flex flex-col shadow-xl overflow-hidden my-auto" id="machine-import-modal">
         {/* Header */}
         <div className="bg-slate-50 dark:bg-slate-800/90 border-b border-border dark:border-slate-700/80 px-6 py-4 flex justify-between items-center shrink-0">
           <div className="flex items-center gap-3">

@@ -148,7 +148,7 @@ export const PMRescheduleModal: React.FC<PMRescheduleModalProps> = ({ job, onClo
       onClick={onClose}
     >
       <div 
-        className="w-full max-w-xl bg-surface dark:bg-[#0b1222] border border-border dark:border-cyan-500/40 rounded-2xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-150 text-fg dark:text-slate-100 my-8"
+        className="w-full max-w-xl bg-surface dark:bg-[#0b1222] border border-border dark:border-cyan-500/40 rounded-2xl overflow-hidden shadow-xl animate-in zoom-in-95 duration-150 text-fg dark:text-slate-100 my-8"
         onClick={(e) => e.stopPropagation()}
         id="pm-reschedule-modal-container"
       >
@@ -443,7 +443,7 @@ export const PMRescheduleModal: React.FC<PMRescheduleModalProps> = ({ job, onClo
       {/* CONFIRM SAME DATE RESCHEDULE */}
       {showSameDateConfirm && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4 animate-in fade-in duration-100">
-          <div id="modal-confirm-same-date-reschedule" className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-750 rounded-2xl max-w-sm w-full p-6 space-y-5 shadow-2xl">
+          <div id="modal-confirm-same-date-reschedule" className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-750 rounded-2xl max-w-sm w-full p-6 space-y-5 shadow-xl">
             <div className="flex flex-col items-center text-center space-y-3">
               <div className="w-12 h-12 rounded-full bg-amber-500/15 flex items-center justify-center text-amber-500">
                 <AlertCircle size={24} />
