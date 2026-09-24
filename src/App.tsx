@@ -58,8 +58,8 @@ function AppContent() {
   // Settings global Dialog modal open status
   const [showSettings, setShowSettings] = useState<boolean>(false);
 
-  // Sub-tab control for PMPlanPage (plan vs kpi)
-  const [pmPlanSubTab, setPmPlanSubTab] = useState<'plan' | 'kpi'>('plan');
+  // Sub-tab control for PMPlanPage (plan vs kpi vs history)
+  const [pmPlanSubTab, setPmPlanSubTab] = useState<'plan' | 'kpi' | 'history'>('plan');
   const [pmPlanNavToken, setPmPlanNavToken] = useState<number>(0);
 
   // Dynamic live clock for Thailand local context
@@ -348,7 +348,7 @@ function AppContent() {
         <PMOverdueAlertModal 
           onClose={() => setShowOverdueModal(false)}
           onNavigateToPMHistory={() => {
-            setPmPlanSubTab('kpi');
+            setPmPlanSubTab('history');
             setPmPlanNavToken(prev => prev + 1);
             setActivePage(2);
             setShowOverdueModal(false);

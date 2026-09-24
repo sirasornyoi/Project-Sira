@@ -7,7 +7,7 @@ import {
   Clock, ClipboardList, Copy, Upload, Download, Check, AlertTriangle, 
   Sparkles, FileSpreadsheet, ArrowLeftRight, CheckSquare, Square, 
   Calendar, User, Wrench, ShieldCheck, RefreshCw, FileText, ChevronDown, ChevronUp,
-  Maximize2, Minimize2
+  Maximize2, Minimize2, History
 } from 'lucide-react';
 import { 
   exportPMReportToExcel, 
@@ -19,14 +19,14 @@ import { PMKpiPanel } from './PMKpiPanel';
 import { PMHistoryPage } from './PMHistoryPage';
 
 export interface PMPlanPageProps {
-  initialSubTab?: 'plan' | 'kpi';
+  initialSubTab?: 'plan' | 'kpi' | 'history';
   navToken?: number;
 }
 
 export const PMPlanPage: React.FC<PMPlanPageProps> = ({ initialSubTab = 'plan', navToken = 0 }) => {
   const { machines, pmPlans, setPmPlans, pmMachineIds, setPmMachineIds } = useApp();
 
-  const [activeSubTab, setActiveSubTab] = useState<'plan' | 'kpi'>(initialSubTab);
+  const [activeSubTab, setActiveSubTab] = useState<'plan' | 'kpi' | 'history'>(initialSubTab);
 
   useEffect(() => {
     if (initialSubTab) {
@@ -621,18 +621,37 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({ initialSubTab = 'plan', 
             <ShieldCheck size={14} />
             <span>🎯 ข้อมูล PM (KPI)</span>
           </button>
+
+          <button
+            id="tab-btn-pm-history"
+            type="button"
+            onClick={() => setActiveSubTab('history')}
+            className={`flex items-center gap-2 px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+              activeSubTab === 'history'
+                ? 'bg-cyan-600 text-white shadow-sm'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-900'
+            }`}
+          >
+            <History size={14} />
+            <span>📜 ประวัติ PM</span>
+          </button>
         </div>
       </div>
 
       {/* Tab Content */}
-      {activeSubTab === 'kpi' ? (
+      {activeSubTab === 'kpi' && (
         <div className="space-y-6" id="pm-kpi-subtab-container">
           <PMKpiPanel />
-          <div className="pt-2">
-            <PMHistoryPage />
-          </div>
         </div>
-      ) : (
+      )}
+
+      {activeSubTab === 'history' && (
+        <div className="space-y-6" id="pm-history-subtab-container">
+          <PMHistoryPage />
+        </div>
+      )}
+
+      {activeSubTab === 'plan' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6" id="pmplan-page-root">
       
       {/* LEFT COLUMN: Searchable machine select */}
