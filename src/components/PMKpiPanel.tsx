@@ -141,15 +141,6 @@ export const PMKpiPanel: React.FC = () => {
     }
   };
 
-  // Cancel draft and revert to stored value
-  const cancelDraft = (machineId: string) => {
-    setDraftInputs(prev => {
-      const next = { ...prev };
-      delete next[machineId];
-      return next;
-    });
-  };
-
   return (
     <div className="space-y-6">
       {/* Top Header & Controls */}
@@ -400,11 +391,7 @@ export const PMKpiPanel: React.FC = () => {
                             }}
                             onBlur={() => commitDraft(machine.id)}
                             onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
-                                commitDraft(machine.id);
-                                e.currentTarget.blur();
-                              } else if (e.key === 'Escape') {
-                                cancelDraft(machine.id);
+                              if (e.key === 'Enter' || e.key === 'Escape') {
                                 e.currentTarget.blur();
                               }
                             }}
