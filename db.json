@@ -1219,6 +1219,270 @@
       ],
       "spareParts": "ใบมีดเตเปอร์คัตเตอร์, ลวดความร้อนสำรอง",
       "ttm": 30
+    },
+    {
+      "id": "plan-pm-rim02-1",
+      "machineId": "RIM02",
+      "title": "ตรวจสภาพและทำความสะอาด Rice Mixer ประจำสัปดาห์",
+      "frequency": "รายสัปดาห์",
+      "steps": [
+        {
+          "title": "ตรวจสอบใบกวนและจุดยึด",
+          "stdTime": 15,
+          "result": "ยังไม่ตรวจ",
+          "done": false,
+          "abnormalDetail": "",
+          "remark": ""
+        },
+        {
+          "title": "ทำความสะอาดหัวฉีดน้ำส้มสายชู",
+          "stdTime": 10,
+          "result": "ยังไม่ตรวจ",
+          "done": false,
+          "abnormalDetail": "",
+          "remark": ""
+        },
+        {
+          "title": "ตรวจสอบระบบขับเคลื่อนและเฟืองเกียร์",
+          "stdTime": 20,
+          "done": false,
+          "result": "ยังไม่ตรวจ",
+          "abnormalDetail": "",
+          "remark": ""
+        }
+      ],
+      "spareParts": "น้ำมันหล่อลื่นเกรดอาหาร NSF-H1",
+      "ttm": 45,
+      "lastCheckedDate": ""
+    },
+    {
+      "id": "plan-pm-vac02-1",
+      "machineId": "VAC02",
+      "title": "ตรวจสอบระบบสุญญากาศและซีลยางประตู",
+      "frequency": "รายเดือน",
+      "steps": [
+        {
+          "title": "ตรวจวัดประสิทธิภาพปั๊มสุญญากาศ",
+          "stdTime": 30,
+          "done": false,
+          "result": "ยังไม่ตรวจ",
+          "abnormalDetail": "",
+          "remark": ""
+        },
+        {
+          "title": "ตรวจสอบความตึงและการล้าของซีลยาง",
+          "stdTime": 15,
+          "done": false,
+          "result": "ยังไม่ตรวจ",
+          "abnormalDetail": "",
+          "remark": ""
+        },
+        {
+          "title": "ตรวจเช็ควาล์วควบคุมแรงดันลม",
+          "stdTime": 15,
+          "done": false,
+          "result": "ยังไม่ตรวจ",
+          "abnormalDetail": "",
+          "remark": ""
+        }
+      ],
+      "spareParts": "ซีลยางขอบประตู VAC01, น้ำมันแวคคั่มปั๊ม",
+      "ttm": 60,
+      "lastCheckedDate": ""
+    },
+    {
+      "id": "plan-pm-vac03-1",
+      "machineId": "VAC03",
+      "title": "ตรวจสอบระบบสุญญากาศและซีลยางประตู",
+      "frequency": "รายเดือน",
+      "steps": [
+        {
+          "title": "ตรวจวัดประสิทธิภาพปั๊มสุญญากาศ",
+          "stdTime": 30,
+          "done": false,
+          "result": "ยังไม่ตรวจ",
+          "abnormalDetail": "",
+          "remark": ""
+        },
+        {
+          "title": "ตรวจสอบความตึงและการล้าของซีลยาง",
+          "stdTime": 15,
+          "done": false,
+          "result": "ยังไม่ตรวจ",
+          "abnormalDetail": "",
+          "remark": ""
+        },
+        {
+          "title": "ตรวจเช็ควาล์วควบคุมแรงดันลม",
+          "stdTime": 15,
+          "done": false,
+          "result": "ยังไม่ตรวจ",
+          "abnormalDetail": "",
+          "remark": ""
+        }
+      ],
+      "spareParts": "ซีลยางขอบประตู VAC01, น้ำมันแวคคั่มปั๊ม",
+      "ttm": 60,
+      "lastCheckedDate": ""
+    },
+    {
+      "id": "plan-pm-vac04-1",
+      "machineId": "VAC04",
+      "title": "ตรวจสอบระบบสุญญากาศและซีลยางประตู",
+      "frequency": "รายเดือน",
+      "steps": [
+        {
+          "title": "ตรวจวัดประสิทธิภาพปั๊มสุญญากาศ",
+          "stdTime": 30,
+          "done": false,
+          "result": "ยังไม่ตรวจ",
+          "abnormalDetail": "",
+          "remark": ""
+        },
+        {
+          "title": "ตรวจสอบความตึงและการล้าของซีลยาง",
+          "stdTime": 15,
+          "done": false,
+          "result": "ยังไม่ตรวจ",
+          "abnormalDetail": "",
+          "remark": ""
+        },
+        {
+          "title": "ตรวจเช็ควาล์วควบคุมแรงดันลม",
+          "stdTime": 15,
+          "done": false,
+          "result": "ยังไม่ตรวจ",
+          "abnormalDetail": "",
+          "remark": ""
+        }
+      ],
+      "spareParts": "ซีลยางขอบประตู VAC01, น้ำมันแวคคั่มปั๊ม",
+      "ttm": 60,
+      "lastCheckedDate": ""
+    },
+    {
+      "id": "plan-pm-vac05-1",
+      "machineId": "VAC05",
+      "title": "ตรวจสอบระบบสุญญากาศและซีลยางประตู",
+      "frequency": "รายเดือน",
+      "steps": [
+        {
+          "title": "ตรวจวัดประสิทธิภาพปั๊มสุญญากาศ",
+          "stdTime": 30,
+          "done": false,
+          "result": "ยังไม่ตรวจ",
+          "abnormalDetail": "",
+          "remark": ""
+        },
+        {
+          "title": "ตรวจสอบความตึงและการล้าของซีลยาง",
+          "stdTime": 15,
+          "done": false,
+          "result": "ยังไม่ตรวจ",
+          "abnormalDetail": "",
+          "remark": ""
+        },
+        {
+          "title": "ตรวจเช็ควาล์วควบคุมแรงดันลม",
+          "stdTime": 15,
+          "done": false,
+          "result": "ยังไม่ตรวจ",
+          "abnormalDetail": "",
+          "remark": ""
+        }
+      ],
+      "spareParts": "ซีลยางขอบประตู VAC01, น้ำมันแวคคั่มปั๊ม",
+      "ttm": 60,
+      "lastCheckedDate": ""
+    },
+    {
+      "id": "plan-pm-vac06-1",
+      "machineId": "VAC06",
+      "title": "ตรวจสอบระบบสุญญากาศและซีลยางประตู",
+      "frequency": "รายเดือน",
+      "steps": [
+        {
+          "title": "ตรวจวัดประสิทธิภาพปั๊มสุญญากาศ",
+          "stdTime": 30,
+          "done": false,
+          "result": "ยังไม่ตรวจ",
+          "abnormalDetail": "",
+          "remark": ""
+        },
+        {
+          "title": "ตรวจสอบความตึงและการล้าของซีลยาง",
+          "stdTime": 15,
+          "done": false,
+          "result": "ยังไม่ตรวจ",
+          "abnormalDetail": "",
+          "remark": ""
+        },
+        {
+          "title": "ตรวจเช็ควาล์วควบคุมแรงดันลม",
+          "stdTime": 15,
+          "done": false,
+          "result": "ยังไม่ตรวจ",
+          "abnormalDetail": "",
+          "remark": ""
+        }
+      ],
+      "spareParts": "ซีลยางขอบประตู VAC01, น้ำมันแวคคั่มปั๊ม",
+      "ttm": 60,
+      "lastCheckedDate": ""
+    },
+    {
+      "id": "plan-pm-ffs02-1",
+      "machineId": "FFS02",
+      "title": "ตรวจเช็คชุดฮีตเตอร์และใบมีดตัดซองสไลด์",
+      "frequency": "รายสัปดาห์",
+      "steps": [
+        {
+          "title": "ตรวจสอบอุณหภูมิฮีตเตอร์และสายไฟ",
+          "stdTime": 15,
+          "done": false,
+          "result": "ยังไม่ตรวจ",
+          "abnormalDetail": "",
+          "remark": ""
+        },
+        {
+          "title": "ทดลองความคมของใบมีดตัดสไลด์",
+          "stdTime": 15,
+          "done": false,
+          "result": "ยังไม่ตรวจ",
+          "abnormalDetail": "",
+          "remark": ""
+        }
+      ],
+      "spareParts": "ใบมีดเตเปอร์คัตเตอร์, ลวดความร้อนสำรอง",
+      "ttm": 30,
+      "lastCheckedDate": ""
+    },
+    {
+      "id": "plan-pm-ffs03-1",
+      "machineId": "FFS03",
+      "title": "ตรวจเช็คชุดฮีตเตอร์และใบมีดตัดซองสไลด์",
+      "frequency": "รายสัปดาห์",
+      "steps": [
+        {
+          "title": "ตรวจสอบอุณหภูมิฮีตเตอร์และสายไฟ",
+          "stdTime": 15,
+          "done": false,
+          "result": "ยังไม่ตรวจ",
+          "abnormalDetail": "",
+          "remark": ""
+        },
+        {
+          "title": "ทดลองความคมของใบมีดตัดสไลด์",
+          "stdTime": 15,
+          "done": false,
+          "result": "ยังไม่ตรวจ",
+          "abnormalDetail": "",
+          "remark": ""
+        }
+      ],
+      "spareParts": "ใบมีดเตเปอร์คัตเตอร์, ลวดความร้อนสำรอง",
+      "ttm": 30,
+      "lastCheckedDate": ""
     }
   ],
   "pmMachineIds": [
@@ -2203,6 +2467,7 @@
       ]
     }
   ],
+  "plannedProductionTimes": [],
   "settings": {
     "workingHoursPerDay": 8,
     "lineNotifyEnabled": false,

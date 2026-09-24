@@ -834,16 +834,6 @@ export const MachinePage: React.FC = () => {
               <span className="text-cyan-600 dark:text-cyan-400 font-mono">{m.id}</span>
               <span className="text-fg-muted dark:text-slate-200">- {m.name}</span>
             </h4>
-            {/* Prominent Duty Badge in Header */}
-            <span 
-              id={`detail-duty-badge-${m.id}`}
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold bg-amber-100 dark:bg-amber-500/20 border border-amber-300 dark:border-amber-500/50 text-amber-900 dark:text-amber-300 shadow-sm"
-              title={`หน้าที่การทำงาน / Line Group: ${m.lineGroup || 'ทั่วไป'}`}
-            >
-              <Briefcase size={13} className="text-amber-700 dark:text-amber-400 shrink-0" />
-              <span className="text-[11px] text-amber-800 dark:text-amber-400/80 font-normal">หน้าที่:</span>
-              <span className="tracking-wide font-extrabold">{m.lineGroup || 'ทั่วไป'}</span>
-            </span>
           </div>
           
           <div className="flex items-center gap-2">
@@ -1890,12 +1880,6 @@ export const MachinePage: React.FC = () => {
                                               <div className="font-medium text-slate-800 dark:text-slate-200">
                                                 {m.model || '-'}
                                               </div>
-                                              {m.lineGroup && (
-                                                <div className="text-[10px] text-amber-700 dark:text-amber-400 font-semibold mt-0.5 flex items-center gap-1">
-                                                  <Briefcase size={10} className="text-amber-700 dark:text-amber-400 shrink-0" />
-                                                  <span>หน้าที่: {m.lineGroup}</span>
-                                                </div>
-                                              )}
                                             </td>  
                                              {/* Power */}
                                             <td className="py-3 px-3">
@@ -2044,12 +2028,6 @@ export const MachinePage: React.FC = () => {
                           <div className="flex items-center gap-2 flex-wrap mt-1">
                             {m.model && (
                               <span className="text-xs text-slate-400">Model: {m.model}</span>
-                            )}
-                            {m.lineGroup && (
-                              <span className="text-[11px] text-amber-300 bg-amber-950/60 border border-amber-500/40 px-2 py-0.5 rounded font-semibold inline-flex items-center gap-1">
-                                <Briefcase size={10} className="text-amber-400 shrink-0" />
-                                <span>หน้าที่: {m.lineGroup}</span>
-                              </span>
                             )}
                           </div>
                         </td>

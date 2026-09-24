@@ -7,7 +7,7 @@ import {
   Clock, ClipboardList, Copy, Upload, Download, Check, AlertTriangle, 
   Sparkles, FileSpreadsheet, ArrowLeftRight, CheckSquare, Square, 
   Calendar, User, Wrench, ShieldCheck, RefreshCw, FileText, ChevronDown, ChevronUp,
-  Maximize2, Minimize2, History
+  Maximize2, Minimize2, History, Layers, Share2
 } from 'lucide-react';
 import { 
   exportPMReportToExcel, 
@@ -54,10 +54,20 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({ initialSubTab = 'plan', 
   const [copySourceMachineId, setCopySourceMachineId] = useState('');
   const [selectedPlansToCopy, setSelectedPlansToCopy] = useState<string[]>([]);
 
+  // Share PM plan to other machines (any machine in factory) states
+  const [sharingPlan, setSharingPlan] = useState<PMPlan | null>(null);
+  const [shareSearchTerm, setShareSearchTerm] = useState('');
+  const [selectedTargetMachineIds, setSelectedTargetMachineIds] = useState<string[]>([]);
+  const [selectedStepIndices, setSelectedStepIndices] = useState<number[]>([]);
+  const [isShareStepsExpanded, setIsShareStepsExpanded] = useState(true);
+  const [shareResetCheckStatus, setShareResetCheckStatus] = useState(true);
+  const [shareOverwriteExisting, setShareOverwriteExisting] = useState(false);
+
   // Excel Import states
   const [showImportModal, setShowImportModal] = useState(false);
   const [importedDataPreview, setImportedDataPreview] = useState<ParsedPMReportResult | null>(null);
   const [importSelectedMachineOnly, setImportSelectedMachineOnly] = useState(true);
+  const [importShareWithSiblings, setImportShareWithSiblings] = useState(true);
   const [importFileName, setImportFileName] = useState('');
   const [importError, setImportError] = useState('');
   const [rawPastedText, setRawPastedText] = useState('');
@@ -65,12 +75,14 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({ initialSubTab = 'plan', 
   // Add/Edit Plan Form States
   const [showFormModal, setShowFormModal] = useState(false);
   const [editingPlanId, setEditingPlanId] = useState<string | null>(null);
+  const [applyToSiblings, setApplyToSiblings] = useState(true);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [resetChecklistPlanId, setResetChecklistPlanId] = useState<string | null>(null);
   
   // Quick Add/Edit Single Step modal
   const [stepModalPlanId, setStepModalPlanId] = useState<string | null>(null);
   const [editingStepIndex, setEditingStepIndex] = useState<number | null>(null);
+  const [stepApplyToSiblings, setStepApplyToSiblings] = useState(false);
   const [stepForm, setStepForm] = useState<Partial<PMStep>>({
     itemNo: 1,
     title: '',
@@ -120,6 +132,41 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({ initialSubTab = 'plan', 
       (m.locationRoom && m.locationRoom.toLowerCase().includes(term))
     );
   }, [pmMachines, machineSearch]);
+
+  // Group PM machines by machine name so duplicated machines (เครื่องซ้ำ) are unified by machine name
+  interface PMMachineGroup {
+    name: string;
+    machines: Machine[];
+    hasSelected: boolean;
+    primaryZone?: string;
+  }
+
+  const pmMachineGroups = useMemo(() => {
+    const groups: PMMachineGroup[] = [];
+    const map = new Map<string, PMMachineGroup>();
+
+    for (const m of filteredPmMachines) {
+      const groupKey = m.name.trim();
+      const existing = map.get(groupKey);
+      if (existing) {
+        existing.machines.push(m);
+        if (m.id === selectedMachineId) {
+          existing.hasSelected = true;
+        }
+      } else {
+        const newGroup: PMMachineGroup = {
+          name: m.name,
+          machines: [m],
+          hasSelected: m.id === selectedMachineId,
+          primaryZone: m.locationZone
+        };
+        map.set(groupKey, newGroup);
+        groups.push(newGroup);
+      }
+    }
+
+    return groups;
+  }, [filteredPmMachines, selectedMachineId]);
 
   // Registry machines NOT yet enrolled in PM list (for the picker modal)
   const availableRegistryMachines = useMemo(() => {
@@ -171,8 +218,83 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({ initialSubTab = 'plan', 
 
   const selectedMachine = machines.find(m => m.id === selectedMachineId);
 
+  // Sibling machines belonging to the same machine name (เครื่องซ้ำชนิดเดียวกัน)
+  const siblingMachines = useMemo(() => {
+    if (!selectedMachine) return [];
+    return pmMachines.filter(m => m.name.trim().toLowerCase() === selectedMachine.name.trim().toLowerCase());
+  }, [selectedMachine, pmMachines]);
+
   // Plans of the selected machine
   const activeMachinePlans = pmPlans.filter(p => p.machineId === selectedMachineId);
+
+  // Candidate target machines for sharing plans to (all machines except the source machine)
+  const shareableTargetMachines = useMemo(() => {
+    const candidates = machines.filter(m => m.id !== selectedMachineId);
+    const term = shareSearchTerm.trim().toLowerCase();
+    if (!term) return candidates;
+    return candidates.filter(m => 
+      m.id.toLowerCase().includes(term) ||
+      m.name.toLowerCase().includes(term) ||
+      (m.lineGroup && m.lineGroup.toLowerCase().includes(term)) ||
+      (m.locationZone && m.locationZone.toLowerCase().includes(term)) ||
+      (m.locationRoom && m.locationRoom.toLowerCase().includes(term))
+    );
+  }, [machines, selectedMachineId, shareSearchTerm]);
+
+  // Auto-share PM plans between machines of the same type (เครื่องชื่อซ้ำคือเครื่องชนิดเดียวกัน แผน PM แชร์กัน)
+  useEffect(() => {
+    if (pmMachines.length === 0 || pmPlans.length === 0) return;
+
+    // Map plans by machineId
+    const plansByMachId = new Map<string, PMPlan[]>();
+    for (const p of pmPlans) {
+      const list = plansByMachId.get(p.machineId) || [];
+      list.push(p);
+      plansByMachId.set(p.machineId, list);
+    }
+
+    const newPlansToAdd: PMPlan[] = [];
+
+    // Find any enrolled PM machine that has 0 plans, but has a sibling machine with the same name that HAS plans
+    for (const targetMach of pmMachines) {
+      const existingPlans = plansByMachId.get(targetMach.id) || [];
+      if (existingPlans.length === 0) {
+        // Find sibling with plans
+        const siblingWithPlans = pmMachines.find(m => 
+          m.id !== targetMach.id &&
+          m.name.trim().toLowerCase() === targetMach.name.trim().toLowerCase() &&
+          (plansByMachId.get(m.id) || []).length > 0
+        );
+
+        if (siblingWithPlans) {
+          const sourcePlans = plansByMachId.get(siblingWithPlans.id) || [];
+          for (let i = 0; i < sourcePlans.length; i++) {
+            const sp = sourcePlans[i];
+            const clonedPlan: PMPlan = {
+              ...sp,
+              id: `plan-pm-${targetMach.id.toLowerCase()}-${Date.now()}-${i}-${Math.random().toString(36).substring(2, 6)}`,
+              machineId: targetMach.id,
+              lastCheckedDate: '',
+              steps: (sp.steps || []).map(s => ({
+                ...s,
+                done: false,
+                result: 'ยังไม่ตรวจ',
+                abnormalDetail: '',
+                remark: ''
+              }))
+            };
+            newPlansToAdd.push(clonedPlan);
+          }
+          // Mark targetMach as having plans in local map so we don't duplicate on same pass
+          plansByMachId.set(targetMach.id, newPlansToAdd);
+        }
+      }
+    }
+
+    if (newPlansToAdd.length > 0) {
+      setPmPlans(prev => [...prev, ...newPlansToAdd]);
+    }
+  }, [pmMachines, pmPlans, setPmPlans]);
 
   // Auto-expand plans
   const isPlanExpanded = (planId: string) => {
@@ -315,6 +437,7 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({ initialSubTab = 'plan', 
     const nextItemNo = ((targetPlan?.steps || []).length) + 1;
     setStepModalPlanId(planId);
     setEditingStepIndex(null);
+    setStepApplyToSiblings(false);
     setStepForm({
       itemNo: nextItemNo,
       title: '',
@@ -337,6 +460,7 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({ initialSubTab = 'plan', 
 
     setStepModalPlanId(planId);
     setEditingStepIndex(stepIndex);
+    setStepApplyToSiblings(false);
     setStepForm({ ...step });
   };
 
@@ -348,25 +472,34 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({ initialSubTab = 'plan', 
       return;
     }
 
+    const currentPlan = pmPlans.find(p => p.id === stepModalPlanId);
+    const siblingIds = siblingMachines.map(m => m.id);
+
     setPmPlans(prev => prev.map(plan => {
-      if (plan.id !== stepModalPlanId) return plan;
+      const isTargetPlan = plan.id === stepModalPlanId;
+      const isSiblingPlan = stepApplyToSiblings && currentPlan && 
+        siblingIds.includes(plan.machineId) && 
+        plan.title === currentPlan.title;
+
+      if (!isTargetPlan && !isSiblingPlan) return plan;
+
       const updatedSteps = [...(plan.steps || [])];
 
       const stepPayload: PMStep = {
-        id: stepForm.id || `step-${Date.now()}`,
+        id: isTargetPlan && stepForm.id ? stepForm.id : `step-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
         itemNo: stepForm.itemNo !== undefined ? stepForm.itemNo : (updatedSteps.length + 1),
         title: (stepForm.title || '').trim(),
         method: (stepForm.method || 'ดูด้วยสายตา').trim(),
         standard: (stepForm.standard || '').trim(),
         frequency: stepForm.frequency || plan.frequency || '1 เดือน/ครั้ง',
         stdTime: Math.max(1, Number(stepForm.stdTime) || 10),
-        result: stepForm.result || 'ยังไม่ตรวจ',
-        abnormalDetail: (stepForm.abnormalDetail || '').trim(),
+        result: isTargetPlan ? (stepForm.result || 'ยังไม่ตรวจ') : 'ยังไม่ตรวจ',
+        abnormalDetail: isTargetPlan ? (stepForm.abnormalDetail || '') : '',
         remark: (stepForm.remark || '').trim(),
-        done: !!stepForm.done
+        done: isTargetPlan ? Boolean(stepForm.done) : false
       };
 
-      if (editingStepIndex !== null && editingStepIndex >= 0) {
+      if (editingStepIndex !== null && editingStepIndex >= 0 && editingStepIndex < updatedSteps.length) {
         updatedSteps[editingStepIndex] = stepPayload;
       } else {
         updatedSteps.push(stepPayload);
@@ -420,9 +553,7 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({ initialSubTab = 'plan', 
     const targetMachId = importSelectedMachineOnly ? selectedMachineId : (importedDataPreview.machineId || selectedMachineId);
     const calculatedTtm = importedDataPreview.steps.reduce((sum, s) => sum + (s.stdTime || 10), 0);
 
-    const newPlan: PMPlan = {
-      id: `plan-pm-${Date.now()}`,
-      machineId: targetMachId,
+    const basePlanPayload = {
       title: importedDataPreview.title || `ใบรายงาน PM - ${targetMachId}`,
       frequency: importedDataPreview.frequency || 'รายเดือน',
       steps: importedDataPreview.steps,
@@ -435,11 +566,35 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({ initialSubTab = 'plan', 
       lastCheckedDate: importedDataPreview.reportDate || new Date().toISOString().split('T')[0]
     };
 
-    setPmPlans(prev => [...prev, newPlan]);
-    setShowImportModal(false);
-    setImportedDataPreview(null);
-    setImportFileName('');
-    alert(`นำเข้าสำเร็จ! บันทึกใบรายงานและแผน PM (${newPlan.steps.length} ขั้นตอน) เข้าสู่เครื่อง ${targetMachId} เรียบร้อยแล้ว`);
+    if (importShareWithSiblings && siblingMachines.length > 1) {
+      const importedPlans: PMPlan[] = siblingMachines.map((sib, sIdx) => ({
+        ...basePlanPayload,
+        id: `plan-pm-${sib.id.toLowerCase()}-${Date.now()}-${sIdx}`,
+        machineId: sib.id,
+        lastCheckedDate: sib.id === targetMachId ? basePlanPayload.lastCheckedDate : '',
+        steps: (basePlanPayload.steps || []).map(s => ({
+          ...s,
+          done: sib.id === targetMachId ? Boolean(s.done) : false,
+          result: sib.id === targetMachId ? (s.result || 'ยังไม่ตรวจ') : 'ยังไม่ตรวจ'
+        }))
+      }));
+      setPmPlans(prev => [...prev, ...importedPlans]);
+      setShowImportModal(false);
+      setImportedDataPreview(null);
+      setImportFileName('');
+      alert(`นำเข้าสำเร็จ! บันทึกใบรายงานและแชร์แผน PM (${basePlanPayload.steps.length} ขั้นตอน) ให้กับทุกเครื่องที่เป็น ${selectedMachine?.name} (${siblingMachines.length} เครื่อง) เรียบร้อยแล้ว`);
+    } else {
+      const newPlan: PMPlan = {
+        ...basePlanPayload,
+        id: `plan-pm-${Date.now()}`,
+        machineId: targetMachId
+      };
+      setPmPlans(prev => [...prev, newPlan]);
+      setShowImportModal(false);
+      setImportedDataPreview(null);
+      setImportFileName('');
+      alert(`นำเข้าสำเร็จ! บันทึกใบรายงานและแผน PM (${newPlan.steps.length} ขั้นตอน) เข้าสู่เครื่อง ${targetMachId} เรียบร้อยแล้ว`);
+    }
   };
 
   // ----------------------------------------------------
@@ -451,6 +606,7 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({ initialSubTab = 'plan', 
       return;
     }
     setEditingPlanId(null);
+    setApplyToSiblings(true);
     setPlanTitle(`ใบรายงาน Preventive Maintenance (PM) - ${selectedMachine?.name || selectedMachineId}`);
     setPlanFrequency('รายเดือน');
     setPlanSpareParts('');
@@ -470,6 +626,7 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({ initialSubTab = 'plan', 
 
   const handleOpenEditForm = (plan: PMPlan) => {
     setEditingPlanId(plan.id);
+    setApplyToSiblings(false);
     setPlanTitle(plan.title);
     setPlanFrequency(plan.frequency);
     setPlanSpareParts(plan.spareParts || '');
@@ -499,6 +656,9 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({ initialSubTab = 'plan', 
     const calculatedTtm = planSteps.reduce((sum, step) => sum + (step.stdTime || 0), 0);
 
     if (editingPlanId) {
+      const currentEditingPlan = pmPlans.find(item => item.id === editingPlanId);
+      const siblingIds = siblingMachines.map(m => m.id);
+
       setPmPlans(prev => prev.map(p => {
         if (p.id === editingPlanId) {
           return {
@@ -519,28 +679,76 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({ initialSubTab = 'plan', 
             ttm: calculatedTtm
           };
         }
+        // If applyToSiblings is checked, also update sibling machines' matching plan
+        if (applyToSiblings && siblingMachines.length > 1 && currentEditingPlan) {
+          if (siblingIds.includes(p.machineId) && p.title === currentEditingPlan.title) {
+            return {
+              ...p,
+              title: planTitle.trim(),
+              frequency: planFrequency,
+              spareParts: planSpareParts.trim(),
+              sparePartsQty: planSparePartsQty.trim(),
+              inspectorTech: planInspectorTech.trim(),
+              acknowledgingDept: planAcknowledgingDept.trim(),
+              supervisorName: planSupervisorName.trim(),
+              steps: planSteps.map((s, idx) => ({ 
+                ...s, 
+                itemNo: s.itemNo !== undefined ? s.itemNo : (idx + 1),
+                title: s.title.trim() 
+              })),
+              ttm: calculatedTtm
+            };
+          }
+        }
         return p;
       }));
     } else {
-      const newPlan: PMPlan = {
-        id: `plan-pm-${Date.now()}`,
-        machineId: selectedMachineId,
-        title: planTitle.trim(),
-        frequency: planFrequency,
-        spareParts: planSpareParts.trim(),
-        sparePartsQty: planSparePartsQty.trim(),
-        inspectorTech: planInspectorTech.trim(),
-        acknowledgingDept: planAcknowledgingDept.trim(),
-        supervisorName: planSupervisorName.trim(),
-        lastCheckedDate: planLastCheckedDate.trim() || new Date().toISOString().split('T')[0],
-        steps: planSteps.map((s, idx) => ({ 
-          ...s, 
-          itemNo: s.itemNo !== undefined ? s.itemNo : (idx + 1),
-          title: s.title.trim() 
-        })),
-        ttm: calculatedTtm
-      };
-      setPmPlans(prev => [...prev, newPlan]);
+      if (applyToSiblings && siblingMachines.length > 1) {
+        // Create plan for all sibling machines
+        const newPlans: PMPlan[] = siblingMachines.map((m, mIdx) => ({
+          id: `plan-pm-${m.id.toLowerCase()}-${Date.now()}-${mIdx}`,
+          machineId: m.id,
+          title: planTitle.trim(),
+          frequency: planFrequency,
+          spareParts: planSpareParts.trim(),
+          sparePartsQty: planSparePartsQty.trim(),
+          inspectorTech: planInspectorTech.trim(),
+          acknowledgingDept: planAcknowledgingDept.trim(),
+          supervisorName: planSupervisorName.trim(),
+          lastCheckedDate: m.id === selectedMachineId ? (planLastCheckedDate.trim() || new Date().toISOString().split('T')[0]) : '',
+          steps: planSteps.map((s, idx) => ({ 
+            ...s, 
+            itemNo: s.itemNo !== undefined ? s.itemNo : (idx + 1),
+            title: s.title.trim(),
+            done: false,
+            result: 'ยังไม่ตรวจ',
+            abnormalDetail: '',
+            remark: ''
+          })),
+          ttm: calculatedTtm
+        }));
+        setPmPlans(prev => [...prev, ...newPlans]);
+      } else {
+        const newPlan: PMPlan = {
+          id: `plan-pm-${Date.now()}`,
+          machineId: selectedMachineId,
+          title: planTitle.trim(),
+          frequency: planFrequency,
+          spareParts: planSpareParts.trim(),
+          sparePartsQty: planSparePartsQty.trim(),
+          inspectorTech: planInspectorTech.trim(),
+          acknowledgingDept: planAcknowledgingDept.trim(),
+          supervisorName: planSupervisorName.trim(),
+          lastCheckedDate: planLastCheckedDate.trim() || new Date().toISOString().split('T')[0],
+          steps: planSteps.map((s, idx) => ({ 
+            ...s, 
+            itemNo: s.itemNo !== undefined ? s.itemNo : (idx + 1),
+            title: s.title.trim() 
+          })),
+          ttm: calculatedTtm
+        };
+        setPmPlans(prev => [...prev, newPlan]);
+      }
     }
 
     setShowFormModal(false);
@@ -570,6 +778,106 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({ initialSubTab = 'plan', 
     setSelectedPlansToCopy([]);
     setCopySourceMachineId('');
     alert(`คัดลอกสำเร็จ! สั่งคัดลอกแผนงาน PM จำนวน ${newlyCloned.length} รายการ จากเครื่อง ${copySourceMachineId} เข้าสู่เครื่อง ${selectedMachineId} เรียบร้อยแล้ว`);
+  };
+
+  // ----------------------------------------------------
+  // Share Specific Plan to Multiple Target Machines Logic
+  // ----------------------------------------------------
+  const handleOpenShareModal = (plan: PMPlan) => {
+    setSharingPlan(plan);
+    setShareSearchTerm('');
+    setSelectedTargetMachineIds([]);
+    setSelectedStepIndices((plan.steps || []).map((_, idx) => idx));
+    setIsShareStepsExpanded(true);
+    setShareResetCheckStatus(true);
+    setShareOverwriteExisting(false);
+  };
+
+  const handleToggleShareStep = (index: number) => {
+    setSelectedStepIndices(prev => 
+      prev.includes(index) ? prev.filter(i => i !== index) : [...prev, index].sort((a, b) => a - b)
+    );
+  };
+
+  const handleSelectAllShareSteps = () => {
+    if (!sharingPlan) return;
+    setSelectedStepIndices((sharingPlan.steps || []).map((_, idx) => idx));
+  };
+
+  const handleDeselectAllShareSteps = () => {
+    setSelectedStepIndices([]);
+  };
+
+  const handleToggleTargetMachine = (machId: string) => {
+    setSelectedTargetMachineIds(prev => 
+      prev.includes(machId) ? prev.filter(id => id !== machId) : [...prev, machId]
+    );
+  };
+
+  const handleSelectAllFilteredTargets = (machIds: string[]) => {
+    setSelectedTargetMachineIds(prev => Array.from(new Set([...prev, ...machIds])));
+  };
+
+  const handleDeselectAllFilteredTargets = (machIds: string[]) => {
+    const set = new Set(machIds);
+    setSelectedTargetMachineIds(prev => prev.filter(id => !set.has(id)));
+  };
+
+  const handleExecuteSharePlan = () => {
+    if (!sharingPlan || selectedTargetMachineIds.length === 0) return;
+    if (selectedStepIndices.length === 0) {
+      alert('กรุณาเลือกขั้นตอน/หัวข้อการตรวจอย่างน้อย 1 รายการเพื่อแชร์');
+      return;
+    }
+
+    const targetIds = selectedTargetMachineIds;
+    const createdPlans: PMPlan[] = [];
+
+    // Filter only the steps that the user selected to share
+    const stepsToShare = (sharingPlan.steps || [])
+      .filter((_, idx) => selectedStepIndices.includes(idx))
+      .map((s, newIdx) => ({
+        ...s,
+        itemNo: newIdx + 1,
+        done: shareResetCheckStatus ? false : Boolean(s.done),
+        result: shareResetCheckStatus ? 'ยังไม่ตรวจ' : (s.result || 'ยังไม่ตรวจ'),
+        abnormalDetail: shareResetCheckStatus ? '' : (s.abnormalDetail || ''),
+        remark: s.remark || ''
+      }));
+
+    const calculatedTtm = stepsToShare.reduce((sum, s) => sum + (s.stdTime || 0), 0);
+
+    for (let i = 0; i < targetIds.length; i++) {
+      const targetId = targetIds[i];
+      const newClonedPlan: PMPlan = {
+        ...sharingPlan,
+        id: `plan-pm-${targetId.toLowerCase()}-${Date.now()}-${i}-${Math.random().toString(36).substring(2, 6)}`,
+        machineId: targetId,
+        ttm: calculatedTtm,
+        lastCheckedDate: shareResetCheckStatus ? '' : (sharingPlan.lastCheckedDate || ''),
+        steps: stepsToShare.map(s => ({ ...s }))
+      };
+      createdPlans.push(newClonedPlan);
+    }
+
+    setPmPlans(prev => {
+      let updated = [...prev];
+      if (shareOverwriteExisting) {
+        const targetSet = new Set(targetIds);
+        updated = updated.filter(p => !(targetSet.has(p.machineId) && p.title.trim().toLowerCase() === sharingPlan.title.trim().toLowerCase()));
+      }
+      return [...updated, ...createdPlans];
+    });
+
+    // Automatically enroll any target machines into pmMachineIds if not already enrolled
+    setPmMachineIds(prev => Array.from(new Set([...prev, ...targetIds])));
+
+    const count = targetIds.length;
+    const stepCount = stepsToShare.length;
+    setSharingPlan(null);
+    setSelectedTargetMachineIds([]);
+    setSelectedStepIndices([]);
+    alert(`แชร์สำเร็จ! ส่งต่อรายการตรวจจำนวน ${stepCount} ขั้นตอน จากแผน "${sharingPlan.title}" ให้กับ ${count} เครื่องจักรเรียบร้อยแล้ว`);
   };
 
   return (
@@ -657,16 +965,13 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({ initialSubTab = 'plan', 
       {/* LEFT COLUMN: Searchable machine select */}
       <div 
         id="pm-left-machine-selector" 
-        className={`${isWide ? 'hidden' : 'col-span-1 lg:col-span-4'} bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 flex flex-col h-[750px] shadow-sm transition-all duration-200`}
+        className={`${isWide ? 'hidden' : 'col-span-1 lg:col-span-3'} bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-3.5 flex flex-col h-[750px] shadow-sm transition-all duration-200`}
       >
         <div className="flex justify-between items-center mb-3 gap-2">
           <div className="min-w-0 flex-1">
             <h3 className="text-sm font-bold text-slate-900 dark:text-slate-200 flex items-center gap-2 truncate">
-              🏭 รายการเครื่องจักร ({pmMachines.length})
+              🏭 รายการเครื่องจักร ({pmMachineGroups.length})
             </h3>
-            <span className="text-[11px] text-cyan-700 dark:text-cyan-400 font-mono block truncate">
-              {pmPlans.filter(p => pmMachineIds.includes(p.machineId)).length} แผน PM ทั้งหมด
-            </span>
           </div>
           <button
             id="btn-add-pm-machine"
@@ -688,15 +993,15 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({ initialSubTab = 'plan', 
           <input
             id="pm-machine-search"
             type="text"
-            placeholder="ค้นหารหัส, ชื่อเครื่อง, หรือหน้าที่..."
+            placeholder="ค้นหารหัส หรือชื่อเครื่องจักร..."
             value={machineSearch}
             onChange={(e) => setMachineSearch(e.target.value)}
             className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-900 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-cyan-500"
           />
         </div>
 
-        <div className="flex-1 overflow-y-auto space-y-1.5 pr-1" id="pm-machine-list">
-          {filteredPmMachines.length === 0 ? (
+        <div className="flex-1 overflow-y-auto space-y-2 pr-1" id="pm-machine-list">
+          {pmMachineGroups.length === 0 ? (
             <div className="p-6 text-center text-slate-500 dark:text-slate-300 text-xs flex flex-col items-center justify-center h-48 border border-dashed border-slate-300 dark:border-slate-700 rounded-xl">
               <PackageOpen size={32} className="text-slate-400 dark:text-slate-400 mb-2" />
               <p className="font-semibold text-slate-700 dark:text-slate-200">
@@ -707,69 +1012,102 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({ initialSubTab = 'plan', 
               </p>
             </div>
           ) : (
-            filteredPmMachines.map(m => {
-              const planCount = pmPlans.filter(p => p.machineId === m.id).length;
-              const isSelected = selectedMachineId === m.id;
+            pmMachineGroups.map(group => {
+              const isSelectedGroup = group.hasSelected;
+              const hasMultiple = group.machines.length > 1;
 
               return (
                 <div
-                  key={m.id}
-                  id={`pm-mach-btn-${m.id}`}
-                  onClick={() => setSelectedMachineId(m.id)}
-                  className={`group relative w-full text-left p-3 rounded-xl border transition flex justify-between items-center cursor-pointer ${
-                    isSelected 
+                  key={group.name}
+                  id={`pm-group-btn-${encodeURIComponent(group.name)}`}
+                  onClick={() => {
+                    const alreadyInGroup = group.machines.some(m => m.id === selectedMachineId);
+                    if (!alreadyInGroup && group.machines.length > 0) {
+                      setSelectedMachineId(group.machines[0].id);
+                    }
+                  }}
+                  className={`group relative w-full text-left p-2.5 rounded-xl border transition cursor-pointer ${
+                    isSelectedGroup 
                       ? 'bg-white border-2 border-cyan-600 text-slate-900 shadow-sm dark:bg-slate-900/90 dark:border-cyan-500 dark:text-cyan-400 dark:shadow-cyan-500/10 dark:hover:bg-slate-900' 
                       : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-900 hover:border-slate-300 dark:bg-slate-900/30 dark:border-slate-700/60 dark:hover:bg-slate-800/80 dark:hover:border-slate-500 dark:text-slate-300'
                   }`}
                 >
-                  <div className="min-w-0 pr-2 flex-1">
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      <span className={`text-xs font-mono font-bold tracking-wider ${
-                        isSelected 
-                          ? 'text-cyan-700 dark:text-cyan-400' 
-                          : 'text-slate-900 dark:text-slate-200'
-                      }`}>
-                        {m.id}
-                      </span>
-                      {m.lineGroup && (
-                        <span className="text-[10px] bg-amber-50 dark:bg-amber-500/15 border border-amber-300 dark:border-amber-500/30 text-amber-800 dark:text-amber-300 px-1.5 py-0.2 rounded font-bold">
-                          {m.lineGroup}
-                        </span>
+                  <div className="flex justify-between items-start gap-1.5">
+                    <div className="min-w-0 flex-1">
+                      {/* Machine Name */}
+                      <p className={`text-xs font-bold line-clamp-2 leading-snug ${
+                        isSelectedGroup 
+                          ? 'text-slate-950 dark:text-slate-100' 
+                          : 'text-slate-800 dark:text-slate-200'
+                      }`} title={group.name}>
+                        {group.name}
+                      </p>
+
+                      {/* If multiple machines (เครื่องซ้ำ): show clickable machine ID badges */}
+                      {hasMultiple ? (
+                        <div className="flex flex-wrap items-center gap-1 mt-1.5">
+                          {group.machines.map(m => {
+                            const isThisSelected = selectedMachineId === m.id;
+                            return (
+                              <button
+                                key={m.id}
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedMachineId(m.id);
+                                }}
+                                className={`px-1.5 py-0.5 rounded text-[11px] font-mono font-bold transition cursor-pointer ${
+                                  isThisSelected
+                                    ? 'bg-cyan-600 text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs'
+                                    : 'bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700'
+                                }`}
+                                title={`${m.id} ${m.locationRoom ? `• ${m.locationRoom}` : ''}`}
+                              >
+                                {m.id}
+                              </button>
+                            );
+                          })}
+                          <span className="text-[10px] text-cyan-600 dark:text-cyan-400 font-medium">
+                            ({group.machines.length} เครื่อง)
+                          </span>
+                        </div>
+                      ) : (
+                        /* Single machine ID */
+                        <div className="mt-1 flex items-center gap-1.5">
+                          <span className={`text-xs font-mono font-bold tracking-wider ${
+                            isSelectedGroup ? 'text-cyan-700 dark:text-cyan-400' : 'text-slate-600 dark:text-slate-400'
+                          }`}>
+                            {group.machines[0].id}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Location details */}
+                      {group.primaryZone && (
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 truncate">
+                          {hasMultiple 
+                            ? `📍 ${group.primaryZone}`
+                            : [group.machines[0].locationZone, group.machines[0].locationRoom].filter(Boolean).join(' • ')
+                          }
+                        </p>
                       )}
                     </div>
-                    <p className={`text-xs font-semibold mt-1 truncate max-w-[160px] ${
-                      isSelected 
-                        ? 'text-slate-950 dark:text-slate-100' 
-                        : 'text-slate-800 dark:text-slate-200'
-                    }`}>
-                      {m.name}
-                    </p>
-                    {(m.locationZone || m.locationRoom) && (
-                      <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">
-                        {[m.locationZone, m.locationRoom].filter(Boolean).join(' • ')}
-                      </p>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                      planCount > 0 
-                        ? 'bg-cyan-50 text-cyan-800 border border-cyan-300 dark:bg-cyan-500/20 dark:text-cyan-300 dark:border-cyan-500/30' 
-                        : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
-                    }`}>
-                      {planCount} แผน
-                    </span>
-                    <button
-                      id={`btn-remove-pm-mach-${m.id}`}
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setMachineToRemoveFromPM(m);
-                      }}
-                      className="p-1 rounded-lg text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/15 cursor-pointer opacity-80 md:opacity-0 md:group-hover:opacity-100 transition"
-                      title={`นำเครื่อง ${m.id} ออกจากรายการ PM (ไม่ลบข้อมูลในทะเบียนเครื่องจักร)`}
-                    >
-                      <Trash2 size={13} />
-                    </button>
+
+                    <div className="flex items-center shrink-0">
+                      <button
+                        id={`btn-remove-pm-mach-${group.machines[0].id}`}
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const targetMachine = group.machines.find(m => m.id === selectedMachineId) || group.machines[0];
+                          setMachineToRemoveFromPM(targetMachine);
+                        }}
+                        className="p-1 rounded-lg text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/15 cursor-pointer opacity-0 group-hover:opacity-100 transition"
+                        title="นำเครื่องนี้ออกจากรายการ PM"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
                   </div>
                 </div>
               );
@@ -779,7 +1117,7 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({ initialSubTab = 'plan', 
       </div>
 
       {/* RIGHT COLUMN: PM plans, interactive checklist, and actions */}
-      <div className={`col-span-1 ${isWide ? 'lg:col-span-12' : 'lg:col-span-8'} flex flex-col space-y-4 h-[750px] transition-all duration-200`}>
+      <div className={`col-span-1 ${isWide ? 'lg:col-span-12' : 'lg:col-span-9'} flex flex-col space-y-4 h-[750px] transition-all duration-200`}>
         {/* Machine header display and top action buttons */}
         <div id="pm-right-machine-header" className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-3 shrink-0 shadow-sm">
           <div>
@@ -787,11 +1125,6 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({ initialSubTab = 'plan', 
               <span className="bg-cyan-50 dark:bg-cyan-500/15 border border-cyan-300 dark:border-cyan-500/30 text-cyan-800 dark:text-cyan-400 text-xs font-mono font-bold px-2.5 py-0.5 rounded-lg">
                 {selectedMachine?.id || selectedMachineId}
               </span>
-              {selectedMachine?.lineGroup && (
-                <span className="bg-amber-50 dark:bg-amber-500/15 border border-amber-300 dark:border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs font-bold px-2 py-0.5 rounded-lg">
-                  หน้าที่: {selectedMachine.lineGroup}
-                </span>
-              )}
               {selectedMachine?.locationZone && (
                 <span className="text-slate-600 dark:text-slate-400 text-xs">
                   📍 {selectedMachine.locationZone} {selectedMachine.locationRoom ? `/ ${selectedMachine.locationRoom}` : ''}
@@ -801,6 +1134,25 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({ initialSubTab = 'plan', 
             <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 mt-1">
               {selectedMachine?.name || 'กรุณาเลือกเครื่องจักร'}
             </h2>
+            {siblingMachines.length > 1 && (
+              <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+                <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">สลับเครื่อง:</span>
+                {siblingMachines.map(m => (
+                  <button
+                    key={m.id}
+                    type="button"
+                    onClick={() => setSelectedMachineId(m.id)}
+                    className={`px-2 py-0.5 rounded text-xs font-mono font-bold transition cursor-pointer ${
+                      selectedMachineId === m.id
+                        ? 'bg-cyan-600 text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs'
+                        : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300'
+                    }`}
+                  >
+                    {m.id} {m.locationRoom ? `(${m.locationRoom})` : ''}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Action Toolbar */}
@@ -880,7 +1232,20 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({ initialSubTab = 'plan', 
               <span>คัดลอกแผน</span>
             </button>
 
-            {/* 5. Add New PM Plan */}
+            {/* 5. Share plan to other machines */}
+            {activeMachinePlans.length > 0 && (
+              <button
+                id="btn-toolbar-share-pm-plan"
+                onClick={() => handleOpenShareModal(activeMachinePlans[0])}
+                className="flex items-center gap-1.5 px-3 py-2 bg-cyan-50 border border-cyan-300 text-cyan-800 hover:bg-cyan-100 hover:border-cyan-400 dark:bg-cyan-500/15 dark:border-cyan-500/30 dark:text-cyan-300 dark:hover:bg-cyan-500/25 rounded-xl text-xs font-bold transition cursor-pointer"
+                title="แชร์แผน PM ของเครื่องนี้ไปยังเครื่องจักรอื่นได้ทุกเครื่อง หรือคนละชนิดได้"
+              >
+                <Share2 size={14} className="text-cyan-600 dark:text-cyan-400" />
+                <span>แชร์แผน</span>
+              </button>
+            )}
+
+            {/* 6. Add New PM Plan */}
             <button
               id="btn-add-pm-plan"
               onClick={handleOpenNewForm}
@@ -891,6 +1256,48 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({ initialSubTab = 'plan', 
             </button>
           </div>
         </div>
+
+        {/* Sibling Machines Shared Group Info Banner */}
+        {siblingMachines.length > 1 && (
+          <div className="bg-gradient-to-r from-cyan-50/90 via-sky-50/90 to-blue-50/90 dark:from-cyan-950/40 dark:via-sky-950/40 dark:to-blue-950/40 border border-cyan-200 dark:border-cyan-800/60 rounded-2xl p-3 px-4 flex flex-wrap items-center justify-between gap-3 text-xs shadow-xs shrink-0">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <span className="p-1.5 rounded-lg bg-cyan-600 text-white dark:bg-cyan-500 dark:text-slate-950 shrink-0 shadow-xs">
+                <Layers size={15} />
+              </span>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-extrabold text-slate-900 dark:text-slate-100">
+                    กลุ่มเครื่องจักรชนิดเดียวกัน: {selectedMachine?.name}
+                  </span>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-cyan-100 dark:bg-cyan-500/20 text-cyan-800 dark:text-cyan-300">
+                    {siblingMachines.length} เครื่อง
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5">
+                  แชร์รายการทำ PM และเกณฑ์มาตรฐานร่วมกัน • การบันทึกผล ช่วงเวลาทำ และการเพิ่ม/ลดรายการ แยกเป็นอิสระตามแต่ละเครื่อง
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">สลับเครื่อง:</span>
+              {siblingMachines.map(m => (
+                <button
+                  key={m.id}
+                  type="button"
+                  onClick={() => setSelectedMachineId(m.id)}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition cursor-pointer ${
+                    selectedMachineId === m.id
+                      ? 'bg-cyan-600 text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs'
+                      : 'bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-cyan-500 hover:text-cyan-600'
+                  }`}
+                  title={`${m.id} ${m.locationRoom ? `• ${m.locationRoom}` : ''}`}
+                >
+                  {m.id}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* List of plans with Interactive Checklist */}
         <div className="flex-1 overflow-y-auto space-y-4 pr-1" id="pm-plan-container">
@@ -996,6 +1403,15 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({ initialSubTab = 'plan', 
                           title="ส่งออกใบร่างนี้เป็น Excel"
                         >
                           <Download size={14} />
+                        </button>
+                        <button
+                          id={`btn-share-plan-${plan.id}`}
+                          onClick={() => handleOpenShareModal(plan)}
+                          className="flex items-center gap-1.5 px-2.5 py-1.5 bg-cyan-50 hover:bg-cyan-100 border border-cyan-300 text-cyan-800 dark:bg-cyan-500/15 dark:border-cyan-500/30 dark:text-cyan-300 dark:hover:bg-cyan-500/25 rounded-lg text-xs font-bold transition cursor-pointer shadow-2xs"
+                          title="แชร์แผนนี้ให้กับเครื่องอื่น หรือเครื่องที่ไม่ใช่ชนิดเดียวกันได้"
+                        >
+                          <Share2 size={13} strokeWidth={2.2} />
+                          <span>แชร์</span>
                         </button>
                         <button
                           onClick={() => handleOpenEditForm(plan)}
@@ -1400,6 +1816,26 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({ initialSubTab = 'plan', 
                 </p>
               </div>
 
+              {siblingMachines.length > 1 && (
+                <div className="bg-cyan-50 dark:bg-cyan-950/40 border border-cyan-200 dark:border-cyan-800/60 p-3 rounded-xl space-y-1">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="opt-import-share-siblings"
+                      checked={importShareWithSiblings}
+                      onChange={(e) => setImportShareWithSiblings(e.target.checked)}
+                      className="rounded text-cyan-600 focus:ring-cyan-500/20"
+                    />
+                    <label htmlFor="opt-import-share-siblings" className="font-bold text-slate-900 dark:text-slate-100 text-xs cursor-pointer">
+                      แชร์นำเข้าแผนนี้ให้กับทุกเครื่องที่เป็น {selectedMachine?.name} ({siblingMachines.length} เครื่อง: {siblingMachines.map(m => m.id).join(', ')})
+                    </label>
+                  </div>
+                  <p className="text-[11px] text-slate-600 dark:text-slate-400 pl-5">
+                    นำเข้าโครงสร้างหัวข้อตรวจและมาตรฐานไปยังทุกเครื่องในกลุ่มเดียวกัน โดยแต่ละเครื่องจะแยกบันทึกผลอิสระ
+                  </p>
+                </div>
+              )}
+
               {/* Preview Table of Parsed Excel Data */}
               {importedDataPreview && (
                 <div className="space-y-2">
@@ -1587,6 +2023,27 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({ initialSubTab = 'plan', 
                   className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-1.5 text-slate-900 dark:text-fg focus:outline-none focus:border-cyan-500"
                 />
               </div>
+
+              {siblingMachines.length > 1 && (
+                <div className="bg-cyan-50 dark:bg-cyan-950/40 border border-cyan-200 dark:border-cyan-800/60 p-2.5 rounded-xl text-xs space-y-1">
+                  <label className="flex items-start gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={stepApplyToSiblings}
+                      onChange={(e) => setStepApplyToSiblings(e.target.checked)}
+                      className="mt-0.5 rounded text-cyan-600 focus:ring-cyan-500/20"
+                    />
+                    <div>
+                      <span className="font-bold text-slate-900 dark:text-slate-100 text-[11.5px]">
+                        ปรับใช้กับทุกเครื่องที่เป็น {selectedMachine?.name} ด้วย ({siblingMachines.length} เครื่อง)
+                      </span>
+                      <p className="text-[10.5px] text-slate-600 dark:text-slate-400 leading-normal">
+                        หากไม่ติ๊ก จะเพิ่ม/แก้ไขเฉพาะในใบรายงานของเครื่อง <span className="font-mono font-bold text-cyan-700 dark:text-cyan-400">{selectedMachineId}</span> เท่านั้น
+                      </p>
+                    </div>
+                  </label>
+                </div>
+              )}
 
               <div className="pt-3 border-t border-slate-200 dark:border-slate-700 flex justify-end gap-2">
                 <button
@@ -1809,6 +2266,34 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({ initialSubTab = 'plan', 
                 </div>
               </div>
 
+              {/* Sibling machines sharing option */}
+              {siblingMachines.length > 1 && (
+                <div className="bg-cyan-50 dark:bg-cyan-950/40 border border-cyan-200 dark:border-cyan-800/60 p-3 rounded-xl space-y-1">
+                  <label className="flex items-start gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={applyToSiblings}
+                      onChange={(e) => setApplyToSiblings(e.target.checked)}
+                      className="mt-0.5 rounded text-cyan-600 focus:ring-cyan-500/20"
+                    />
+                    <div>
+                      <span className="font-bold text-slate-900 dark:text-slate-100 text-xs">
+                        {editingPlanId 
+                          ? `อัปเดตการเปลี่ยนแปลงนี้ไปยังทุกเครื่องที่เป็น ${selectedMachine?.name} (${siblingMachines.length} เครื่อง)`
+                          : `แชร์แผน PM นี้ให้กับทุกเครื่องที่เป็น ${selectedMachine?.name} (${siblingMachines.length} เครื่อง: ${siblingMachines.map(m => m.id).join(', ')})`
+                        }
+                      </span>
+                      <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5">
+                        {applyToSiblings 
+                          ? 'แผนนี้จะถูกแชร์ให้ทุกเครื่องในกลุ่มเดียวกัน โดยแต่ละเครื่องแยกบันทึกการตรวจและประวัติเป็นอิสระ'
+                          : `แผนนี้จะบันทึกเฉพาะในเครื่อง ${selectedMachineId} เท่านั้น ไม่กระทบเครื่องอื่นในกลุ่ม`
+                        }
+                      </p>
+                    </div>
+                  </label>
+                </div>
+              )}
+
               {/* Buttons */}
               <div className="pt-4 border-t border-slate-200 dark:border-slate-700/80 flex justify-end gap-2">
                 <button
@@ -1835,33 +2320,83 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({ initialSubTab = 'plan', 
       {/* ---------------------------------------------------- */}
       {deleteConfirmId && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/70 dark:bg-slate-950/85 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-6 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl text-xs text-slate-900 dark:text-slate-200">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-6 rounded-2xl max-w-md w-full space-y-4 shadow-2xl text-xs text-slate-900 dark:text-slate-200">
             <div className="flex items-center gap-3 text-rose-600 dark:text-rose-500 border-b border-slate-200 dark:border-slate-800 pb-3">
               <AlertTriangle size={22} />
               <h3 className="text-sm font-extrabold text-slate-900 dark:text-slate-100">ยืนยันการลบแผน PM (ลดการทำ PM)</h3>
             </div>
             <p className="text-slate-700 dark:text-slate-300 leading-relaxed font-sans">
-              คุณแน่ใจว่าต้องการลบแผนงานและใบรายงาน PM นี้ใช่หรือไม่? ขั้นตอนและรายการตรวจทั้งหมดจะถูกนำออกอย่างสมบูรณ์
+              คุณต้องการลบแผนงานและใบรายงาน PM นี้ออกจากระบบอย่างไร?
             </p>
-            <div className="flex gap-2.5 justify-end pt-2">
-              <button
-                type="button"
-                onClick={() => setDeleteConfirmId(null)}
-                className="border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 px-4 py-2 rounded-lg transition font-medium"
-              >
-                ยกเลิก
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setPmPlans(prev => prev.filter(p => p.id !== deleteConfirmId));
-                  setDeleteConfirmId(null);
-                }}
-                className="bg-rose-600 hover:bg-rose-500 text-white font-extrabold px-4.5 py-2 rounded-lg transition"
-              >
-                ยืนยันลบแผน
-              </button>
-            </div>
+
+            {siblingMachines.length > 1 ? (
+              <div className="space-y-2 pt-1">
+                <div className="flex flex-col gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPmPlans(prev => prev.filter(p => p.id !== deleteConfirmId));
+                      setDeleteConfirmId(null);
+                    }}
+                    className="w-full text-left p-3 rounded-xl border border-rose-200 dark:border-rose-900/50 bg-rose-50/50 dark:bg-rose-950/30 hover:bg-rose-100 dark:hover:bg-rose-900/40 text-rose-800 dark:text-rose-300 transition"
+                  >
+                    <span className="font-bold block">🗑️ ลบเฉพาะเครื่อง {selectedMachineId}</span>
+                    <span className="text-[11px] text-rose-600 dark:text-rose-400 block mt-0.5">
+                      ลบแผนออกจากเครื่องนี้เท่านั้น เครื่องอื่นในกลุ่ม ({siblingMachines.filter(m => m.id !== selectedMachineId).map(m => m.id).join(', ')}) ยังคงมีแผนนี้อยู่
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const targetPlan = pmPlans.find(p => p.id === deleteConfirmId);
+                      const siblingIds = siblingMachines.map(m => m.id);
+                      if (targetPlan) {
+                        setPmPlans(prev => prev.filter(p => !(siblingIds.includes(p.machineId) && p.title === targetPlan.title)));
+                      } else {
+                        setPmPlans(prev => prev.filter(p => p.id !== deleteConfirmId));
+                      }
+                      setDeleteConfirmId(null);
+                    }}
+                    className="w-full text-left p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 transition"
+                  >
+                    <span className="font-bold block">⚠️ ลบออกจากทุกเครื่องในกลุ่ม ({selectedMachine?.name} ทั้งหมด {siblingMachines.length} เครื่อง)</span>
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400 block mt-0.5">
+                      ลบแผนนี้ออกจากเครื่องจักรชนิดเดียวกันทั้งหมดทุกตัว
+                    </span>
+                  </button>
+                </div>
+                <div className="flex justify-end pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setDeleteConfirmId(null)}
+                    className="border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 px-4 py-2 rounded-lg transition font-medium"
+                  >
+                    ยกเลิก
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex gap-2.5 justify-end pt-2">
+                <button
+                  type="button"
+                  onClick={() => setDeleteConfirmId(null)}
+                  className="border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 px-4 py-2 rounded-lg transition font-medium"
+                >
+                  ยกเลิก
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPmPlans(prev => prev.filter(p => p.id !== deleteConfirmId));
+                    setDeleteConfirmId(null);
+                  }}
+                  className="bg-rose-600 hover:bg-rose-500 text-white font-extrabold px-4.5 py-2 rounded-lg transition"
+                >
+                  ยืนยันลบแผน
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -1978,6 +2513,364 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({ initialSubTab = 'plan', 
                   className="px-5 py-2 bg-cyan-600 hover:bg-cyan-500 disabled:bg-slate-200 dark:disabled:bg-slate-800 disabled:text-slate-400 dark:disabled:text-slate-600 text-white font-bold rounded-lg transition"
                 >
                   คัดลอกและบันทึก
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ---------------------------------------------------- */}
+      {/* MODAL 5.5: SHARE PM PLAN TO OTHER MACHINES           */}
+      {/* (แชร์ให้เครื่องอื่น/คนละชนิด ติ๊กได้หลายเครื่อง)     */}
+      {/* ---------------------------------------------------- */}
+      {sharingPlan && (
+        <div 
+          id="pm-share-modal" 
+          className="fixed inset-0 z-[85] flex items-center justify-center bg-slate-950/70 dark:bg-slate-950/85 backdrop-blur-sm p-4 animate-in fade-in duration-100"
+        >
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-xl w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl text-xs text-slate-900 dark:text-slate-200">
+            {/* Modal Header */}
+            <div className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 p-4.5 flex justify-between items-center shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-xl bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 border border-cyan-500/20">
+                  <Share2 size={18} />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-slate-900 dark:text-slate-100 text-sm">
+                    แชร์แผน PM ไปยังเครื่องจักรอื่น
+                  </h3>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                    เลือกเครื่องได้ทุกเครื่อง หรือพิมพ์ค้นหาชื่อเครื่องเพื่อติ๊กแชร์ได้หลายเครื่อง (แชร์ข้ามชนิดเครื่องได้)
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                id="btn-close-share-modal"
+                onClick={() => setSharingPlan(null)}
+                className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 text-xl font-medium focus:outline-none p-1 cursor-pointer"
+              >
+                &times;
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-5 overflow-y-auto space-y-4 flex-1">
+              {/* Source Plan Info Banner */}
+              <div className="p-3.5 bg-gradient-to-r from-cyan-50 to-sky-50 dark:from-cyan-950/40 dark:to-sky-950/40 border border-cyan-200 dark:border-cyan-800/60 rounded-xl space-y-1.5">
+                <div className="flex items-center justify-between text-[11px]">
+                  <span className="font-bold text-cyan-800 dark:text-cyan-300 uppercase tracking-wide">
+                    แผนต้นทางที่กำลังแชร์:
+                  </span>
+                  <span className="font-mono text-slate-600 dark:text-slate-400">
+                    เครื่อง: <b className="text-cyan-700 dark:text-cyan-400 font-bold">{selectedMachine?.id}</b> ({selectedMachine?.name})
+                  </span>
+                </div>
+                <h4 className="font-bold text-slate-900 dark:text-slate-100 text-xs">
+                  {sharingPlan.title}
+                </h4>
+                <div className="flex items-center gap-3 text-[11px] text-slate-600 dark:text-slate-400 pt-0.5 flex-wrap">
+                  <span className="bg-white/80 dark:bg-slate-800/80 px-2 py-0.5 rounded border border-cyan-200/60 dark:border-cyan-800/40 font-medium">
+                    รอบ: {sharingPlan.frequency}
+                  </span>
+                  <span>• {sharingPlan.steps?.length || 0} ขั้นตอนตรวจ</span>
+                  <span>• รวม {sharingPlan.ttm || 0} นาที</span>
+                </div>
+              </div>
+
+              {/* Step Selection Section (เลือกรายการที่จะแชร์) */}
+              <div className="bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden space-y-0">
+                <div className="p-3 bg-slate-100/80 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2 flex-wrap">
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      id="btn-toggle-expand-share-steps"
+                      onClick={() => setIsShareStepsExpanded(!isShareStepsExpanded)}
+                      className="p-1 hover:bg-slate-200 dark:hover:bg-slate-800 rounded text-slate-500 dark:text-slate-400 cursor-pointer"
+                      title={isShareStepsExpanded ? 'ย่อรายการ' : 'ขยายรายการ'}
+                    >
+                      {isShareStepsExpanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+                    </button>
+                    <div>
+                      <span className="font-bold text-slate-900 dark:text-slate-100 text-xs">
+                        เลือกรายการตรวจที่จะแชร์:
+                      </span>
+                      <span className="ml-1.5 font-mono text-[11px] font-bold text-cyan-700 dark:text-cyan-400">
+                        ({selectedStepIndices.length}/{sharingPlan.steps?.length || 0} ข้อ)
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 text-[11px]">
+                    <button
+                      type="button"
+                      id="btn-share-select-all-steps"
+                      onClick={handleSelectAllShareSteps}
+                      className="text-cyan-700 dark:text-cyan-400 hover:underline font-bold cursor-pointer"
+                    >
+                      เลือกทุกข้อ
+                    </button>
+                    <span className="text-slate-300 dark:text-slate-700">|</span>
+                    <button
+                      type="button"
+                      id="btn-share-deselect-all-steps"
+                      onClick={handleDeselectAllShareSteps}
+                      className="text-slate-500 dark:text-slate-400 hover:underline cursor-pointer"
+                    >
+                      ล้างการเลือก
+                    </button>
+                  </div>
+                </div>
+
+                {isShareStepsExpanded && (
+                  <div className="p-2 space-y-1.5 max-h-48 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800/60">
+                    {(sharingPlan.steps || []).map((step, idx) => {
+                      const isStepSelected = selectedStepIndices.includes(idx);
+                      return (
+                        <div
+                          key={idx}
+                          id={`share-step-row-${idx}`}
+                          onClick={() => handleToggleShareStep(idx)}
+                          className={`p-2 rounded-lg flex items-start gap-2.5 cursor-pointer transition select-none ${
+                            isStepSelected
+                              ? 'bg-cyan-50/80 dark:bg-cyan-950/40 text-slate-900 dark:text-slate-100'
+                              : 'hover:bg-slate-100/60 dark:hover:bg-slate-900/40 text-slate-500 dark:text-slate-400 opacity-60'
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isStepSelected}
+                            onChange={() => {}}
+                            className="mt-0.5 rounded text-cyan-600 focus:ring-cyan-500/20 cursor-pointer pointer-events-none"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className="font-mono font-bold text-[11px] text-cyan-700 dark:text-cyan-400">
+                                ข้อ {idx + 1}.
+                              </span>
+                              <span className="font-semibold text-xs truncate">
+                                {step.title}
+                              </span>
+                              <span className="text-[10px] text-slate-500 dark:text-slate-400">
+                                ({step.stdTime || 10} นาที)
+                              </span>
+                            </div>
+                            {(step.standard || step.method) && (
+                              <p className="text-[10.5px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                                วิธี: {step.method} • มาตรฐาน: {step.standard || '-'}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* Search & Select Toolbar */}
+              <div className="space-y-2">
+                <div className="flex justify-between items-center text-xs">
+                  <label className="font-bold text-slate-800 dark:text-slate-200">
+                    เลือกเครื่องจักรปลายทางที่ต้องการแชร์ให้:
+                  </label>
+                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-cyan-100 dark:bg-cyan-500/20 text-cyan-800 dark:text-cyan-300">
+                    เลือกแล้ว {selectedTargetMachineIds.length} เครื่อง
+                  </span>
+                </div>
+
+                {/* Search Input Box */}
+                <div className="relative">
+                  <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="text"
+                    id="input-share-search-machines"
+                    value={shareSearchTerm}
+                    onChange={(e) => setShareSearchTerm(e.target.value)}
+                    placeholder="พิมพ์ชื่อเครื่อง, รหัสเครื่อง, หรือสถานที่/โซน เพื่อค้นหา..."
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl pl-9 pr-8 py-2 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:border-cyan-500"
+                  />
+                  {shareSearchTerm && (
+                    <button
+                      type="button"
+                      onClick={() => setShareSearchTerm('')}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer text-sm font-bold"
+                    >
+                      &times;
+                    </button>
+                  )}
+                </div>
+
+                {/* Quick Selection Buttons */}
+                <div className="flex items-center justify-between gap-2 pt-0.5 text-[11px]">
+                  <span className="text-slate-500 dark:text-slate-400">
+                    พบ {shareableTargetMachines.length} เครื่อง
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      id="btn-share-select-all"
+                      onClick={() => handleSelectAllFilteredTargets(shareableTargetMachines.map(m => m.id))}
+                      className="text-cyan-700 dark:text-cyan-400 hover:underline font-bold cursor-pointer"
+                    >
+                      เลือกทั้งหมดที่แสดง ({shareableTargetMachines.length})
+                    </button>
+                    <span className="text-slate-300 dark:text-slate-700">|</span>
+                    <button
+                      type="button"
+                      id="btn-share-deselect-all"
+                      onClick={() => handleDeselectAllFilteredTargets(shareableTargetMachines.map(m => m.id))}
+                      className="text-slate-500 dark:text-slate-400 hover:underline cursor-pointer"
+                    >
+                      ยกเลิกการเลือก
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Machine Cards List (Scrollable) */}
+              <div 
+                id="share-target-machines-list" 
+                className="border border-slate-200 dark:border-slate-800 rounded-xl max-h-60 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800/80 bg-slate-50/50 dark:bg-slate-950/40"
+              >
+                {shareableTargetMachines.length === 0 ? (
+                  <div className="p-8 text-center text-slate-400 dark:text-slate-500 text-xs">
+                    ไม่พบเครื่องจักรที่ตรงกับคำค้นหา "{shareSearchTerm}"
+                  </div>
+                ) : (
+                  shareableTargetMachines.map(m => {
+                    const isSelected = selectedTargetMachineIds.includes(m.id);
+                    const isSameType = m.name.trim().toLowerCase() === selectedMachine?.name.trim().toLowerCase();
+                    const existingPlansCount = pmPlans.filter(p => p.machineId === m.id).length;
+                    const hasSameTitlePlan = pmPlans.some(p => p.machineId === m.id && p.title.trim().toLowerCase() === sharingPlan.title.trim().toLowerCase());
+
+                    return (
+                      <div
+                        key={m.id}
+                        id={`share-mach-row-${m.id}`}
+                        onClick={() => handleToggleTargetMachine(m.id)}
+                        className={`p-3 flex items-center justify-between gap-3 cursor-pointer transition select-none ${
+                          isSelected 
+                            ? 'bg-cyan-50/90 dark:bg-cyan-950/50 border-l-4 border-l-cyan-500' 
+                            : 'hover:bg-white dark:hover:bg-slate-900 border-l-4 border-l-transparent'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => {}}
+                            className="rounded text-cyan-600 focus:ring-cyan-500/20 cursor-pointer pointer-events-none"
+                          />
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="font-mono font-bold text-xs text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 shadow-2xs">
+                                {m.id}
+                              </span>
+                              <span className="font-bold text-slate-800 dark:text-slate-200 truncate">
+                                {m.name}
+                              </span>
+                              {isSameType ? (
+                                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300">
+                                  ชนิดเดียวกัน
+                                </span>
+                              ) : (
+                                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+                                  คนละชนิด
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                              {m.locationZone || 'ไม่ระบุโซน'} • {m.locationRoom || 'ไม่ระบุห้อง'}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="shrink-0 text-right">
+                          {hasSameTitlePlan ? (
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300">
+                              มีแผนชื่อนี้แล้ว
+                            </span>
+                          ) : existingPlansCount > 0 ? (
+                            <span className="text-[10px] text-slate-500 dark:text-slate-400">
+                              มี {existingPlansCount} แผนอื่น
+                            </span>
+                          ) : (
+                            <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">
+                              ยังไม่มีแผน PM
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+
+              {/* Share Options */}
+              <div className="p-3.5 bg-slate-50 dark:bg-slate-950/80 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2.5">
+                <label className="flex items-start gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    id="chk-share-reset-status"
+                    checked={shareResetCheckStatus}
+                    onChange={(e) => setShareResetCheckStatus(e.target.checked)}
+                    className="mt-0.5 rounded text-cyan-600 focus:ring-cyan-500/20 cursor-pointer"
+                  />
+                  <div>
+                    <span className="font-bold text-slate-800 dark:text-slate-200 text-xs">
+                      รีเซ็ตผลการตรวจเป็น "ยังไม่ตรวจ" ทั้งหมดสำหรับเครื่องที่รับแชร์
+                    </span>
+                    <p className="text-[10.5px] text-slate-500 dark:text-slate-400 mt-0.5 leading-normal">
+                      เพื่อให้เครื่องจักรปลายทางเริ่มต้นบันทึกผลการตรวจสอบรอบใหม่ของตนเองได้อย่างอิสระ
+                    </p>
+                  </div>
+                </label>
+
+                <label className="flex items-start gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    id="chk-share-overwrite"
+                    checked={shareOverwriteExisting}
+                    onChange={(e) => setShareOverwriteExisting(e.target.checked)}
+                    className="mt-0.5 rounded text-cyan-600 focus:ring-cyan-500/20 cursor-pointer"
+                  />
+                  <div>
+                    <span className="font-bold text-slate-800 dark:text-slate-200 text-xs">
+                      เขียนทับหากเครื่องปลายทางมีแผน PM ชื่อเดียวกันอยู่แล้ว
+                    </span>
+                    <p className="text-[10.5px] text-slate-500 dark:text-slate-400 mt-0.5 leading-normal">
+                      หากไม่ติ๊ก ระบบจะเพิ่มเป็นแผนใหม่ซ้ำอีกรายการ (ไม่ลบของเดิม)
+                    </p>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700/80 p-4 flex justify-between items-center shrink-0">
+              <span className="text-slate-600 dark:text-slate-400 text-xs">
+                แชร์ <b className="text-cyan-700 dark:text-cyan-400 font-mono">{selectedStepIndices.length}</b> ข้อ ไปยัง <b className="text-cyan-700 dark:text-cyan-400 font-mono">{selectedTargetMachineIds.length}</b> เครื่อง
+              </span>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  id="btn-cancel-share-plan"
+                  onClick={() => setSharingPlan(null)}
+                  className="px-4 py-2 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition cursor-pointer font-medium"
+                >
+                  ยกเลิก
+                </button>
+                <button
+                  type="button"
+                  id="btn-confirm-share-pm-plan"
+                  onClick={handleExecuteSharePlan}
+                  disabled={selectedTargetMachineIds.length === 0 || selectedStepIndices.length === 0}
+                  className="px-5 py-2 bg-cyan-600 hover:bg-cyan-500 disabled:bg-slate-200 dark:disabled:bg-slate-800 disabled:text-slate-400 dark:disabled:text-slate-600 text-white font-bold rounded-xl transition flex items-center gap-1.5 shadow-md shadow-cyan-600/20 cursor-pointer disabled:cursor-not-allowed"
+                >
+                  <Share2 size={14} />
+                  <span>ยืนยันแชร์ ({selectedStepIndices.length} รายการ / {selectedTargetMachineIds.length} เครื่อง)</span>
                 </button>
               </div>
             </div>
