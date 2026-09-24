@@ -5,8 +5,7 @@ import { PMPlanPage } from './components/PMPlanPage';
 import { SchedulePage } from './components/SchedulePage';
 import { RepairPage } from './components/RepairPage';
 import { ImprovementPage } from './components/ImprovementPage';
-import { DashboardPage } from './components/DashboardPage';
-import { PresentationPage } from './components/PresentationPage';
+import { StatsAndPresentationHub } from './components/StatsAndPresentationHub';
 import { SettingsModal } from './components/SettingsModal';
 import { InventoryPage } from './components/InventoryPage';
 import { TimeBreakPage } from './components/TimeBreakPage';
@@ -98,8 +97,8 @@ function AppContent() {
       case 11: return <TimeBreakPage />;
       case 5: return <ImprovementPage />;
       case 10: return <InventoryPage />;
-      case 6: return <DashboardPage />;
-      case 9: return <PresentationPage />;
+      case 6: return <StatsAndPresentationHub initialSubTab="stats" />;
+      case 9: return <StatsAndPresentationHub initialSubTab="presentation" />;
       case 12: return <TechnicianPortfolioPage />;
       default: return <SchedulePage />;
     }
@@ -114,8 +113,7 @@ function AppContent() {
     { id: 11, label: "เปลี่ยนอะไหล่ Time-Break", icon: Clock, desc: "ระบุเครื่อง/รอบเปลี่ยนอะไหล่" },
     { id: 5, label: "งานพัฒนา Kaizen", icon: PenTool, desc: "บอร์ดสเตตัสงาน" },
     { id: 10, label: "คลังอะไหล่สำรอง", icon: Package, desc: "ควบคุมความปลอดภัยสต็อก" },
-    { id: 6, label: "ระบบสถิติ", icon: BarChart3, desc: "Dashboard/MTTR" },
-    { id: 9, label: "สรุปนำเสนอ", icon: Presentation, desc: "บอร์ดนำเสนอผู้บริหาร" },
+    { id: 6, label: "สถิติ & สรุปนำเสนอ", icon: BarChart3, desc: "Dashboard, MTTR & นำเสนอ" },
     { id: 12, label: "Portfolio ช่าง", icon: Award, desc: "ประวัติผลงาน Kaizen & ปรับปรุง" }
   ];
 
@@ -166,7 +164,7 @@ function AppContent() {
           <nav className="p-3 space-y-1 mt-4" id="app-sidebar-nav">
             {navigationItems.map((item) => {
               const IconComp = item.icon;
-              const isSelected = activePage === item.id;
+              const isSelected = item.id === 6 ? (activePage === 6 || activePage === 9) : activePage === item.id;
               const hasOverdueBadge = (item.id === 11 || item.id === 3) && totalOverdueCount > 0;
               
               return (
@@ -252,7 +250,7 @@ function AppContent() {
             
             {/* Active page simple breadcrumb */}
             <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest hidden sm:block">
-              {navigationItems.find(n => n.id === activePage)?.label} / พื้นที่สถิติและการทำงานหลัก
+              {navigationItems.find(n => n.id === activePage || (n.id === 6 && (activePage === 6 || activePage === 9)))?.label} / พื้นที่สถิติและการทำงานหลัก
             </h2>
           </div>
 
