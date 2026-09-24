@@ -15,9 +15,23 @@ import {
   parsePMReportExcel, 
   ParsedPMReportResult 
 } from '../utils/pmExcelUtils';
+import { PMKpiPanel } from './PMKpiPanel';
+import { PMHistoryPage } from './PMHistoryPage';
 
-export const PMPlanPage: React.FC = () => {
+export interface PMPlanPageProps {
+  initialSubTab?: 'plan' | 'kpi';
+}
+
+export const PMPlanPage: React.FC<PMPlanPageProps> = ({ initialSubTab = 'plan' }) => {
   const { machines, pmPlans, setPmPlans, pmMachineIds, setPmMachineIds } = useApp();
+
+  const [activeSubTab, setActiveSubTab] = useState<'plan' | 'kpi'>(initialSubTab);
+
+  useEffect(() => {
+    if (initialSubTab) {
+      setActiveSubTab(initialSubTab);
+    }
+  }, [initialSubTab]);
   
   // Selected machine filter
   const [selectedMachineId, setSelectedMachineId] = useState<string>(() => {
@@ -558,7 +572,67 @@ export const PMPlanPage: React.FC = () => {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6" id="pmplan-page-root">
+    <div className="space-y-4" id="pm-plan-page-hub">
+      {/* Sub-tab Navigation Bar */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-surface border border-border dark:border-slate-800 p-2.5 px-4 rounded-2xl shadow-sm">
+        <div className="flex items-center gap-2.5">
+          <div className="p-2 rounded-xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20">
+            {activeSubTab === 'plan' ? <ClipboardList size={18} /> : <ShieldCheck size={18} />}
+          </div>
+          <div>
+            <h2 className="text-sm font-bold text-fg flex items-center gap-2">
+              ระบบแผนงานและการบำรุงรักษาเชิงป้องกัน (PM Maintenance System)
+            </h2>
+            <p className="text-[10px] text-slate-500 dark:text-slate-400">
+              {activeSubTab === 'plan'
+                ? 'จัดการรายการเครื่องจักร รายการตรวจสอบ และแผนการบำรุงรักษาเชิงป้องกันตามรอบเวลา'
+                : 'ดัชนีชี้วัดประสิทธิภาพ PM Pillar (KPIs) และบันทึกประวัติการตรวจเช็ค PM ย้อนหลัง'}
+            </p>
+          </div>
+        </div>
+
+        {/* Sub-Tab Switcher */}
+        <div className="flex items-center bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-1 rounded-xl gap-1 shrink-0">
+          <button
+            id="tab-btn-pm-plan"
+            type="button"
+            onClick={() => setActiveSubTab('plan')}
+            className={`flex items-center gap-2 px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+              activeSubTab === 'plan'
+                ? 'bg-cyan-600 text-white shadow-sm'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-900'
+            }`}
+          >
+            <ClipboardList size={14} />
+            <span>📋 แผน PM</span>
+          </button>
+          
+          <button
+            id="tab-btn-pm-kpi"
+            type="button"
+            onClick={() => setActiveSubTab('kpi')}
+            className={`flex items-center gap-2 px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+              activeSubTab === 'kpi'
+                ? 'bg-cyan-600 text-white shadow-sm'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-900'
+            }`}
+          >
+            <ShieldCheck size={14} />
+            <span>🎯 ข้อมูล PM (KPI)</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Tab Content */}
+      {activeSubTab === 'kpi' ? (
+        <div className="space-y-6" id="pm-kpi-subtab-container">
+          <PMKpiPanel />
+          <div className="pt-2">
+            <PMHistoryPage />
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6" id="pmplan-page-root">
       
       {/* LEFT COLUMN: Searchable machine select */}
       <div 
@@ -2141,6 +2215,8 @@ export const PMPlanPage: React.FC = () => {
         </div>
       )}
 
+        </div>
+      )}
     </div>
   );
 };

@@ -278,3 +278,11 @@ export interface ZoneStructure {
   rooms: string[]; // รายชื่อห้องภายในโซนนี้
   description?: string; // รายละเอียดเพิ่มเติม
 }
+
+export interface PlannedProductionTime {
+  id: string;
+  machineId: string;
+  month: string; /* YYYY-MM */
+  plannedHours: number; /* ชม. */
+}
+

@@ -9,13 +9,8 @@ import {
   X, History, Cpu, FileSpreadsheet, Sparkles, ClipboardCheck,
   FolderOpen, Folder, Copy, Check, Boxes, Download, Upload, FileUp, FileCheck
 } from 'lucide-react';
-import { PMHistoryPage } from './PMHistoryPage';
-
 export const TimeBreakPage: React.FC = () => {
   const { machines, spareParts, timeBreakParts, setTimeBreakParts, technicians } = useApp();
-
-  // Active view tab: Time-Break vs PM History
-  const [activeTab, setActiveTab] = useState<'timebreak' | 'pmhistory'>('timebreak');
 
   // Month filter for current month table
   const currentYearMonth = '2026-09';
@@ -999,83 +994,45 @@ export const TimeBreakPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-2.5 flex-wrap">
-            {/* Tab switch between Time-Break and old PM History */}
-            <div className="bg-slate-100 dark:bg-slate-900 p-1 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center">
-              <button
-                id="btn-tab-time-break"
-                onClick={() => setActiveTab('timebreak')}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all flex items-center gap-1.5 ${
-                  activeTab === 'timebreak' 
-                    ? 'bg-cyan-600 text-white shadow-md' 
-                    : 'text-slate-600 dark:text-slate-400 hover:text-fg'
-                }`}
-              >
-                <Clock className="w-3.5 h-3.5" />
-                ตาราง Time-Break
-              </button>
-              <button
-                id="btn-tab-pm-history"
-                onClick={() => setActiveTab('pmhistory')}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all flex items-center gap-1.5 ${
-                  activeTab === 'pmhistory' 
-                    ? 'bg-cyan-600 text-white shadow-md' 
-                    : 'text-slate-600 dark:text-slate-400 hover:text-fg'
-                }`}
-              >
-                <ClipboardCheck className="w-3.5 h-3.5" />
-                งานบันทึกประวัติ PM (เดิม)
-              </button>
-            </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              id="btn-export-timebreak-excel"
+              onClick={() => handleExportExcel()}
+              className="px-3 py-2 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-cyan-700 dark:text-cyan-300 hover:text-cyan-800 dark:hover:text-fg border border-slate-300 dark:border-slate-700 flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
+              title="ส่งออกข้อมูลอะไหล่ Time-Break ทั้งหมดเป็นไฟล์ Excel (.xlsx)"
+            >
+              <Download className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
+              <span>Export Excel</span>
+            </button>
 
-            {activeTab === 'timebreak' && (
-              <div className="flex items-center gap-2 flex-wrap">
-                <button
-                  id="btn-export-timebreak-excel"
-                  onClick={() => handleExportExcel()}
-                  className="px-3 py-2 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-cyan-700 dark:text-cyan-300 hover:text-cyan-800 dark:hover:text-fg border border-slate-300 dark:border-slate-700 flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
-                  title="ส่งออกข้อมูลอะไหล่ Time-Break ทั้งหมดเป็นไฟล์ Excel (.xlsx)"
-                >
-                  <Download className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
-                  <span>Export Excel</span>
-                </button>
+            <button
+              id="btn-import-timebreak-excel"
+              onClick={() => {
+                setImportParsedParts([]);
+                setImportError(null);
+                setImportFileName('');
+                setShowImportModal(true);
+              }}
+              className="px-3 py-2 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-emerald-700 dark:text-emerald-300 hover:text-emerald-800 dark:hover:text-fg border border-slate-300 dark:border-slate-700 flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
+              title="นำเข้าข้อมูลอะไหล่ Time-Break จากไฟล์ Excel (.xlsx, .xls, .csv)"
+            >
+              <Upload className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <span>Import Excel</span>
+            </button>
 
-                <button
-                  id="btn-import-timebreak-excel"
-                  onClick={() => {
-                    setImportParsedParts([]);
-                    setImportError(null);
-                    setImportFileName('');
-                    setShowImportModal(true);
-                  }}
-                  className="px-3 py-2 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-emerald-700 dark:text-emerald-300 hover:text-emerald-800 dark:hover:text-fg border border-slate-300 dark:border-slate-700 flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
-                  title="นำเข้าข้อมูลอะไหล่ Time-Break จากไฟล์ Excel (.xlsx, .xls, .csv)"
-                >
-                  <Upload className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                  <span>Import Excel</span>
-                </button>
-
-                <button
-                  id="btn-add-timebreak-part"
-                  onClick={() => handleOpenAddPart()}
-                  className="px-3.5 py-2 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-1.5 transition-all shadow-md cursor-pointer"
-                >
-                  <Plus className="w-4 h-4" />
-                  เพิ่มอะไหล่ Time-Break
-                </button>
-              </div>
-            )}
+            <button
+              id="btn-add-timebreak-part"
+              onClick={() => handleOpenAddPart()}
+              className="px-3.5 py-2 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-1.5 transition-all shadow-md cursor-pointer"
+            >
+              <Plus className="w-4 h-4" />
+              เพิ่มอะไหล่ Time-Break
+            </button>
           </div>
         </div>
       </div>
 
-      {/* If PM History tab is selected, render the complete PMHistoryPage component */}
-      {activeTab === 'pmhistory' ? (
-        <div className="flex-1">
-          <PMHistoryPage />
-        </div>
-      ) : (
-        <div className="p-4 sm:p-6 max-w-7xl mx-auto w-full space-y-6">
+      <div className="p-4 sm:p-6 max-w-7xl mx-auto w-full space-y-6">
           
           {/* Notification banner for Export / Import / Copy operations */}
           {(exportSuccessMsg || copyFeedbackMsg) && (
@@ -1834,7 +1791,6 @@ export const TimeBreakPage: React.FC = () => {
             </div>
           </div>
         </div>
-      )}
 
       {/* 5. MODAL: รายละเอียดและระบุ PART ของตัวเครื่อง (เมื่อกดไปที่ตัวเครื่อง) */}
       {selectedMachineId && activeMachine && (

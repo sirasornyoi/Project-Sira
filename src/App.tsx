@@ -58,6 +58,9 @@ function AppContent() {
   // Settings global Dialog modal open status
   const [showSettings, setShowSettings] = useState<boolean>(false);
 
+  // Sub-tab control for PMPlanPage (plan vs kpi)
+  const [pmPlanSubTab, setPmPlanSubTab] = useState<'plan' | 'kpi'>('plan');
+
   // Dynamic live clock for Thailand local context
   const [liveTime, setLiveTime] = useState<string>('21:46:56');
   const [liveDate, setLiveDate] = useState<string>('พุธที่ 10 มิถุนายน 2569');
@@ -91,7 +94,7 @@ function AppContent() {
   const renderActivePage = () => {
     switch (activePage) {
       case 1: return <MachinePage />;
-      case 2: return <PMPlanPage />;
+      case 2: return <PMPlanPage initialSubTab={pmPlanSubTab} />;
       case 3: return <SchedulePage />;
       case 4: return <RepairPage />;
       case 11: return <TimeBreakPage />;
@@ -171,7 +174,12 @@ function AppContent() {
                 <button
                   key={item.id}
                   id={`nav-item-btn-${item.id}`}
-                  onClick={() => setActivePage(item.id)}
+                  onClick={() => {
+                    if (item.id === 2) {
+                      setPmPlanSubTab('plan');
+                    }
+                    setActivePage(item.id);
+                  }}
                   title={item.label}
                   className={`w-full flex items-center justify-between rounded-xl p-2.5 transition-all text-xs font-semibold ${
                     isSelected
@@ -338,7 +346,8 @@ function AppContent() {
         <PMOverdueAlertModal 
           onClose={() => setShowOverdueModal(false)}
           onNavigateToPMHistory={() => {
-            setActivePage(11);
+            setPmPlanSubTab('kpi');
+            setActivePage(2);
             setShowOverdueModal(false);
           }}
           onNavigateToSchedule={() => {

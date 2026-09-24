@@ -12,9 +12,10 @@ import {
   FileText, Coffee, Sparkles, Wrench, Package
 } from 'lucide-react';
 import { getTodayDateString } from '../utils/pmAlerts';
+import { calculateMachineKpi, calculateMultiMachineKpi } from '../utils/pmKpi';
 
 export const DashboardPage: React.FC = () => {
-  const { machines, pmPlans, schedules, repairs, improvements, settings, technicians, leaves, spareParts } = useApp();
+  const { machines, pmPlans, schedules, repairs, improvements, settings, technicians, leaves, spareParts, plannedProductionTimes } = useApp();
   
   // Selected technician for Technician Profile Card overlay modal
   const [selectedTechnician, setSelectedTechnician] = useState<string | null>(null);
@@ -53,23 +54,13 @@ export const DashboardPage: React.FC = () => {
   const daysInMonth = (selYear && selMonth)
     ? new Date(selYear, selMonth, 0).getDate()
     : 30;
-  const operatingHoursFactor = daysInMonth * 16; // 2 shifts standard is 16 hours.
 
   // --- 1. CALCULATE TOP 4 KPIs FOR SELECTED MONTH (General) ---
   const monthRepairs = repairs.filter(r => r.date.startsWith(selectedMonth));
-  const totalBdMin = monthRepairs.reduce((sum, r) => sum + r.duration, 0);
   
-  // KPI 1: %BD เดือนนี้ = ((BD_min/60) / (days * 16)) * 100
-  const bdDurationHrs = totalBdMin / 60;
-  const bdPercentage = parseFloat(((bdDurationHrs / operatingHoursFactor) * 100).toFixed(2)) || 0;
-
-  // KPI 2: MTTR เฉลี่ย (นาที)
-  const mttrAvg = monthRepairs.length > 0 
-    ? parseFloat((totalBdMin / monthRepairs.length).toFixed(1)) 
-    : 0;
-
-  // KPI 3: MTBF เฉลี่ย (วัน) = operating_days / (BD_count + 1)
-  const mtbfAvg = parseFloat((daysInMonth / (monthRepairs.length + 1)).toFixed(1));
+  // Centralized PM Pillar KPI calculations
+  const kpiSummary = calculateMultiMachineKpi(machines, selectedMonth, repairs, plannedProductionTimes);
+  const currentMttrMinutes = kpiSummary.overallMttr !== null ? parseFloat((kpiSummary.overallMttr * 60).toFixed(1)) : 0;
 
   // KPI 4: PM Compliance % = completed PM / scheduled PM * 100
   const monthPMs = schedules.filter(s => s.type === 'PM' && s.date.startsWith(selectedMonth));
@@ -80,7 +71,7 @@ export const DashboardPage: React.FC = () => {
 
   // --- 2. WORKLOAD CALCULATION ---
   const pmHrsThisMonth = monthPMs.reduce((sum, s) => sum + s.duration, 0) / 60;
-  const repairHrsThisMonth = totalBdMin / 60;
+  const repairHrsThisMonth = kpiSummary.totalBdHours;
   
   const opHrsThisMonth = schedules.filter(s => {
     if (s.type !== 'Operation') return false;
@@ -478,8 +469,14 @@ export const DashboardPage: React.FC = () => {
           </div>
           <div>
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none block">อัตราการชำรุด (% Breakdown)</span>
-            <span className="text-xl font-mono font-extrabold text-cyan-400 mt-1.5 block">{bdPercentage}%</span>
-            <p className="text-[9px] text-slate-500 mt-1 font-mono">Std.Limit &lt; 2.5% (กะผลิตหลัก)</p>
+            <span className="text-xl font-mono font-extrabold text-cyan-400 mt-1.5 block">
+              {kpiSummary.overallPercentBd !== null ? `${kpiSummary.overallPercentBd.toFixed(2)}%` : '—'}
+            </span>
+            <p className="text-[9px] text-slate-500 mt-1 font-mono">
+              {kpiSummary.coveredMachines < kpiSummary.totalMachines
+                ? `มี Planned ${kpiSummary.coveredMachines}/${kpiSummary.totalMachines} เครื่อง (${Math.round(kpiSummary.coverageRatio * 100)}%)`
+                : 'Std.Limit < 2.5% (กะผลิตหลัก)'}
+            </p>
           </div>
         </div>
 
@@ -491,9 +488,17 @@ export const DashboardPage: React.FC = () => {
           <div>
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none block">เวลาซ่อมแซมเฉลี่ย (MTTR)</span>
             <span className="text-xl font-mono font-extrabold text-rose-400 mt-1.5 block">
-              {mttrAvg} <span className="text-[11px] font-sans text-rose-300">นาที</span>
+              {kpiSummary.overallMttr !== null ? (
+                <>
+                  {kpiSummary.overallMttr.toFixed(2)} <span className="text-[11px] font-sans text-rose-300">ชม.</span>
+                </>
+              ) : (
+                '—'
+              )}
             </span>
-            <p className="text-[9px] text-slate-500 mt-1 font-mono">ดัชนีประสิทธิภาพฝีมือช่างซ่อม</p>
+            <p className="text-[9px] text-slate-500 mt-1 font-mono">
+              {kpiSummary.totalFailures > 0 ? `${kpiSummary.totalBdHours.toFixed(2)} ชม. / ${kpiSummary.totalFailures} ครั้ง` : 'ไม่มี Breakdown'}
+            </p>
           </div>
         </div>
 
@@ -505,9 +510,19 @@ export const DashboardPage: React.FC = () => {
           <div>
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none block">รอบห่างเครื่องพร้อมใช้ (MTBF)</span>
             <span className="text-xl font-mono font-extrabold text-amber-400 mt-1.5 block">
-              {mtbfAvg} <span className="text-[11px] font-sans text-amber-300">วัน</span>
+              {kpiSummary.overallMtbf !== null ? (
+                <>
+                  {kpiSummary.overallMtbf.toFixed(1)} <span className="text-[11px] font-sans text-amber-300">ชม.</span>
+                </>
+              ) : (
+                '—'
+              )}
             </span>
-            <p className="text-[9px] text-slate-500 mt-1 font-mono">เป้าหมายความน่าเชื่อถือเครื่องจักร</p>
+            <p className="text-[9px] text-slate-500 mt-1 font-mono">
+              {kpiSummary.coveredMachines < kpiSummary.totalMachines
+                ? `มี Planned ${kpiSummary.coveredMachines}/${kpiSummary.totalMachines} เครื่อง (${Math.round(kpiSummary.coverageRatio * 100)}%)`
+                : 'เป้าหมายความน่าเชื่อถือเครื่องจักร'}
+            </p>
           </div>
         </div>
 
@@ -984,12 +999,12 @@ export const DashboardPage: React.FC = () => {
               <div className="space-y-2 border-t border-slate-700/40 pt-3 text-[10px]">
                 <div className="flex justify-between items-center text-slate-350">
                   <span>⏱ เวลาซ่อมเฉลี่ยปัจจุบัน:</span>
-                  <span className="font-mono font-bold text-slate-200">{mttrAvg} นาที</span>
+                  <span className="font-mono font-bold text-slate-200">{currentMttrMinutes} นาที</span>
                 </div>
                 <div className="flex justify-between items-center text-slate-350">
                   <span>🎯 อัตราคลาดเคลื่อนรวม:</span>
                   <span className="font-mono font-bold text-amber-400">
-                    {mttrAvg > 50 ? "+8.5% ช้ากว่าเป้า" : "-3.2% เร็วกว่าเป้า"}
+                    {currentMttrMinutes > 50 ? "+8.5% ช้ากว่าเป้า" : "-3.2% เร็วกว่าเป้า"}
                   </span>
                 </div>
               </div>
@@ -1536,26 +1551,32 @@ export const DashboardPage: React.FC = () => {
                     <th className="py-3 px-4 text-left">รหัส</th>
                     <th className="py-3 px-4 text-left">ชื่อเครื่องจักร</th>
                     <th className="py-3 px-3">อัตรา breakdown (%)</th>
-                    <th className="py-3 px-3">รวมเวลาพังทั้งหมด (นาที)</th>
-                    <th className="py-3 px-3">ห้วงความห่างใช้งานได้ต่อเนื่อง (MTBF วัน)</th>
+                    <th className="py-3 px-3">รวมเวลาพังทั้งหมด (ชม.)</th>
+                    <th className="py-3 px-3">ห้วงความห่างใช้งานได้ต่อเนื่อง (MTBF ชม.)</th>
                     <th className="py-3 px-3">จำนวนครั้งซ่อมหยุด</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-700/50 text-center">
                   {machines.slice(0, 10).map(m => {
-                    const machReps = repairs.filter(r => r.machineId === m.id && r.date.startsWith(selectedMonth));
-                    const totalMins = machReps.reduce((sum, r) => sum + r.duration, 0);
-                    const percentBd = parseFloat(((totalMins / 60 / operatingHoursFactor) * 100).toFixed(2)) || 0;
-                    const mtbfVal = parseFloat((daysInMonth / (machReps.length + 1)).toFixed(1));
+                    const plannedVal = plannedProductionTimes.find(pt => pt.machineId === m.id && pt.month === selectedMonth)?.plannedHours ?? null;
+                    const machKpi = calculateMachineKpi(m.id, selectedMonth, repairs, plannedVal);
 
                     return (
                       <tr key={m.id} className="hover:bg-slate-700/20">
                         <td className="py-3 px-4 font-mono font-bold text-cyan-400 text-left">{m.id}</td>
                         <td className="py-3 px-4 text-slate-200 text-left font-sans truncate max-w-[150px]">{m.name}</td>
-                        <td className="py-3 px-3 font-mono font-semibold text-rose-400">{percentBd}%</td>
-                        <td className="py-3 px-3 font-mono text-slate-202">{totalMins} นาที</td>
-                        <td className="py-3 px-3 font-mono text-amber-400 font-bold">{mtbfVal} วัน</td>
-                        <td className="py-3 px-3 font-mono font-bold text-slate-400">{machReps.length} ครั้ง</td>
+                        <td className="py-3 px-3 font-mono font-semibold text-rose-400">
+                          {machKpi.percentBd !== null ? `${machKpi.percentBd.toFixed(2)}%` : '—'}
+                        </td>
+                        <td className="py-3 px-3 font-mono text-slate-200">
+                          {machKpi.bdHours.toFixed(2)} ชม.
+                        </td>
+                        <td className="py-3 px-3 font-mono text-amber-400 font-bold">
+                          {machKpi.mtbf !== null ? `${machKpi.mtbf.toFixed(1)} ชม.` : '—'}
+                        </td>
+                        <td className="py-3 px-3 font-mono font-bold text-slate-400">
+                          {machKpi.failures} ครั้ง
+                        </td>
                       </tr>
                     );
                   })}

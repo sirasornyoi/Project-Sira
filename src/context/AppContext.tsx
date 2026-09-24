@@ -3,7 +3,7 @@ import {
   Machine, PMPlan, PMScheduleItem, OperationScheduleItem, 
   RepairLog, ImprovementProject, SystemSettings, ScheduleItem, Employee,
   TechnicianLeave, SparePart, TimeBreakPartItem, ZoneStructure,
-  WhyWhyAnalysis
+  WhyWhyAnalysis, PlannedProductionTime
 } from '../types';
 import { 
   PRELOADED_MACHINES, PRELOADED_TECHNICIANS, PRELOADED_PM_PLANS, 
@@ -38,6 +38,8 @@ interface AppContextType {
   setSpareParts: React.Dispatch<React.SetStateAction<SparePart[]>>;
   timeBreakParts: TimeBreakPartItem[];
   setTimeBreakParts: React.Dispatch<React.SetStateAction<TimeBreakPartItem[]>>;
+  plannedProductionTimes: PlannedProductionTime[];
+  setPlannedProductionTimes: React.Dispatch<React.SetStateAction<PlannedProductionTime[]>>;
   zones: ZoneStructure[];
   setZones: React.Dispatch<React.SetStateAction<ZoneStructure[]>>;
   whyWhyDrafts: WhyWhyAnalysis[];
@@ -168,6 +170,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [leaves, setLeaves] = useState<TechnicianLeave[]>([]);
   const [spareParts, setSpareParts] = useState<SparePart[]>([]);
   const [timeBreakParts, setTimeBreakParts] = useState<TimeBreakPartItem[]>([]);
+  const [plannedProductionTimes, setPlannedProductionTimes] = useState<PlannedProductionTime[]>([]);
   const [zones, setZones] = useState<ZoneStructure[]>([]);
   const [whyWhyDrafts, setWhyWhyDrafts] = useState<WhyWhyAnalysis[]>(() => {
     try {
@@ -215,14 +218,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const lastLocalSaveTimeRef = useRef<number>(0);
   const currentStateRef = useRef({
     machines, technicians, employees, pmPlans, pmMachineIds, schedules,
-    repairs, improvements, leaves, spareParts, timeBreakParts, settings, zones, whyWhyDrafts
+    repairs, improvements, leaves, spareParts, timeBreakParts, plannedProductionTimes, settings, zones, whyWhyDrafts
   });
 
   // Always keep currentStateRef up-to-date with the latest state values
   useEffect(() => {
     currentStateRef.current = {
       machines, technicians, employees, pmPlans, pmMachineIds, schedules,
-      repairs, improvements, leaves, spareParts, timeBreakParts, settings, zones, whyWhyDrafts
+      repairs, improvements, leaves, spareParts, timeBreakParts, plannedProductionTimes, settings, zones, whyWhyDrafts
     };
   });
 
@@ -282,6 +285,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             setSpareParts(deduplicateById(serverData.spareParts || PRELOADED_SPARE_PARTS));
             setLeaves(deduplicateById(serverData.leaves || []));
             setTimeBreakParts(deduplicateById(serverData.timeBreakParts || PRELOADED_TIME_BREAK_PARTS));
+            setPlannedProductionTimes(deduplicateById(serverData.plannedProductionTimes || []));
             if (serverData.zones && Array.isArray(serverData.zones)) {
               setZones(mergeZonesWithMachines(serverData.zones, enriched));
             } else {
@@ -315,6 +319,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const storedSpareParts = localStorage.getItem('maint_spare_parts');
         const storedLeaves = localStorage.getItem('maint_leaves');
         const storedTimeBreakParts = localStorage.getItem('maint_time_break_parts');
+        const storedPlannedProdTimes = localStorage.getItem('maint_planned_production_times');
         const storedZones = localStorage.getItem('maint_zones');
 
         let currentLoadedMachines: Machine[] = PRELOADED_MACHINES;
@@ -375,6 +380,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setImprovements(deduplicateById(safeJsonParse(storedImprovements, PRELOADED_IMPROVEMENTS)));
         setSpareParts(deduplicateById(safeJsonParse(storedSpareParts, PRELOADED_SPARE_PARTS)));
         setTimeBreakParts(deduplicateById(safeJsonParse(storedTimeBreakParts, PRELOADED_TIME_BREAK_PARTS)));
+        setPlannedProductionTimes(deduplicateById(safeJsonParse(storedPlannedProdTimes, [])));
 
         const preloadingLeaves = [
           { id: 'lv-001', technician: 'ช่าง 1', date: '2026-06-08', type: 'ลากิจ' as const, note: 'ติดต่อราชการครอบครัว' },
@@ -488,6 +494,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       localStorage.setItem('maint_leaves', JSON.stringify(leaves));
       localStorage.setItem('maint_spare_parts', JSON.stringify(spareParts));
       localStorage.setItem('maint_time_break_parts', JSON.stringify(timeBreakParts));
+      localStorage.setItem('maint_planned_production_times', JSON.stringify(plannedProductionTimes));
       localStorage.setItem('maint_settings', JSON.stringify(settings));
       localStorage.setItem('maint_zones', JSON.stringify(zones));
       localStorage.setItem('maint_pm_machine_ids', JSON.stringify(pmMachineIds));
@@ -508,6 +515,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       leaves: deduplicateById(leaves),
       spareParts: deduplicateById(spareParts),
       timeBreakParts: deduplicateById(timeBreakParts),
+      plannedProductionTimes: deduplicateById(plannedProductionTimes),
       settings,
       zones,
       whyWhyDrafts: deduplicateById(whyWhyDrafts)
@@ -533,7 +541,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return () => clearTimeout(timerId);
   }, [
     machines, technicians, employees, pmPlans, pmMachineIds, schedules,
-    repairs, improvements, leaves, spareParts, timeBreakParts, settings, zones, whyWhyDrafts, isLoaded
+    repairs, improvements, leaves, spareParts, timeBreakParts, plannedProductionTimes, settings, zones, whyWhyDrafts, isLoaded
   ]);
 
   // Polling for updates from other LAN clients
@@ -587,6 +595,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             checkAndSet(curr.leaves, serverData.leaves, setLeaves);
             checkAndSet(curr.spareParts, serverData.spareParts, setSpareParts);
             checkAndSet(curr.timeBreakParts, serverData.timeBreakParts, setTimeBreakParts);
+            if (serverData.plannedProductionTimes) {
+              checkAndSet(curr.plannedProductionTimes, serverData.plannedProductionTimes, setPlannedProductionTimes);
+            }
             checkAndSet(curr.settings, serverData.settings, setSettings);
             if (serverData.zones) {
               checkAndSet(curr.zones, serverData.zones, setZones);
@@ -802,6 +813,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setSpareParts(PRELOADED_SPARE_PARTS);
     localStorage.setItem('maint_spare_parts', JSON.stringify(PRELOADED_SPARE_PARTS));
     localStorage.setItem('maint_time_break_parts', JSON.stringify(PRELOADED_TIME_BREAK_PARTS));
+    setPlannedProductionTimes([]);
+    localStorage.removeItem('maint_planned_production_times');
     localStorage.setItem('maint_zones', JSON.stringify(defZones));
     setWhyWhyDrafts([]);
     localStorage.removeItem('tpm_whyWhyDrafts');
@@ -823,6 +836,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       leaves,
       spareParts,
       timeBreakParts,
+      plannedProductionTimes,
       settings,
       zones,
       whyWhyDrafts
@@ -844,6 +858,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (dataObj.leaves) setLeaves(dataObj.leaves);
       if (dataObj.spareParts) setSpareParts(dataObj.spareParts);
       if (dataObj.timeBreakParts) setTimeBreakParts(dataObj.timeBreakParts);
+      if (dataObj.plannedProductionTimes && Array.isArray(dataObj.plannedProductionTimes)) {
+        setPlannedProductionTimes(dataObj.plannedProductionTimes);
+      }
       if (dataObj.settings) setSettings(dataObj.settings);
       if (dataObj.zones) setZones(dataObj.zones);
       if (dataObj.whyWhyDrafts && Array.isArray(dataObj.whyWhyDrafts)) setWhyWhyDrafts(dataObj.whyWhyDrafts);
@@ -869,6 +886,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       settings, setSettings,
       spareParts, setSpareParts,
       timeBreakParts, setTimeBreakParts,
+      plannedProductionTimes, setPlannedProductionTimes,
       zones, setZones,
       whyWhyDrafts, setWhyWhyDrafts,
       isLoaded,
