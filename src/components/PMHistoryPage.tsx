@@ -1066,103 +1066,116 @@ export const PMHistoryPage: React.FC = () => {
       </div>
 
       {/* VIEW PM DETAILS DISPLAY MODAL BOX */}
-      {selectedPmDetail && (
-        <div 
-          className="fixed inset-0 z-50 flex items-center justify-center bg-bg/80 backdrop-blur-xs p-4"
-          id="pm-detail-info-overlay"
-          onClick={() => setSelectedPmDetail(null)}
-        >
+      {selectedPmDetail && (() => {
+        const detailPlannedMins = getPlannedMinutes(selectedPmDetail);
+        const detailActualMins = getActualMinutes(selectedPmDetail);
+        const detailVariance = getPmVariance(selectedPmDetail);
+
+        return (
           <div 
-            className="w-full max-w-lg bg-white dark:bg-[#0b1222] border border-slate-200 dark:border-cyan-500/30 rounded-2xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-100 text-slate-900 dark:text-slate-100"
-            onClick={(e) => e.stopPropagation()}
-            id="pm-detail-info-dialog"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-bg/80 backdrop-blur-xs p-4"
+            id="pm-detail-info-overlay"
+            onClick={() => setSelectedPmDetail(null)}
           >
-            {/* Header Brand */}
-            <div className="p-4 bg-slate-50 dark:bg-[#080d1a] border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
-              <div className="flex items-center gap-2">
-                <ClipboardCheck className="text-cyan-600 dark:text-cyan-400" size={16} />
-                <span className="text-xs font-black tracking-wider uppercase text-slate-700 dark:text-slate-450">ใบตรวจงานบำรุงรักษาบอร์ดกลาง</span>
-              </div>
-              <button 
-                onClick={() => setSelectedPmDetail(null)}
-                className="text-xs text-slate-600 hover:text-slate-900 dark:text-slate-500 dark:hover:text-fg px-2.5 py-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition cursor-pointer"
-              >
-                ปิดหน้าต่าง
-              </button>
-            </div>
-
-            {/* Layout content */}
-            <div className="p-5 space-y-4 text-xs font-sans">
-              <div className="space-y-1">
-                <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold">ชื่อแผนงานบำรุงรักษา</p>
-                <h2 className="text-sm font-black text-slate-900 dark:text-fg">
-                  {pmPlans.find(p => p.id === selectedPmDetail.pmPlanId)?.title || 'บำรุงรักษาเครื่องจักร'}
-                </h2>
-                <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1">
-                  รหัสอ้างอิง: <span className="font-mono">{selectedPmDetail.id}</span> | วันที่: <span className="font-mono text-slate-900 dark:text-slate-100 font-bold">{selectedPmDetail.date}</span>
-                </p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 bg-slate-50 dark:bg-slate-900/80 p-3 rounded-xl border border-slate-200 dark:border-slate-850">
-                <div>
-                  <p className="text-[9px] text-slate-500 dark:text-slate-400 uppercase">ข้อมูลพิกัดเครื่องจักร</p>
-                  <p className="font-bold text-slate-900 dark:text-slate-300 mt-0.5">{selectedPmDetail.machineId}</p>
-                  <p className="text-[9.5px] text-slate-600 dark:text-zinc-500 mt-0.5">{machines.find(m => m.id === selectedPmDetail.machineId)?.name || 'พิกัดทั่วไป'}</p>
+            <div 
+              className="w-full max-w-lg bg-white dark:bg-[#0b1222] border border-slate-200 dark:border-cyan-500/30 rounded-2xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-100 text-slate-900 dark:text-slate-100"
+              onClick={(e) => e.stopPropagation()}
+              id="pm-detail-info-dialog"
+            >
+              {/* Header Brand */}
+              <div className="p-4 bg-slate-50 dark:bg-[#080d1a] border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                  <ClipboardCheck className="text-cyan-600 dark:text-cyan-400" size={16} />
+                  <span className="text-xs font-black tracking-wider uppercase text-slate-700 dark:text-slate-450">ใบตรวจงานบำรุงรักษาบอร์ดกลาง</span>
                 </div>
-                <div>
-                  <p className="text-[9px] text-slate-500 dark:text-slate-400 uppercase">กลุ่มระบบไลน์</p>
-                  <p className="font-bold text-slate-900 dark:text-slate-300 mt-0.5">{machines.find(m => m.id === selectedPmDetail.machineId)?.lineGroup || 'ฝ่ายบำรุงโรงแปรรูป'}</p>
-                </div>
+                <button 
+                  onClick={() => setSelectedPmDetail(null)}
+                  className="text-xs text-slate-600 hover:text-slate-900 dark:text-slate-500 dark:hover:text-fg px-2.5 py-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition cursor-pointer"
+                >
+                  ปิดหน้าต่าง
+                </button>
               </div>
 
-              {/* Time comparative section */}
-              <div className="bg-slate-50 dark:bg-[#050a14] border border-slate-200 dark:border-slate-800 p-4 rounded-xl space-y-3">
-                <p className="text-[9.5px] uppercase font-extrabold text-slate-700 dark:text-slate-450 tracking-wider">⏱ สเกลบันทึกระยะเวลาดำเนินการ (Time Comparative Metrics)</p>
-                <div className="grid grid-cols-2 gap-4 text-center">
-                  <div className="bg-white dark:bg-slate-900/60 p-2 rounded-lg border border-slate-200 dark:border-slate-800 shadow-xs">
-                    <p className="text-[9px] text-slate-500 dark:text-slate-400">เกณฑ์มาตรฐาน (TTM Plan)</p>
-                    <p className="text-base font-mono font-black text-slate-900 dark:text-slate-300 mt-0.5">{selectedPmDetail.duration} นาที</p>
+              {/* Layout content */}
+              <div className="p-5 space-y-4 text-xs font-sans">
+                <div className="space-y-1">
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold">ชื่อแผนงานบำรุงรักษา</p>
+                  <h2 className="text-sm font-black text-slate-900 dark:text-fg">
+                    {pmPlans.find(p => p.id === selectedPmDetail.pmPlanId)?.title || 'บำรุงรักษาเครื่องจักร'}
+                  </h2>
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1">
+                    รหัสอ้างอิง: <span className="font-mono">{selectedPmDetail.id}</span> | วันที่: <span className="font-mono text-slate-900 dark:text-slate-100 font-bold">{selectedPmDetail.date}</span>
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 bg-slate-50 dark:bg-slate-900/80 p-3 rounded-xl border border-slate-200 dark:border-slate-850">
+                  <div>
+                    <p className="text-[9px] text-slate-500 dark:text-slate-400 uppercase">ข้อมูลพิกัดเครื่องจักร</p>
+                    <p className="font-bold text-slate-900 dark:text-slate-300 mt-0.5">{selectedPmDetail.machineId}</p>
+                    <p className="text-[9.5px] text-slate-600 dark:text-zinc-500 mt-0.5">{machines.find(m => m.id === selectedPmDetail.machineId)?.name || 'พิกัดทั่วไป'}</p>
                   </div>
-                  <div className="bg-white dark:bg-slate-900/60 p-2 rounded-lg border border-slate-200 dark:border-slate-800 shadow-xs">
-                    <p className="text-[9px] text-slate-500 dark:text-slate-400">ปฏิบัติงานเสร็จจริง (Actual Spent)</p>
-                    <p className="text-base font-mono font-black text-slate-900 dark:text-slate-300 mt-0.5">
-                      {selectedPmDetail.actualDuration !== undefined ? `${selectedPmDetail.actualDuration} นาที` : 'ไม่ได้บันทึกเวลา'}
-                    </p>
+                  <div>
+                    <p className="text-[9px] text-slate-500 dark:text-slate-400 uppercase">กลุ่มระบบไลน์</p>
+                    <p className="font-bold text-slate-900 dark:text-slate-300 mt-0.5">{machines.find(m => m.id === selectedPmDetail.machineId)?.lineGroup || 'ฝ่ายบำรุงโรงแปรรูป'}</p>
                   </div>
                 </div>
 
-                {/* Comparative calculation details */}
-                {selectedPmDetail.status === 'เสร็จสิ้น' && selectedPmDetail.actualDuration !== undefined && (
-                  <div className="pt-2 border-t border-slate-200 dark:border-slate-850 text-center space-y-2">
-                    {selectedPmDetail.actualDuration === selectedPmDetail.duration ? (
-                      <p className="text-slate-700 dark:text-slate-300 font-bold">⏱ สปีดตรงตามเป้าหมาย (On Time Performance Perfect)</p>
-                    ) : selectedPmDetail.actualDuration > selectedPmDetail.duration ? (
-                      <div className="text-rose-600 dark:text-rose-450 font-medium space-y-0.5">
-                        <p className="font-bold">⚠️ ล่าช้ากว่าแผนสะสม: <b className="font-mono text-xs">+{selectedPmDetail.actualDuration - selectedPmDetail.duration} นาที</b></p>
-                        <p className="text-[10px] text-slate-500 dark:text-slate-400">คิดเป็นความลาดเคลื่อนเพิ่มขึ้น +{Math.round(((selectedPmDetail.actualDuration - selectedPmDetail.duration) / selectedPmDetail.duration) * 100)}% ของระยะมาตรฐาน</p>
-                      </div>
-                    ) : (
-                      <div className="text-emerald-600 dark:text-emerald-400 font-medium space-y-0.5">
-                        <p className="font-bold">⚡️ ทำเสร็จเร็วกว่าแผน: <b className="font-mono text-xs">-{selectedPmDetail.duration - selectedPmDetail.actualDuration} นาที</b></p>
-                        <p className="text-[10px] text-slate-500 dark:text-slate-400">เซฟเวลาลดลง -{Math.round(((selectedPmDetail.duration - selectedPmDetail.actualDuration) / selectedPmDetail.duration) * 100)}% (ประสิทธิภาพยอดเยี่ยม)</p>
-                      </div>
-                    )}
+                {/* Time comparative section */}
+                <div className="bg-slate-50 dark:bg-[#050a14] border border-slate-200 dark:border-slate-800 p-4 rounded-xl space-y-3">
+                  <p className="text-[9.5px] uppercase font-extrabold text-slate-700 dark:text-slate-450 tracking-wider">⏱ สเกลบันทึกระยะเวลาดำเนินการ (Time Comparative Metrics)</p>
+                  <div className="grid grid-cols-2 gap-4 text-center">
+                    <div className="bg-white dark:bg-slate-900/60 p-2 rounded-lg border border-slate-200 dark:border-slate-800 shadow-xs">
+                      <p className="text-[9px] text-slate-500 dark:text-slate-400">เกณฑ์มาตรฐาน (TTM Plan)</p>
+                      <p className="text-base font-mono font-black text-slate-900 dark:text-slate-300 mt-0.5">
+                        {formatPmMinutes(detailPlannedMins)}
+                      </p>
+                    </div>
+                    <div className="bg-white dark:bg-slate-900/60 p-2 rounded-lg border border-slate-200 dark:border-slate-800 shadow-xs">
+                      <p className="text-[9px] text-slate-500 dark:text-slate-400">ปฏิบัติงานเสร็จจริง (Actual Spent)</p>
+                      <p className="text-base font-mono font-black text-slate-900 dark:text-slate-300 mt-0.5">
+                        {formatPmMinutes(detailActualMins)}
+                      </p>
+                    </div>
+                  </div>
 
-                    {/* Overtime Reason Display in Detail Modal */}
-                    {selectedPmDetail.actualDuration > selectedPmDetail.duration && (
-                      <div className="p-3 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 rounded-xl space-y-1 text-left">
-                        <div className="flex items-center gap-1.5 text-rose-600 dark:text-rose-400 font-bold text-[10.5px]">
-                          <AlertTriangle size={13} className="shrink-0 text-rose-600 dark:text-rose-400" />
-                          <span>สาเหตุที่ใช้เวลาเกินมาตรฐาน:</span>
+                  {/* Comparative calculation details */}
+                  {(detailActualMins !== null || Boolean(selectedPmDetail.overtimeReason)) && (
+                    <div className="pt-2 border-t border-slate-200 dark:border-slate-850 text-center space-y-2">
+                      {detailActualMins !== null && (
+                        detailVariance !== null ? (
+                          detailVariance.diffMins === 0 ? (
+                            <p className="text-slate-700 dark:text-slate-300 font-bold">⏱ สปีดตรงตามเป้าหมาย (On Time Performance Perfect)</p>
+                          ) : detailVariance.diffMins > 0 ? (
+                            <div className="text-rose-600 dark:text-rose-450 font-medium space-y-0.5">
+                              <p className="font-bold">⚠️ ล่าช้ากว่าแผนสะสม: <b className="font-mono text-xs">+{detailVariance.diffMins} นาที</b></p>
+                              <p className="text-[10px] text-slate-500 dark:text-slate-400">คิดเป็นความลาดเคลื่อนเพิ่มขึ้น +{detailVariance.diffPct}% ของระยะมาตรฐาน</p>
+                            </div>
+                          ) : (
+                            <div className="text-emerald-600 dark:text-emerald-400 font-medium space-y-0.5">
+                              <p className="font-bold">⚡️ ทำเสร็จเร็วกว่าแผน: <b className="font-mono text-xs">-{Math.abs(detailVariance.diffMins)} นาที</b></p>
+                              <p className="text-[10px] text-slate-500 dark:text-slate-400">เซฟเวลาลดลง -{Math.abs(detailVariance.diffPct)}% (ประสิทธิภาพยอดเยี่ยม)</p>
+                            </div>
+                          )
+                        ) : (
+                          <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">ไม่ได้ระบุเวลาแผน — ไม่คำนวณส่วนต่าง</p>
+                        )
+                      )}
+
+                      {/* Overtime Reason Display in Detail Modal */}
+                      {((detailVariance !== null && detailVariance.diffMins > 0) || Boolean(selectedPmDetail.overtimeReason)) && (
+                        <div className="p-3 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 rounded-xl space-y-1 text-left">
+                          <div className="flex items-center gap-1.5 text-rose-600 dark:text-rose-400 font-bold text-[10.5px]">
+                            <AlertTriangle size={13} className="shrink-0 text-rose-600 dark:text-rose-400" />
+                            <span>สาเหตุที่ใช้เวลาเกินมาตรฐาน:</span>
+                          </div>
+                          <p className="text-xs text-rose-800 dark:text-rose-200 font-medium pl-4 leading-relaxed">
+                            {selectedPmDetail.overtimeReason || 'ไม่ได้ระบุสาเหตุเพิ่มเติมในระบบ'}
+                          </p>
                         </div>
-                        <p className="text-xs text-rose-800 dark:text-rose-200 font-medium pl-4 leading-relaxed">
-                          {selectedPmDetail.overtimeReason || 'ไม่ได้ระบุสาเหตุเพิ่มเติมในระบบ'}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
+                      )}
+                    </div>
+                  )}
+                </div>
 
               {/* Steps overview */}
               {pmPlans.find(p => p.id === selectedPmDetail.pmPlanId)?.steps && (
@@ -1333,7 +1346,8 @@ export const PMHistoryPage: React.FC = () => {
             </div>
           </div>
         </div>
-      )}
+        );
+      })()}
 
       {/* FORM MODAL FOR CREATING AND EDITING PM HISTORIES */}
       {showFormModal && (
