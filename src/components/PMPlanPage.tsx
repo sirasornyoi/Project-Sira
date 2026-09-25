@@ -21,18 +21,51 @@ import { PMHistoryPage } from './PMHistoryPage';
 export interface PMPlanPageProps {
   initialSubTab?: 'plan' | 'kpi' | 'history';
   navToken?: number;
+  focusMachineId?: string;
+  focusPlanId?: string;
 }
 
-export const PMPlanPage: React.FC<PMPlanPageProps> = ({ initialSubTab = 'plan', navToken = 0 }) => {
+export const PMPlanPage: React.FC<PMPlanPageProps> = ({ 
+  initialSubTab = 'plan', 
+  navToken = 0,
+  focusMachineId,
+  focusPlanId
+}) => {
   const { machines, pmPlans, setPmPlans, pmMachineIds, setPmMachineIds } = useApp();
 
   const [activeSubTab, setActiveSubTab] = useState<'plan' | 'kpi' | 'history'>(initialSubTab);
+  const [highlightedPlanId, setHighlightedPlanId] = useState<string | null>(null);
 
   useEffect(() => {
     if (initialSubTab) {
       setActiveSubTab(initialSubTab);
     }
-  }, [initialSubTab, navToken]);
+    if (focusMachineId) {
+      setSelectedMachineId(focusMachineId);
+    }
+    if (focusPlanId) {
+      setExpandedPlanIds(prev => ({
+        ...prev,
+        [focusPlanId]: true
+      }));
+      setHighlightedPlanId(focusPlanId);
+      const timer = setTimeout(() => {
+        setHighlightedPlanId(null);
+      }, 2000);
+
+      const scrollTimer = setTimeout(() => {
+        const el = document.getElementById(`pm-plan-card-${focusPlanId}`);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 150);
+
+      return () => {
+        clearTimeout(timer);
+        clearTimeout(scrollTimer);
+      };
+    }
+  }, [initialSubTab, navToken, focusMachineId, focusPlanId]);
   
   // Selected machine filter
   const [selectedMachineId, setSelectedMachineId] = useState<string>(() => {
@@ -1321,7 +1354,11 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({ initialSubTab = 'plan', 
                 <div 
                   key={plan.id} 
                   id={`pm-plan-card-${plan.id}`}
-                  className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm dark:shadow-lg transition-all"
+                  className={`bg-white dark:bg-slate-900 border rounded-2xl overflow-hidden shadow-sm dark:shadow-lg transition-all duration-300 ${
+                    highlightedPlanId === plan.id
+                      ? 'border-cyan-500 ring-4 ring-cyan-500/50 shadow-xl shadow-cyan-500/20'
+                      : 'border-slate-200 dark:border-slate-800'
+                  }`}
                 >
                   {/* Card Header */}
                   <div className="p-4 bg-slate-50 dark:bg-slate-900/90 border-b border-slate-200 dark:border-slate-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">

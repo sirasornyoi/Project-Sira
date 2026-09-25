@@ -28,7 +28,11 @@ const DESTINATION_PRESETS = [
   "คลังอะไหล่สำรอง"
 ];
 
-export const SchedulePage: React.FC = () => {
+export interface SchedulePageProps {
+  onOpenPMChecklist?: (machineId: string, pmPlanId: string) => void;
+}
+
+export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist }) => {
   const { 
     schedules, setSchedules, 
     technicians, pmPlans, machines, 
@@ -56,6 +60,8 @@ export const SchedulePage: React.FC = () => {
 
   // Selected date modal / details
   const [activeDateStr, setActiveDateStr] = useState<string | null>(null);
+  const [selectedTaskKey, setSelectedTaskKey] = useState<string | null>(null);
+  const [mobileShowDetail, setMobileShowDetail] = useState<boolean>(false);
 
   // Task creation/editing form modal
   const [showTaskForm, setShowTaskForm] = useState<boolean>(false);
@@ -295,6 +301,46 @@ export const SchedulePage: React.FC = () => {
     const otherList = schedules.filter(s => (s.type === 'Other' || s.type === 'Contact' || s.type === 'Operation') && s.date === dateStr) as ContactOtherTask[];
 
     // Calculate total people involved
+    let peopleSet = new Set<string>();
+    let totalAssignedPeople = 0;
+
+    pmList.forEach(pm => {
+      const count = pm.peopleCount || (pm.technicians?.length || 1);
+      totalAssignedPeople += count;
+      if (pm.technicians) pm.technicians.forEach(t => peopleSet.add(t));
+      else if (pm.technician) peopleSet.add(pm.technician);
+    });
+
+    repairList.forEach(rep => {
+      const count = rep.peopleCount || (rep.technicians?.length || 1);
+      totalAssignedPeople += count;
+      if (rep.technicians) rep.technicians.forEach(t => peopleSet.add(t));
+      else if (rep.technician) peopleSet.add(rep.technician);
+    });
+
+    otherList.forEach(oth => {
+      const count = oth.peopleCount || (oth.technicians?.length || 1);
+      totalAssignedPeople += count;
+      if (oth.technicians) oth.technicians.forEach(t => peopleSet.add(t));
+    });
+
+    return {
+      pmList,
+      repairList,
+      otherList,
+      totalTasksCount: pmList.length + repairList.length + otherList.length,
+      totalAssignedPeople,
+      uniqueTechniciansCount: peopleSet.size
+    };
+  };
+
+  // Helper to extract visible tasks for a given date based on taskTypeFilter
+  const getVisibleTasksForDate = (dateStr: string) => {
+    const raw = getTasksForDate(dateStr);
+    const pmList = (taskTypeFilter === 'ALL' || taskTypeFilter === 'PM') ? raw.pmList : [];
+    const repairList = (taskTypeFilter === 'ALL' || taskTypeFilter === 'REPAIR') ? raw.repairList : [];
+    const otherList = (taskTypeFilter === 'ALL' || taskTypeFilter === 'OTHER') ? raw.otherList : [];
+
     let peopleSet = new Set<string>();
     let totalAssignedPeople = 0;
 
@@ -595,7 +641,66 @@ export const SchedulePage: React.FC = () => {
   };
 
   // Active Date Details
-  const activeDateTasks = activeDateStr ? getTasksForDate(activeDateStr) : null;
+  const rawDateTasks = activeDateStr ? getTasksForDate(activeDateStr) : null;
+  const visibleDateTasks = activeDateStr ? getVisibleTasksForDate(activeDateStr) : null;
+
+  const allVisibleTaskItems = useMemo(() => {
+    if (!visibleDateTasks) return [];
+    const items: Array<
+      | { key: string; type: 'PM'; data: PMScheduleItem }
+      | { key: string; type: 'Repair'; data: RepairLog }
+      | { key: string; type: 'Other'; data: ContactOtherTask }
+    > = [];
+    visibleDateTasks.pmList.forEach(pm => items.push({ key: `PM:${pm.id}`, type: 'PM', data: pm }));
+    visibleDateTasks.repairList.forEach(rep => items.push({ key: `Repair:${rep.id}`, type: 'Repair', data: rep }));
+    visibleDateTasks.otherList.forEach(oth => items.push({ key: `Other:${oth.id}`, type: 'Other', data: oth }));
+    return items;
+  }, [visibleDateTasks]);
+
+  useEffect(() => {
+    if (!activeDateStr) {
+      setSelectedTaskKey(null);
+      setMobileShowDetail(false);
+      return;
+    }
+    if (allVisibleTaskItems.length === 0) {
+      setSelectedTaskKey(null);
+      return;
+    }
+    const exists = allVisibleTaskItems.some(item => item.key === selectedTaskKey);
+    if (!exists) {
+      setSelectedTaskKey(allVisibleTaskItems[0].key);
+    }
+  }, [activeDateStr, taskTypeFilter, allVisibleTaskItems, selectedTaskKey]);
+
+  // Helper to render detail field sections
+  const renderDetailSection = (
+    title: string,
+    icon: React.ReactNode,
+    fields: Array<{ label: string; value?: string | number | null }>
+  ) => {
+    const validFields = fields.filter(
+      f => f.value !== undefined && f.value !== null && String(f.value).trim() !== '' && String(f.value).trim() !== '-'
+    );
+    if (validFields.length === 0) return null;
+
+    return (
+      <div className="bg-slate-50 dark:bg-slate-950/40 rounded-xl p-3.5 sm:p-4 border border-slate-200 dark:border-slate-800 space-y-2">
+        <h5 className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 border-b border-slate-200/80 dark:border-slate-800/80 pb-1.5">
+          {icon}
+          <span>{title}</span>
+        </h5>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-1">
+          {validFields.map((f, fIdx) => (
+            <div key={fIdx} className="min-w-0">
+              <span className="text-[11px] text-slate-500 dark:text-slate-400 block">{f.label}</span>
+              <span className="font-semibold text-slate-900 dark:text-slate-100 break-words">{f.value}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="space-y-6" id="schedule-page-root">
@@ -789,13 +894,13 @@ export const SchedulePage: React.FC = () => {
               const isToday = dayStr === todayDateStr;
               const isSelected = activeDateStr === dayStr;
               
-              const { pmList, repairList, otherList, totalTasksCount, totalAssignedPeople } = getTasksForDate(dayStr);
-
-              // Filtering
-              const visiblePM = taskTypeFilter === 'ALL' || taskTypeFilter === 'PM' ? pmList : [];
-              const visibleRepair = taskTypeFilter === 'ALL' || taskTypeFilter === 'REPAIR' ? repairList : [];
-              const visibleOther = taskTypeFilter === 'ALL' || taskTypeFilter === 'OTHER' ? otherList : [];
-              const visibleTotal = visiblePM.length + visibleRepair.length + visibleOther.length;
+              const { 
+                pmList: visiblePM, 
+                repairList: visibleRepair, 
+                otherList: visibleOther, 
+                totalTasksCount: visibleTotal, 
+                totalAssignedPeople: visiblePeople 
+              } = getVisibleTasksForDate(dayStr);
 
               cells.push(
                 <div
@@ -830,21 +935,21 @@ export const SchedulePage: React.FC = () => {
                     </div>
 
                     {/* Summary Indicators */}
-                    {totalTasksCount > 0 && (
+                    {visibleTotal > 0 && (
                       <div className="flex items-center gap-1">
                         <span 
                           className="text-[9px] font-mono px-1.5 py-0.2 rounded-full bg-slate-800 border border-slate-700 text-slate-300 font-bold"
-                          title={`มีทั้งหมด ${totalTasksCount} งาน (กำลังคน ${totalAssignedPeople} คน)`}
+                          title={`มีทั้งหมด ${visibleTotal} งาน (กำลังคน ${visiblePeople} คน)`}
                         >
-                          {totalTasksCount} งาน
+                          {visibleTotal} งาน
                         </span>
-                        {totalAssignedPeople > 0 && (
+                        {visiblePeople > 0 && (
                           <span 
                             className="text-[8.5px] font-mono px-1 py-0.2 rounded bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 flex items-center gap-0.5"
-                            title={`กำลังคนที่ออกปฏิบัติงาน: ${totalAssignedPeople} คน`}
+                            title={`กำลังคนที่ออกปฏิบัติงาน: ${visiblePeople} คน`}
                           >
                             <Users size={9} />
-                            {totalAssignedPeople}
+                            {visiblePeople}
                           </span>
                         )}
                       </div>
@@ -964,386 +1069,660 @@ export const SchedulePage: React.FC = () => {
       </div>
 
       {/* 3. DATE DETAILS MODAL / DRAWER (เมื่อคลิกที่วันที่) */}
-      {activeDateStr && activeDateTasks && (
+      {activeDateStr && rawDateTasks && visibleDateTasks && (
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4 overflow-y-auto animate-in fade-in duration-150"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-2 sm:p-4 overflow-hidden animate-in fade-in duration-150"
           id="active-date-modal-overlay"
           onClick={() => setActiveDateStr(null)}
         >
           <div 
-            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl max-w-3xl w-full overflow-hidden shadow-2xl animate-in zoom-in-95 duration-150 my-6 text-slate-900 dark:text-slate-100"
+            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-750 rounded-2xl max-w-5xl w-full h-[90vh] max-h-[850px] flex flex-col overflow-hidden shadow-2xl animate-in zoom-in-95 duration-150 text-slate-900 dark:text-slate-100"
             id="active-date-modal"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div className="bg-slate-50 dark:bg-gradient-to-r dark:from-slate-900 dark:to-slate-800 border-b border-slate-200 dark:border-slate-750 p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-              <div>
-                {(() => {
-                  const [y, m, d] = activeDateStr.split('-');
-                  const dObj = new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
-                  const dayName = TH_DAYS[dObj.getDay()];
-                  const monthName = TH_MONTHS[parseInt(m) - 1];
-                  const yearTh = parseInt(y) + 543;
-                  return (
-                    <>
-                      <div className="flex items-center gap-2">
-                        <Calendar size={18} className="text-cyan-600 dark:text-cyan-400" />
-                        <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
-                          ตารางงานประจำ{dayName}ที่ {parseInt(d)} {monthName} {yearTh}
-                        </h2>
-                      </div>
-                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 font-mono">
-                        {activeDateStr} • มีทั้งหมด <b className="text-cyan-700 dark:text-cyan-400">{activeDateTasks.totalTasksCount} งาน</b> (รวมกำลังคนออกปฏิบัติงาน <b className="text-slate-900 dark:text-fg">{activeDateTasks.totalAssignedPeople} คน</b>)
-                      </p>
-                    </>
-                  );
-                })()}
+            <div className="bg-slate-50 dark:bg-gradient-to-r dark:from-slate-900 dark:to-slate-800 border-b border-slate-200 dark:border-slate-750 p-4 sm:p-5 shrink-0">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <div>
+                  {(() => {
+                    const [y, m, d] = activeDateStr.split('-');
+                    const dObj = new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
+                    const dayName = TH_DAYS[dObj.getDay()];
+                    const monthName = TH_MONTHS[parseInt(m) - 1];
+                    const yearTh = parseInt(y) + 543;
+                    return (
+                      <>
+                        <div className="flex items-center gap-2">
+                          <Calendar size={18} className="text-cyan-600 dark:text-cyan-400" />
+                          <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100">
+                            ตารางงานประจำ{dayName}ที่ {parseInt(d)} {monthName} {yearTh}
+                          </h2>
+                        </div>
+                        <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5 font-mono">
+                          {activeDateStr} • มีทั้งหมด <b className="text-cyan-700 dark:text-cyan-400">{visibleDateTasks.totalTasksCount} งาน</b> (รวม <b className="text-slate-900 dark:text-fg">{visibleDateTasks.totalAssignedPeople} คน</b>)
+                        </p>
+                      </>
+                    );
+                  })()}
+                </div>
+
+                <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                  <button
+                    id="btn-add-task-on-date"
+                    type="button"
+                    onClick={() => {
+                      const defaultType: 'PM' | 'Repair' | 'Other' = 
+                        taskTypeFilter === 'REPAIR' ? 'Repair' :
+                        taskTypeFilter === 'OTHER' ? 'Other' : 'PM';
+                      handleOpenCreateForm(activeDateStr, defaultType);
+                    }}
+                    className="px-3.5 py-1.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white dark:bg-cyan-500 dark:hover:bg-cyan-400 dark:text-slate-950 text-xs font-bold transition flex items-center gap-1.5 shadow cursor-pointer shrink-0"
+                  >
+                    <Plus size={14} />
+                    + เพิ่มงานในวันนี้
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveDateStr(null)}
+                    className="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg text-lg leading-none transition cursor-pointer"
+                  >
+                    ✕
+                  </button>
+                </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              {/* View filter chips inside modal header (synced with taskTypeFilter) */}
+              <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-800 flex flex-wrap items-center gap-1.5 text-xs">
+                <span className="text-[10px] font-semibold text-slate-400 flex items-center gap-1 mr-1">
+                  <Filter size={11} /> มุมมอง:
+                </span>
                 <button
-                  id="btn-add-task-on-date"
-                  onClick={() => handleOpenCreateForm(activeDateStr, 'PM')}
-                  className="px-3.5 py-1.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white dark:bg-cyan-500 dark:hover:bg-cyan-400 dark:text-slate-950 text-xs font-bold transition flex items-center gap-1.5 shadow"
+                  type="button"
+                  onClick={() => setTaskTypeFilter('ALL')}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${
+                    taskTypeFilter === 'ALL'
+                      ? 'bg-cyan-500 text-slate-950 shadow'
+                      : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'
+                  }`}
                 >
-                  <Plus size={14} />
-                  + เพิ่มงานในวันนี้
+                  ทั้งหมด ({rawDateTasks.totalTasksCount})
                 </button>
                 <button
-                  onClick={() => setActiveDateStr(null)}
-                  className="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg text-lg leading-none transition"
+                  type="button"
+                  onClick={() => setTaskTypeFilter('PM')}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer ${
+                    taskTypeFilter === 'PM'
+                      ? 'bg-blue-500 text-white shadow'
+                      : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'
+                  }`}
                 >
-                  ✕
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
+                  งาน PM ({rawDateTasks.pmList.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTaskTypeFilter('REPAIR')}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer ${
+                    taskTypeFilter === 'REPAIR'
+                      ? 'bg-rose-500 text-white shadow'
+                      : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'
+                  }`}
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-rose-400"></span>
+                  งานซ่อม ({rawDateTasks.repairList.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTaskTypeFilter('OTHER')}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer ${
+                    taskTypeFilter === 'OTHER'
+                      ? 'bg-emerald-500 text-slate-950 shadow'
+                      : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'
+                  }`}
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                  งานติดต่อ / อื่นๆ ({rawDateTasks.otherList.length})
                 </button>
               </div>
             </div>
 
-            {/* Modal Body: 3 Task Categories */}
-            <div className="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
+            {/* Modal Body: Split 2 panes (Left ~40%, Right ~60%) on md+, toggleable on mobile */}
+            <div className="flex-1 min-h-0 flex flex-col md:flex-row overflow-hidden bg-slate-50 dark:bg-slate-900">
               
-              {/* SECTION 1: งาน PM ของช่างแต่ละคน */}
-              <div className="space-y-3" id="section-pm-tasks">
-                <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-750 pb-2">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
-                    <h3 className="text-sm font-bold text-blue-900 dark:text-blue-300">
-                      งาน PM ของช่างแต่ละคน ({activeDateTasks.pmList.length})
-                    </h3>
+              {/* LEFT PANE (~40%): Minimal task list */}
+              <div 
+                className={`${mobileShowDetail ? 'hidden md:flex' : 'flex'} flex-col w-full md:w-5/12 lg:w-[380px] shrink-0 border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/60 overflow-y-auto`}
+                id="modal-tasks-left-pane"
+              >
+                {allVisibleTaskItems.length === 0 ? (
+                  <div className="p-8 text-center text-xs text-slate-500 dark:text-slate-400">
+                    ไม่มีรายการงานที่ตรงกับมุมมองในวันนี้
                   </div>
+                ) : (
+                  <div className="divide-y divide-slate-200 dark:divide-slate-800/80">
+                    
+                    {/* Category: PM */}
+                    {(taskTypeFilter === 'ALL' || taskTypeFilter === 'PM') && (
+                      <div id="left-group-pm">
+                        <div className="flex justify-between items-center px-4 py-2 bg-slate-100/80 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-10">
+                          <div className="flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                            <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                              งาน PM ({visibleDateTasks.pmList.length})
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleOpenCreateForm(activeDateStr, 'PM')}
+                            className="text-[11px] text-blue-600 dark:text-blue-400 font-semibold hover:underline cursor-pointer"
+                          >
+                            + เพิ่ม
+                          </button>
+                        </div>
+
+                        {visibleDateTasks.pmList.length === 0 ? (
+                          <div className="px-4 py-3 text-center text-[11px] text-slate-400 italic">
+                            ไม่มีงาน PM ในวันนี้
+                          </div>
+                        ) : (
+                          visibleDateTasks.pmList.map(pm => {
+                            const mach = machines.find(m => m.id === pm.machineId);
+                            const plan = pmPlans.find(p => p.id === pm.pmPlanId);
+                            const isSelected = selectedTaskKey === `PM:${pm.id}`;
+                            const loc = pm.destination || (pm.machineId ? `แท่นเครื่อง ${pm.machineId}` : 'ไม่ระบุพิกัด');
+                            const statusDot = pm.status === 'เสร็จสิ้น' ? 'bg-emerald-500' : pm.status === 'กำลังทำ' ? 'bg-amber-500' : 'bg-slate-400';
+
+                            return (
+                              <div
+                                key={`row-pm-${pm.id}`}
+                                onClick={() => {
+                                  setSelectedTaskKey(`PM:${pm.id}`);
+                                  setMobileShowDetail(true);
+                                }}
+                                className={`px-4 py-2.5 cursor-pointer border-b border-slate-100 dark:border-slate-800/60 transition-colors select-none ${
+                                  isSelected
+                                    ? 'border-l-4 border-l-cyan-500 bg-cyan-100/70 dark:bg-cyan-950/40 text-slate-900 dark:text-slate-100'
+                                    : 'border-l-4 border-l-transparent hover:bg-slate-100/70 dark:hover:bg-slate-800/50'
+                                }`}
+                              >
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <span className={`w-2 h-2 rounded-full shrink-0 ${statusDot}`} />
+                                  <span className="text-xs font-bold truncate">
+                                    {pm.machineId} {mach?.name || 'เครื่องจักร'}
+                                  </span>
+                                </div>
+                                <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate pl-4 mt-0.5">
+                                  {plan?.title || 'แผน PM'} · 📍{loc}
+                                </div>
+                              </div>
+                            );
+                          })
+                        )}
+                      </div>
+                    )}
+
+                    {/* Category: Repair */}
+                    {(taskTypeFilter === 'ALL' || taskTypeFilter === 'REPAIR') && (
+                      <div id="left-group-repair">
+                        <div className="flex justify-between items-center px-4 py-2 bg-slate-100/80 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-10">
+                          <div className="flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-rose-500"></span>
+                            <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                              งานซ่อม ({visibleDateTasks.repairList.length})
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleOpenCreateForm(activeDateStr, 'Repair')}
+                            className="text-[11px] text-rose-600 dark:text-rose-400 font-semibold hover:underline cursor-pointer"
+                          >
+                            + เพิ่ม
+                          </button>
+                        </div>
+
+                        {visibleDateTasks.repairList.length === 0 ? (
+                          <div className="px-4 py-3 text-center text-[11px] text-slate-400 italic">
+                            ไม่มีงานซ่อมในวันนี้
+                          </div>
+                        ) : (
+                          visibleDateTasks.repairList.map(rep => {
+                            const mach = machines.find(m => m.id === rep.machineId);
+                            const isSelected = selectedTaskKey === `Repair:${rep.id}`;
+                            const loc = rep.destination || (rep.machineId ? `แท่นเครื่อง ${rep.machineId}` : 'ไม่ระบุพิกัด');
+                            const statusDot = rep.status === 'ปิดงาน' ? 'bg-emerald-500' : 'bg-rose-500 animate-pulse';
+
+                            return (
+                              <div
+                                key={`row-rep-${rep.id}`}
+                                onClick={() => {
+                                  setSelectedTaskKey(`Repair:${rep.id}`);
+                                  setMobileShowDetail(true);
+                                }}
+                                className={`px-4 py-2.5 cursor-pointer border-b border-slate-100 dark:border-slate-800/60 transition-colors select-none ${
+                                  isSelected
+                                    ? 'border-l-4 border-l-rose-500 bg-rose-100/70 dark:bg-rose-950/40 text-slate-900 dark:text-slate-100'
+                                    : 'border-l-4 border-l-transparent hover:bg-slate-100/70 dark:hover:bg-slate-800/50'
+                                }`}
+                              >
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <span className={`w-2 h-2 rounded-full shrink-0 ${statusDot}`} />
+                                  <span className="text-xs font-bold truncate">
+                                    {rep.machineId} {mach?.name || 'เครื่องจักร'}
+                                  </span>
+                                </div>
+                                <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate pl-4 mt-0.5">
+                                  {rep.symptoms} · 📍{loc}
+                                </div>
+                              </div>
+                            );
+                          })
+                        )}
+                      </div>
+                    )}
+
+                    {/* Category: Other */}
+                    {(taskTypeFilter === 'ALL' || taskTypeFilter === 'OTHER') && (
+                      <div id="left-group-other">
+                        <div className="flex justify-between items-center px-4 py-2 bg-slate-100/80 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-10">
+                          <div className="flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                            <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                              งานติดต่อ / อื่นๆ ({visibleDateTasks.otherList.length})
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleOpenCreateForm(activeDateStr, 'Other')}
+                            className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold hover:underline cursor-pointer"
+                          >
+                            + เพิ่ม
+                          </button>
+                        </div>
+
+                        {visibleDateTasks.otherList.length === 0 ? (
+                          <div className="px-4 py-3 text-center text-[11px] text-slate-400 italic">
+                            ไม่มีงานติดต่อ / อื่นๆ ในวันนี้
+                          </div>
+                        ) : (
+                          visibleDateTasks.otherList.map(oth => {
+                            const isSelected = selectedTaskKey === `Other:${oth.id}`;
+                            const loc = oth.destination || 'ไม่ระบุพิกัด';
+                            const statusDot = oth.status === 'เสร็จสิ้น' ? 'bg-emerald-500' : oth.status === 'กำลังทำ' ? 'bg-amber-500' : 'bg-slate-400';
+
+                            return (
+                              <div
+                                key={`row-oth-${oth.id}`}
+                                onClick={() => {
+                                  setSelectedTaskKey(`Other:${oth.id}`);
+                                  setMobileShowDetail(true);
+                                }}
+                                className={`px-4 py-2.5 cursor-pointer border-b border-slate-100 dark:border-slate-800/60 transition-colors select-none ${
+                                  isSelected
+                                    ? 'border-l-4 border-l-emerald-500 bg-emerald-100/70 dark:bg-emerald-950/40 text-slate-900 dark:text-slate-100'
+                                    : 'border-l-4 border-l-transparent hover:bg-slate-100/70 dark:hover:bg-slate-800/50'
+                                }`}
+                              >
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <span className={`w-2 h-2 rounded-full shrink-0 ${statusDot}`} />
+                                  <span className="text-xs font-bold truncate">
+                                    {oth.title}
+                                  </span>
+                                </div>
+                                <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate pl-4 mt-0.5">
+                                  {oth.category || 'งานติดต่อ'} · 📍{loc}
+                                </div>
+                              </div>
+                            );
+                          })
+                        )}
+                      </div>
+                    )}
+
+                  </div>
+                )}
+              </div>
+
+              {/* RIGHT PANE (~60%): Full task details */}
+              <div 
+                className={`${mobileShowDetail ? 'flex' : 'hidden md:flex'} flex-col flex-1 min-w-0 bg-white dark:bg-slate-900 overflow-y-auto p-5 sm:p-6`}
+                id="modal-tasks-right-pane"
+              >
+                {/* Mobile back button */}
+                <div className="md:hidden pb-3 mb-3 border-b border-slate-200 dark:border-slate-800">
                   <button
-                    onClick={() => handleOpenCreateForm(activeDateStr, 'PM')}
-                    className="text-[11px] text-blue-700 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-semibold hover:underline"
+                    type="button"
+                    onClick={() => setMobileShowDetail(false)}
+                    className="flex items-center gap-1.5 text-xs font-bold text-cyan-600 dark:text-cyan-400 hover:underline cursor-pointer"
                   >
-                    + เพิ่มงาน PM
+                    ← กลับรายการ
                   </button>
                 </div>
 
-                {activeDateTasks.pmList.length === 0 ? (
-                  <div className="bg-slate-50 dark:bg-slate-900/60 border border-dashed border-slate-300 dark:border-slate-700/80 rounded-xl p-4 text-center text-xs text-slate-600 dark:text-slate-300 font-medium">
-                    ไม่มีงานบำรุงรักษา PM ที่ลงตารางไว้ในวันนี้
-                  </div>
-                ) : (
-                  <div className="space-y-2.5">
-                    {activeDateTasks.pmList.map((pm, idx) => {
-                      const mach = machines.find(m => m.id === pm.machineId);
-                      const plan = pmPlans.find(p => p.id === pm.pmPlanId);
-                      const people = pm.peopleCount || pm.technicians?.length || 1;
-                      const allTechs = pm.technicians && pm.technicians.length > 0 ? pm.technicians : [pm.technician];
+                {(() => {
+                  const selectedItem = allVisibleTaskItems.find(item => item.key === selectedTaskKey);
+                  if (!selectedItem) {
+                    return (
+                      <div className="h-full flex flex-col items-center justify-center p-8 text-center text-slate-400 dark:text-slate-500">
+                        <ClipboardList size={40} className="mb-2.5 opacity-30" />
+                        <p className="text-xs">เลือกรหัสงานทางด้านซ้ายเพื่อดูรายละเอียด</p>
+                      </div>
+                    );
+                  }
 
-                      return (
-                        <div
-                          key={`modal-pm-${pm.id}-${idx}`}
-                          className="bg-slate-50/70 dark:bg-slate-900 border border-slate-200 dark:border-slate-750 hover:border-blue-500/50 rounded-xl p-4 transition shadow-sm"
-                        >
-                          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-2">
-                            <div className="flex items-center gap-2.5">
-                              <span className="font-mono text-sm font-bold text-cyan-800 dark:text-cyan-400 bg-cyan-100 dark:bg-cyan-950/60 border border-cyan-300 dark:border-cyan-500/30 px-2 py-0.5 rounded-lg">
+                  // Render detail according to item type
+                  if (selectedItem.type === 'PM') {
+                    const pm = selectedItem.data as PMScheduleItem;
+                    const mach = machines.find(m => m.id === pm.machineId);
+                    const plan = pmPlans.find(p => p.id === pm.pmPlanId);
+                    const people = pm.peopleCount || (pm.technicians?.length || 1);
+                    const allTechs = pm.technicians && pm.technicians.length > 0 ? pm.technicians : (pm.technician ? [pm.technician] : []);
+                    const loc = pm.destination || (pm.machineId ? `แท่นเครื่อง ${pm.machineId}` : '');
+
+                    const taskInfoFields = [
+                      { label: 'รหัสเครื่องจักร', value: pm.machineId ? `${pm.machineId}${mach?.name ? ` (${mach.name})` : ''}` : undefined },
+                      { label: 'ชื่อแผน PM', value: plan?.title || pm.title },
+                      { label: 'ความถี่', value: plan?.frequency },
+                      { label: 'เวลามาตรฐาน (TTM)', value: plan?.ttm ? `${plan.ttm} นาที` : undefined },
+                      { label: 'ระยะเวลาตามแผน', value: pm.duration ? `${pm.duration} นาที` : undefined },
+                      { label: 'จำนวนขั้นตอนเช็คลิสต์', value: plan?.steps?.length ? `${plan.steps.length} ขั้นตอน` : undefined },
+                      { label: 'สถานที่ / พิกัด', value: loc }
+                    ];
+
+                    const teamFields = [
+                      { label: 'จำนวนคน', value: people ? `${people} คน` : undefined },
+                      { label: 'รายชื่อช่างผู้รับผิดชอบ', value: allTechs.length > 0 ? allTechs.join(', ') : undefined }
+                    ];
+
+                    const timeFields = [
+                      { label: 'วันที่กำหนดทำ', value: pm.date },
+                      { label: 'ระยะเวลา', value: pm.duration ? `${pm.duration} นาที` : undefined }
+                    ];
+
+                    const noteFields = [
+                      { label: 'สาเหตุการเลื่อนแผน', value: pm.rescheduledReason },
+                      { label: 'สาเหตุใช้เวลาเกินเกณฑ์', value: pm.overtimeReason },
+                      { label: 'หมายเหตุ', value: (pm as Record<string, any>).notes }
+                    ];
+
+                    return (
+                      <div className="space-y-5">
+                        {/* Header bar */}
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-4 border-b border-slate-200 dark:border-slate-800">
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-950/70 text-blue-800 dark:text-blue-300 border border-blue-300 dark:border-blue-500/30">
+                                งาน PM
+                              </span>
+                              <span className="font-mono text-xs font-bold text-cyan-800 dark:text-cyan-400 bg-cyan-100 dark:bg-cyan-950/60 border border-cyan-300 dark:border-cyan-500/30 px-2 py-0.5 rounded">
                                 {pm.machineId}
                               </span>
-                              <div>
-                                <h4 className="text-xs font-bold text-slate-900 dark:text-slate-200">
-                                  {mach?.name || 'เครื่องจักร'} • {plan?.title || 'แผน PM'}
-                                </h4>
-                                <p className="text-[10px] text-slate-600 dark:text-slate-400">
-                                  ระยะเวลาตามแผน: {pm.duration} นาที • ความถี่: {plan?.frequency || 'ตามรอบ'}
-                                </p>
-                              </div>
                             </div>
-
-                            <div className="flex items-center gap-2">
-                              {/* Status badge & toggle */}
-                              <button
-                                onClick={() => handleToggleTaskStatus(pm.id, 'PM', pm.status)}
-                                className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border cursor-pointer transition ${
-                                  pm.status === 'เสร็จสิ้น'
-                                    ? 'bg-emerald-100 dark:bg-emerald-500/15 border-emerald-300 dark:border-emerald-500/40 text-emerald-800 dark:text-emerald-300'
-                                    : pm.status === 'กำลังทำ'
-                                      ? 'bg-amber-100 dark:bg-amber-500/15 border-amber-300 dark:border-amber-500/40 text-amber-800 dark:text-amber-300'
-                                      : 'bg-slate-200 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-300'
-                                }`}
-                                title="คลิกเพื่อเปลี่ยนสถานะงาน"
-                              >
-                                {pm.status === 'เสร็จสิ้น' ? '✓ เสร็จสิ้น' : pm.status === 'กำลังทำ' ? '⏳ กำลังทำ' : '• รอดำเนินการ'}
-                              </button>
-
-                              <button
-                                onClick={() => handleOpenEditForm(pm, 'PM')}
-                                className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-cyan-700 dark:hover:text-cyan-400 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition"
-                                title="แก้ไขงาน"
-                              >
-                                <Edit3 size={14} />
-                              </button>
-
-                              <button
-                                onClick={() => handleDeleteTask(pm.id, 'PM')}
-                                className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-rose-700 dark:hover:text-rose-400 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition"
-                                title="ลบงาน"
-                              >
-                                <Trash2 size={14} />
-                              </button>
-                            </div>
+                            <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-100">
+                              {mach?.name || 'เครื่องจักร'} — {plan?.title || 'แผน PM'}
+                            </h3>
                           </div>
 
-                          {/* Detail row: Destination & Group details */}
-                          <div className="bg-white dark:bg-slate-950/60 rounded-lg p-2.5 flex flex-wrap items-center gap-4 text-xs border border-slate-200 dark:border-slate-800">
-                            <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
-                              <MapPin size={14} className="text-rose-500 shrink-0" />
-                              <span>สถานที่/ปลายทาง: <b className="text-slate-900 dark:text-fg">{pm.destination || `แท่นเครื่อง ${pm.machineId}`}</b></span>
-                            </div>
+                          <div className="flex flex-wrap items-center gap-2">
+                            {/* Main CTA: Go to PM Checklist */}
+                            <button
+                              type="button"
+                              id="btn-goto-pm-checklist"
+                              onClick={() => {
+                                if (onOpenPMChecklist && pm.machineId) {
+                                  setActiveDateStr(null);
+                                  onOpenPMChecklist(pm.machineId, pm.pmPlanId || plan?.id || '');
+                                }
+                              }}
+                              className="flex items-center gap-1.5 px-3 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold rounded-xl shadow-md shadow-cyan-600/20 transition cursor-pointer"
+                              title="เปิดหน้าเช็คลิสต์ตรวจ PM ของเครื่องและแผนนี้"
+                            >
+                              <span>▶ ไปทำ PM (เช็คลิสต์)</span>
+                            </button>
 
-                            <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
-                              <Users size={14} className="text-cyan-600 dark:text-cyan-400 shrink-0" />
-                              <span>จำนวนคน: <b className="text-cyan-700 dark:text-cyan-300 font-mono">{people} คน</b></span>
-                            </div>
+                            {/* Status toggle */}
+                            <button
+                              type="button"
+                              onClick={() => handleToggleTaskStatus(pm.id, 'PM', pm.status)}
+                              className={`text-[11px] font-bold px-2.5 py-1 rounded-xl border cursor-pointer transition ${
+                                pm.status === 'เสร็จสิ้น'
+                                  ? 'bg-emerald-100 dark:bg-emerald-500/15 border-emerald-300 dark:border-emerald-500/40 text-emerald-800 dark:text-emerald-300'
+                                  : pm.status === 'กำลังทำ'
+                                    ? 'bg-amber-100 dark:bg-amber-500/15 border-amber-300 dark:border-amber-500/40 text-amber-800 dark:text-amber-300'
+                                    : 'bg-slate-200 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-300'
+                              }`}
+                              title="คลิกเพื่อเปลี่ยนสถานะงาน"
+                            >
+                              {pm.status === 'เสร็จสิ้น' ? '✓ เสร็จสิ้น' : pm.status === 'กำลังทำ' ? '⏳ กำลังทำ' : '• รอดำเนินการ'}
+                            </button>
 
-                            <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
-                              <User size={14} className="text-amber-600 dark:text-amber-400 shrink-0" />
-                              <span>รายชื่อช่าง: <b className="text-slate-900 dark:text-slate-100">{allTechs.join(', ')}</b></span>
-                            </div>
+                            {/* Edit */}
+                            <button
+                              type="button"
+                              onClick={() => handleOpenEditForm(pm, 'PM')}
+                              className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-cyan-700 dark:hover:text-cyan-400 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition cursor-pointer"
+                              title="แก้ไขงาน"
+                            >
+                              <Edit3 size={15} />
+                            </button>
+
+                            {/* Delete */}
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteTask(pm.id, 'PM')}
+                              className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-rose-700 dark:hover:text-rose-400 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition cursor-pointer"
+                              title="ลบงาน"
+                            >
+                              <Trash2 size={15} />
+                            </button>
                           </div>
                         </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
 
-              {/* SECTION 2: งานซ่อม */}
-              <div className="space-y-3" id="section-repair-tasks">
-                <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-750 pb-2">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
-                    <h3 className="text-sm font-bold text-rose-900 dark:text-rose-300">
-                      งานซ่อม (Repair / Breakdown) ({activeDateTasks.repairList.length})
-                    </h3>
-                  </div>
-                  <button
-                    onClick={() => handleOpenCreateForm(activeDateStr, 'Repair')}
-                    className="text-[11px] text-rose-700 hover:text-rose-800 dark:text-rose-400 dark:hover:text-rose-300 font-semibold hover:underline"
-                  >
-                    + แจ้งงานซ่อม
-                  </button>
-                </div>
+                        {/* Content sections */}
+                        {renderDetailSection('ข้อมูลงาน PM', <ClipboardList size={14} className="text-cyan-600 dark:text-cyan-400" />, taskInfoFields)}
+                        {renderDetailSection('ทีมและผู้ปฏิบัติงาน', <Users size={14} className="text-cyan-600 dark:text-cyan-400" />, teamFields)}
+                        {renderDetailSection('เวลาและกำหนดการ', <Clock size={14} className="text-amber-500" />, timeFields)}
+                        {renderDetailSection('หมายเหตุ', <Building2 size={14} className="text-slate-400" />, noteFields)}
+                      </div>
+                    );
+                  }
 
-                {activeDateTasks.repairList.length === 0 ? (
-                  <div className="bg-slate-50 dark:bg-slate-900/60 border border-dashed border-slate-300 dark:border-slate-700/80 rounded-xl p-4 text-center text-xs text-slate-600 dark:text-slate-300 font-medium">
-                    ไม่มีรายการงานซ่อมหรือเครื่องจักรเสียในวันนี้
-                  </div>
-                ) : (
-                  <div className="space-y-2.5">
-                    {activeDateTasks.repairList.map((rep, idx) => {
-                      const mach = machines.find(m => m.id === rep.machineId);
-                      const people = rep.peopleCount || rep.technicians?.length || 1;
-                      const allTechs = rep.technicians && rep.technicians.length > 0 ? rep.technicians : [rep.technician];
+                  if (selectedItem.type === 'Repair') {
+                    const rep = selectedItem.data as RepairLog;
+                    const mach = machines.find(m => m.id === rep.machineId);
+                    const people = rep.peopleCount || (rep.technicians?.length || 1);
+                    const allTechs = rep.technicians && rep.technicians.length > 0 ? rep.technicians : (rep.technician ? [rep.technician] : []);
+                    const loc = rep.destination || (rep.machineId ? `แท่นเครื่อง ${rep.machineId}` : '');
+                    const bTime = rep.breakdownTime ? (rep.breakdownTime.includes('T') ? rep.breakdownTime.slice(11, 16) : rep.breakdownTime) : undefined;
+                    const dTime = rep.repairDoneTime ? (rep.repairDoneTime.includes('T') ? rep.repairDoneTime.slice(11, 16) : rep.repairDoneTime) : undefined;
 
-                      return (
-                        <div
-                          key={`modal-rep-${rep.id}-${idx}`}
-                          className="bg-slate-50/70 dark:bg-slate-900 border border-slate-200 dark:border-slate-750 hover:border-rose-500/50 rounded-xl p-4 transition shadow-sm"
-                        >
-                          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-2">
-                            <div className="flex items-center gap-2.5">
-                              <span className="font-mono text-sm font-bold text-rose-800 dark:text-rose-400 bg-rose-100 dark:bg-rose-950/60 border border-rose-300 dark:border-rose-500/30 px-2 py-0.5 rounded-lg">
+                    const taskInfoFields = [
+                      { label: 'รหัสเครื่องจักร', value: rep.machineId ? `${rep.machineId}${mach?.name ? ` (${mach.name})` : ''}` : undefined },
+                      { label: 'อาการขัดข้อง / ปัญหา', value: rep.symptoms },
+                      { label: 'สถานที่ / พิกัดที่ไปซ่อม', value: loc }
+                    ];
+
+                    const teamFields = [
+                      { label: 'จำนวนคน', value: people ? `${people} คน` : undefined },
+                      { label: 'กลุ่มช่างที่ไปซ่อม', value: allTechs.length > 0 ? allTechs.join(', ') : undefined }
+                    ];
+
+                    const timeFields = [
+                      { label: 'วันที่เกิดเหตุ', value: rep.date },
+                      { label: 'เวลาแจ้งเสีย', value: bTime },
+                      { label: 'เวลาซ่อมเสร็จ', value: dTime }
+                    ];
+
+                    const noteFields = [
+                      { label: 'มาตรการแก้ไข', value: rep.correctiveAction !== 'กำลังดำเนินการตรวจสอบและซ่อมบำรุง' ? rep.correctiveAction : undefined },
+                      { label: 'หมายเหตุ', value: (rep as Record<string, any>).notes }
+                    ];
+
+                    return (
+                      <div className="space-y-5">
+                        {/* Header bar */}
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-4 border-b border-slate-200 dark:border-slate-800">
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-100 dark:bg-rose-950/70 text-rose-800 dark:text-rose-300 border border-rose-300 dark:border-rose-500/30">
+                                งานซ่อม (Repair)
+                              </span>
+                              <span className="font-mono text-xs font-bold text-rose-800 dark:text-rose-400 bg-rose-100 dark:bg-rose-950/60 border border-rose-300 dark:border-rose-500/30 px-2 py-0.5 rounded">
                                 {rep.machineId}
                               </span>
-                              <div>
-                                <h4 className="text-xs font-bold text-slate-900 dark:text-slate-200">
-                                  {mach?.name || 'เครื่องจักร'} • อาการ: {rep.symptoms}
-                                </h4>
-                                <p className="text-[10px] text-slate-600 dark:text-slate-400">
-                                  เวลาแจ้ง: {rep.breakdownTime ? rep.breakdownTime.slice(11, 16) : '09:00'} • เวลาซ่อมเสร็จ: {rep.repairDoneTime ? rep.repairDoneTime.slice(11, 16) : '11:00'}
-                                </p>
-                              </div>
                             </div>
-
-                            <div className="flex items-center gap-2">
-                              <button
-                                onClick={() => handleToggleTaskStatus(rep.id, 'Repair', rep.status === 'ปิดงาน' ? 'เสร็จสิ้น' : 'กำลังทำ')}
-                                className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border cursor-pointer transition ${
-                                  rep.status === 'ปิดงาน'
-                                    ? 'bg-emerald-100 dark:bg-emerald-500/15 border-emerald-300 dark:border-emerald-500/40 text-emerald-800 dark:text-emerald-300'
-                                    : 'bg-rose-100 dark:bg-rose-500/15 border-rose-300 dark:border-rose-500/40 text-rose-800 dark:text-rose-300 animate-pulse'
-                                }`}
-                              >
-                                {rep.status === 'ปิดงาน' ? '✓ ปิดงานซ่อมแล้ว' : '🚨 กำลังซ่อม'}
-                              </button>
-
-                              <button
-                                onClick={() => handleOpenEditForm(rep, 'Repair')}
-                                className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-cyan-700 dark:hover:text-cyan-400 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition"
-                                title="แก้ไขงานซ่อม"
-                              >
-                                <Edit3 size={14} />
-                              </button>
-
-                              <button
-                                onClick={() => handleDeleteTask(rep.id, 'Repair')}
-                                className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-rose-700 dark:hover:text-rose-400 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition"
-                                title="ลบงานซ่อม"
-                              >
-                                <Trash2 size={14} />
-                              </button>
-                            </div>
+                            <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-100">
+                              {mach?.name || 'เครื่องจักร'} — {rep.symptoms}
+                            </h3>
                           </div>
 
-                          {/* Detail row */}
-                          <div className="bg-white dark:bg-slate-950/60 rounded-lg p-2.5 flex flex-wrap items-center gap-4 text-xs border border-slate-200 dark:border-slate-800">
-                            <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
-                              <MapPin size={14} className="text-rose-500 shrink-0" />
-                              <span>สถานที่/พิกัดที่ไปซ่อม: <b className="text-slate-900 dark:text-fg">{rep.destination || `หน้างาน ${rep.machineId}`}</b></span>
-                            </div>
+                          <div className="flex flex-wrap items-center gap-2">
+                            {/* Status toggle */}
+                            <button
+                              type="button"
+                              onClick={() => handleToggleTaskStatus(rep.id, 'Repair', rep.status === 'ปิดงาน' ? 'เสร็จสิ้น' : 'กำลังทำ')}
+                              className={`text-[11px] font-bold px-2.5 py-1 rounded-xl border cursor-pointer transition ${
+                                rep.status === 'ปิดงาน'
+                                  ? 'bg-emerald-100 dark:bg-emerald-500/15 border-emerald-300 dark:border-emerald-500/40 text-emerald-800 dark:text-emerald-300'
+                                  : 'bg-rose-100 dark:bg-rose-500/15 border-rose-300 dark:border-rose-500/40 text-rose-800 dark:text-rose-300 animate-pulse'
+                              }`}
+                              title="คลิกเพื่อเปลี่ยนสถานะงานซ่อม"
+                            >
+                              {rep.status === 'ปิดงาน' ? '✓ ปิดงานซ่อมแล้ว' : '🚨 กำลังซ่อม'}
+                            </button>
 
-                            <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
-                              <Users size={14} className="text-cyan-600 dark:text-cyan-400 shrink-0" />
-                              <span>จำนวนคน: <b className="text-cyan-700 dark:text-cyan-300 font-mono">{people} คน</b></span>
-                            </div>
+                            {/* Edit */}
+                            <button
+                              type="button"
+                              onClick={() => handleOpenEditForm(rep, 'Repair')}
+                              className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-cyan-700 dark:hover:text-cyan-400 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition cursor-pointer"
+                              title="แก้ไขงานซ่อม"
+                            >
+                              <Edit3 size={15} />
+                            </button>
 
-                            <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
-                              <User size={14} className="text-amber-600 dark:text-amber-400 shrink-0" />
-                              <span>กลุ่มช่างที่ไปซ่อม: <b className="text-slate-900 dark:text-slate-100">{allTechs.join(', ')}</b></span>
-                            </div>
+                            {/* Delete */}
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteTask(rep.id, 'Repair')}
+                              className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-rose-700 dark:hover:text-rose-400 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition cursor-pointer"
+                              title="ลบงานซ่อม"
+                            >
+                              <Trash2 size={15} />
+                            </button>
                           </div>
                         </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
 
-              {/* SECTION 3: งานติดต่อ หรืองานอื่นๆ */}
-              <div className="space-y-3" id="section-other-tasks">
-                <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-750 pb-2">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                    <h3 className="text-sm font-bold text-emerald-900 dark:text-emerald-300">
-                      งานติดต่อ หรืองานอื่นๆ ({activeDateTasks.otherList.length})
-                    </h3>
-                  </div>
-                  <button
-                    onClick={() => handleOpenCreateForm(activeDateStr, 'Other')}
-                    className="text-[11px] text-emerald-700 hover:text-emerald-800 dark:text-emerald-400 dark:hover:text-emerald-300 font-semibold hover:underline"
-                  >
-                    + เพิ่มงานติดต่อ/อื่นๆ
-                  </button>
-                </div>
+                        {/* Content sections */}
+                        {renderDetailSection('ข้อมูลงานซ่อม', <Wrench size={14} className="text-rose-500" />, taskInfoFields)}
+                        {renderDetailSection('ทีมและผู้ปฏิบัติงาน', <Users size={14} className="text-cyan-600 dark:text-cyan-400" />, teamFields)}
+                        {renderDetailSection('เวลาและกำหนดการ', <Clock size={14} className="text-amber-500" />, timeFields)}
+                        {renderDetailSection('หมายเหตุ', <Building2 size={14} className="text-slate-400" />, noteFields)}
+                      </div>
+                    );
+                  }
 
-                {activeDateTasks.otherList.length === 0 ? (
-                  <div className="bg-slate-50 dark:bg-slate-900/60 border border-dashed border-slate-300 dark:border-slate-700/80 rounded-xl p-4 text-center text-xs text-slate-600 dark:text-slate-300 font-medium">
-                    ไม่มีรายการงานติดต่อ ซัพพลายเออร์ หรือภารกิจภายนอกในวันนี้
-                  </div>
-                ) : (
-                  <div className="space-y-2.5">
-                    {activeDateTasks.otherList.map((oth, idx) => {
-                      const people = oth.peopleCount || oth.technicians?.length || 1;
-                      const allTechs = oth.technicians && oth.technicians.length > 0 ? oth.technicians : [];
+                  // Other task
+                  const oth = selectedItem.data as ContactOtherTask;
+                  const people = oth.peopleCount || (oth.technicians?.length || 1);
+                  const allTechs = oth.technicians && oth.technicians.length > 0 ? oth.technicians : [];
 
-                      return (
-                        <div
-                          key={`modal-oth-${oth.id}-${idx}`}
-                          className="bg-slate-50/70 dark:bg-slate-900 border border-slate-200 dark:border-slate-750 hover:border-emerald-500/50 rounded-xl p-4 transition shadow-sm"
-                        >
-                          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-2">
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/30">
-                                  {oth.category || 'งานติดต่อ'}
-                                </span>
-                                <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100">
-                                  {oth.title}
-                                </h4>
-                              </div>
-                              <p className="text-[10px] text-slate-600 dark:text-slate-400 mt-0.5">
-                                ช่วงเวลา: {oth.startTime || '09:00'} - {oth.endTime || '12:00'}
-                                {oth.notes && <span> • หมายเหตุ: {oth.notes}</span>}
-                              </p>
-                            </div>
+                  const taskInfoFields = [
+                    { label: 'ชื่องาน / ภารกิจ', value: oth.title },
+                    { label: 'หมวดหมู่งาน', value: oth.category },
+                    { label: 'สถานที่ / ปลายทาง', value: oth.destination }
+                  ];
 
-                            <div className="flex items-center gap-2">
-                              <button
-                                onClick={() => handleToggleTaskStatus(oth.id, 'Other', oth.status)}
-                                className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border cursor-pointer transition ${
-                                  oth.status === 'เสร็จสิ้น'
-                                    ? 'bg-emerald-100 dark:bg-emerald-500/15 border-emerald-300 dark:border-emerald-500/40 text-emerald-800 dark:text-emerald-300'
-                                    : oth.status === 'กำลังทำ'
-                                      ? 'bg-amber-100 dark:bg-amber-500/15 border-amber-300 dark:border-amber-500/40 text-amber-800 dark:text-amber-300'
-                                      : 'bg-slate-200 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-300'
-                                }`}
-                              >
-                                {oth.status === 'เสร็จสิ้น' ? '✓ เสร็จสิ้น' : oth.status === 'กำลังทำ' ? '⏳ กำลังทำ' : '• รอดำเนินการ'}
-                              </button>
+                  const teamFields = [
+                    { label: 'จำนวนคน', value: people ? `${people} คน` : undefined },
+                    { label: 'รายชื่อผู้ปฏิบัติงาน', value: oth.technicianNamesText || (allTechs.length > 0 ? allTechs.join(', ') : undefined) }
+                  ];
 
-                              <button
-                                onClick={() => handleOpenEditForm(oth, 'Other')}
-                                className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-cyan-700 dark:hover:text-cyan-400 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition"
-                                title="แก้ไขงาน"
-                              >
-                                <Edit3 size={14} />
-                              </button>
+                  const timeFields = [
+                    { label: 'วันที่', value: oth.date },
+                    { label: 'เวลาเริ่ม', value: oth.startTime },
+                    { label: 'เวลาสิ้นสุด', value: oth.endTime },
+                    { label: 'ระยะเวลา', value: oth.duration ? `${oth.duration} นาที` : undefined }
+                  ];
 
-                              <button
-                                onClick={() => handleDeleteTask(oth.id, 'Other')}
-                                className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-rose-700 dark:hover:text-rose-400 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition"
-                                title="ลบงาน"
-                              >
-                                <Trash2 size={14} />
-                              </button>
-                            </div>
+                  const noteFields = [
+                    { label: 'หมายเหตุ', value: oth.notes }
+                  ];
+
+                  return (
+                    <div className="space-y-5">
+                      {/* Header bar */}
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-4 border-b border-slate-200 dark:border-slate-800">
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/30">
+                              {oth.category || 'งานติดต่อ / อื่นๆ'}
+                            </span>
                           </div>
-
-                          {/* Detail row */}
-                          <div className="bg-white dark:bg-slate-950/60 rounded-lg p-2.5 flex flex-wrap items-center gap-4 text-xs border border-slate-200 dark:border-slate-800">
-                            <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
-                              <Compass size={14} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
-                              <span>สถานที่/กลุ่มนี้ไปไหน: <b className="text-slate-900 dark:text-fg">{oth.destination || 'ระบุจุดหมาย'}</b></span>
-                            </div>
-
-                            <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
-                              <Users size={14} className="text-cyan-600 dark:text-cyan-400 shrink-0" />
-                              <span>จำนวนคน: <b className="text-cyan-700 dark:text-cyan-300 font-mono">{people} คน</b></span>
-                            </div>
-
-                            <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
-                              <User size={14} className="text-amber-600 dark:text-amber-400 shrink-0" />
-                              <span>ชื่อคนในกลุ่ม: <b className="text-slate-900 dark:text-slate-100">{oth.technicianNamesText || allTechs.join(', ')}</b></span>
-                            </div>
-                          </div>
+                          <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-100">
+                            {oth.title}
+                          </h3>
                         </div>
-                      );
-                    })}
-                  </div>
-                )}
+
+                        <div className="flex flex-wrap items-center gap-2">
+                          {/* Status toggle */}
+                          <button
+                            type="button"
+                            onClick={() => handleToggleTaskStatus(oth.id, 'Other', oth.status)}
+                            className={`text-[11px] font-bold px-2.5 py-1 rounded-xl border cursor-pointer transition ${
+                              oth.status === 'เสร็จสิ้น'
+                                ? 'bg-emerald-100 dark:bg-emerald-500/15 border-emerald-300 dark:border-emerald-500/40 text-emerald-800 dark:text-emerald-300'
+                                : oth.status === 'กำลังทำ'
+                                  ? 'bg-amber-100 dark:bg-amber-500/15 border-amber-300 dark:border-amber-500/40 text-amber-800 dark:text-amber-300'
+                                  : 'bg-slate-200 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-300'
+                            }`}
+                            title="คลิกเพื่อเปลี่ยนสถานะงาน"
+                          >
+                            {oth.status === 'เสร็จสิ้น' ? '✓ เสร็จสิ้น' : oth.status === 'กำลังทำ' ? '⏳ กำลังทำ' : '• รอดำเนินการ'}
+                          </button>
+
+                          {/* Edit */}
+                          <button
+                            type="button"
+                            onClick={() => handleOpenEditForm(oth, 'Other')}
+                            className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-cyan-700 dark:hover:text-cyan-400 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition cursor-pointer"
+                            title="แก้ไขงาน"
+                          >
+                            <Edit3 size={15} />
+                          </button>
+
+                          {/* Delete */}
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteTask(oth.id, 'Other')}
+                            className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-rose-700 dark:hover:text-rose-400 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition cursor-pointer"
+                            title="ลบงาน"
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Content sections */}
+                      {renderDetailSection('ข้อมูลงานติดต่อ / อื่นๆ', <PhoneCall size={14} className="text-emerald-500" />, taskInfoFields)}
+                      {renderDetailSection('ทีมและผู้ปฏิบัติงาน', <Users size={14} className="text-cyan-600 dark:text-cyan-400" />, teamFields)}
+                      {renderDetailSection('เวลาและกำหนดการ', <Clock size={14} className="text-amber-500" />, timeFields)}
+                      {renderDetailSection('หมายเหตุ', <Building2 size={14} className="text-slate-400" />, noteFields)}
+                    </div>
+                  );
+                })()}
               </div>
 
             </div>
 
             {/* Modal Footer */}
-            <div className="bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-750 p-4 flex justify-between items-center text-xs">
-              <span className="text-slate-600 dark:text-slate-400">
-                คลิกปุ่มสถานะเพื่ออัปเดตงานแบบรวดเร็ว หรือกดแก้ไขเพื่อเปลี่ยนรายละเอียด
+            <div className="bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-750 px-4 py-3 flex justify-between items-center text-xs shrink-0">
+              <span className="text-slate-500 dark:text-slate-400 text-[11px] hidden sm:inline">
+                เลือกงานด้านซ้ายเพื่อดูรายละเอียด คลิกปุ่มสถานะเพื่อเปลี่ยนสถานะงานแบบรวดเร็ว
               </span>
               <button
+                type="button"
                 onClick={() => setActiveDateStr(null)}
-                className="px-4 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 font-medium transition cursor-pointer"
+                className="px-4 py-1.5 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 font-bold transition cursor-pointer ml-auto"
               >
                 ปิดหน้าต่าง
               </button>

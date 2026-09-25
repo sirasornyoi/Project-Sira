@@ -61,6 +61,15 @@ function AppContent() {
   // Sub-tab control for PMPlanPage (plan vs kpi vs history)
   const [pmPlanSubTab, setPmPlanSubTab] = useState<'plan' | 'kpi' | 'history'>('plan');
   const [pmPlanNavToken, setPmPlanNavToken] = useState<number>(0);
+  const [pmFocus, setPmFocus] = useState<{ machineId: string; planId: string } | null>(null);
+
+  // Navigate directly to PM plan checklist for a specific machine & plan
+  const handleOpenPMChecklist = (machineId: string, pmPlanId: string) => {
+    setPmPlanSubTab('plan');
+    setPmFocus({ machineId, planId: pmPlanId });
+    setPmPlanNavToken(prev => prev + 1);
+    setActivePage(2);
+  };
 
   // Dynamic live clock for Thailand local context
   const [liveTime, setLiveTime] = useState<string>('21:46:56');
@@ -95,8 +104,15 @@ function AppContent() {
   const renderActivePage = () => {
     switch (activePage) {
       case 1: return <MachinePage />;
-      case 2: return <PMPlanPage initialSubTab={pmPlanSubTab} navToken={pmPlanNavToken} />;
-      case 3: return <SchedulePage />;
+      case 2: return (
+        <PMPlanPage 
+          initialSubTab={pmPlanSubTab} 
+          navToken={pmPlanNavToken} 
+          focusMachineId={pmFocus?.machineId}
+          focusPlanId={pmFocus?.planId}
+        />
+      );
+      case 3: return <SchedulePage onOpenPMChecklist={handleOpenPMChecklist} />;
       case 4: return <RepairPage />;
       case 11: return <TimeBreakPage />;
       case 5: return <ImprovementPage />;
@@ -104,7 +120,7 @@ function AppContent() {
       case 6: return <StatsAndPresentationHub initialSubTab="stats" />;
       case 9: return <StatsAndPresentationHub initialSubTab="presentation" />;
       case 12: return <TechnicianPortfolioPage />;
-      default: return <SchedulePage />;
+      default: return <SchedulePage onOpenPMChecklist={handleOpenPMChecklist} />;
     }
   };
 
@@ -178,6 +194,7 @@ function AppContent() {
                   onClick={() => {
                     if (item.id === 2) {
                       setPmPlanSubTab('plan');
+                      setPmFocus(null);
                       setPmPlanNavToken(prev => prev + 1);
                     }
                     setActivePage(item.id);
