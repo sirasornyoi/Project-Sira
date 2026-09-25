@@ -9,6 +9,7 @@ import {
   Clock, AlertTriangle, Filter, X, Check, Building2, Car, Compass,
   ArrowRight, Search, Sparkles
 } from 'lucide-react';
+import { formatPmMinutes, getPlannedMinutes } from '../utils/pmTime';
 
 const TH_DAYS = ["อาทิตย์", "จันทร์", "อังคาร", "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์"];
 const TH_MONTHS = [
@@ -409,7 +410,7 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
     // Type specific resets
     setFormMachineId(machines[0]?.id || 'RIM01');
     setFormPmPlanId(pmPlans[0]?.id || '');
-    setFormDuration(60);
+    setFormDuration(0);
     setFormSymptoms('');
     setFormBreakdownTime('09:00');
     setFormRepairDoneTime('11:00');
@@ -437,14 +438,14 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
     if (type === 'PM') {
       setFormMachineId(task.machineId || machines[0]?.id || 'RIM01');
       setFormPmPlanId(task.pmPlanId || '');
-      setFormDuration(task.duration || 60);
+      setFormDuration(task.duration || 0);
     } else if (type === 'Repair') {
       setFormMachineId(task.machineId || machines[0]?.id || 'RIM01');
-      setFormSymptoms(task.symptoms || '');
+      setFormSymptoms(task.symptoms === 'ไม่ได้ระบุอาการเสีย' ? '' : (task.symptoms || ''));
       setFormBreakdownTime(task.breakdownTime ? task.breakdownTime.slice(11, 16) : '09:00');
       setFormRepairDoneTime(task.repairDoneTime ? task.repairDoneTime.slice(11, 16) : '11:00');
     } else {
-      setFormTitle(task.title || '');
+      setFormTitle(task.title === task.category || task.title === 'งานติดต่อ / อื่นๆ' ? '' : (task.title || ''));
       setFormCategory(task.category || 'งานติดต่อ');
       setFormStartTime(task.startTime || '09:00');
       setFormEndTime(task.endTime || '12:00');
@@ -482,8 +483,8 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
           machineId: formMachineId,
           pmPlanId: formPmPlanId || pmPlans.find(p => p.machineId === formMachineId)?.id || 'plan-pm-01',
           status: formStatus,
-          duration: Number(formDuration) || 60,
-          destination: formDestination.trim() || `ประจำเครื่อง ${formMachineId}`,
+          duration: Number(formDuration) || 0,
+          destination: formDestination.trim(),
           peopleCount: Number(formPeopleCount) || allTechs.length
         };
         setSchedules(prev => [...prev, newPM]);
@@ -499,8 +500,8 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
               machineId: formMachineId,
               pmPlanId: formPmPlanId || (s as PMScheduleItem).pmPlanId,
               status: formStatus,
-              duration: Number(formDuration) || 60,
-              destination: formDestination.trim() || `ประจำเครื่อง ${formMachineId}`,
+              duration: Number(formDuration) || 0,
+              destination: formDestination.trim(),
               peopleCount: Number(formPeopleCount) || allTechs.length
             };
           }
@@ -519,14 +520,14 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
           machineId: formMachineId,
           breakdownTime: `${formDate}T${formBreakdownTime}`,
           repairDoneTime: `${formDate}T${formRepairDoneTime}`,
-          symptoms: formSymptoms.trim() || 'แจ้งซ่อมด่วนเครื่องจักรขัดข้อง',
+          symptoms: formSymptoms.trim() || 'ไม่ได้ระบุอาการเสีย',
           why1: 'อยู่ระหว่างตรวจสอบ',
           why2: '',
           why3: '',
           why4: '',
           why5: '',
           correctiveAction: 'กำลังดำเนินการตรวจสอบและซ่อมบำรุง',
-          destination: formDestination.trim() || `จุดเครื่อง ${formMachineId}`,
+          destination: formDestination.trim(),
           peopleCount: Number(formPeopleCount) || allTechs.length,
           duration: 60,
           status: (formStatus === 'เสร็จสิ้น' ? 'ปิดงาน' : 'กำลังซ่อม')
@@ -544,8 +545,8 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
               machineId: formMachineId,
               breakdownTime: `${formDate}T${formBreakdownTime}`,
               repairDoneTime: `${formDate}T${formRepairDoneTime}`,
-              symptoms: formSymptoms.trim() || r.symptoms,
-              destination: formDestination.trim() || r.destination,
+              symptoms: formSymptoms.trim() || 'ไม่ได้ระบุอาการเสีย',
+              destination: formDestination.trim(),
               peopleCount: Number(formPeopleCount) || allTechs.length,
               status: (formStatus === 'เสร็จสิ้น' ? 'ปิดงาน' : 'กำลังซ่อม')
             };
@@ -556,19 +557,16 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
       }
     } else {
       // Contact / Other
-      if (!formTitle.trim()) {
-        setToast({ text: 'กรุณาระบุชื่องานหรือภารกิจติดต่อ/อื่นๆ', type: 'error' });
-        return;
-      }
+      const taskTitle = formTitle.trim() || formCategory || 'งานติดต่อ / อื่นๆ';
 
       if (formMode === 'create') {
         const newOther: ContactOtherTask = {
           id: `oth-${Date.now()}`,
           type: 'Other',
-          title: formTitle.trim(),
+          title: taskTitle,
           category: formCategory,
           date: formDate,
-          destination: formDestination.trim() || 'ภายนอก / หน้างาน',
+          destination: formDestination.trim(),
           peopleCount: Number(formPeopleCount) || allTechs.length,
           technicians: allTechs,
           technicianNamesText: techText,
@@ -579,16 +577,16 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
           notes: formNotes.trim()
         };
         setSchedules(prev => [...prev, newOther]);
-        setToast({ text: `บันทึกงาน "${formTitle}" เรียบร้อยแล้ว`, type: 'success' });
+        setToast({ text: `บันทึกงาน "${taskTitle}" เรียบร้อยแล้ว`, type: 'success' });
       } else {
         setSchedules(prev => prev.map(s => {
           if (s.id === editingTaskId) {
             return {
               ...s,
-              title: formTitle.trim(),
+              title: taskTitle,
               category: formCategory,
               date: formDate,
-              destination: formDestination.trim() || (s as ContactOtherTask).destination,
+              destination: formDestination.trim(),
               peopleCount: Number(formPeopleCount) || allTechs.length,
               technicians: allTechs,
               technicianNamesText: techText,
@@ -600,7 +598,7 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
           }
           return s;
         }));
-        setToast({ text: `อัปเดตงานติดต่อ/อื่นๆ เรียบร้อยแล้ว`, type: 'success' });
+        setToast({ text: `อัปเดตงาน "${taskTitle}" เรียบร้อยแล้ว`, type: 'success' });
       }
     }
 
@@ -1003,14 +1001,14 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
                                   ? 'bg-emerald-100 dark:bg-emerald-500/10 border-emerald-300 dark:border-emerald-500/20 text-emerald-800 dark:text-emerald-300 line-through opacity-80'
                                   : 'bg-rose-100 dark:bg-rose-500/15 border-rose-300 dark:border-rose-500/30 text-rose-900 dark:text-rose-300 font-bold'
                               }`}
-                              title={`งานซ่อม: ${rep.machineId} • ${rep.symptoms} (${people} คน) • ไป: ${rep.destination || 'หน้างาน'}`}
+                              title={`งานซ่อม: ${rep.machineId} • ${rep.symptoms || 'ไม่ได้ระบุอาการเสีย'} (${people} คน) • ไป: ${rep.destination || 'หน้างาน'}`}
                             >
                               <div className="flex items-center justify-between font-bold">
                                 <span className="font-mono text-rose-700 dark:text-rose-300">🔴 ซ่อม: {rep.machineId}</span>
                                 <span className="text-[8px] bg-slate-200 dark:bg-bg/40 px-1 rounded text-slate-700 dark:text-slate-300 font-medium">{people} คน</span>
                               </div>
                               <p className="text-[8.5px] truncate text-slate-600 dark:text-slate-300">
-                                {rep.destination ? `📍 ${rep.destination}` : rep.symptoms}
+                                {rep.destination ? `📍 ${rep.destination}` : (rep.symptoms || 'ไม่ได้ระบุอาการเสีย')}
                               </p>
                             </div>
                           );
@@ -1229,7 +1227,7 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
                             const mach = machines.find(m => m.id === pm.machineId);
                             const plan = pmPlans.find(p => p.id === pm.pmPlanId);
                             const isSelected = selectedTaskKey === `PM:${pm.id}`;
-                            const loc = pm.destination || (pm.machineId ? `แท่นเครื่อง ${pm.machineId}` : 'ไม่ระบุพิกัด');
+                            const loc = pm.destination || (pm.machineId ? `แท่นเครื่อง ${pm.machineId}` : 'ไม่ได้ระบุ');
                             const statusDot = pm.status === 'เสร็จสิ้น' ? 'bg-emerald-500' : pm.status === 'กำลังทำ' ? 'bg-amber-500' : 'bg-slate-400';
 
                             return (
@@ -1288,7 +1286,7 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
                           visibleDateTasks.repairList.map(rep => {
                             const mach = machines.find(m => m.id === rep.machineId);
                             const isSelected = selectedTaskKey === `Repair:${rep.id}`;
-                            const loc = rep.destination || (rep.machineId ? `แท่นเครื่อง ${rep.machineId}` : 'ไม่ระบุพิกัด');
+                            const loc = rep.destination || (rep.machineId ? `แท่นเครื่อง ${rep.machineId}` : 'ไม่ได้ระบุ');
                             const statusDot = rep.status === 'ปิดงาน' ? 'bg-emerald-500' : 'bg-rose-500 animate-pulse';
 
                             return (
@@ -1311,7 +1309,7 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
                                   </span>
                                 </div>
                                 <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate pl-4 mt-0.5">
-                                  {rep.symptoms} · 📍{loc}
+                                  {rep.symptoms || 'ไม่ได้ระบุอาการเสีย'} · 📍{loc}
                                 </div>
                               </div>
                             );
@@ -1346,7 +1344,7 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
                         ) : (
                           visibleDateTasks.otherList.map(oth => {
                             const isSelected = selectedTaskKey === `Other:${oth.id}`;
-                            const loc = oth.destination || 'ไม่ระบุพิกัด';
+                            const loc = oth.destination || 'ไม่ได้ระบุ';
                             const statusDot = oth.status === 'เสร็จสิ้น' ? 'bg-emerald-500' : oth.status === 'กำลังทำ' ? 'bg-amber-500' : 'bg-slate-400';
 
                             return (
@@ -1416,14 +1414,14 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
                     const plan = pmPlans.find(p => p.id === pm.pmPlanId);
                     const people = pm.peopleCount || (pm.technicians?.length || 1);
                     const allTechs = pm.technicians && pm.technicians.length > 0 ? pm.technicians : (pm.technician ? [pm.technician] : []);
-                    const loc = pm.destination || (pm.machineId ? `แท่นเครื่อง ${pm.machineId}` : '');
+                    const loc = pm.destination || (pm.machineId ? `แท่นเครื่อง ${pm.machineId}` : 'ไม่ได้ระบุ');
 
                     const taskInfoFields = [
                       { label: 'รหัสเครื่องจักร', value: pm.machineId ? `${pm.machineId}${mach?.name ? ` (${mach.name})` : ''}` : undefined },
                       { label: 'ชื่อแผน PM', value: plan?.title || pm.title },
                       { label: 'ความถี่', value: plan?.frequency },
                       { label: 'เวลามาตรฐาน (TTM)', value: plan?.ttm ? `${plan.ttm} นาที` : undefined },
-                      { label: 'ระยะเวลาตามแผน', value: pm.duration ? `${pm.duration} นาที` : undefined },
+                      { label: 'ระยะเวลาตามแผน', value: formatPmMinutes(getPlannedMinutes(pm)) },
                       { label: 'จำนวนขั้นตอนเช็คลิสต์', value: plan?.steps?.length ? `${plan.steps.length} ขั้นตอน` : undefined },
                       { label: 'สถานที่ / พิกัด', value: loc }
                     ];
@@ -1434,8 +1432,7 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
                     ];
 
                     const timeFields = [
-                      { label: 'วันที่กำหนดทำ', value: pm.date },
-                      { label: 'ระยะเวลา', value: pm.duration ? `${pm.duration} นาที` : undefined }
+                      { label: 'วันที่กำหนดทำ', value: pm.date }
                     ];
 
                     const noteFields = [
@@ -1531,13 +1528,13 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
                     const mach = machines.find(m => m.id === rep.machineId);
                     const people = rep.peopleCount || (rep.technicians?.length || 1);
                     const allTechs = rep.technicians && rep.technicians.length > 0 ? rep.technicians : (rep.technician ? [rep.technician] : []);
-                    const loc = rep.destination || (rep.machineId ? `แท่นเครื่อง ${rep.machineId}` : '');
+                    const loc = rep.destination || (rep.machineId ? `แท่นเครื่อง ${rep.machineId}` : 'ไม่ได้ระบุ');
                     const bTime = rep.breakdownTime ? (rep.breakdownTime.includes('T') ? rep.breakdownTime.slice(11, 16) : rep.breakdownTime) : undefined;
                     const dTime = rep.repairDoneTime ? (rep.repairDoneTime.includes('T') ? rep.repairDoneTime.slice(11, 16) : rep.repairDoneTime) : undefined;
 
                     const taskInfoFields = [
                       { label: 'รหัสเครื่องจักร', value: rep.machineId ? `${rep.machineId}${mach?.name ? ` (${mach.name})` : ''}` : undefined },
-                      { label: 'อาการขัดข้อง / ปัญหา', value: rep.symptoms },
+                      { label: 'อาการขัดข้อง / ปัญหา', value: rep.symptoms || 'ไม่ได้ระบุ' },
                       { label: 'สถานที่ / พิกัดที่ไปซ่อม', value: loc }
                     ];
 
@@ -1571,7 +1568,7 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
                               </span>
                             </div>
                             <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-100">
-                              {mach?.name || 'เครื่องจักร'} — {rep.symptoms}
+                              {mach?.name || 'เครื่องจักร'} — {rep.symptoms || 'ไม่ได้ระบุอาการเสีย'}
                             </h3>
                           </div>
 
@@ -1857,13 +1854,19 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
 
                   <div className="space-y-1.5">
                     <label className="text-xs font-semibold text-blue-900 dark:text-blue-200">ระยะเวลาตามแผน (นาที)</label>
-                    <input
-                      type="number"
-                      min={10}
-                      value={formDuration}
-                      onChange={(e) => setFormDuration(Number(e.target.value))}
-                      className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-slate-100 font-mono focus:outline-none focus:border-cyan-500"
-                    />
+                    {(() => {
+                      const selectedPlan = pmPlans.find(p => p.id === formPmPlanId);
+                      const durationHint = selectedPlan?.ttm ? ` — มาตรฐานแผน ${selectedPlan.ttm} นาที` : '';
+                      return (
+                        <input
+                          type="number"
+                          value={formDuration || ''}
+                          onChange={(e) => setFormDuration(e.target.value === '' ? 0 : Number(e.target.value))}
+                          placeholder={`ไม่ได้ระบุ (กรอกภายหลังได้)${durationHint}`}
+                          className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-slate-100 font-mono focus:outline-none focus:border-cyan-500"
+                        />
+                      );
+                    })()}
                   </div>
                 </div>
               )}
@@ -1886,11 +1889,10 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-rose-900 dark:text-rose-200">อาการเสีย / รายละเอียดงานซ่อม*</label>
+                    <label className="text-xs font-semibold text-rose-900 dark:text-rose-200">อาการเสีย / รายละเอียดงานซ่อม</label>
                     <input
                       type="text"
-                      required
-                      placeholder="ตัวอย่างเช่น สายพานรูด, ปั๊มไม่สร้างแรงดัน, ฮีตเตอร์ไม่ร้อน"
+                      placeholder="ไม่ได้ระบุ (กรอกภายหลังได้ เช่น สายพานรูด, ปั๊มไม่สร้างแรงดัน)"
                       value={formSymptoms}
                       onChange={(e) => setFormSymptoms(e.target.value)}
                       className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-cyan-500"
@@ -1923,11 +1925,10 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
               {formTaskType === 'Other' && (
                 <div className="space-y-3 p-3.5 rounded-xl bg-emerald-50/80 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-500/20">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-emerald-900 dark:text-emerald-200">ชื่องาน / ภารกิจ*</label>
+                    <label className="text-xs font-semibold text-emerald-900 dark:text-emerald-200">ชื่องาน / ภารกิจ</label>
                     <input
                       type="text"
-                      required
-                      placeholder="ตัวอย่างเช่น ไปติดต่อร้านอะไหล่, ส่งชิ้นส่วนโรงกลึง, ประชุมความปลอดภัย"
+                      placeholder="ไม่ได้ระบุ (กรอกภายหลังได้ เช่น ไปติดต่อร้านอะไหล่, ส่งชิ้นส่วนโรงกลึง)"
                       value={formTitle}
                       onChange={(e) => setFormTitle(e.target.value)}
                       className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-cyan-500"
@@ -1978,14 +1979,13 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
                 <label className="text-xs font-semibold text-slate-700 dark:text-slate-200 flex items-center justify-between">
                   <span className="flex items-center gap-1 text-cyan-700 dark:text-cyan-400 font-bold">
                     <Compass size={14} />
-                    สถานที่ / ปลายทางที่กลุ่มนี้ไป (กลุ่มนี้ไปไหน)*
+                    สถานที่ / ปลายทางที่กลุ่มนี้ไป (กลุ่มนี้ไปไหน)
                   </span>
-                  <span className="text-[10px] text-slate-500 dark:text-slate-400 font-normal">เช่น ไลน์ผลิต, ร้านอะไหล่, โรงกลึง</span>
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 font-normal">ไม่ได้ระบุก็ได้ (กรอกภายหลังได้)</span>
                 </label>
                 <input
                   type="text"
-                  required
-                  placeholder="ระบุจุดหมายหรือสถานที่ เช่น ร้านเจริญอะไหล่ พระราม 2, โรงกลึง CNC, ไลน์ผสมข้าว A"
+                  placeholder="ไม่ได้ระบุ (กรอกภายหลังได้ เช่น ร้านเจริญอะไหล่ พระราม 2, โรงกลึง CNC)"
                   value={formDestination}
                   onChange={(e) => setFormDestination(e.target.value)}
                   className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-cyan-500"

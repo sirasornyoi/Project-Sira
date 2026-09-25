@@ -12,6 +12,9 @@ import {
   getTodayDateString, getPMOverdueDays, isPMOverdue, isPMRescheduled, 
   getOverdueAndRescheduledSummary 
 } from '../utils/pmAlerts';
+import { 
+  formatPmMinutes, getPlannedMinutes, getActualMinutes, getPmVariance 
+} from '../utils/pmTime';
 
 export const PMHistoryPage: React.FC = () => {
   const { schedules, setSchedules, pmPlans, machines, technicians, spareParts, setSpareParts, settings } = useApp();
@@ -163,12 +166,12 @@ export const PMHistoryPage: React.FC = () => {
       alert("กรุณาเลือกรายการแผน PM");
       return;
     }
-    if (formDuration <= 0) {
-      alert("เวลาแผนมาตรฐานต้องมากกว่า 0 นาที");
-      return;
-    }
     if (formStatus === 'เสร็จสิ้น' && formActualDuration <= 0) {
       alert("เวลาที่ใช้ทำจริงต้องมากกว่า 0 นาที เมื่อบันทึกงานเสร็จสิ้น");
+      return;
+    }
+    if (formStatus === 'เสร็จสิ้น' && formDuration > 0 && formActualDuration > formDuration && !formOvertimeReason.trim()) {
+      alert("กรุณาระบุสาเหตุที่ใช้เวลาเกินมาตรฐาน");
       return;
     }
 
@@ -213,7 +216,7 @@ export const PMHistoryPage: React.FC = () => {
             technicians: formTechnicians,
             duration: formDuration,
             actualDuration: formStatus === 'เสร็จสิ้น' ? formActualDuration : undefined,
-            overtimeReason: (formStatus === 'เสร็จสิ้น' && formActualDuration > formDuration) ? formOvertimeReason.trim() : undefined,
+            overtimeReason: (formStatus === 'เสร็จสิ้น' && formDuration > 0 && formActualDuration > formDuration) ? formOvertimeReason.trim() : undefined,
             status: formStatus,
             usedParts: formUsedParts,
             otherCost: Number(formOtherCost) || 0
@@ -234,7 +237,7 @@ export const PMHistoryPage: React.FC = () => {
         status: formStatus,
         duration: formDuration,
         actualDuration: formStatus === 'เสร็จสิ้น' ? formActualDuration : undefined,
-        overtimeReason: (formStatus === 'เสร็จสิ้น' && formActualDuration > formDuration) ? formOvertimeReason.trim() : undefined,
+        overtimeReason: (formStatus === 'เสร็จสิ้น' && formDuration > 0 && formActualDuration > formDuration) ? formOvertimeReason.trim() : undefined,
         usedParts: formUsedParts,
         otherCost: Number(formOtherCost) || 0
       };
@@ -323,16 +326,17 @@ export const PMHistoryPage: React.FC = () => {
       const pTitle = planDetail ? planDetail.title : 'บำรุงรักษาทั่วไป';
       const pFreq = planDetail ? planDetail.frequency : 'รายเดือน';
 
-      const actualMins = job.actualDuration !== undefined ? job.actualDuration : job.duration;
-      const variance = job.status === 'เสร็จสิ้น' && job.actualDuration !== undefined 
-        ? job.actualDuration - job.duration 
-        : 0;
-      
-      const variancePercent = job.status === 'เสร็จสิ้น' && job.actualDuration !== undefined && job.duration > 0
-        ? Math.round((variance / job.duration) * 100)
-        : 0;
+      const varianceResult = getPmVariance(job);
+      const plannedStr = formatPmMinutes(getPlannedMinutes(job));
+      const actualMins = getActualMinutes(job);
 
-      const varianceStr = variance === 0 ? 'ตรงเวลา' : variance > 0 ? `+${variance} (ช้า)` : `${variance} (เร็ว)`;
+      let varianceStr = '-';
+      let variancePercentStr = '-';
+      if (varianceResult !== null) {
+        const { diffMins, diffPct } = varianceResult;
+        varianceStr = diffMins === 0 ? 'ตรงเวลา' : diffMins > 0 ? `+${diffMins} (ช้า)` : `${diffMins} (เร็ว)`;
+        variancePercentStr = `${diffPct}%`;
+      }
 
       const row = [
         job.id,
@@ -342,10 +346,10 @@ export const PMHistoryPage: React.FC = () => {
         pTitle,
         pFreq,
         job.date,
-        job.duration,
-        job.actualDuration !== undefined ? job.actualDuration : 'ยังไม่ได้ลงบันทึก',
-        job.status === 'เสร็จสิ้น' ? varianceStr : '-',
-        job.status === 'เสร็จสิ้น' ? `${variancePercent}%` : '-',
+        plannedStr,
+        actualMins !== null ? actualMins : (job.actualDuration !== undefined ? job.actualDuration : 'ยังไม่ได้ลงบันทึก'),
+        varianceStr,
+        variancePercentStr,
         job.overtimeReason || '-',
         job.technician,
         job.technicians ? job.technicians.join('; ') : '-',
@@ -385,12 +389,13 @@ export const PMHistoryPage: React.FC = () => {
     const matchMonth = monthFilter ? job.date.startsWith(monthFilter) : true;
 
     // 4. Variance / Status / Overdue filter
+    const variance = getPmVariance(job);
     if (varianceFilter === 'delayed') {
-      return matchMachine && matchTech && matchMonth && job.status === 'เสร็จสิ้น' && job.actualDuration !== undefined && job.actualDuration > job.duration;
+      return matchMachine && matchTech && matchMonth && variance !== null && variance.diffMins > 0;
     } else if (varianceFilter === 'faster') {
-      return matchMachine && matchTech && matchMonth && job.status === 'เสร็จสิ้น' && job.actualDuration !== undefined && job.actualDuration < job.duration;
+      return matchMachine && matchTech && matchMonth && variance !== null && variance.diffMins < 0;
     } else if (varianceFilter === 'ontime') {
-      return matchMachine && matchTech && matchMonth && job.status === 'เสร็จสิ้น' && job.actualDuration !== undefined && job.actualDuration === job.duration;
+      return matchMachine && matchTech && matchMonth && variance !== null && variance.diffMins === 0;
     } else if (varianceFilter === 'pending') {
       return matchMachine && matchTech && matchMonth && (job.status !== 'เสร็จสิ้น' || job.actualDuration === undefined);
     } else if (varianceFilter === 'overdue') {
@@ -404,10 +409,10 @@ export const PMHistoryPage: React.FC = () => {
     if (sortBy === 'date') {
       return new Date(b.date).getTime() - new Date(a.date).getTime();
     } else if (sortBy === 'duration') {
-      return b.duration - a.duration;
+      return (b.duration || 0) - (a.duration || 0);
     } else if (sortBy === 'variance') {
-      const varA = a.actualDuration !== undefined ? (a.actualDuration - a.duration) : 0;
-      const varB = b.actualDuration !== undefined ? (b.actualDuration - b.duration) : 0;
+      const varA = getPmVariance(a)?.diffMins ?? -999999;
+      const varB = getPmVariance(b)?.diffMins ?? -999999;
       return varB - varA; // Worst variance first (longest delaying job first)
     }
     return 0;
@@ -420,18 +425,22 @@ export const PMHistoryPage: React.FC = () => {
   const completedJobs = pmJobs.filter(job => job.status === 'เสร็จสิ้น' && job.actualDuration !== undefined);
   const totalCompletedCount = completedJobs.length;
 
-  const totalStdMins = completedJobs.reduce((sum, j) => sum + j.duration, 0);
-  const totalActMins = completedJobs.reduce((sum, j) => sum + (j.actualDuration || j.duration), 0);
+  // Filter jobs having valid PM variance (planned > 0 and actual recorded)
+  const varianceJobs = pmJobs.filter(job => getPmVariance(job) !== null);
+  const totalVarianceJobsCount = varianceJobs.length;
+
+  const totalStdMins = varianceJobs.reduce((sum, j) => sum + (getPlannedMinutes(j) || 0), 0);
+  const totalActMins = varianceJobs.reduce((sum, j) => sum + (getActualMinutes(j) || 0), 0);
   const totalDiffMins = totalActMins - totalStdMins;
 
   const avgVariancePercent = totalStdMins > 0 ? Math.round((totalDiffMins / totalStdMins) * 100) : 0;
 
-  const fasterJobsCount = completedJobs.filter(j => (j.actualDuration || 0) < j.duration).length;
-  const delayedJobsCount = completedJobs.filter(j => (j.actualDuration || 0) > j.duration).length;
-  const onTimeJobsCount = completedJobs.filter(j => (j.actualDuration || 0) === j.duration).length;
+  const fasterJobsCount = varianceJobs.filter(j => (getPmVariance(j)?.diffMins ?? 0) < 0).length;
+  const delayedJobsCount = varianceJobs.filter(j => (getPmVariance(j)?.diffMins ?? 0) > 0).length;
+  const onTimeJobsCount = varianceJobs.filter(j => (getPmVariance(j)?.diffMins ?? 0) === 0).length;
 
-  const onTimeOrFasterRate = totalCompletedCount > 0 
-    ? Math.round(((fasterJobsCount + onTimeJobsCount) / totalCompletedCount) * 100) 
+  const onTimeOrFasterRate = totalVarianceJobsCount > 0 
+    ? Math.round(((fasterJobsCount + onTimeJobsCount) / totalVarianceJobsCount) * 100) 
     : 100;
 
   return (
@@ -808,58 +817,65 @@ export const PMHistoryPage: React.FC = () => {
                   const mDetail = machines.find(m => m.id === job.machineId);
                   const pDetail = pmPlans.find(p => p.id === job.pmPlanId);
 
-                  const actTime = job.actualDuration;
-                  const stdTime = job.duration;
+                  const actTime = getActualMinutes(job);
+                  const stdTime = getPlannedMinutes(job);
                   const jobIsOverdue = isPMOverdue(job, todayStr);
                   const jobIsRescheduled = isPMRescheduled(job);
                   const overdueDays = getPMOverdueDays(job.date, todayStr);
+                  const variance = getPmVariance(job);
 
                   // Evaluate variance styling
                   let varBadge = null;
-                  if (job.status !== 'เสร็จสิ้น' || actTime === undefined) {
+                  if (variance !== null) {
+                    const { diffMins, diffPct } = variance;
+                    if (diffMins === 0) {
+                      varBadge = (
+                        <span className="inline-flex items-center gap-1 text-[10.5px] text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800/40 border border-slate-300 dark:border-slate-700/60 px-1.5 py-0.5 rounded font-black font-mono">
+                          ⏱ เป๊ะตามค่าเฉลี่ยแผน
+                        </span>
+                      );
+                    } else {
+                      const isFaster = diffMins < 0;
+                      varBadge = (
+                        <div className="flex flex-col items-center">
+                          <span className={`inline-flex items-center gap-0.5 text-[10.5px] font-black font-mono px-1.5 py-0.5 rounded border ${
+                            isFaster 
+                              ? 'bg-emerald-500/10 border-emerald-500/35 text-emerald-600 dark:text-emerald-400' 
+                              : 'bg-rose-500/10 border-rose-500/35 text-rose-600 dark:text-rose-450'
+                          }`}>
+                            {isFaster ? `⚡️ เร็วสะสม ${Math.abs(diffMins)} น.` : `⚠️ ดีเลย์ +${diffMins} น.`}
+                          </span>
+                          <span className="text-[9px] text-slate-500 font-mono mt-0.5">
+                            ({isFaster ? `-${Math.abs(diffPct)}` : `+${diffPct}`}% จากเกณฑ์)
+                          </span>
+                        </div>
+                      );
+                    }
+                  } else if (job.status === 'เสร็จสิ้น') {
+                    varBadge = (
+                      <span className="inline-flex items-center gap-1 text-[10.5px] text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-700 px-2 py-0.5 rounded font-medium">
+                        ไม่ได้ระบุเวลาแผน
+                      </span>
+                    );
+                  } else {
                     if (jobIsOverdue) {
                       varBadge = (
                         <div className="flex flex-col items-center">
-                          <span className="inline-flex items-center gap-1 text-[10px] text-rose-400 bg-rose-500/15 border border-rose-500/30 px-1.5 py-0.5 rounded font-black font-mono animate-pulse">
+                          <span className="inline-flex items-center gap-1 text-[10px] text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/15 border border-rose-300 dark:border-rose-500/30 px-1.5 py-0.5 rounded font-black font-mono animate-pulse">
                             <AlertTriangle size={10} /> เลยแผน +{overdueDays} วัน
                           </span>
-                          <span className="text-[8.5px] text-rose-450 mt-0.5 font-bold">
+                          <span className="text-[8.5px] text-rose-600 dark:text-rose-450 mt-0.5 font-bold">
                             (ต้องเลื่อนแผน)
                           </span>
                         </div>
                       );
                     } else {
                       varBadge = (
-                        <span className="inline-flex items-center gap-1 text-[10px] text-slate-550 border border-slate-800 px-1.5 py-0.5 rounded font-bold font-sans">
+                        <span className="inline-flex items-center gap-1 text-[10px] text-slate-500 dark:text-slate-400 border border-slate-300 dark:border-slate-800 px-1.5 py-0.5 rounded font-bold font-sans">
                           <Hourglass size={10} /> รอกลับมาลงบันทึก
                         </span>
                       );
                     }
-                  } else if (actTime === stdTime) {
-                    varBadge = (
-                      <span className="inline-flex items-center gap-1 text-[10.5px] text-slate-300 bg-slate-800/40 border border-slate-700/60 px-1.5 py-0.5 rounded font-black font-mono">
-                        ⏱ เป๊ะตามค่าเฉลี่ยแผน
-                      </span>
-                    );
-                  } else {
-                    const diff = actTime - stdTime;
-                    const diffPercent = Math.round((diff / stdTime) * 100);
-                    const isFaster = diff < 0;
-
-                    varBadge = (
-                      <div className="flex flex-col items-center">
-                        <span className={`inline-flex items-center gap-0.5 text-[10.5px] font-black font-mono px-1.5 py-0.5 rounded border ${
-                          isFaster 
-                            ? 'bg-emerald-500/10 border-emerald-550/35 text-emerald-400' 
-                            : 'bg-rose-500/10 border-rose-550/35 text-rose-450'
-                        }`}>
-                          {isFaster ? `⚡️ เร็วสะสม ${Math.abs(diff)} น.` : `⚠️ ดีเลย์ +${diff} น.`}
-                        </span>
-                        <span className="text-[9px] text-slate-500 font-mono mt-0.5">
-                          ({isFaster ? `-${Math.abs(diffPercent)}` : `+${diffPercent}`}% จากเกณฑ์)
-                        </span>
-                      </div>
-                    );
                   }
 
                   const allTechs = job.technicians && job.technicians.length > 0 
@@ -929,13 +945,13 @@ export const PMHistoryPage: React.FC = () => {
 
                       {/* Standard Plan Duration */}
                       <td className="p-4 text-center font-mono font-black text-slate-800 dark:text-slate-300">
-                        {stdTime} Mins
+                        {formatPmMinutes(stdTime)}
                       </td>
 
                       {/* Actual Spent Duration */}
                       <td className="p-4 text-center font-mono font-black">
-                        {actTime !== undefined ? (
-                          <span className={actTime > stdTime ? 'text-rose-600 dark:text-rose-400 font-bold' : actTime < stdTime ? 'text-emerald-600 dark:text-emerald-400 font-black' : 'text-slate-800 dark:text-slate-300'}>
+                        {actTime !== null ? (
+                          <span className={stdTime !== null && actTime > stdTime ? 'text-rose-600 dark:text-rose-400 font-bold' : stdTime !== null && actTime < stdTime ? 'text-emerald-600 dark:text-emerald-400 font-black' : 'text-slate-800 dark:text-slate-300'}>
                             {actTime} Mins
                           </span>
                         ) : (
@@ -1407,11 +1423,10 @@ export const PMHistoryPage: React.FC = () => {
                   </label>
                   <input
                     type="number"
-                    value={formDuration}
-                    onChange={(e) => setFormDuration(Number(e.target.value))}
-                    min={1}
+                    value={formDuration || ''}
+                    onChange={(e) => setFormDuration(e.target.value === '' ? 0 : Number(e.target.value))}
+                    placeholder="ไม่ได้ระบุ"
                     className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-cyan-700 dark:text-cyan-300 font-mono font-bold focus:outline-hidden"
-                    required
                   />
                   <p className="text-[9px] text-slate-500">ดึงจาก Standard TTM อัตโนมัติ</p>
                 </div>
@@ -1451,7 +1466,7 @@ export const PMHistoryPage: React.FC = () => {
               )}
 
               {/* Overtime Reason Input Section (Appears when Actual Duration exceeds Standard Duration) */}
-              {formStatus === 'เสร็จสิ้น' && formActualDuration > formDuration && (
+              {formStatus === 'เสร็จสิ้น' && formDuration > 0 && formActualDuration > formDuration && (
                 <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-500/10 border-2 border-rose-200 dark:border-rose-500/30 space-y-2.5 animate-in fade-in duration-200">
                   <div className="flex items-center justify-between">
                     <label className="text-[11px] font-extrabold text-rose-700 dark:text-rose-300 flex items-center gap-1.5">
@@ -1491,6 +1506,7 @@ export const PMHistoryPage: React.FC = () => {
                       onChange={(e) => setFormOvertimeReason(e.target.value)}
                       placeholder="โปรดระบุสาเหตุและรายละเอียดเพิ่มเติมว่าทำไมใช้เวลาเกินมาตรฐาน..."
                       rows={2}
+                      required={formStatus === 'เสร็จสิ้น' && formDuration > 0 && formActualDuration > formDuration}
                       className="w-full bg-white dark:bg-[#050a14] border border-rose-300 dark:border-rose-500/40 focus:border-rose-500 rounded-lg p-2.5 text-xs text-slate-900 dark:text-rose-100 placeholder:text-slate-400 focus:outline-hidden"
                     />
                   </div>

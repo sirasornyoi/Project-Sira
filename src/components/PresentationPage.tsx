@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { RepairLog, Machine, PMScheduleItem } from '../types';
+import { getActualMinutes } from '../utils/pmTime';
 import { 
   BarChart as RechartsBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer
 } from 'recharts';
@@ -188,12 +189,16 @@ export const PresentationPage: React.FC = () => {
     return plan ? plan.ttm : 45;
   };
 
-  const pmActualTotalMin = completedPMs.reduce((sum, pm) => sum + pm.duration, 0);
-  const pmStandardTotalMin = completedPMs.reduce((sum, pm) => sum + getPMStandardTime(pm as PMScheduleItem), 0);
-  const avgPmActual = totalPMCount > 0 ? Math.round(pmActualTotalMin / totalPMCount) : 0;
-  const avgPmStandard = totalPMCount > 0 ? Math.round(pmStandardTotalMin / totalPMCount) : 45;
+  // Only consider PMs where actual time is recorded (> 0)
+  const validActualPMs = completedPMs.filter(pm => getActualMinutes(pm) !== null);
+  const validActualPMCount = validActualPMs.length;
 
-  const totalDelayedPMs = completedPMs.filter(pm => pm.duration > getPMStandardTime(pm as PMScheduleItem));
+  const pmActualTotalMin = validActualPMs.reduce((sum, pm) => sum + (getActualMinutes(pm) || 0), 0);
+  const pmStandardTotalMin = validActualPMs.reduce((sum, pm) => sum + getPMStandardTime(pm as PMScheduleItem), 0);
+  const avgPmActual = validActualPMCount > 0 ? Math.round(pmActualTotalMin / validActualPMCount) : null;
+  const avgPmStandard = validActualPMCount > 0 ? Math.round(pmStandardTotalMin / validActualPMCount) : null;
+
+  const totalDelayedPMs = validActualPMs.filter(pm => (getActualMinutes(pm) || 0) > getPMStandardTime(pm as PMScheduleItem));
 
   // 2. Urgent Repairs (Breakdown) stats
   const totalDowntimeMin = repairs.reduce((sum, r) => sum + r.duration, 0);
@@ -334,8 +339,12 @@ export const PresentationPage: React.FC = () => {
                 <h3 className="text-sm font-black text-fg">งานบำรุงรักษาป้องกัน PM</h3>
                 <p className="text-[10px] text-slate-400 mt-1">เปรียบเทียบมาตรฐานความถี่และเวลาปิดบอร์ด</p>
                 <div className="flex items-baseline gap-2.5 mt-3">
-                  <span className="text-2xl font-black text-cyan-400 font-mono">{avgPmActual}m</span>
-                  <span className="text-xs text-slate-400">จากเป้ามาตรฐาน {avgPmStandard}m</span>
+                  <span className="text-2xl font-black text-cyan-400 font-mono">
+                    {avgPmActual !== null ? `${avgPmActual}m` : 'ไม่ได้ระบุ'}
+                  </span>
+                  <span className="text-xs text-slate-400">
+                    จากเป้ามาตรฐาน {avgPmStandard !== null ? `${avgPmStandard}m` : 'ไม่ได้ระบุ'}
+                  </span>
                 </div>
                 <div className="mt-3.5 pt-3.5 border-t border-slate-850 flex justify-between items-center text-[11px]">
                   <span className="text-slate-400">PM ช้ากว่าเป้ามาตรฐาน:</span>
@@ -416,10 +425,13 @@ export const PresentationPage: React.FC = () => {
                     <div className="space-y-1">
                       <div className="flex justify-between text-[11px]">
                         <span className="text-slate-300 font-semibold">1. เวลาทำ PM เฉลี่ย (PM Duration)</span>
-                        <span className="font-mono text-cyan-400 font-bold">{avgPmActual}m <span className="text-slate-500">/ Std {avgPmStandard}m</span></span>
+                        <span className="font-mono text-cyan-400 font-bold">
+                          {avgPmActual !== null ? `${avgPmActual}m` : 'ไม่ได้ระบุ'} 
+                          <span className="text-slate-500"> / Std {avgPmStandard !== null ? `${avgPmStandard}m` : 'ไม่ได้ระบุ'}</span>
+                        </span>
                       </div>
                       <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
-                        <div style={{ width: `${Math.min(100, (avgPmActual / (avgPmStandard || 1)) * 100)}%` }} className={`h-full ${avgPmActual <= avgPmStandard ? 'bg-cyan-500' : 'bg-rose-500'}`}></div>
+                        <div style={{ width: `${avgPmActual !== null && avgPmStandard ? Math.min(100, (avgPmActual / avgPmStandard) * 100) : 0}%` }} className={`h-full ${avgPmActual !== null && avgPmStandard !== null && avgPmActual <= avgPmStandard ? 'bg-cyan-500' : 'bg-rose-500'}`}></div>
                       </div>
                     </div>
 
@@ -473,8 +485,8 @@ export const PresentationPage: React.FC = () => {
               completedPMs.map(pm => {
                 const plan = getLinkedPlan(pm as PMScheduleItem);
                 const planStd = plan ? plan.ttm : 45;
-                const actual = pm.duration;
-                const isDelayed = actual > planStd;
+                const actual = getActualMinutes(pm);
+                const isDelayed = actual !== null && actual > planStd;
                 const delayKey = pm.id;
                 const currentData = pmDelayDetails[delayKey] || { reason: '', why1: '', why2: '', why3: '', why4: '', why5: '', countermeasure: '' };
 
@@ -515,7 +527,9 @@ export const PresentationPage: React.FC = () => {
                         <div className="flex gap-2 items-center bg-slate-950/40 p-2.5 rounded-xl border border-slate-850/60 duration-badge-box shadow-inner">
                           <div className="text-center px-2.5 py-2 bg-rose-500/10 rounded-lg border border-rose-500/30 min-w-[95px] duration-accumulated-pill">
                             <div className="text-[9px] text-slate-400 font-black leading-none mb-1.5 uppercase tracking-wide">เวลาซ่อมจริง</div>
-                            <div className="font-mono text-sm text-rose-400 font-black leading-none">{actual} น.</div>
+                            <div className="font-mono text-sm text-rose-400 font-black leading-none">
+                              {actual !== null ? `${actual} น.` : 'ไม่ได้ระบุ'}
+                            </div>
                           </div>
                           <div className="text-center px-2.5 py-2 bg-slate-900/60 rounded-lg border border-slate-800 min-w-[95px] duration-target-pill">
                             <div className="text-[9px] text-slate-500 font-black leading-none mb-1.5 uppercase tracking-wide">มาตรฐานแผน</div>
@@ -524,14 +538,18 @@ export const PresentationPage: React.FC = () => {
                         </div>
                         
                         <div className={`px-2.5 py-1.5 rounded-lg text-xs font-black flex items-center gap-1 border ${
-                          isDelayed 
-                            ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' 
-                            : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                          actual === null
+                            ? 'bg-slate-500/10 text-slate-400 border-slate-500/20'
+                            : isDelayed 
+                              ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' 
+                              : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
                         }`}>
-                          {isDelayed ? (
+                          {actual === null ? (
+                            <span>ไม่ได้ระบุเวลาจริง</span>
+                          ) : isDelayed ? (
                             <>
                               <AlertTriangle size={13} />
-                              <span>ช้ากว่าแผ่ง +{actual - planStd}m</span>
+                              <span>ช้ากว่าแผน +{actual - planStd}m</span>
                             </>
                           ) : (
                             <>

@@ -13,6 +13,8 @@ import {
 } from 'lucide-react';
 import { getTodayDateString } from '../utils/pmAlerts';
 import { calculateMachineKpi, calculateMultiMachineKpi } from '../utils/pmKpi';
+import { getActualMinutes, getPmVariance } from '../utils/pmTime';
+import { PMScheduleItem } from '../types';
 
 export const DashboardPage: React.FC = () => {
   const { machines, pmPlans, schedules, repairs, improvements, settings, technicians, leaves, spareParts, plannedProductionTimes } = useApp();
@@ -199,14 +201,15 @@ export const DashboardPage: React.FC = () => {
 
   // C. TTM (Time to Maintenance) Deviation Analyzer for PM
   const ttmDeviationList = schedules
-    .filter(s => s.type === 'PM' && s.status === 'เสร็จสิ้น')
+    .filter(s => s.type === 'PM')
     .map(s => {
-      const pm = s as any;
+      const pm = s as PMScheduleItem;
       const linkedPlan = pmPlans.find(p => p.id === pm.pmPlanId);
-      const planStd = linkedPlan ? linkedPlan.ttm : 45;
-      const actualTime = pm.duration; // minutes taken
+      const planStd = linkedPlan?.ttm ?? 0;
+      const actualTime = getActualMinutes(pm);
+      if (actualTime === null || planStd <= 0) return null;
       const diffMins = actualTime - planStd;
-      const diffPct = planStd > 0 ? Math.round((diffMins / planStd) * 100) : 0;
+      const diffPct = Math.round((diffMins / planStd) * 100);
       
       return {
         id: pm.id,
@@ -221,6 +224,7 @@ export const DashboardPage: React.FC = () => {
         status: diffMins > 10 ? 'over' : diffMins < -10 ? 'under' : 'on-target'
       };
     })
+    .filter((item): item is NonNullable<typeof item> => item !== null)
     .slice(0, 15);
 
   // D. Full Technician Workload Real-Time Radar
@@ -328,12 +332,12 @@ export const DashboardPage: React.FC = () => {
       if (!isMySchedule || s.type !== 'PM') return;
       if (s.status === 'เสร็จสิ้น') {
         completedPM++;
-        totalPMWithDuration++;
-        const pmItem = s as any;
-        const stdTtm = pmItem.duration;
-        const actTtm = pmItem.actualDuration ?? stdTtm; // default to standard if actual not recorded yet
-        if (actTtm <= stdTtm) {
-          pmOnTimeCount++;
+        const variance = getPmVariance(s);
+        if (variance !== null) {
+          totalPMWithDuration++;
+          if (variance.diffMins <= 0) {
+            pmOnTimeCount++;
+          }
         }
       }
     });
