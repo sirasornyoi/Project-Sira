@@ -66,6 +66,7 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
 
   // Task creation/editing form modal
   const [showTaskForm, setShowTaskForm] = useState<boolean>(false);
+  const [taskFormStep, setTaskFormStep] = useState<'select-type' | 'form'>('select-type');
   const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
   const [formTaskType, setFormTaskType] = useState<'PM' | 'Repair' | 'Other'>('PM');
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
@@ -397,6 +398,7 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
   // Open task creator modal for specific date
   const handleOpenCreateForm = (dateStr: string, defaultType: 'PM' | 'Repair' | 'Other' = 'PM') => {
     setFormMode('create');
+    setTaskFormStep('select-type');
     setEditingTaskId(null);
     setFormDate(dateStr);
     setFormTaskType(defaultType);
@@ -425,6 +427,7 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
   // Open edit modal for existing task
   const handleOpenEditForm = (task: any, type: 'PM' | 'Repair' | 'Other') => {
     setFormMode('edit');
+    setTaskFormStep('form');
     setEditingTaskId(task.id);
     setFormDate(task.date);
     setFormTaskType(type);
@@ -1122,9 +1125,11 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
                   <button
                     type="button"
                     onClick={() => setActiveDateStr(null)}
-                    className="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg text-lg leading-none transition cursor-pointer"
+                    className="p-1.5 text-slate-400 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-xl transition cursor-pointer"
+                    title="ปิด (Close)"
+                    aria-label="ปิด"
                   >
-                    ✕
+                    <X size={20} className="stroke-[2.5]" />
                   </button>
                 </div>
               </div>
@@ -1741,23 +1746,170 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
             {/* Form Header */}
             <div className="bg-slate-50 dark:bg-gradient-to-r dark:from-slate-900 dark:to-slate-800 border-b border-slate-200 dark:border-slate-750 p-5 flex justify-between items-center">
               <div>
+                {formMode === 'create' && taskFormStep === 'form' && (
+                  <button
+                    type="button"
+                    onClick={() => setTaskFormStep('select-type')}
+                    className="text-xs text-cyan-600 dark:text-cyan-400 hover:underline flex items-center gap-1 font-semibold mb-1 cursor-pointer"
+                  >
+                    <ChevronLeft size={14} />
+                    เปลี่ยนประเภทงาน
+                  </button>
+                )}
                 <h3 className="text-base font-bold text-cyan-700 dark:text-cyan-400 flex items-center gap-2">
-                  {formMode === 'create' ? '➕ เพิ่มงานใหม่ในตารางงาน' : '✏️ แก้ไขข้อมูลตารางงาน'}
+                  {formMode === 'create' 
+                    ? (taskFormStep === 'select-type' ? '➕ เพิ่มงานใหม่ในตารางงาน' : `➕ เพิ่มงาน: ${formTaskType === 'PM' ? 'งาน PM' : formTaskType === 'Repair' ? 'งานซ่อม' : 'งานติดต่อ / อื่นๆ'}`)
+                    : '✏️ แก้ไขข้อมูลตารางงาน'
+                  }
                 </h3>
                 <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
                   วันที่: <span className="text-slate-900 dark:text-fg font-mono font-semibold">{formDate}</span>
                 </p>
               </div>
 
+              {/* ปุ่มกากบาท ขวาบน */}
               <button 
+                type="button"
+                id="btn-close-task-modal"
                 onClick={() => setShowTaskForm(false)}
-                className="text-slate-400 hover:text-slate-700 dark:hover:text-fg text-xl leading-none transition"
+                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 transition cursor-pointer"
+                title="ปิดหน้าต่าง (Close)"
+                aria-label="ปิดหน้าต่าง"
               >
-                &times;
+                <X size={20} className="stroke-[2.5]" />
               </button>
             </div>
 
-            <form onSubmit={handleSaveTask} className="p-6 space-y-4">
+            {formMode === 'create' && taskFormStep === 'select-type' ? (
+              /* STEP 1: SELECT TASK TYPE FIRST */
+              <div className="p-6 space-y-5">
+                <div className="text-center space-y-1">
+                  <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">
+                    เลือกประเภทงานที่ต้องการบันทึก
+                  </h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    กรุณาเลือกประเภทงานเพื่อเข้าสู่แบบฟอร์มที่เหมาะสม
+                  </p>
+                </div>
+
+                {/* Date Picker preview in Step 1 */}
+                <div className="space-y-1.5 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60">
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                    <Calendar size={13} className="text-cyan-600 dark:text-cyan-400" />
+                    วันที่ปฏิบัติงาน (Date)
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={formDate}
+                    onChange={(e) => setFormDate(e.target.value)}
+                    className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:border-cyan-500 font-mono"
+                  />
+                </div>
+
+                {/* 3 Large Option Cards */}
+                <div className="grid grid-cols-1 gap-3">
+                  {/* 1. PM Card */}
+                  <button
+                    type="button"
+                    id="btn-select-task-type-pm"
+                    onClick={() => {
+                      setFormTaskType('PM');
+                      setTaskFormStep('form');
+                    }}
+                    className="group p-4 rounded-2xl border-2 text-left transition flex items-start gap-4 cursor-pointer bg-blue-50/60 dark:bg-blue-950/20 border-blue-200 dark:border-blue-500/30 hover:border-blue-500 hover:shadow-lg hover:shadow-blue-500/10"
+                  >
+                    <div className="p-3 rounded-xl bg-blue-500 text-white shrink-0 group-hover:scale-110 transition duration-200 shadow-md shadow-blue-500/20">
+                      <ClipboardList size={24} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-sm font-bold text-blue-900 dark:text-blue-300 group-hover:text-blue-600 dark:group-hover:text-blue-200 transition">
+                          งาน PM (บำรุงรักษาเชิงป้องกัน)
+                        </span>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 border border-blue-300 dark:border-blue-500/40">
+                          แผนงาน & เช็คลิสต์
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">
+                        งานตรวจเช็คสภาพเครื่องจักรตามรอบความถี่ บันทึกเวลา และขั้นตอนเช็คลิสต์มาตรฐาน
+                      </p>
+                    </div>
+                    <ChevronRight size={18} className="text-blue-400 self-center group-hover:translate-x-1 transition" />
+                  </button>
+
+                  {/* 2. Repair Card */}
+                  <button
+                    type="button"
+                    id="btn-select-task-type-repair"
+                    onClick={() => {
+                      setFormTaskType('Repair');
+                      setTaskFormStep('form');
+                    }}
+                    className="group p-4 rounded-2xl border-2 text-left transition flex items-start gap-4 cursor-pointer bg-rose-50/60 dark:bg-rose-950/20 border-rose-200 dark:border-rose-500/30 hover:border-rose-500 hover:shadow-lg hover:shadow-rose-500/10"
+                  >
+                    <div className="p-3 rounded-xl bg-rose-500 text-white shrink-0 group-hover:scale-110 transition duration-200 shadow-md shadow-rose-500/20">
+                      <Wrench size={24} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-sm font-bold text-rose-900 dark:text-rose-300 group-hover:text-rose-600 dark:group-hover:text-rose-200 transition">
+                          งานซ่อม / ฉุกเฉิน (Breakdown)
+                        </span>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-900/60 text-rose-700 dark:text-rose-300 border border-rose-300 dark:border-rose-500/40">
+                          ซ่อมแซม & แก้ไข
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">
+                        แจ้งซ่อมเครื่องจักรขัดข้อง ซ่อมด่วนหน้างาน อาการเสีย และบันทึกเวลาหยุดเครื่อง/ซ่อมเสร็จ
+                      </p>
+                    </div>
+                    <ChevronRight size={18} className="text-rose-400 self-center group-hover:translate-x-1 transition" />
+                  </button>
+
+                  {/* 3. Other Card */}
+                  <button
+                    type="button"
+                    id="btn-select-task-type-other"
+                    onClick={() => {
+                      setFormTaskType('Other');
+                      setTaskFormStep('form');
+                    }}
+                    className="group p-4 rounded-2xl border-2 text-left transition flex items-start gap-4 cursor-pointer bg-emerald-50/60 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-500/30 hover:border-emerald-500 hover:shadow-lg hover:shadow-emerald-500/10"
+                  >
+                    <div className="p-3 rounded-xl bg-emerald-500 text-white shrink-0 group-hover:scale-110 transition duration-200 shadow-md shadow-emerald-500/20">
+                      <PhoneCall size={24} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-sm font-bold text-emerald-900 dark:text-emerald-300 group-hover:text-emerald-600 dark:group-hover:text-emerald-200 transition">
+                          งานติดต่อ / ภายนอก / อื่นๆ
+                        </span>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/40">
+                          ภารกิจภายนอก
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">
+                        งานจัดซื้อ ซื้ออะไหล่ ส่งชิ้นส่วนโรงกลึง ประชุม อบรม หรือภารกิจสนับสนุนอื่นๆ
+                      </p>
+                    </div>
+                    <ChevronRight size={18} className="text-emerald-400 self-center group-hover:translate-x-1 transition" />
+                  </button>
+                </div>
+
+                <div className="pt-2 flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setShowTaskForm(false)}
+                    className="px-4 py-2 text-xs font-medium rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition cursor-pointer"
+                  >
+                    ยกเลิก
+                  </button>
+                </div>
+              </div>
+            ) : (
+              /* STEP 2: FORM VIEW */
+              <form onSubmit={handleSaveTask} className="p-6 space-y-4">
               
               {/* Task Type Switcher */}
               <div className="space-y-1.5">
@@ -2126,6 +2278,7 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
               </div>
 
             </form>
+            )}
           </div>
         </div>
       )}
