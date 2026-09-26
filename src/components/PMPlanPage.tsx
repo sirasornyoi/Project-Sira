@@ -1014,11 +1014,12 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
               setShowMachinePickerModal(true);
               setPickerSearch('');
             }}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold rounded-xl shadow-md shadow-cyan-600/20 transition shrink-0 cursor-pointer"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white !text-white text-xs font-bold rounded-xl shadow-md shadow-blue-600/20 transition shrink-0 cursor-pointer"
+            style={{ color: '#ffffff' }}
             title="+ เพิ่มเครื่องจักร"
           >
-            <Plus size={14} className="text-white" />
-            <span className="text-white">+ เพิ่มเครื่องจักร</span>
+            <Plus size={14} className="text-white !text-white" style={{ color: '#ffffff' }} />
+            <span className="text-white !text-white" style={{ color: '#ffffff' }}>+ เพิ่มเครื่องจักร</span>
           </button>
         </div>
         
@@ -1178,9 +1179,10 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
                     onClick={() => setSelectedMachineId(m.id)}
                     className={`px-2 py-0.5 rounded text-xs font-mono font-bold transition cursor-pointer ${
                       selectedMachineId === m.id
-                        ? 'bg-cyan-600 text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs'
+                        ? 'bg-blue-600 text-white !text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs'
                         : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300'
                     }`}
+                    style={selectedMachineId === m.id ? { color: '#ffffff' } : undefined}
                   >
                     {m.id} {m.locationRoom ? `(${m.locationRoom})` : ''}
                   </button>
@@ -1283,10 +1285,11 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
             <button
               id="btn-add-pm-plan"
               onClick={handleOpenNewForm}
-              className="flex items-center gap-1.5 px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-extrabold rounded-xl text-xs transition cursor-pointer shadow-md shadow-cyan-600/20"
+              className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white !text-white font-extrabold rounded-xl text-xs transition cursor-pointer shadow-md shadow-blue-600/20"
+              style={{ color: '#ffffff' }}
             >
-              <Plus size={14} strokeWidth={2.5} className="text-white" />
-              <span className="text-white">+ เพิ่มงานแผน PM ใหม่</span>
+              <Plus size={14} strokeWidth={2.5} className="text-white !text-white" style={{ color: '#ffffff' }} />
+              <span className="text-white !text-white font-extrabold" style={{ color: '#ffffff' }}>+ เพิ่มงานแผน PM ใหม่</span>
             </button>
           </div>
         </div>
@@ -1321,9 +1324,10 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
                   onClick={() => setSelectedMachineId(m.id)}
                   className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition cursor-pointer ${
                     selectedMachineId === m.id
-                      ? 'bg-cyan-600 text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs'
+                      ? 'bg-blue-600 text-white !text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs'
                       : 'bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-cyan-500 hover:text-cyan-600'
                   }`}
+                  style={selectedMachineId === m.id ? { color: '#ffffff' } : undefined}
                   title={`${m.id} ${m.locationRoom ? `• ${m.locationRoom}` : ''}`}
                 >
                   {m.id}

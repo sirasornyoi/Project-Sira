@@ -1873,7 +1873,8 @@ button, input, select, textarea {
   color: #0f172a !important;
 }
 
-.light-theme #pm-right-machine-header span {
+.light-theme #pm-right-machine-header span.text-slate-400,
+.light-theme #pm-right-machine-header span.text-slate-500 {
   color: #475569 !important;
 }
 
@@ -7828,7 +7829,24 @@ button, input, select, textarea {
 .light-theme a[class*="bg-blue-600"],
 .light-theme a[class*="bg-cyan-600"],
 .light-theme #btn-add-pm-machine,
-.light-theme #btn-add-pm-plan {
+.light-theme #btn-add-pm-plan,
+.light-theme #pm-right-machine-header #btn-add-pm-plan,
+.light-theme #pm-left-machine-selector #btn-add-pm-machine {
+  color: #ffffff !important;
+}
+
+.light-theme #pm-right-machine-header #btn-add-pm-plan span,
+.light-theme #pm-right-machine-header #btn-add-pm-plan svg,
+.light-theme #pm-right-machine-header #btn-add-pm-plan *,
+.light-theme #pm-left-machine-selector #btn-add-pm-machine span,
+.light-theme #pm-left-machine-selector #btn-add-pm-machine svg,
+.light-theme #pm-left-machine-selector #btn-add-pm-machine *,
+.light-theme #btn-add-pm-plan span,
+.light-theme #btn-add-pm-plan svg,
+.light-theme #btn-add-pm-plan *,
+.light-theme #btn-add-pm-machine span,
+.light-theme #btn-add-pm-machine svg,
+.light-theme #btn-add-pm-machine * {
   color: #ffffff !important;
 }
 
@@ -7855,9 +7873,32 @@ button, input, select, textarea {
 .light-theme .bg-\[\#0284c7\] *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
 .light-theme .bg-\[\#0369a1\] *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
 .light-theme .bg-\[\#2563eb\] *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
-.light-theme .bg-\[\#1d4ed8\] *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
-.light-theme #btn-add-pm-machine *,
-.light-theme #btn-add-pm-plan * {
+.light-theme .bg-\[\#1d4ed8\] *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *) {
+  color: #ffffff !important;
+}
+
+.light-theme .bg-blue-500 span,
+.light-theme .bg-blue-600 span,
+.light-theme .bg-blue-700 span,
+.light-theme .bg-cyan-500 span,
+.light-theme .bg-cyan-600 span,
+.light-theme .bg-cyan-700 span,
+.light-theme .bg-sky-500 span,
+.light-theme .bg-sky-600 span,
+.light-theme .bg-sky-700 span,
+.light-theme .bg-indigo-500 span,
+.light-theme .bg-indigo-600 span,
+.light-theme .bg-indigo-700 span,
+.light-theme .bg-\[\#0284c7\] span,
+.light-theme .bg-\[\#0369a1\] span,
+.light-theme .bg-\[\#2563eb\] span,
+.light-theme .bg-\[\#1d4ed8\] span,
+.light-theme .bg-blue-500 p,
+.light-theme .bg-blue-600 p,
+.light-theme .bg-cyan-500 p,
+.light-theme .bg-cyan-600 p,
+.light-theme .bg-sky-500 p,
+.light-theme .bg-sky-600 p {
   color: #ffffff !important;
 }
 
@@ -7876,9 +7917,7 @@ button, input, select, textarea {
 .light-theme .bg-\[\#0284c7\] svg,
 .light-theme .bg-\[\#0369a1\] svg,
 .light-theme .bg-\[\#2563eb\] svg,
-.light-theme .bg-\[\#1d4ed8\] svg,
-.light-theme #btn-add-pm-machine svg,
-.light-theme #btn-add-pm-plan svg {
+.light-theme .bg-\[\#1d4ed8\] svg {
   color: #ffffff !important;
 }
 
