@@ -25,6 +25,21 @@ export function getTodayDateString(): string {
 }
 
 /**
+ * Returns current Thai local date-time in YYYY-MM-DDTHH:MM format (UTC+7)
+ */
+export function getNowLocalDateTimeString(): string {
+  const now = new Date();
+  const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+  const thTime = new Date(utc + (3600000 * 7));
+  const y = thTime.getFullYear();
+  const m = String(thTime.getMonth() + 1).padStart(2, '0');
+  const d = String(thTime.getDate()).padStart(2, '0');
+  const hr = String(thTime.getHours()).padStart(2, '0');
+  const min = String(thTime.getMinutes()).padStart(2, '0');
+  return `${y}-${m}-${d}T${hr}:${min}`;
+}
+
+/**
  * Checks if a PM task is overdue (past scheduled date and not completed)
  */
 export function isPMOverdue(job: PMScheduleItem, todayStr: string = getTodayDateString()): boolean {

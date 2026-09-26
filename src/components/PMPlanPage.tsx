@@ -17,6 +17,7 @@ import {
 } from '../utils/pmExcelUtils';
 import { PMKpiPanel } from './PMKpiPanel';
 import { PMHistoryPage } from './PMHistoryPage';
+import { getTodayDateString } from '../utils/pmAlerts';
 
 export interface PMPlanPageProps {
   initialSubTab?: 'plan' | 'kpi' | 'history';
@@ -368,7 +369,7 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
       return {
         ...plan,
         steps: updatedSteps,
-        lastCheckedDate: plan.lastCheckedDate || new Date().toISOString().split('T')[0]
+        lastCheckedDate: plan.lastCheckedDate || getTodayDateString()
       };
     }));
   };
@@ -392,7 +393,7 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
       return {
         ...plan,
         steps: updatedSteps,
-        lastCheckedDate: plan.lastCheckedDate || new Date().toISOString().split('T')[0]
+        lastCheckedDate: plan.lastCheckedDate || getTodayDateString()
       };
     }));
   };
@@ -419,7 +420,7 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
       if (plan.id !== planId) return plan;
       return {
         ...plan,
-        lastCheckedDate: new Date().toISOString().split('T')[0],
+        lastCheckedDate: getTodayDateString(),
         steps: (plan.steps || []).map(s => ({
           ...s,
           done: true,
@@ -596,7 +597,7 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
       inspectorTech: importedDataPreview.inspectorTech,
       acknowledgingDept: importedDataPreview.acknowledgingDept,
       supervisorName: importedDataPreview.supervisorName,
-      lastCheckedDate: importedDataPreview.reportDate || new Date().toISOString().split('T')[0]
+      lastCheckedDate: importedDataPreview.reportDate || getTodayDateString()
     };
 
     if (importShareWithSiblings && siblingMachines.length > 1) {
@@ -647,7 +648,7 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
     setPlanInspectorTech('ทีมช่างบำรุงรักษา');
     setPlanAcknowledgingDept('ฝ่ายผลิต');
     setPlanSupervisorName('หัวหน้าหน่วย PM');
-    setPlanLastCheckedDate(new Date().toISOString().split('T')[0]);
+    setPlanLastCheckedDate(getTodayDateString());
     setPlanSteps([
       { itemNo: 1, title: 'ตรวจเช็คสภาพทั่วไปทั้งภายในและภายนอกเครื่อง', method: 'ดูด้วยสายตา', standard: 'โครงสร้างสมบูรณ์ ไม่มีส่วนชำรุด', frequency: '1 เดือน/ครั้ง', stdTime: 10, result: 'ยังไม่ตรวจ', done: false },
       { itemNo: 2, title: 'ตรวจวัดค่าแรงดัน', method: 'เครื่องมือวัด', standard: 'แรงดันไฟฟ้า 3 เฟส 200-240 V.', frequency: '1 เดือน/ครั้ง', stdTime: 10, result: 'ยังไม่ตรวจ', done: false },
@@ -748,7 +749,7 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
           inspectorTech: planInspectorTech.trim(),
           acknowledgingDept: planAcknowledgingDept.trim(),
           supervisorName: planSupervisorName.trim(),
-          lastCheckedDate: m.id === selectedMachineId ? (planLastCheckedDate.trim() || new Date().toISOString().split('T')[0]) : '',
+          lastCheckedDate: m.id === selectedMachineId ? (planLastCheckedDate.trim() || getTodayDateString()) : '',
           steps: planSteps.map((s, idx) => ({ 
             ...s, 
             itemNo: s.itemNo !== undefined ? s.itemNo : (idx + 1),
@@ -772,7 +773,7 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
           inspectorTech: planInspectorTech.trim(),
           acknowledgingDept: planAcknowledgingDept.trim(),
           supervisorName: planSupervisorName.trim(),
-          lastCheckedDate: planLastCheckedDate.trim() || new Date().toISOString().split('T')[0],
+          lastCheckedDate: planLastCheckedDate.trim() || getTodayDateString(),
           steps: planSteps.map((s, idx) => ({ 
             ...s, 
             itemNo: s.itemNo !== undefined ? s.itemNo : (idx + 1),

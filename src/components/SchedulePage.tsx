@@ -10,6 +10,7 @@ import {
   ArrowRight, Search, Sparkles
 } from 'lucide-react';
 import { formatPmMinutes, getPlannedMinutes } from '../utils/pmTime';
+import { getTodayDateString, getNowLocalDateTimeString } from '../utils/pmAlerts';
 
 const TH_DAYS = ["อาทิตย์", "จันทร์", "อังคาร", "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์"];
 const TH_MONTHS = [
@@ -467,6 +468,39 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
     });
   };
 
+  const getNextDateStr = (dateStr: string): string => {
+    const d = new Date(`${dateStr}T00:00:00`);
+    d.setDate(d.getDate() + 1);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  };
+
+  const calculateRepairTimesAndDuration = (dateStr: string, bdTimeStr: string, doneTimeStr: string) => {
+    const bdTimeOnly = bdTimeStr.includes('T') ? bdTimeStr.slice(11, 16) : bdTimeStr;
+    const doneTimeOnly = doneTimeStr.includes('T') ? doneTimeStr.slice(11, 16) : doneTimeStr;
+    const bdDateOnly = bdTimeStr.includes('T') ? bdTimeStr.slice(0, 10) : dateStr;
+
+    let finalRepairDoneDate = bdDateOnly;
+    if (doneTimeOnly <= bdTimeOnly) {
+      finalRepairDoneDate = getNextDateStr(bdDateOnly);
+    }
+
+    const finalBreakdownTime = `${bdDateOnly}T${bdTimeOnly}`;
+    const finalRepairDoneTime = `${finalRepairDoneDate}T${doneTimeOnly}`;
+    const startObj = new Date(finalBreakdownTime);
+    const endObj = new Date(finalRepairDoneTime);
+    const diff = endObj.getTime() - startObj.getTime();
+    const duration = diff > 0 ? Math.floor(diff / 60000) : 0;
+
+    return {
+      breakdownTime: finalBreakdownTime,
+      repairDoneTime: finalRepairDoneTime,
+      duration
+    };
+  };
+
   // Save task
   const handleSaveTask = (e: React.FormEvent) => {
     e.preventDefault();
@@ -513,6 +547,7 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
         setToast({ text: `อัปเดตข้อมูลงาน PM เรียบร้อยแล้ว`, type: 'success' });
       }
     } else if (formTaskType === 'Repair') {
+      const repairTimes = calculateRepairTimesAndDuration(formDate, formBreakdownTime, formRepairDoneTime);
       if (formMode === 'create') {
         const newRepair: RepairLog = {
           id: `rep-${Date.now()}`,
@@ -521,8 +556,8 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
           technicians: allTechs,
           date: formDate,
           machineId: formMachineId,
-          breakdownTime: `${formDate}T${formBreakdownTime}`,
-          repairDoneTime: `${formDate}T${formRepairDoneTime}`,
+          breakdownTime: repairTimes.breakdownTime,
+          repairDoneTime: repairTimes.repairDoneTime,
           symptoms: formSymptoms.trim() || 'ไม่ได้ระบุอาการเสีย',
           why1: 'อยู่ระหว่างตรวจสอบ',
           why2: '',
@@ -532,7 +567,7 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
           correctiveAction: 'กำลังดำเนินการตรวจสอบและซ่อมบำรุง',
           destination: formDestination.trim(),
           peopleCount: Number(formPeopleCount) || allTechs.length,
-          duration: 60,
+          duration: repairTimes.duration,
           status: (formStatus === 'เสร็จสิ้น' ? 'ปิดงาน' : 'กำลังซ่อม')
         };
         setRepairs(prev => [...prev, newRepair]);
@@ -546,8 +581,9 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
               technicians: allTechs,
               date: formDate,
               machineId: formMachineId,
-              breakdownTime: `${formDate}T${formBreakdownTime}`,
-              repairDoneTime: `${formDate}T${formRepairDoneTime}`,
+              breakdownTime: repairTimes.breakdownTime,
+              repairDoneTime: repairTimes.repairDoneTime,
+              duration: repairTimes.duration,
               symptoms: formSymptoms.trim() || 'ไม่ได้ระบุอาการเสีย',
               destination: formDestination.trim(),
               peopleCount: Number(formPeopleCount) || allTechs.length,
@@ -634,7 +670,29 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
 
     if (type === 'Repair') {
       const repNext = nextStatus === 'เสร็จสิ้น' ? 'ปิดงาน' : 'กำลังซ่อม';
-      setRepairs(prev => prev.map(r => r.id === taskId ? { ...r, status: repNext } : r));
+      setRepairs(prev => prev.map(r => {
+        if (r.id !== taskId) return r;
+        if (repNext === 'ปิดงาน') {
+          const hasValidDone = Boolean(
+            r.repairDoneTime && 
+            r.repairDoneTime.trim() !== '' && 
+            r.repairDoneTime !== '-' && 
+            !isNaN(new Date(r.repairDoneTime).getTime())
+          );
+          if (!hasValidDone) {
+            const nowLocal = getNowLocalDateTimeString();
+            const bd = r.breakdownTime || `${r.date || getTodayDateString()}T09:00`;
+            const repairTimes = calculateRepairTimesAndDuration(r.date || getTodayDateString(), bd, nowLocal);
+            return {
+              ...r,
+              status: repNext,
+              repairDoneTime: repairTimes.repairDoneTime,
+              duration: repairTimes.duration
+            };
+          }
+        }
+        return { ...r, status: repNext };
+      }));
     } else {
       setSchedules(prev => prev.map(s => s.id === taskId ? { ...s, status: nextStatus } : s));
     }

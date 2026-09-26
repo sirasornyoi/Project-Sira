@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { RepairLog, Machine, PMScheduleItem } from '../types';
-import { getActualMinutes } from '../utils/pmTime';
+import { getActualMinutes, getPlannedMinutes, getPmVariance } from '../utils/pmTime';
 import { 
   BarChart as RechartsBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer
 } from 'recharts';
@@ -185,28 +185,32 @@ export const PresentationPage: React.FC = () => {
   };
 
   const getPMStandardTime = (pm: PMScheduleItem) => {
-    const plan = getLinkedPlan(pm);
-    return plan ? plan.ttm : 45;
+    return getPlannedMinutes(pm);
   };
 
-  // Only consider PMs where actual time is recorded (> 0)
-  const validActualPMs = completedPMs.filter(pm => getActualMinutes(pm) !== null);
+  // Only consider PMs where actual time is recorded (> 0) and planned time is recorded (> 0)
+  // Jobs with no planned time are excluded from variance and delay counts
+  const validActualPMs = completedPMs.filter(pm => getActualMinutes(pm) !== null && getPlannedMinutes(pm) !== null);
   const validActualPMCount = validActualPMs.length;
 
   const pmActualTotalMin = validActualPMs.reduce((sum, pm) => sum + (getActualMinutes(pm) || 0), 0);
-  const pmStandardTotalMin = validActualPMs.reduce((sum, pm) => sum + getPMStandardTime(pm as PMScheduleItem), 0);
+  const pmStandardTotalMin = validActualPMs.reduce((sum, pm) => sum + (getPlannedMinutes(pm) || 0), 0);
   const avgPmActual = validActualPMCount > 0 ? Math.round(pmActualTotalMin / validActualPMCount) : null;
   const avgPmStandard = validActualPMCount > 0 ? Math.round(pmStandardTotalMin / validActualPMCount) : null;
 
-  const totalDelayedPMs = validActualPMs.filter(pm => (getActualMinutes(pm) || 0) > getPMStandardTime(pm as PMScheduleItem));
+  const totalDelayedPMs = validActualPMs.filter(pm => {
+    const variance = getPmVariance(pm);
+    return variance !== null && variance.diffMins > 0;
+  });
 
   // 2. Urgent Repairs (Breakdown) stats
-  const totalDowntimeMin = repairs.reduce((sum, r) => sum + r.duration, 0);
-  const avgActualMttr = repairs.length > 0 ? Math.round(totalDowntimeMin / repairs.length) : 0;
-  const totalStandardMttrMin = repairs.reduce((sum, r) => sum + getStandardMttr(r.machineId), 0);
-  const avgStandardMttr = repairs.length > 0 ? Math.round(totalStandardMttrMin / repairs.length) : 60;
+  const completedRepairs = repairs.filter(r => r.status !== 'กำลังซ่อม');
+  const totalDowntimeMin = completedRepairs.reduce((sum, r) => sum + (r.duration || 0), 0);
+  const avgActualMttr = completedRepairs.length > 0 ? Math.round(totalDowntimeMin / completedRepairs.length) : 0;
+  const totalStandardMttrMin = completedRepairs.reduce((sum, r) => sum + getStandardMttr(r.machineId), 0);
+  const avgStandardMttr = completedRepairs.length > 0 ? Math.round(totalStandardMttrMin / completedRepairs.length) : 60;
   
-  const totalDelayedRepairs = repairs.filter(rep => rep.duration > getStandardMttr(rep.machineId));
+  const totalDelayedRepairs = completedRepairs.filter(rep => (rep.duration || 0) > getStandardMttr(rep.machineId));
 
   // Safe handler to update PM delay detail
   const handleUpdatePmDelay = (id: string, field: string, value: string) => {

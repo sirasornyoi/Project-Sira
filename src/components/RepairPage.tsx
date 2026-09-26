@@ -16,8 +16,7 @@ import {
   getWhyWhyAnalysisStats 
 } from '../utils/whyWhyUtils';
 import * as XLSX from 'xlsx';
-
-const getTodayDateString = () => new Date().toISOString().slice(0, 10);
+import { getTodayDateString, getNowLocalDateTimeString } from '../utils/pmAlerts';
 
 export const RepairPage: React.FC = () => {
   const { repairs, setRepairs, machines, technicians, spareParts, setSpareParts, settings } = useApp();
@@ -505,7 +504,7 @@ export const RepairPage: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', url);
-    link.setAttribute('download', `MTTR_Repair_History_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.setAttribute('download', `MTTR_Repair_History_${getTodayDateString()}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -611,7 +610,7 @@ export const RepairPage: React.FC = () => {
       // Handle times
       let breakdownTime = breakdownTimeInput;
       if (!breakdownTime) {
-        breakdownTime = new Date().toISOString().slice(0, 16);
+        breakdownTime = getNowLocalDateTimeString();
       } else {
         breakdownTime = breakdownTime.replace(' ', 'T');
       }

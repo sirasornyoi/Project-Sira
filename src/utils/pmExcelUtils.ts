@@ -1,6 +1,7 @@
 import * as XLSX from 'xlsx-js-style';
 import * as XLSXRead from 'xlsx';
 import { PMPlan, PMStep, PMFrequency, Machine } from '../types';
+import { getTodayDateString } from './pmAlerts';
 
 export interface ParsedPMReportResult {
   machineId: string;
@@ -69,7 +70,7 @@ export const exportPMReportToExcel = (
 
   const machId = plan.machineId || machine?.id || 'SLI01';
   const machName = machine?.name || plan.machineId || 'เครื่องหั่นผัก (Food Slicer)';
-  const dateStr = reportDate || plan.lastCheckedDate || new Date().toISOString().split('T')[0];
+  const dateStr = reportDate || plan.lastCheckedDate || getTodayDateString();
 
   const TOTAL_COLS = 34;
   const rows: any[][] = [];
@@ -687,7 +688,7 @@ export const parsePMReportExcel = (data: ArrayBuffer): ParsedPMReportResult => {
   return {
     machineId,
     machineName: machineName || (machineId === 'SLI01' ? 'เครื่องหั่นผัก (Food Slicer)' : machineId),
-    reportDate: reportDate || new Date().toISOString().split('T')[0],
+    reportDate: reportDate || getTodayDateString(),
     title: machineName ? `ใบรายงาน PM - ${machineName}` : 'ใบรายงาน Preventive Maintenance (PM)',
     frequency,
     steps,
@@ -714,7 +715,7 @@ export const exportPMTemplateExcel = (machine?: Machine) => {
     inspectorTech: 'ทีมช่างบำรุงรักษา',
     acknowledgingDept: 'ฝ่ายผลิต',
     supervisorName: 'หัวหน้าหน่วย PM',
-    lastCheckedDate: new Date().toISOString().split('T')[0],
+    lastCheckedDate: getTodayDateString(),
     steps: [
       {
         itemNo: 1,

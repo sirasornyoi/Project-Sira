@@ -8,6 +8,7 @@ import {
   FileSpreadsheet, Download, Upload, AlertCircle, RefreshCw as LoopIcon
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
+import { getTodayDateString } from '../utils/pmAlerts';
 
 export const InventoryPage: React.FC = () => {
   const { spareParts, setSpareParts, machines } = useApp();
@@ -152,7 +153,7 @@ export const InventoryPage: React.FC = () => {
         unit: uStr,
         location: locStr,
         pricePerUnit: prcNum,
-        lastRestockedDate: new Date().toISOString().slice(0, 10),
+        lastRestockedDate: getTodayDateString(),
         specifications: specsStr
       };
     });
@@ -450,7 +451,7 @@ export const InventoryPage: React.FC = () => {
       unit: formUnit,
       location: formLocation.trim() || 'ตู้แยกด่วน',
       pricePerUnit: formPrice,
-      lastRestockedDate: new Date().toISOString().slice(0, 10),
+      lastRestockedDate: getTodayDateString(),
       specifications: formSpecs.trim()
     };
 
@@ -525,9 +526,9 @@ export const InventoryPage: React.FC = () => {
         return {
           ...p,
           quantity: nextQty,
-          lastRestockedDate: adjustmentType === 'IN' ? new Date().toISOString().slice(0, 10) : p.lastRestockedDate,
+          lastRestockedDate: adjustmentType === 'IN' ? getTodayDateString() : p.lastRestockedDate,
           specifications: adjustmentNote.trim() 
-            ? `${p.specifications || ''}\n[ปรับสต็อก ${adjustmentType} ${adjustmentQty} ${p.unit} - ${new Date().toISOString().slice(0, 10)}: ${adjustmentNote}]`.trim()
+            ? `${p.specifications || ''}\n[ปรับสต็อก ${adjustmentType} ${adjustmentQty} ${p.unit} - ${getTodayDateString()}: ${adjustmentNote}]`.trim()
             : p.specifications
         };
       }

@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { getTodayDateString } from '../utils/pmAlerts';
 import { calculateMachineKpi, calculateMultiMachineKpi } from '../utils/pmKpi';
-import { getActualMinutes, getPmVariance } from '../utils/pmTime';
+import { getActualMinutes, getPlannedMinutes, getPmVariance } from '../utils/pmTime';
 import { PMScheduleItem } from '../types';
 
 export const DashboardPage: React.FC = () => {
@@ -205,18 +205,18 @@ export const DashboardPage: React.FC = () => {
     .map(s => {
       const pm = s as PMScheduleItem;
       const linkedPlan = pmPlans.find(p => p.id === pm.pmPlanId);
-      const planStd = linkedPlan?.ttm ?? 0;
+      const planStd = getPlannedMinutes(pm);
       const actualTime = getActualMinutes(pm);
-      if (actualTime === null || planStd <= 0) return null;
-      const diffMins = actualTime - planStd;
-      const diffPct = Math.round((diffMins / planStd) * 100);
+      const variance = getPmVariance(pm);
+      if (variance === null || planStd === null || actualTime === null) return null;
+      const { diffMins, diffPct } = variance;
       
       return {
         id: pm.id,
         machineId: pm.machineId,
         date: pm.date,
         technician: pm.technician,
-        planTitle: linkedPlan ? linkedPlan.title : "บำรุงรักษาทั่วไป",
+        planTitle: linkedPlan ? linkedPlan.title : (pm.title || "บำรุงรักษาทั่วไป"),
         standardTtm: planStd,
         actualTtm: actualTime,
         diffMins,

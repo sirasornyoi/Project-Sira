@@ -367,7 +367,7 @@ export const PMHistoryPage: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', url);
-    link.setAttribute('download', `PM_Time_Variance_Log_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.setAttribute('download', `PM_Time_Variance_Log_${getTodayDateString()}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -397,7 +397,7 @@ export const PMHistoryPage: React.FC = () => {
     } else if (varianceFilter === 'ontime') {
       return matchMachine && matchTech && matchMonth && variance !== null && variance.diffMins === 0;
     } else if (varianceFilter === 'pending') {
-      return matchMachine && matchTech && matchMonth && (job.status !== 'เสร็จสิ้น' || job.actualDuration === undefined);
+      return matchMachine && matchTech && matchMonth && (job.status !== 'เสร็จสิ้น' || getActualMinutes(job) === null);
     } else if (varianceFilter === 'overdue') {
       return matchMachine && matchTech && matchMonth && isPMOverdue(job, todayStr);
     } else if (varianceFilter === 'rescheduled') {
@@ -422,7 +422,7 @@ export const PMHistoryPage: React.FC = () => {
   const { overdueJobs, rescheduledJobs, totalOverdueCount, totalRescheduledCount, criticalCount } = 
     getOverdueAndRescheduledSummary(pmJobs, todayStr);
 
-  const completedJobs = pmJobs.filter(job => job.status === 'เสร็จสิ้น' && job.actualDuration !== undefined);
+  const completedJobs = pmJobs.filter(job => job.status === 'เสร็จสิ้น' && getActualMinutes(job) !== null);
   const totalCompletedCount = completedJobs.length;
 
   // Filter jobs having valid PM variance (planned > 0 and actual recorded)
@@ -543,7 +543,7 @@ export const PMHistoryPage: React.FC = () => {
             onClick={() => {
               setEditingId(null);
               setPartSearchQuery('');
-              setFormDate(new Date().toISOString().slice(0, 10));
+              setFormDate(getTodayDateString());
               setFormPlan(pmPlans[0]?.id || '');
               const relativePlan = pmPlans[0];
               if (relativePlan) {
