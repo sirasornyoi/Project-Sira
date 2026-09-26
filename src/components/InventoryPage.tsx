@@ -1247,7 +1247,7 @@ export const InventoryPage: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-4.5 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black rounded-lg cursor-pointer select-none transition flex items-center gap-1.5"
+                  className="px-4.5 py-2 bg-accent font-black rounded-lg cursor-pointer select-none transition flex items-center gap-1.5"
                 >
                   <CheckCircle size={14} strokeWidth={2.5} />
                   <span>ยืนยันบันทึกเข้าระบบ</span>
@@ -1426,7 +1426,7 @@ export const InventoryPage: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-4.5 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black rounded-lg cursor-pointer select-none transition flex items-center gap-1.5"
+                  className="px-4.5 py-2 bg-accent font-black rounded-lg cursor-pointer select-none transition flex items-center gap-1.5"
                 >
                   <CheckCircle size={14} strokeWidth={2.5} />
                   <span>บันทึกการเปลี่ยนแปลง</span>

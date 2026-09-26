@@ -18,6 +18,9 @@
 }
 
 :root {
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --on-accent: #ffffff;
   --bg: #121212;
   --surface: #1e1e1e;
   --fg: #e8e8e8;
@@ -57,14 +60,17 @@
   --sidebar-fg-muted: #a0a0a0;
   --sidebar-border: #2a3449;
   --sidebar-hover-bg: #242c3f;
-  --sidebar-active-bg: #2563eb;
-  --sidebar-active-fg: #ffffff;
+  --sidebar-active-bg: var(--accent);
+  --sidebar-active-fg: var(--on-accent);
 }
 
 body.light-theme,
 .light-theme,
 [data-theme="light"],
 html.light-theme {
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --on-accent: #ffffff;
   --bg: #f8fafc;
   --surface: #ffffff;
   --fg: #0f172a;
@@ -104,14 +110,17 @@ html.light-theme {
   --sidebar-fg-muted: #475569;
   --sidebar-border: #e2e8f0;
   --sidebar-hover-bg: #f1f5f9;
-  --sidebar-active-bg: #e0f2fe;
-  --sidebar-active-fg: #0369a1;
+  --sidebar-active-bg: var(--accent);
+  --sidebar-active-fg: var(--on-accent);
 }
 
 body:not(.light-theme),
 .dark,
 [data-theme="dark"],
 html.dark {
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --on-accent: #ffffff;
   --bg: #121212;
   --surface: #1e1e1e;
   --fg: #e8e8e8;
@@ -148,8 +157,20 @@ html.dark {
   --sidebar-fg-muted: #a0a0a0;
   --sidebar-border: #2a3449;
   --sidebar-hover-bg: #242c3f;
-  --sidebar-active-bg: #2563eb;
-  --sidebar-active-fg: #ffffff;
+  --sidebar-active-bg: var(--accent);
+  --sidebar-active-fg: var(--on-accent);
+}
+
+/* Accent system classes (NO !important) */
+.bg-accent {
+  background-color: var(--accent);
+  color: var(--on-accent);
+}
+.bg-accent:hover {
+  background-color: var(--accent-hover);
+}
+.bg-accent svg {
+  color: inherit;
 }
 
 .text-fg {

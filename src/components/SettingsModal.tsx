@@ -307,7 +307,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
               id="sub-tab-techs"
               onClick={() => setSubTab('techs')}
               className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition cursor-pointer ${
-                subTab === 'techs' ? 'bg-cyan-600 dark:bg-cyan-500 text-white dark:text-slate-950 font-bold shadow' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-800/40'
+                subTab === 'techs' ? 'bg-accent font-bold shadow' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-800/40'
               }`}
             >
               <Users size={14} />
@@ -318,7 +318,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
               id="sub-tab-hours"
               onClick={() => setSubTab('hours')}
               className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition cursor-pointer ${
-                subTab === 'hours' ? 'bg-cyan-600 dark:bg-cyan-500 text-white dark:text-slate-950 font-bold shadow' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-800/40'
+                subTab === 'hours' ? 'bg-accent font-bold shadow' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-800/40'
               }`}
             >
               <Clock size={14} />
@@ -329,7 +329,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
               id="sub-tab-std-mttr"
               onClick={() => setSubTab('std-mttr')}
               className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition cursor-pointer ${
-                subTab === 'std-mttr' ? 'bg-cyan-600 dark:bg-cyan-500 text-white dark:text-slate-950 font-bold shadow' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-800/40'
+                subTab === 'std-mttr' ? 'bg-accent font-bold shadow' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-800/40'
               }`}
             >
               <Wrench size={14} />
@@ -340,7 +340,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
               id="sub-tab-export-import"
               onClick={() => setSubTab('export-import')}
               className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition cursor-pointer ${
-                subTab === 'export-import' ? 'bg-cyan-600 dark:bg-cyan-500 text-white dark:text-slate-950 font-bold shadow' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-800/40'
+                subTab === 'export-import' ? 'bg-accent font-bold shadow' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-800/40'
               }`}
             >
               <FileJson size={14} />
@@ -351,7 +351,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
               id="sub-tab-line-notify"
               onClick={() => setSubTab('line-notify')}
               className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition cursor-pointer ${
-                subTab === 'line-notify' ? 'bg-cyan-600 dark:bg-cyan-500 text-white dark:text-slate-950 font-bold shadow' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-800/40'
+                subTab === 'line-notify' ? 'bg-accent font-bold shadow' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-800/40'
               }`}
             >
               <Bell size={14} />
@@ -397,7 +397,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                   <button
                     type="button"
                     onClick={handleAddTech}
-                    className="bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs px-4 py-1.5 rounded transition cursor-pointer"
+                    className="bg-accent font-bold text-xs px-4 py-1.5 rounded transition cursor-pointer"
                   >
                     + เพิ่มรายชื่อ
                   </button>
@@ -458,7 +458,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                 <div className="pt-3 border-t border-border dark:border-slate-850 flex items-center justify-end">
                   <button
                     onClick={handleSaveTechs}
-                    className="bg-cyan-600 hover:bg-cyan-500 text-white font-bold px-5 py-2 rounded-xl transition shadow cursor-pointer"
+                    className="bg-accent font-bold px-5 py-2 rounded-xl transition shadow cursor-pointer"
                   >
                     บันทึกรายชื่อช่างหลัก
                   </button>
@@ -510,7 +510,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                 <div className="pt-2 border-t border-border dark:border-slate-850 flex items-center justify-end">
                   <button
                     onClick={handleSaveHours}
-                    className="bg-cyan-600 hover:bg-cyan-500 text-white font-bold px-5 py-2 rounded-xl transition shadow cursor-pointer"
+                    className="bg-accent font-bold px-5 py-2 rounded-xl transition shadow cursor-pointer"
                   >
                     บันทึกพิกัดชั่วโมง
                   </button>
@@ -572,7 +572,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                 <div className="pt-2 border-t border-border dark:border-slate-850 flex items-center justify-end">
                   <button
                     onClick={handleSaveStdMttr}
-                    className="bg-cyan-600 hover:bg-cyan-500 text-white font-bold px-5 py-2 rounded-xl transition shadow cursor-pointer"
+                    className="bg-accent font-bold px-5 py-2 rounded-xl transition shadow cursor-pointer"
                   >
                     บันทึกเกณฑ์ซ่อม Std.MTTR
                   </button>
@@ -819,7 +819,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                 <div className="pt-2 border-t border-border dark:border-slate-850 flex items-center justify-end">
                   <button
                     onClick={handleSaveLineConfig}
-                    className="bg-cyan-600 hover:bg-cyan-500 text-white font-bold px-5 py-2 rounded-xl transition shadow cursor-pointer"
+                    className="bg-accent font-bold px-5 py-2 rounded-xl transition shadow cursor-pointer"
                   >
                     บันทึกการตั้งค่าระบบแจ้งเตือน
                   </button>

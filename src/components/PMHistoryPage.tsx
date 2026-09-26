@@ -1346,7 +1346,7 @@ export const PMHistoryPage: React.FC = () => {
                     handleEditClick(selectedPmDetail);
                     setSelectedPmDetail(null);
                   }}
-                  className="px-3.5 py-1.8 bg-cyan-600 text-white font-bold hover:bg-cyan-500 dark:bg-cyan-500 dark:text-slate-950 dark:hover:bg-cyan-400 rounded-lg text-xs transition cursor-pointer"
+                  className="px-3.5 py-1.8 bg-accent font-bold rounded-lg text-xs transition cursor-pointer"
                 >
                   แก้ไขใบงาน
                 </button>

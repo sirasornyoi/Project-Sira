@@ -369,7 +369,7 @@ export const PMRescheduleModal: React.FC<PMRescheduleModalProps> = ({ job, onClo
                       onClick={() => handleToggleCoTech(t)}
                       className={`px-1.5 py-0.5 text-[9.5px] rounded transition ${
                         selectedCoTechs.includes(t) 
-                          ? 'bg-cyan-600 text-white dark:bg-cyan-500 dark:text-slate-950 font-bold' 
+                          ? 'bg-accent font-bold' 
                           : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-400 hover:text-fg'
                       }`}
                     >
@@ -434,7 +434,7 @@ export const PMRescheduleModal: React.FC<PMRescheduleModalProps> = ({ job, onClo
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex items-center gap-1.5 px-5 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-xs font-bold transition cursor-pointer shadow-md"
+              className="flex items-center gap-1.5 px-5 py-2 bg-accent rounded-xl text-xs font-bold transition cursor-pointer shadow-md"
             >
               <CheckCircle2 size={15} />
               <span>{isSubmitting ? 'กำลังบันทึก...' : 'ยืนยันการเลื่อนแผน PM'}</span>
@@ -475,7 +475,7 @@ export const PMRescheduleModal: React.FC<PMRescheduleModalProps> = ({ job, onClo
                   setShowSameDateConfirm(false);
                   executeReschedule();
                 }}
-                className="w-1/2 bg-cyan-600 hover:bg-cyan-500 text-white py-2.5 rounded-xl cursor-pointer transition shadow-lg shadow-cyan-600/20"
+                className="w-1/2 bg-accent py-2.5 rounded-xl cursor-pointer transition shadow-lg"
               >
                 ยืนยันใช้ตอนนี้
               </button>

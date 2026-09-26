@@ -202,17 +202,17 @@ function AppContent() {
                   title={item.label}
                   className={`w-full flex items-center justify-between rounded-xl p-2.5 transition-all text-xs font-semibold ${
                     isSelected
-                      ? 'sidebar-active bg-sidebar-active text-sidebar-active font-bold shadow-sm'
+                      ? 'sidebar-active bg-accent font-bold shadow-sm'
                       : 'text-sidebar-fg hover:text-sidebar-fg hover:bg-[var(--sidebar-hover-bg)]'
                   }`}
                 >
                   <div className="flex items-center">
-                    <IconComp size={16} className={`${isSelected ? 'text-sidebar-active' : 'text-sidebar-muted'} shrink-0`} />
+                    <IconComp size={16} className={`${isSelected ? '' : 'text-sidebar-muted'} shrink-0`} />
                     
                     {sidebarOpen && (
                       <div className="ml-3 text-left">
-                        <p className={`leading-snug text-xs ${isSelected ? 'text-sidebar-active font-bold' : 'text-sidebar-fg'}`}>{item.label}</p>
-                        <p className={`sidebar-desc text-[9px] mt-0.5 leading-snug ${isSelected ? 'text-sidebar-active opacity-90' : 'text-sidebar-muted'}`}>{item.desc}</p>
+                        <p className={`leading-snug text-xs ${isSelected ? 'font-bold' : 'text-sidebar-fg'}`}>{item.label}</p>
+                        <p className={`sidebar-desc text-[9px] mt-0.5 leading-snug ${isSelected ? 'opacity-90' : 'text-sidebar-muted'}`}>{item.desc}</p>
                       </div>
                     )}
                   </div>

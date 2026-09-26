@@ -942,7 +942,7 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
             onClick={() => setActiveSubTab('plan')}
             className={`flex items-center gap-2 px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
               activeSubTab === 'plan'
-                ? 'bg-cyan-600 text-white shadow-sm'
+                ? 'bg-accent shadow-sm'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-900'
             }`}
           >
@@ -956,7 +956,7 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
             onClick={() => setActiveSubTab('kpi')}
             className={`flex items-center gap-2 px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
               activeSubTab === 'kpi'
-                ? 'bg-cyan-600 text-white shadow-sm'
+                ? 'bg-accent shadow-sm'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-900'
             }`}
           >
@@ -970,7 +970,7 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
             onClick={() => setActiveSubTab('history')}
             className={`flex items-center gap-2 px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
               activeSubTab === 'history'
-                ? 'bg-cyan-600 text-white shadow-sm'
+                ? 'bg-accent shadow-sm'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-900'
             }`}
           >
@@ -1014,12 +1014,11 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
               setShowMachinePickerModal(true);
               setPickerSearch('');
             }}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white !text-white text-xs font-bold rounded-xl shadow-md shadow-blue-600/20 transition shrink-0 cursor-pointer"
-            style={{ color: '#ffffff' }}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 bg-accent text-xs font-bold rounded-xl shadow-md transition shrink-0 cursor-pointer"
             title="+ เพิ่มเครื่องจักร"
           >
-            <Plus size={14} className="text-white !text-white" style={{ color: '#ffffff' }} />
-            <span className="text-white !text-white" style={{ color: '#ffffff' }}>+ เพิ่มเครื่องจักร</span>
+            <Plus size={14} />
+            <span>+ เพิ่มเครื่องจักร</span>
           </button>
         </div>
         
@@ -1093,7 +1092,7 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
                                 }}
                                 className={`px-1.5 py-0.5 rounded text-[11px] font-mono font-bold transition cursor-pointer ${
                                   isThisSelected
-                                    ? 'bg-cyan-600 text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs'
+                                    ? 'bg-accent shadow-xs'
                                     : 'bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700'
                                 }`}
                                 title={`${m.id} ${m.locationRoom ? `• ${m.locationRoom}` : ''}`}
@@ -1179,10 +1178,9 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
                     onClick={() => setSelectedMachineId(m.id)}
                     className={`px-2 py-0.5 rounded text-xs font-mono font-bold transition cursor-pointer ${
                       selectedMachineId === m.id
-                        ? 'bg-blue-600 text-white !text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs'
+                        ? 'bg-accent shadow-xs'
                         : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300'
                     }`}
-                    style={selectedMachineId === m.id ? { color: '#ffffff' } : undefined}
                   >
                     {m.id} {m.locationRoom ? `(${m.locationRoom})` : ''}
                   </button>
@@ -1285,11 +1283,10 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
             <button
               id="btn-add-pm-plan"
               onClick={handleOpenNewForm}
-              className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white !text-white font-extrabold rounded-xl text-xs transition cursor-pointer shadow-md shadow-blue-600/20"
-              style={{ color: '#ffffff' }}
+              className="flex items-center gap-1.5 px-4 py-2 bg-accent font-extrabold rounded-xl text-xs transition cursor-pointer shadow-md"
             >
-              <Plus size={14} strokeWidth={2.5} className="text-white !text-white" style={{ color: '#ffffff' }} />
-              <span className="text-white !text-white font-extrabold" style={{ color: '#ffffff' }}>+ เพิ่มงานแผน PM ใหม่</span>
+              <Plus size={14} strokeWidth={2.5} />
+              <span className="font-extrabold">+ เพิ่มงานแผน PM ใหม่</span>
             </button>
           </div>
         </div>
@@ -1298,7 +1295,7 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
         {siblingMachines.length > 1 && (
           <div className="bg-gradient-to-r from-cyan-50/90 via-sky-50/90 to-blue-50/90 dark:from-cyan-950/40 dark:via-sky-950/40 dark:to-blue-950/40 border border-cyan-200 dark:border-cyan-800/60 rounded-2xl p-3 px-4 flex flex-wrap items-center justify-between gap-3 text-xs shadow-xs shrink-0">
             <div className="flex items-center gap-2.5 min-w-0">
-              <span className="p-1.5 rounded-lg bg-cyan-600 text-white dark:bg-cyan-500 dark:text-slate-950 shrink-0 shadow-xs">
+              <span className="p-1.5 rounded-lg bg-accent shrink-0 shadow-xs">
                 <Layers size={15} />
               </span>
               <div className="min-w-0">
@@ -1324,10 +1321,9 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
                   onClick={() => setSelectedMachineId(m.id)}
                   className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition cursor-pointer ${
                     selectedMachineId === m.id
-                      ? 'bg-blue-600 text-white !text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs'
+                      ? 'bg-accent shadow-xs'
                       : 'bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-cyan-500 hover:text-cyan-600'
                   }`}
-                  style={selectedMachineId === m.id ? { color: '#ffffff' } : undefined}
                   title={`${m.id} ${m.locationRoom ? `• ${m.locationRoom}` : ''}`}
                 >
                   {m.id}
@@ -1541,7 +1537,7 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
                                     <button
                                       type="button"
                                       onClick={() => handleOpenAddStepModal(plan.id)}
-                                      className="mt-1 inline-flex items-center gap-1.5 px-3 py-1.5 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg text-xs font-bold transition cursor-pointer"
+                                      className="mt-1 inline-flex items-center gap-1.5 px-3 py-1.5 bg-accent rounded-lg text-xs font-bold transition cursor-pointer"
                                     >
                                       <Plus size={13} strokeWidth={2.5} />
                                       <span>+ เพิ่มข้อตรวจ PM ในแผนนี้</span>
@@ -2097,7 +2093,7 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-lg transition"
+                  className="px-5 py-2 bg-accent font-bold rounded-lg transition"
                 >
                   บันทึกข้อตรวจ PM
                 </button>
@@ -2347,7 +2343,7 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-lg transition"
+                  className="px-5 py-2 bg-accent font-bold rounded-lg transition"
                 >
                   บันทึกแผน PM
                 </button>
@@ -2552,7 +2548,7 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
                   type="button"
                   onClick={handleExecuteCopy}
                   disabled={selectedPlansToCopy.length === 0}
-                  className="px-5 py-2 bg-cyan-600 hover:bg-cyan-500 disabled:bg-slate-200 dark:disabled:bg-slate-800 disabled:text-slate-400 dark:disabled:text-slate-600 text-white font-bold rounded-lg transition"
+                  className="px-5 py-2 bg-accent disabled:bg-slate-200 dark:disabled:bg-slate-800 disabled:text-slate-400 dark:disabled:text-slate-600 font-bold rounded-lg transition"
                 >
                   คัดลอกและบันทึก
                 </button>
@@ -2909,7 +2905,7 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
                   id="btn-confirm-share-pm-plan"
                   onClick={handleExecuteSharePlan}
                   disabled={selectedTargetMachineIds.length === 0 || selectedStepIndices.length === 0}
-                  className="px-5 py-2 bg-cyan-600 hover:bg-cyan-500 disabled:bg-slate-200 dark:disabled:bg-slate-800 disabled:text-slate-400 dark:disabled:text-slate-600 text-white font-bold rounded-xl transition flex items-center gap-1.5 shadow-md shadow-cyan-600/20 cursor-pointer disabled:cursor-not-allowed"
+                  className="px-5 py-2 bg-accent disabled:bg-slate-200 dark:disabled:bg-slate-800 disabled:text-slate-400 dark:disabled:text-slate-600 font-bold rounded-xl transition flex items-center gap-1.5 shadow-md cursor-pointer disabled:cursor-not-allowed"
                 >
                   <Share2 size={14} />
                   <span>ยืนยันแชร์ ({selectedStepIndices.length} รายการ / {selectedTargetMachineIds.length} เครื่อง)</span>
@@ -3137,7 +3133,7 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
                             e.stopPropagation();
                             handleAddMachineToPM(m.id);
                           }}
-                          className="px-3 py-1.5 bg-cyan-600 group-hover:bg-cyan-500 text-white font-bold text-xs rounded-lg transition flex items-center gap-1 shadow-sm cursor-pointer"
+                          className="px-3 py-1.5 bg-accent font-bold text-xs rounded-lg transition flex items-center gap-1 shadow-sm cursor-pointer"
                         >
                           <Plus size={13} />
                           <span>เลือกเครื่องนี้</span>

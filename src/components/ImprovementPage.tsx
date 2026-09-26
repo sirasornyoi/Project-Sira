@@ -658,7 +658,7 @@ export const ImprovementPage: React.FC = () => {
                 <button
                   id="frm-btn-save-imp"
                   type="submit"
-                  className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs px-5 py-2.5 rounded-lg transition shadow-md"
+                  className="bg-accent font-bold text-xs px-5 py-2.5 rounded-lg transition shadow-md"
                 >
                   ขึ้นทะเบียนระบบโครงการ
                 </button>
@@ -1000,7 +1000,7 @@ export const ImprovementPage: React.FC = () => {
                     <button
                       id="btn-add-worklog-row"
                       type="submit"
-                      className="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold px-3 py-1 rounded transition text-center"
+                      className="w-full bg-accent font-bold px-3 py-1 rounded transition text-center"
                     >
                       เพิ่มชั่วโมง
                     </button>

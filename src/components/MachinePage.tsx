@@ -1588,7 +1588,7 @@ export const MachinePage: React.FC = () => {
                 onClick={() => setViewMode('grouped')}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-bold transition cursor-pointer ${
                   viewMode === 'grouped'
-                    ? 'bg-cyan-600 text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs'
+                    ? 'bg-accent shadow-xs'
                     : 'text-slate-700 dark:text-slate-400 hover:text-slate-950 dark:hover:text-slate-200'
                 }`}
               >
@@ -1599,7 +1599,7 @@ export const MachinePage: React.FC = () => {
                 onClick={() => setViewMode('flat')}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-bold transition cursor-pointer ${
                   viewMode === 'flat'
-                    ? 'bg-cyan-600 text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs'
+                    ? 'bg-accent shadow-xs'
                     : 'text-slate-700 dark:text-slate-400 hover:text-slate-950 dark:hover:text-slate-200'
                 }`}
               >
@@ -2301,7 +2301,7 @@ export const MachinePage: React.FC = () => {
                 <button
                   id="modal-btn-save-machine"
                   type="submit"
-                  className="bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs tracking-wide px-5 py-2.5 rounded-lg transition cursor-pointer"
+                  className="bg-accent font-bold text-xs tracking-wide px-5 py-2.5 rounded-lg transition cursor-pointer"
                 >
                   บันทึกทะเบียน
                 </button>

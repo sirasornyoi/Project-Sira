@@ -326,7 +326,7 @@ export const PMOverdueAlertModal: React.FC<PMOverdueAlertModalProps> = ({
                       <div className="flex items-center gap-2 shrink-0 self-end sm:self-center mt-2 sm:mt-0">
                         <button
                           onClick={() => setReschedulingJob(job)}
-                          className="flex items-center gap-1 px-3 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-xs font-bold transition cursor-pointer shadow-md"
+                          className="flex items-center gap-1 px-3 py-1.5 bg-accent rounded-xl text-xs font-bold transition cursor-pointer shadow-md"
                           title="เลื่อนแผนและนัดหมายวันใหม่"
                         >
                           <RefreshCw size={13} />
