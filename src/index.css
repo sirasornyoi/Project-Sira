@@ -950,8 +950,8 @@ button, input, select, textarea {
 .light-theme .fixed .bg-slate-800,
 .light-theme .fixed .bg-slate-900,
 .light-theme .fixed .bg-slate-950,
-.light-theme .fixed .bg-[#0b1222],
-.light-theme .fixed .bg-[#0e1626] {
+.light-theme .fixed .bg-\[\#0b1222\],
+.light-theme .fixed .bg-\[\#0e1626\] {
   background-color: var(--surface) !important;
   color: #1e293b !important;
   border: 1px solid #cbd5e1 !important;
@@ -3825,7 +3825,7 @@ button, input, select, textarea {
   border-color: #cbd5e1 !important;
 }
 
-.light-theme #kaizen-create-modal form div.bg-slate-900\/40 span.text-[#38bdf8] {
+.light-theme #kaizen-create-modal form div.bg-slate-900\/40 span.text-\[\#38bdf8\] {
   color: #0284c7 !important;
 }
 
