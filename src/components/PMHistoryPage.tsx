@@ -852,11 +852,19 @@ export const PMHistoryPage: React.FC = () => {
                       );
                     }
                   } else if (job.status === 'เสร็จสิ้น') {
-                    varBadge = (
-                      <span className="inline-flex items-center gap-1 text-[10.5px] text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-700 px-2 py-0.5 rounded font-medium">
-                        ไม่ได้ระบุเวลาแผน
-                      </span>
-                    );
+                    if (actTime === null) {
+                      varBadge = (
+                        <span className="inline-flex items-center gap-1 text-[10px] text-slate-500 dark:text-slate-400 border border-slate-300 dark:border-slate-800 px-1.5 py-0.5 rounded font-bold font-sans">
+                          <Hourglass size={10} /> รอลงเวลาจริง
+                        </span>
+                      );
+                    } else if (stdTime === null) {
+                      varBadge = (
+                        <span className="inline-flex items-center gap-1 text-[10.5px] text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-700 px-2 py-0.5 rounded font-medium">
+                          ไม่ได้ระบุเวลาแผน
+                        </span>
+                      );
+                    }
                   } else {
                     if (jobIsOverdue) {
                       varBadge = (
