@@ -94,7 +94,7 @@ export const DashboardPage: React.FC = () => {
 
   // Pie chart data
   const pieData = [
-    { name: '🔵 งาน PM', value: Number(pmHrsThisMonth.toFixed(1)), color: '#06b6d4' },
+    { name: '🔵 งาน PM', value: Number(pmHrsThisMonth.toFixed(1)), color: '#3b82f6' },
     { name: '🟡 คุมเครื่องจักร', value: Number(opHrsThisMonth.toFixed(1)), color: '#f59e0b' },
     { name: '🔴 ซ่อมด่วน BD', value: Number(repairHrsThisMonth.toFixed(1)), color: '#ef4444' },
     { name: '🟣 ปรับปรุง Kaizen', value: Number(impHrsThisMonth.toFixed(1)), color: '#a855f7' }
@@ -1423,7 +1423,7 @@ export const DashboardPage: React.FC = () => {
                         contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', borderRadius: '8px', color: '#f8fafc', fontSize: '11px' }} 
                       />
                       <Legend iconSize={10} wrapperStyle={{ fontSize: '10px', paddingTop: '5px' }} />
-                      <Bar dataKey="PM (ชม.)" stackId="a" fill="#06b6d4" />
+                      <Bar dataKey="PM (ชม.)" stackId="a" fill="#3b82f6" />
                       <Bar dataKey="คุมเครื่อง (ชม.)" stackId="a" fill="#f59e0b" />
                       <Bar dataKey="ซ่อมด่วน (ชม.)" stackId="a" fill="#ef4444" />
                       <Bar dataKey="ปรับปรุง (ชม.)" stackId="a" fill="#a855f7" />
@@ -1533,7 +1533,7 @@ export const DashboardPage: React.FC = () => {
                     />
                     <Legend wrapperStyle={{ fontSize: '9px' }} />
                     <Bar dataKey="TTM จริง (นาที)" fill="#10b981" radius={[3, 3, 0, 0]} />
-                    <Bar dataKey="Std.TTM (นาที)" fill="#06b6d4" radius={[3, 3, 0, 0]} />
+                    <Bar dataKey="Std.TTM (นาที)" fill="#3b82f6" radius={[3, 3, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>

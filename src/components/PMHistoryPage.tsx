@@ -555,7 +555,7 @@ export const PMHistoryPage: React.FC = () => {
               setFormStatus('เสร็จสิ้น');
               setShowFormModal(true);
             }}
-            className="flex items-center gap-1.5 px-4.5 py-2.5 bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-400 hover:to-teal-400 text-slate-950 rounded-xl text-xs font-black shadow-md shadow-cyan-500/10 hover:scale-[1.01] active:scale-[0.98] transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-4.5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-xs font-black shadow-md shadow-blue-500/20 hover:scale-[1.01] active:scale-[0.98] transition-all cursor-pointer"
           >
             <Plus size={15} strokeWidth={3} />
             <span>บันทึกประวัติ PM ใหม่</span>
@@ -1775,7 +1775,7 @@ export const PMHistoryPage: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-5.5 py-2 bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-500 hover:to-teal-500 text-white dark:text-slate-950 font-black rounded-xl hover:shadow-cyan-500/15 transition-all cursor-pointer"
+                  className="px-5.5 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black rounded-xl hover:shadow-blue-500/20 transition-all cursor-pointer"
                 >
                   {editingId ? "บันทึกการแก้ไข" : "บันทึกข้อมูลเข้าสู่ฐานข้อมูล"}
                 </button>

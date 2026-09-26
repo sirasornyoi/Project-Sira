@@ -785,7 +785,7 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
             <button
               id="btn-add-today-task"
               onClick={() => handleOpenCreateForm(todayDateStr, 'PM')}
-              className="px-4 py-2 text-xs font-bold rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 transition flex items-center gap-1.5 shadow-lg shadow-cyan-500/20 cursor-pointer"
+              className="px-4 py-2 text-xs font-bold rounded-xl bg-blue-600 hover:bg-blue-500 text-white dark:bg-cyan-500 dark:hover:bg-cyan-400 dark:text-slate-950 transition flex items-center gap-1.5 shadow-lg shadow-blue-500/20 dark:shadow-cyan-500/20 cursor-pointer"
             >
               <Plus size={15} />
               + บันทึกงานใหม่
@@ -804,7 +804,7 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
             <button
               onClick={() => setTaskTypeFilter('ALL')}
               className={`px-2.5 py-1 rounded-lg font-bold transition ${
-                taskTypeFilter === 'ALL' ? 'bg-cyan-500 text-slate-950 shadow' : 'text-slate-400 hover:text-slate-200'
+                taskTypeFilter === 'ALL' ? 'bg-blue-600 text-white dark:bg-cyan-500 dark:text-slate-950 shadow' : 'text-slate-400 hover:text-slate-200'
               }`}
             >
               ทั้งหมด ({monthlyStats.totalPM + monthlyStats.totalRepair + monthlyStats.totalOther})
@@ -1094,13 +1094,13 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
                     return (
                       <>
                         <div className="flex items-center gap-2">
-                          <Calendar size={18} className="text-cyan-600 dark:text-cyan-400" />
+                          <Calendar size={18} className="text-blue-600 dark:text-cyan-400" />
                           <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100">
                             ตารางงานประจำ{dayName}ที่ {parseInt(d)} {monthName} {yearTh}
                           </h2>
                         </div>
                         <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5 font-mono">
-                          {activeDateStr} • มีทั้งหมด <b className="text-cyan-700 dark:text-cyan-400">{visibleDateTasks.totalTasksCount} งาน</b> (รวม <b className="text-slate-900 dark:text-fg">{visibleDateTasks.totalAssignedPeople} คน</b>)
+                          {activeDateStr} • มีทั้งหมด <b className="text-blue-700 dark:text-cyan-400">{visibleDateTasks.totalTasksCount} งาน</b> (รวม <b className="text-slate-900 dark:text-fg">{visibleDateTasks.totalAssignedPeople} คน</b>)
                         </p>
                       </>
                     );
@@ -1117,7 +1117,7 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
                         taskTypeFilter === 'OTHER' ? 'Other' : 'PM';
                       handleOpenCreateForm(activeDateStr, defaultType);
                     }}
-                    className="px-3.5 py-1.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white dark:bg-cyan-500 dark:hover:bg-cyan-400 dark:text-slate-950 text-xs font-bold transition flex items-center gap-1.5 shadow cursor-pointer shrink-0"
+                    className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white dark:bg-cyan-500 dark:hover:bg-cyan-400 dark:text-slate-950 text-xs font-bold transition flex items-center gap-1.5 shadow cursor-pointer shrink-0"
                   >
                     <Plus size={14} />
                     + เพิ่มงานในวันนี้
@@ -1144,7 +1144,7 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
                   onClick={() => setTaskTypeFilter('ALL')}
                   className={`px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${
                     taskTypeFilter === 'ALL'
-                      ? 'bg-cyan-500 text-slate-950 shadow'
+                      ? 'bg-blue-600 dark:bg-cyan-500 text-white dark:text-slate-950 shadow'
                       : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'
                   }`}
                 >
@@ -1244,7 +1244,7 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
                                 }}
                                 className={`px-4 py-2.5 cursor-pointer border-b border-slate-100 dark:border-slate-800/60 transition-colors select-none ${
                                   isSelected
-                                    ? 'border-l-4 border-l-cyan-500 bg-cyan-100/70 dark:bg-cyan-950/40 text-slate-900 dark:text-slate-100'
+                                    ? 'border-l-4 border-l-blue-600 dark:border-l-cyan-500 bg-blue-100/70 dark:bg-cyan-950/40 text-slate-900 dark:text-slate-100'
                                     : 'border-l-4 border-l-transparent hover:bg-slate-100/70 dark:hover:bg-slate-800/50'
                                 }`}
                               >
@@ -1475,7 +1475,7 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
                                   onOpenPMChecklist(pm.machineId, pm.pmPlanId || plan?.id || '');
                                 }
                               }}
-                              className="flex items-center gap-1.5 px-3 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold rounded-xl shadow-md shadow-cyan-600/20 transition cursor-pointer"
+                              className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl shadow-md shadow-blue-600/20 transition cursor-pointer"
                               title="เปิดหน้าเช็คลิสต์ตรวจ PM ของเครื่องและแผนนี้"
                             >
                               <span>▶ ไปทำ PM (เช็คลิสต์)</span>
@@ -1748,19 +1748,19 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
             onClick={(e) => e.stopPropagation()}
           >
             {/* Form Header */}
-            <div className="shrink-0 bg-slate-50 dark:bg-gradient-to-r dark:from-slate-900 dark:to-slate-800 border-b border-slate-200 dark:border-slate-750 px-5 py-4 flex justify-between items-center">
+            <div className="shrink-0 bg-slate-50 dark:bg-gradient-to-r dark:from-slate-900 dark:to-slate-800 border-b border-slate-200 dark:border-slate-800 px-5 py-4 flex justify-between items-center">
               <div>
                 {formMode === 'create' && taskFormStep === 'form' && (
                   <button
                     type="button"
                     onClick={() => setTaskFormStep('select-type')}
-                    className="text-xs text-cyan-600 dark:text-cyan-400 hover:underline flex items-center gap-1 font-semibold mb-1 cursor-pointer"
+                    className="text-xs text-blue-600 dark:text-cyan-400 hover:underline flex items-center gap-1 font-semibold mb-1 cursor-pointer"
                   >
                     <ChevronLeft size={14} />
                     เปลี่ยนประเภทงาน
                   </button>
                 )}
-                <h3 className="text-base font-bold text-cyan-700 dark:text-cyan-400 flex items-center gap-2">
+                <h3 className="text-base font-bold text-blue-700 dark:text-cyan-400 flex items-center gap-2">
                   {formMode === 'create' 
                     ? (taskFormStep === 'select-type' ? '➕ เพิ่มงานใหม่ในตารางงาน' : `➕ เพิ่มงาน: ${formTaskType === 'PM' ? 'งาน PM' : formTaskType === 'Repair' ? 'งานซ่อม' : 'งานติดต่อ / อื่นๆ'}`)
                     : '✏️ แก้ไขข้อมูลตารางงาน'
@@ -1799,7 +1799,7 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
                 {/* Date Picker preview in Step 1 */}
                 <div className="space-y-1.5 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60">
                   <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-                    <Calendar size={13} className="text-cyan-600 dark:text-cyan-400" />
+                    <Calendar size={13} className="text-blue-600 dark:text-cyan-400" />
                     วันที่ปฏิบัติงาน (Date)
                   </label>
                   <input
@@ -1807,7 +1807,7 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
                     required
                     value={formDate}
                     onChange={(e) => setFormDate(e.target.value)}
-                    className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:border-cyan-500 font-mono"
+                    className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 dark:focus:border-cyan-500 font-mono"
                   />
                 </div>
 
@@ -1969,7 +1969,7 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
                   required
                   value={formDate}
                   onChange={(e) => setFormDate(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:border-cyan-500 font-mono"
+                  className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 dark:focus:border-cyan-500 font-mono"
                 />
               </div>
 
@@ -1982,7 +1982,7 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
                       <select
                         value={formMachineId}
                         onChange={(e) => setFormMachineId(e.target.value)}
-                        className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-200 focus:outline-none focus:border-cyan-500 font-mono"
+                        className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-200 focus:outline-none focus:border-blue-500 dark:focus:border-cyan-500 font-mono"
                       >
                         {machines.map(m => (
                           <option key={m.id} value={m.id}>
@@ -1997,7 +1997,7 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
                       <select
                         value={formPmPlanId}
                         onChange={(e) => setFormPmPlanId(e.target.value)}
-                        className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-200 focus:outline-none focus:border-cyan-500"
+                        className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-200 focus:outline-none focus:border-blue-500 dark:focus:border-cyan-500"
                       >
                         <option value="">-- เลือกแผนบำรุงรักษา --</option>
                         {pmPlans.filter(p => !formMachineId || p.machineId === formMachineId).map(p => (
@@ -2020,7 +2020,7 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
                           value={formDuration || ''}
                           onChange={(e) => setFormDuration(e.target.value === '' ? 0 : Number(e.target.value))}
                           placeholder={`ไม่ได้ระบุ (กรอกภายหลังได้)${durationHint}`}
-                          className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-slate-100 font-mono focus:outline-none focus:border-cyan-500"
+                          className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-slate-100 font-mono focus:outline-none focus:border-blue-500 dark:focus:border-cyan-500"
                         />
                       );
                     })()}
@@ -2035,7 +2035,7 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
                     <select
                       value={formMachineId}
                       onChange={(e) => setFormMachineId(e.target.value)}
-                      className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-200 focus:outline-none focus:border-cyan-500 font-mono"
+                      className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-200 focus:outline-none focus:border-blue-500 dark:focus:border-cyan-500 font-mono"
                     >
                       {machines.map(m => (
                         <option key={m.id} value={m.id}>
@@ -2052,7 +2052,7 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
                       placeholder="ไม่ได้ระบุ (กรอกภายหลังได้ เช่น สายพานรูด, ปั๊มไม่สร้างแรงดัน)"
                       value={formSymptoms}
                       onChange={(e) => setFormSymptoms(e.target.value)}
-                      className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-cyan-500"
+                      className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 dark:focus:border-cyan-500"
                     />
                   </div>
 
@@ -2134,7 +2134,7 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
               {/* 📍 สถานที่ / ปลายทางที่กลุ่มนี้ไป (กลุ่มนี้ไปไหนได้) */}
               <div className="space-y-1.5 pt-1">
                 <label className="text-xs font-semibold text-slate-700 dark:text-slate-200 flex items-center justify-between">
-                  <span className="flex items-center gap-1 text-cyan-700 dark:text-cyan-400 font-bold">
+                  <span className="flex items-center gap-1 text-blue-700 dark:text-cyan-400 font-bold">
                     <Compass size={14} />
                     สถานที่ / ปลายทางที่กลุ่มนี้ไป (กลุ่มนี้ไปไหน)
                   </span>
@@ -2145,7 +2145,7 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
                   placeholder="ไม่ได้ระบุ (กรอกภายหลังได้ เช่น ร้านเจริญอะไหล่ พระราม 2, โรงกลึง CNC)"
                   value={formDestination}
                   onChange={(e) => setFormDestination(e.target.value)}
-                  className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-cyan-500"
+                  className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 dark:focus:border-cyan-500"
                 />
 
                 {/* Destination Presets */}
@@ -2167,7 +2167,7 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
               {/* 👥 จำนวนคน & ชื่อคน / รายชื่อช่างในกลุ่ม */}
               <div className="space-y-3 pt-2 border-t border-slate-200 dark:border-slate-750">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold text-cyan-700 dark:text-cyan-400 flex items-center gap-1.5">
+                  <label className="text-xs font-bold text-blue-700 dark:text-cyan-400 flex items-center gap-1.5">
                     <Users size={14} />
                     จำนวนคนและรายชื่อช่างในกลุ่ม*
                   </label>
@@ -2179,7 +2179,7 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
                       max={50}
                       value={formPeopleCount}
                       onChange={(e) => setFormPeopleCount(Math.max(1, Number(e.target.value)))}
-                      className="w-16 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-1 text-xs text-center font-bold text-cyan-700 dark:text-cyan-300 font-mono"
+                      className="w-16 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-1 text-xs text-center font-bold text-blue-700 dark:text-cyan-300 font-mono"
                     />
                     <span className="text-xs text-slate-600 dark:text-slate-400">คน</span>
                   </div>
@@ -2198,7 +2198,7 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
                           onClick={() => handleToggleTech(tech)}
                           className={`text-xs px-2.5 py-1 rounded-lg border font-medium transition flex items-center gap-1 ${
                             isSelected
-                              ? 'bg-cyan-600 dark:bg-cyan-500 text-white dark:text-slate-950 border-cyan-600 dark:border-cyan-400 font-bold shadow'
+                              ? 'bg-blue-600 dark:bg-cyan-500 text-white dark:text-slate-950 border-blue-600 dark:border-cyan-400 font-bold shadow'
                               : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:border-slate-400'
                           }`}
                         >
@@ -2265,18 +2265,18 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
                 </div>
 
                 {/* Form Buttons */}
-                <div className="shrink-0 px-5 py-3.5 bg-slate-50 dark:bg-slate-850 border-t border-slate-200 dark:border-slate-750 flex items-center justify-end gap-2.5">
+                <div className="shrink-0 px-5 py-3.5 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end gap-2.5">
                   <button
                     type="button"
                     onClick={() => setShowTaskForm(false)}
-                    className="px-4 py-2 text-xs font-medium rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition cursor-pointer"
+                    className="px-4 py-2 text-xs font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-750 transition cursor-pointer"
                   >
                     ยกเลิก
                   </button>
                   <button
                     type="submit"
                     id="btn-submit-task-form"
-                    className="px-5 py-2 text-xs font-bold rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white dark:bg-cyan-500 dark:hover:bg-cyan-400 dark:text-slate-950 transition shadow-lg shadow-cyan-500/20 cursor-pointer flex items-center gap-1.5"
+                    className="px-5 py-2 text-xs font-bold rounded-xl bg-blue-600 hover:bg-blue-500 text-white dark:bg-cyan-500 dark:hover:bg-cyan-400 dark:text-slate-950 transition shadow-lg shadow-blue-500/20 dark:shadow-cyan-500/20 cursor-pointer flex items-center gap-1.5"
                   >
                     <Check size={14} />
                     {formMode === 'create' ? 'บันทึกงานลงตาราง' : 'อัปเดตข้อมูล'}
@@ -2292,7 +2292,7 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
       {/* CONFIRMATION MODAL FOR DELETING TASK FROM CALENDAR */}
       {taskToDelete && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4 animate-in fade-in duration-100">
-          <div id="schedule-delete-task-modal" className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-750 rounded-2xl max-w-sm w-full p-6 space-y-5 shadow-2xl">
+          <div id="schedule-delete-task-modal" className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-sm w-full p-6 space-y-5 shadow-2xl">
             <div className="flex flex-col items-center text-center space-y-3">
               <div className="w-12 h-12 rounded-full bg-rose-500/15 flex items-center justify-center text-rose-500">
                 <Trash2 size={24} />

@@ -3,6 +3,20 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+@theme {
+  --color-cyan-50: #eff6ff;
+  --color-cyan-100: #dbeafe;
+  --color-cyan-200: #bfdbfe;
+  --color-cyan-300: #93c5fd;
+  --color-cyan-400: #60a5fa;
+  --color-cyan-500: #3b82f6;
+  --color-cyan-600: #2563eb;
+  --color-cyan-700: #1d4ed8;
+  --color-cyan-800: #1e40af;
+  --color-cyan-900: #1e3a8a;
+  --color-cyan-950: #172554;
+}
+
 :root {
   --bg: #121212;
   --surface: #1e1e1e;
@@ -43,7 +57,7 @@
   --sidebar-fg-muted: #a0a0a0;
   --sidebar-border: #2a3449;
   --sidebar-hover-bg: #242c3f;
-  --sidebar-active-bg: #0e7490;
+  --sidebar-active-bg: #2563eb;
   --sidebar-active-fg: #ffffff;
 }
 
@@ -134,7 +148,7 @@ html.dark {
   --sidebar-fg-muted: #a0a0a0;
   --sidebar-border: #2a3449;
   --sidebar-hover-bg: #242c3f;
-  --sidebar-active-bg: #0e7490;
+  --sidebar-active-bg: #2563eb;
   --sidebar-active-fg: #ffffff;
 }
 

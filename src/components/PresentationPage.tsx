@@ -265,7 +265,7 @@ export const PresentationPage: React.FC = () => {
               </span>
             </div>
             <h1 className="text-2xl font-black tracking-tight text-fg flex items-center gap-2">
-              <Presentation className="text-[#06b6d4] shrink-0" size={24} /> 
+              <Presentation className="text-blue-500 shrink-0" size={24} /> 
               ศูนย์ควบคุมและวิเคราะห์นำเสนอระดับผู้บริหาร
             </h1>
             <p className="text-xs text-slate-400 mt-1.5 max-w-3xl">
@@ -463,7 +463,7 @@ export const PresentationPage: React.FC = () => {
           <div className="flex items-center justify-between border-b border-slate-850 pb-4">
             <div>
               <h3 className="text-base font-black text-fg flex items-center gap-1.5">
-                <CheckCircle2 className="text-[#06b6d4]" size={18} />
+                <CheckCircle2 className="text-blue-500" size={18} />
                 ประสิทธิภาพคิวงานบำรุงรักษาเชิงป้องกัน PM เทียบค่าเฉลี่ยมาตรฐาน (TTM)
               </h3>
               <p className="text-xs text-slate-400 mt-1">
@@ -735,7 +735,7 @@ export const PresentationPage: React.FC = () => {
                   </p>
                 </div>
                 <div className="bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-[10.5px] text-slate-350 self-start sm:self-auto font-medium">
-                  🖱️ <span className="font-extrabold text-[#06b6d4]">ดับเบิ้ลคลิก (Double-click)</span> บนแท่งกราฟหรือแถวประวัติเพื่อดูรายละเอียดประวัติซ่อมทั้งหมด
+                  🖱️ <span className="font-extrabold text-blue-400">ดับเบิ้ลคลิก (Double-click)</span> บนแท่งกราฟหรือแถวประวัติเพื่อดูรายละเอียดประวัติซ่อมทั้งหมด
                 </div>
               </div>
 
@@ -796,9 +796,9 @@ export const PresentationPage: React.FC = () => {
                         <YAxis 
                           yAxisId="right"
                           orientation="right"
-                          stroke="#06b6d4" 
-                          tick={{ fontSize: 9.5, fill: '#06b6d4' }} 
-                          label={{ value: 'จำนวนครั้งเสียหาย (ครั้ง)', angle: 90, position: 'insideRight', style: { fill: '#06b6d4', fontSize: 10 } }}
+                          stroke="#3b82f6" 
+                          tick={{ fontSize: 9.5, fill: '#3b82f6' }} 
+                          label={{ value: 'จำนวนครั้งเสียหาย (ครั้ง)', angle: 90, position: 'insideRight', style: { fill: '#3b82f6', fontSize: 10 } }}
                         />
                         <RechartsTooltip
                           contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '12px' }}
@@ -864,7 +864,7 @@ export const PresentationPage: React.FC = () => {
                           yAxisId="right" 
                           dataKey="count" 
                           name="จำนวนครั้งเสียหายสะสม (ครั้ง)" 
-                          fill="#06b6d4" 
+                          fill="#3b82f6" 
                           radius={[4, 4, 0, 0]}
                           maxBarSize={20}
                         />
