@@ -143,17 +143,17 @@ export const PMRescheduleModal: React.FC<PMRescheduleModalProps> = ({ job, onClo
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center bg-bg/80 backdrop-blur-xs p-4 overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-bg/80 backdrop-blur-xs p-3 sm:p-5 overflow-hidden"
       id="pm-reschedule-modal-overlay"
       onClick={onClose}
     >
       <div 
-        className="w-full max-w-xl bg-surface dark:bg-[#0b1222] border border-border dark:border-cyan-500/40 rounded-2xl overflow-hidden shadow-xl animate-in zoom-in-95 duration-150 text-fg dark:text-slate-100 my-8"
+        className="w-full max-w-2xl sm:max-w-3xl bg-surface dark:bg-[#0b1222] border border-border dark:border-cyan-500/40 rounded-2xl overflow-hidden shadow-xl animate-in zoom-in-95 duration-150 text-fg dark:text-slate-100 max-h-[92vh] flex flex-col my-auto"
         onClick={(e) => e.stopPropagation()}
         id="pm-reschedule-modal-container"
       >
         {/* Header */}
-        <div className="p-4 bg-slate-50 dark:bg-[#080d1a] border-b border-border dark:border-slate-800 flex justify-between items-center">
+        <div className="p-4 sm:p-5 bg-slate-50 dark:bg-[#080d1a] border-b border-border dark:border-slate-800 flex justify-between items-center shrink-0">
           <div className="flex items-center gap-2.5">
             <div className="p-2 bg-amber-500/10 rounded-xl border border-amber-500/25 text-amber-500 dark:text-amber-400">
               <RefreshCw size={18} className="animate-spin-slow" />
@@ -169,13 +169,16 @@ export const PMRescheduleModal: React.FC<PMRescheduleModalProps> = ({ job, onClo
           </div>
           <button 
             onClick={onClose}
-            className="p-1.5 text-slate-500 hover:text-slate-800 dark:hover:text-fg bg-slate-200 dark:bg-slate-900 hover:bg-slate-300 dark:hover:bg-slate-800 rounded-lg transition"
+            className="p-1.5 sm:p-2 text-slate-400 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white bg-slate-200 dark:bg-slate-900 hover:bg-slate-300 dark:hover:bg-slate-800 rounded-xl transition cursor-pointer"
+            title="ปิดหน้าต่าง (Close)"
+            aria-label="ปิดหน้าต่าง"
           >
-            <X size={16} />
+            <X size={18} className="stroke-[2.5]" />
           </button>
         </div>
 
-        <form onSubmit={handleConfirmReschedule} className="p-5 space-y-4 text-xs font-sans">
+        <form onSubmit={handleConfirmReschedule} className="flex-1 flex flex-col min-h-0 overflow-hidden text-xs font-sans">
+          <div className="p-5 sm:p-6 space-y-4 overflow-y-auto flex-1">
           
           {/* Overdue Warning Alert Box (if past due) */}
           {isOverdue && (
@@ -416,9 +419,10 @@ export const PMRescheduleModal: React.FC<PMRescheduleModalProps> = ({ job, onClo
               <span>{errorMessage}</span>
             </div>
           )}
+          </div>
 
           {/* ACTION BUTTONS */}
-          <div className="flex items-center justify-end gap-2 pt-3 border-t border-border dark:border-slate-800">
+          <div className="shrink-0 px-5 py-3.5 bg-slate-50 dark:bg-slate-900 border-t border-border dark:border-slate-800 flex items-center justify-end gap-2.5">
             <button
               type="button"
               onClick={onClose}

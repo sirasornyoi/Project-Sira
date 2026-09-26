@@ -5,7 +5,7 @@ import {
   Plus, Search, ClipboardCheck, Clock, ChevronDown, CheckCircle, 
   AlertTriangle, Filter, Trash2, Edit, FileSpreadsheet, Hourglass, 
   HelpCircle, Sparkles, TrendingUp, TrendingDown, Users, RefreshCw,
-  Bell, History, Send, ShieldAlert, ArrowRight
+  Bell, History, Send, ShieldAlert, ArrowRight, X
 } from 'lucide-react';
 import { PMRescheduleModal } from './PMRescheduleModal';
 import { 
@@ -1360,33 +1360,47 @@ export const PMHistoryPage: React.FC = () => {
       {/* FORM MODAL FOR CREATING AND EDITING PM HISTORIES */}
       {showFormModal && (
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 dark:bg-bg/85 backdrop-blur-xs p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 dark:bg-bg/85 backdrop-blur-xs p-3 sm:p-5 overflow-hidden"
           id="pm-log-modal-overlay"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowFormModal(false);
+              setEditingId(null);
+              setFormPlan('');
+              setFormTechnicians([]);
+            }
+          }}
         >
           <div 
-            className="w-full max-w-lg bg-white dark:bg-[#0e1626] border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-155 text-slate-900 dark:text-slate-100"
+            className="w-full max-w-2xl sm:max-w-3xl bg-white dark:bg-[#0e1626] border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-155 text-slate-900 dark:text-slate-100 max-h-[90vh] flex flex-col my-auto"
             id="pm-log-modal-container"
+            onClick={(e) => e.stopPropagation()}
           >
             {/* Modal header */}
-            <div className="p-4 bg-slate-50 dark:bg-[#0a0f1d] border-b border-slate-200 dark:border-slate-850 flex justify-between items-center">
-              <h3 className="text-xs font-black uppercase text-slate-700 dark:text-slate-400 tracking-wider">
+            <div className="p-4 sm:p-5 bg-slate-50 dark:bg-[#0a0f1d] border-b border-slate-200 dark:border-slate-850 flex justify-between items-center shrink-0">
+              <h3 className="text-xs sm:text-sm font-black uppercase text-slate-800 dark:text-slate-300 tracking-wider flex items-center gap-2">
+                <ClipboardCheck size={18} className="text-cyan-600 dark:text-cyan-400" />
                 {editingId ? "🔧 แก้ไขบันทึก PM และทวนสอบความเป๊ะเวลา" : "➕ สร้างใบกรอกประวัติ PM และเวลาจริง"}
               </h3>
               <button
+                type="button"
+                id="btn-close-pm-log-modal"
                 onClick={() => {
                   setShowFormModal(false);
                   setEditingId(null);
                   setFormPlan('');
                   setFormTechnicians([]);
                 }}
-                className="text-slate-600 hover:text-slate-900 dark:text-slate-500 dark:hover:text-fg font-black text-xs px-2.5 py-1.2 bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg cursor-pointer transition"
+                className="p-1.5 sm:p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 transition cursor-pointer"
+                title="ปิดหน้าต่าง (Close)"
+                aria-label="ปิดหน้าต่าง"
               >
-                ยกเลิก
+                <X size={20} className="stroke-[2.5]" />
               </button>
             </div>
 
             {/* Form sheet content */}
-            <form onSubmit={handleSavePmHistory} className="p-5 space-y-4 text-xs font-sans max-h-[75vh] overflow-y-auto">
+            <form onSubmit={handleSavePmHistory} className="p-5 sm:p-6 space-y-4 text-xs font-sans overflow-y-auto flex-1">
               
               {/* Choose machine */}
               <div className="grid grid-cols-2 gap-3">

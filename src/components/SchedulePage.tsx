@@ -1736,15 +1736,19 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
       {/* 4. TASK CREATOR & EDITOR MODAL (บันทึกงาน / แก้ไขงาน) */}
       {showTaskForm && (
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4 overflow-y-auto animate-in fade-in duration-150"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-3 sm:p-5 overflow-hidden animate-in fade-in duration-150"
           id="task-form-modal-overlay"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowTaskForm(false);
+          }}
         >
           <div 
-            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl max-w-xl w-full overflow-hidden shadow-2xl animate-in zoom-in-95 duration-150 my-6 text-slate-900 dark:text-slate-100"
+            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl max-w-2xl sm:max-w-3xl w-full max-h-[92vh] flex flex-col overflow-hidden shadow-2xl animate-in zoom-in-95 duration-150 text-slate-900 dark:text-slate-100 my-auto"
             id="task-form-modal"
+            onClick={(e) => e.stopPropagation()}
           >
             {/* Form Header */}
-            <div className="bg-slate-50 dark:bg-gradient-to-r dark:from-slate-900 dark:to-slate-800 border-b border-slate-200 dark:border-slate-750 p-5 flex justify-between items-center">
+            <div className="shrink-0 bg-slate-50 dark:bg-gradient-to-r dark:from-slate-900 dark:to-slate-800 border-b border-slate-200 dark:border-slate-750 px-5 py-4 flex justify-between items-center">
               <div>
                 {formMode === 'create' && taskFormStep === 'form' && (
                   <button
@@ -1772,7 +1776,7 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
                 type="button"
                 id="btn-close-task-modal"
                 onClick={() => setShowTaskForm(false)}
-                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 transition cursor-pointer"
+                className="p-1.5 sm:p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 transition cursor-pointer shrink-0"
                 title="ปิดหน้าต่าง (Close)"
                 aria-label="ปิดหน้าต่าง"
               >
@@ -1782,7 +1786,7 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
 
             {formMode === 'create' && taskFormStep === 'select-type' ? (
               /* STEP 1: SELECT TASK TYPE FIRST */
-              <div className="p-6 space-y-5">
+              <div className="p-5 sm:p-6 space-y-5 overflow-y-auto flex-1">
                 <div className="text-center space-y-1">
                   <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">
                     เลือกประเภทงานที่ต้องการบันทึก
@@ -1909,9 +1913,10 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
               </div>
             ) : (
               /* STEP 2: FORM VIEW */
-              <form onSubmit={handleSaveTask} className="p-6 space-y-4">
+              <form onSubmit={handleSaveTask} className="flex-1 flex flex-col min-h-0 overflow-hidden">
+                <div className="p-5 sm:p-6 space-y-4 overflow-y-auto flex-1">
               
-              {/* Task Type Switcher */}
+                {/* Task Type Switcher */}
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">ประเภทงาน (Task Type)*</label>
                 <div className="grid grid-cols-3 gap-2">
@@ -2257,27 +2262,28 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
                   </button>
                 </div>
               </div>
+                </div>
 
-              {/* Form Buttons */}
-              <div className="pt-4 border-t border-slate-200 dark:border-slate-750 flex items-center justify-end gap-2.5">
-                <button
-                  type="button"
-                  onClick={() => setShowTaskForm(false)}
-                  className="px-4 py-2 text-xs font-medium rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition cursor-pointer"
-                >
-                  ยกเลิก
-                </button>
-                <button
-                  type="submit"
-                  id="btn-submit-task-form"
-                  className="px-5 py-2 text-xs font-bold rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white dark:bg-cyan-500 dark:hover:bg-cyan-400 dark:text-slate-950 transition shadow-lg shadow-cyan-500/20 cursor-pointer flex items-center gap-1.5"
-                >
-                  <Check size={14} />
-                  {formMode === 'create' ? 'บันทึกงานลงตาราง' : 'อัปเดตข้อมูล'}
-                </button>
-              </div>
+                {/* Form Buttons */}
+                <div className="shrink-0 px-5 py-3.5 bg-slate-50 dark:bg-slate-850 border-t border-slate-200 dark:border-slate-750 flex items-center justify-end gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setShowTaskForm(false)}
+                    className="px-4 py-2 text-xs font-medium rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition cursor-pointer"
+                  >
+                    ยกเลิก
+                  </button>
+                  <button
+                    type="submit"
+                    id="btn-submit-task-form"
+                    className="px-5 py-2 text-xs font-bold rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white dark:bg-cyan-500 dark:hover:bg-cyan-400 dark:text-slate-950 transition shadow-lg shadow-cyan-500/20 cursor-pointer flex items-center gap-1.5"
+                  >
+                    <Check size={14} />
+                    {formMode === 'create' ? 'บันทึกงานลงตาราง' : 'อัปเดตข้อมูล'}
+                  </button>
+                </div>
 
-            </form>
+              </form>
             )}
           </div>
         </div>

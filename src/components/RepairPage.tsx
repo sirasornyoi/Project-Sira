@@ -1289,8 +1289,8 @@ export const RepairPage: React.FC = () => {
 
       {/* [+ บันทึกงานซ่อม] FORM MODAL DIALOG */}
       {showFormModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 dark:bg-slate-950/80 backdrop-blur-sm p-4">
-          <div id="repair-form-modal" className="bg-surface dark:bg-slate-800 border border-border dark:border-slate-700 rounded-2xl max-w-xl w-full max-h-[85vh] flex flex-col overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-155">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 dark:bg-slate-950/80 backdrop-blur-sm p-3 sm:p-5 overflow-hidden">
+          <div id="repair-form-modal" className="bg-surface dark:bg-slate-800 border border-border dark:border-slate-700 rounded-2xl max-w-2xl sm:max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-155">
             {/* Header info */}
             <div className="bg-slate-50 dark:bg-gradient-to-r dark:from-slate-800 dark:to-slate-900 border-b border-border dark:border-slate-700/85 p-5 shrink-0 flex justify-between items-center">
               <div>
@@ -1302,10 +1302,24 @@ export const RepairPage: React.FC = () => {
                 </p>
               </div>
 
-              {/* Live MTTR badge */}
-              <div className="bg-white dark:bg-slate-950 border border-border dark:border-slate-700 px-3.5 py-1.5 rounded-lg text-right h-12 flex flex-col justify-center shrink-0">
-                <span className="text-[8px] text-slate-500 dark:text-slate-400 uppercase tracking-widest font-bold">LIVE MTTR:</span>
-                <span className="text-sm font-mono font-bold text-rose-600 dark:text-rose-450">{getLiveMttr()} นาที</span>
+              <div className="flex items-center gap-3 shrink-0">
+                {/* Live MTTR badge */}
+                <div className="bg-white dark:bg-slate-950 border border-border dark:border-slate-700 px-3.5 py-1.5 rounded-lg text-right h-12 flex flex-col justify-center">
+                  <span className="text-[8px] text-slate-500 dark:text-slate-400 uppercase tracking-widest font-bold">LIVE MTTR:</span>
+                  <span className="text-sm font-mono font-bold text-rose-600 dark:text-rose-450">{getLiveMttr()} นาที</span>
+                </div>
+
+                {/* Close Button X */}
+                <button
+                  type="button"
+                  id="btn-close-repair-modal"
+                  onClick={() => setShowFormModal(false)}
+                  className="p-1.5 sm:p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 transition cursor-pointer"
+                  title="ปิดหน้าต่าง (Close)"
+                  aria-label="ปิดหน้าต่าง"
+                >
+                  <X size={20} className="stroke-[2.5]" />
+                </button>
               </div>
             </div>
 
