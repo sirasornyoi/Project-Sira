@@ -1014,11 +1014,11 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
               setShowMachinePickerModal(true);
               setPickerSearch('');
             }}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-fg text-xs font-bold rounded-xl shadow-md shadow-cyan-600/20 transition shrink-0 cursor-pointer"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold rounded-xl shadow-md shadow-cyan-600/20 transition shrink-0 cursor-pointer"
             title="+ เพิ่มเครื่องจักร"
           >
-            <Plus size={14} />
-            <span>+ เพิ่มเครื่องจักร</span>
+            <Plus size={14} className="text-white" />
+            <span className="text-white">+ เพิ่มเครื่องจักร</span>
           </button>
         </div>
         
@@ -1283,10 +1283,10 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
             <button
               id="btn-add-pm-plan"
               onClick={handleOpenNewForm}
-              className="flex items-center gap-1.5 px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-extrabold rounded-xl text-xs transition cursor-pointer shadow-md shadow-cyan-500/10"
+              className="flex items-center gap-1.5 px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-extrabold rounded-xl text-xs transition cursor-pointer shadow-md shadow-cyan-600/20"
             >
-              <Plus size={14} strokeWidth={2.5} />
-              <span>+ เพิ่มงานแผน PM ใหม่</span>
+              <Plus size={14} strokeWidth={2.5} className="text-white" />
+              <span className="text-white">+ เพิ่มงานแผน PM ใหม่</span>
             </button>
           </div>
         </div>

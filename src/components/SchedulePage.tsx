@@ -479,16 +479,21 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
 
   const calculateRepairTimesAndDuration = (dateStr: string, bdTimeStr: string, doneTimeStr: string) => {
     const bdTimeOnly = bdTimeStr.includes('T') ? bdTimeStr.slice(11, 16) : bdTimeStr;
-    const doneTimeOnly = doneTimeStr.includes('T') ? doneTimeStr.slice(11, 16) : doneTimeStr;
     const bdDateOnly = bdTimeStr.includes('T') ? bdTimeStr.slice(0, 10) : dateStr;
+    const finalBreakdownTime = bdTimeStr.includes('T') ? bdTimeStr : `${dateStr}T${bdTimeStr}`;
 
-    let finalRepairDoneDate = bdDateOnly;
-    if (doneTimeOnly <= bdTimeOnly) {
-      finalRepairDoneDate = getNextDateStr(bdDateOnly);
+    let finalRepairDoneTime: string;
+    if (doneTimeStr.includes('T')) {
+      finalRepairDoneTime = doneTimeStr;
+    } else {
+      const doneTimeOnly = doneTimeStr;
+      let finalRepairDoneDate = bdDateOnly;
+      if (doneTimeOnly < bdTimeOnly) {
+        finalRepairDoneDate = getNextDateStr(bdDateOnly);
+      }
+      finalRepairDoneTime = `${finalRepairDoneDate}T${doneTimeOnly}`;
     }
 
-    const finalBreakdownTime = `${bdDateOnly}T${bdTimeOnly}`;
-    const finalRepairDoneTime = `${finalRepairDoneDate}T${doneTimeOnly}`;
     const startObj = new Date(finalBreakdownTime);
     const endObj = new Date(finalRepairDoneTime);
     const diff = endObj.getTime() - startObj.getTime();
@@ -870,7 +875,7 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
             <button
               onClick={() => setTaskTypeFilter('PM')}
               className={`px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1 ${
-                taskTypeFilter === 'PM' ? 'bg-blue-500 text-fg shadow' : 'text-slate-400 hover:text-blue-300'
+                taskTypeFilter === 'PM' ? 'bg-blue-600 text-white dark:bg-cyan-500 dark:text-slate-950 shadow' : 'text-slate-400 hover:text-blue-300'
               }`}
             >
               <span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span>

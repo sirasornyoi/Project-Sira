@@ -7788,6 +7788,100 @@ button, input, select, textarea {
   color: #ffffff !important;
 }
 
+/* ==========================================================================
+   GLOBAL LIGHT MODE: ALL BLUE / CYAN / SKY / INDIGO BOXES & BUTTONS HAVE WHITE TEXT
+   ========================================================================== */
+.light-theme .bg-blue-500,
+.light-theme .bg-blue-600,
+.light-theme .bg-blue-700,
+.light-theme .bg-blue-800,
+.light-theme .bg-blue-900,
+.light-theme .bg-cyan-500,
+.light-theme .bg-cyan-600,
+.light-theme .bg-cyan-700,
+.light-theme .bg-cyan-800,
+.light-theme .bg-cyan-900,
+.light-theme .bg-sky-500,
+.light-theme .bg-sky-600,
+.light-theme .bg-sky-700,
+.light-theme .bg-sky-800,
+.light-theme .bg-sky-900,
+.light-theme .bg-indigo-500,
+.light-theme .bg-indigo-600,
+.light-theme .bg-indigo-700,
+.light-theme .bg-indigo-800,
+.light-theme .bg-indigo-900,
+.light-theme .bg-\[\#0284c7\],
+.light-theme .bg-\[\#0369a1\],
+.light-theme .bg-\[\#2563eb\],
+.light-theme .bg-\[\#1d4ed8\],
+.light-theme .bg-\[\#1e40af\],
+.light-theme .bg-\[\#1e3a8a\],
+.light-theme button[class*="bg-blue-600"],
+.light-theme button[class*="bg-blue-500"],
+.light-theme button[class*="bg-cyan-600"],
+.light-theme button[class*="bg-cyan-500"],
+.light-theme button[class*="bg-sky-600"],
+.light-theme button[class*="bg-sky-500"],
+.light-theme button[class*="bg-indigo-600"],
+.light-theme button[class*="bg-indigo-500"],
+.light-theme a[class*="bg-blue-600"],
+.light-theme a[class*="bg-cyan-600"],
+.light-theme #btn-add-pm-machine,
+.light-theme #btn-add-pm-plan {
+  color: #ffffff !important;
+}
+
+.light-theme .bg-blue-500 *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
+.light-theme .bg-blue-600 *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
+.light-theme .bg-blue-700 *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
+.light-theme .bg-blue-800 *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
+.light-theme .bg-blue-900 *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
+.light-theme .bg-cyan-500 *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
+.light-theme .bg-cyan-600 *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
+.light-theme .bg-cyan-700 *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
+.light-theme .bg-cyan-800 *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
+.light-theme .bg-cyan-900 *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
+.light-theme .bg-sky-500 *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
+.light-theme .bg-sky-600 *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
+.light-theme .bg-sky-700 *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
+.light-theme .bg-sky-800 *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
+.light-theme .bg-sky-900 *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
+.light-theme .bg-indigo-500 *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
+.light-theme .bg-indigo-600 *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
+.light-theme .bg-indigo-700 *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
+.light-theme .bg-indigo-800 *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
+.light-theme .bg-indigo-900 *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
+.light-theme .bg-\[\#0284c7\] *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
+.light-theme .bg-\[\#0369a1\] *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
+.light-theme .bg-\[\#2563eb\] *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
+.light-theme .bg-\[\#1d4ed8\] *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
+.light-theme #btn-add-pm-machine *,
+.light-theme #btn-add-pm-plan * {
+  color: #ffffff !important;
+}
+
+.light-theme .bg-blue-500 svg,
+.light-theme .bg-blue-600 svg,
+.light-theme .bg-blue-700 svg,
+.light-theme .bg-cyan-500 svg,
+.light-theme .bg-cyan-600 svg,
+.light-theme .bg-cyan-700 svg,
+.light-theme .bg-sky-500 svg,
+.light-theme .bg-sky-600 svg,
+.light-theme .bg-sky-700 svg,
+.light-theme .bg-indigo-500 svg,
+.light-theme .bg-indigo-600 svg,
+.light-theme .bg-indigo-700 svg,
+.light-theme .bg-\[\#0284c7\] svg,
+.light-theme .bg-\[\#0369a1\] svg,
+.light-theme .bg-\[\#2563eb\] svg,
+.light-theme .bg-\[\#1d4ed8\] svg,
+.light-theme #btn-add-pm-machine svg,
+.light-theme #btn-add-pm-plan svg {
+  color: #ffffff !important;
+}
+
 
 
 
