@@ -260,7 +260,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               };
             });
             setMachines(deduplicateById(enriched));
-            setTechnicians(Array.from(new Set(serverData.technicians || PRELOADED_TECHNICIANS)));
+            const activeTechs = Array.from(new Set(serverData.technicians || PRELOADED_TECHNICIANS));
+            setTechnicians(activeTechs);
             setEmployees(deduplicateById(serverData.employees || []));
             setPmPlans(deduplicateById(serverData.pmPlans || PRELOADED_PM_PLANS));
             if (serverData.pmMachineIds && Array.isArray(serverData.pmMachineIds)) {
@@ -279,8 +280,40 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 setPmMachineIds(enriched.map(m => m.id));
               }
             }
-            setSchedules(deduplicateById(serverData.schedules || PRELOADED_SCHEDULES));
-            setRepairs(deduplicateById(serverData.repairs || PRELOADED_REPAIRS));
+
+            // Sanitize schedules against activeTechs
+            const rawSchedules = deduplicateById(serverData.schedules || PRELOADED_SCHEDULES);
+            const sanitizedSchedules = rawSchedules.map((s: any) => {
+              if (activeTechs.length === 0) return s;
+              let updated = { ...s };
+              if (updated.technicians && updated.technicians.length > 0) {
+                const valid = updated.technicians.filter((t: string) => activeTechs.includes(t));
+                updated.technicians = valid.length > 0 ? valid : [activeTechs[0]];
+                updated.peopleCount = updated.technicians.length;
+              }
+              if (!activeTechs.includes(updated.technician)) {
+                updated.technician = (updated.technicians && updated.technicians[0]) ? updated.technicians[0] : activeTechs[0];
+              }
+              return updated;
+            });
+            setSchedules(sanitizedSchedules);
+
+            // Sanitize repairs against activeTechs
+            const rawRepairs = deduplicateById(serverData.repairs || PRELOADED_REPAIRS);
+            const sanitizedRepairs = rawRepairs.map((r: any) => {
+              if (activeTechs.length === 0) return r;
+              let updated = { ...r };
+              if (updated.technicians && updated.technicians.length > 0) {
+                const valid = updated.technicians.filter((t: string) => activeTechs.includes(t));
+                updated.technicians = valid.length > 0 ? valid : [activeTechs[0]];
+                updated.peopleCount = updated.technicians.length;
+              }
+              if (!activeTechs.includes(updated.technician)) {
+                updated.technician = (updated.technicians && updated.technicians[0]) ? updated.technicians[0] : activeTechs[0];
+              }
+              return updated;
+            });
+            setRepairs(sanitizedRepairs);
             setImprovements(deduplicateById(serverData.improvements || PRELOADED_IMPROVEMENTS));
             setSpareParts(deduplicateById(serverData.spareParts || PRELOADED_SPARE_PARTS));
             setLeaves(deduplicateById(serverData.leaves || []));

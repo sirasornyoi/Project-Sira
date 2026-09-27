@@ -308,23 +308,30 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
     let totalAssignedPeople = 0;
 
     pmList.forEach(pm => {
-      const count = pm.peopleCount || (pm.technicians?.length || 1);
+      const rawTechs = pm.technicians && pm.technicians.length > 0 ? pm.technicians : (pm.technician ? [pm.technician] : []);
+      const validTechs = rawTechs.filter(t => technicians.includes(t));
+      const activeTechs = validTechs.length > 0 ? validTechs : (technicians.length > 0 ? [technicians[0]] : rawTechs);
+      const count = pm.peopleCount && pm.peopleCount > 0 ? pm.peopleCount : (activeTechs.length || 1);
       totalAssignedPeople += count;
-      if (pm.technicians) pm.technicians.forEach(t => peopleSet.add(t));
-      else if (pm.technician) peopleSet.add(pm.technician);
+      activeTechs.forEach(t => peopleSet.add(t));
     });
 
     repairList.forEach(rep => {
-      const count = rep.peopleCount || (rep.technicians?.length || 1);
+      const rawTechs = rep.technicians && rep.technicians.length > 0 ? rep.technicians : (rep.technician ? [rep.technician] : []);
+      const validTechs = rawTechs.filter(t => technicians.includes(t));
+      const activeTechs = validTechs.length > 0 ? validTechs : (technicians.length > 0 ? [technicians[0]] : rawTechs);
+      const count = rep.peopleCount && rep.peopleCount > 0 ? rep.peopleCount : (activeTechs.length || 1);
       totalAssignedPeople += count;
-      if (rep.technicians) rep.technicians.forEach(t => peopleSet.add(t));
-      else if (rep.technician) peopleSet.add(rep.technician);
+      activeTechs.forEach(t => peopleSet.add(t));
     });
 
     otherList.forEach(oth => {
-      const count = oth.peopleCount || (oth.technicians?.length || 1);
+      const rawTechs = oth.technicians && oth.technicians.length > 0 ? oth.technicians : [];
+      const validTechs = rawTechs.filter(t => technicians.includes(t));
+      const activeTechs = validTechs.length > 0 ? validTechs : (technicians.length > 0 ? [technicians[0]] : rawTechs);
+      const count = oth.peopleCount && oth.peopleCount > 0 ? oth.peopleCount : (activeTechs.length || 1);
       totalAssignedPeople += count;
-      if (oth.technicians) oth.technicians.forEach(t => peopleSet.add(t));
+      activeTechs.forEach(t => peopleSet.add(t));
     });
 
     return {
@@ -348,23 +355,30 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
     let totalAssignedPeople = 0;
 
     pmList.forEach(pm => {
-      const count = pm.peopleCount || (pm.technicians?.length || 1);
+      const rawTechs = pm.technicians && pm.technicians.length > 0 ? pm.technicians : (pm.technician ? [pm.technician] : []);
+      const validTechs = rawTechs.filter(t => technicians.includes(t));
+      const activeTechs = validTechs.length > 0 ? validTechs : (technicians.length > 0 ? [technicians[0]] : rawTechs);
+      const count = pm.peopleCount && pm.peopleCount > 0 ? pm.peopleCount : (activeTechs.length || 1);
       totalAssignedPeople += count;
-      if (pm.technicians) pm.technicians.forEach(t => peopleSet.add(t));
-      else if (pm.technician) peopleSet.add(pm.technician);
+      activeTechs.forEach(t => peopleSet.add(t));
     });
 
     repairList.forEach(rep => {
-      const count = rep.peopleCount || (rep.technicians?.length || 1);
+      const rawTechs = rep.technicians && rep.technicians.length > 0 ? rep.technicians : (rep.technician ? [rep.technician] : []);
+      const validTechs = rawTechs.filter(t => technicians.includes(t));
+      const activeTechs = validTechs.length > 0 ? validTechs : (technicians.length > 0 ? [technicians[0]] : rawTechs);
+      const count = rep.peopleCount && rep.peopleCount > 0 ? rep.peopleCount : (activeTechs.length || 1);
       totalAssignedPeople += count;
-      if (rep.technicians) rep.technicians.forEach(t => peopleSet.add(t));
-      else if (rep.technician) peopleSet.add(rep.technician);
+      activeTechs.forEach(t => peopleSet.add(t));
     });
 
     otherList.forEach(oth => {
-      const count = oth.peopleCount || (oth.technicians?.length || 1);
+      const rawTechs = oth.technicians && oth.technicians.length > 0 ? oth.technicians : [];
+      const validTechs = rawTechs.filter(t => technicians.includes(t));
+      const activeTechs = validTechs.length > 0 ? validTechs : (technicians.length > 0 ? [technicians[0]] : rawTechs);
+      const count = oth.peopleCount && oth.peopleCount > 0 ? oth.peopleCount : (activeTechs.length || 1);
       totalAssignedPeople += count;
-      if (oth.technicians) oth.technicians.forEach(t => peopleSet.add(t));
+      activeTechs.forEach(t => peopleSet.add(t));
     });
 
     return {
@@ -433,8 +447,18 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
     setFormDate(task.date);
     setFormTaskType(type);
     setFormDestination(task.destination || '');
-    setFormPeopleCount(task.peopleCount || task.technicians?.length || 1);
-    setFormSelectedTechs(task.technicians || (task.technician ? [task.technician] : []));
+    
+    // Sanitize technicians list against currently active technicians
+    const rawTechs = task.technicians && task.technicians.length > 0 
+      ? task.technicians 
+      : (task.technician ? [task.technician] : []);
+    const validTechs = rawTechs.filter((t: string) => technicians.includes(t));
+    const initialSelectedTechs = validTechs.length > 0 
+      ? validTechs 
+      : (technicians.length > 0 ? [technicians[0]] : rawTechs);
+
+    setFormSelectedTechs(initialSelectedTechs);
+    setFormPeopleCount(task.peopleCount && task.peopleCount > 0 ? task.peopleCount : initialSelectedTechs.length);
     setFormCustomNames(task.technicianNamesText || '');
     setFormStatus(task.status || 'รอดำเนินการ');
     setFormNotes(task.notes || '');
@@ -510,7 +534,10 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
   const handleSaveTask = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const allTechs = formSelectedTechs.length > 0 ? formSelectedTechs : [technicians[0] || 'ช่าง 1'];
+    const validSelected = formSelectedTechs.filter(t => technicians.includes(t));
+    const allTechs = validSelected.length > 0 
+      ? validSelected 
+      : (technicians.length > 0 ? [technicians[0]] : ['ช่าง 1']);
     const primaryTech = allTechs[0];
     const techText = formCustomNames.trim() ? `${allTechs.join(', ')} (${formCustomNames.trim()})` : allTechs.join(', ');
 
@@ -1031,8 +1058,10 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
                         {/* PM Tasks */}
                         {visiblePM.slice(0, 2).map((pm, idx) => {
                           const plan = pmPlans.find(p => p.id === pm.pmPlanId);
-                          const people = pm.peopleCount || pm.technicians?.length || 1;
-                          const techName = pm.technicians?.length ? pm.technicians[0] : pm.technician;
+                          const rawTechs = pm.technicians && pm.technicians.length > 0 ? pm.technicians : (pm.technician ? [pm.technician] : []);
+                          const validTechs = rawTechs.filter(t => technicians.includes(t));
+                          const people = pm.peopleCount && pm.peopleCount > 0 ? pm.peopleCount : (validTechs.length || 1);
+                          const techName = validTechs[0] || technicians[0] || pm.technician;
                           return (
                             <div
                               key={`chip-pm-${pm.id}-${idx}`}
@@ -1058,7 +1087,9 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
 
                         {/* Repair Tasks */}
                         {visibleRepair.slice(0, 2).map((rep, idx) => {
-                          const people = rep.peopleCount || rep.technicians?.length || 1;
+                          const rawTechs = rep.technicians && rep.technicians.length > 0 ? rep.technicians : (rep.technician ? [rep.technician] : []);
+                          const validTechs = rawTechs.filter(t => technicians.includes(t));
+                          const people = rep.peopleCount && rep.peopleCount > 0 ? rep.peopleCount : (validTechs.length || 1);
                           return (
                             <div
                               key={`chip-rep-${rep.id}-${idx}`}
@@ -1082,7 +1113,9 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
 
                         {/* Contact / Other Tasks */}
                         {visibleOther.slice(0, 2).map((oth, idx) => {
-                          const people = oth.peopleCount || oth.technicians?.length || 1;
+                          const rawTechs = oth.technicians && oth.technicians.length > 0 ? oth.technicians : [];
+                          const validTechs = rawTechs.filter(t => technicians.includes(t));
+                          const people = oth.peopleCount && oth.peopleCount > 0 ? oth.peopleCount : (validTechs.length || 1);
                           return (
                             <div
                               key={`chip-oth-${oth.id}-${idx}`}
@@ -1480,8 +1513,10 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
                     const pm = selectedItem.data as PMScheduleItem;
                     const mach = machines.find(m => m.id === pm.machineId);
                     const plan = pmPlans.find(p => p.id === pm.pmPlanId);
-                    const people = pm.peopleCount || (pm.technicians?.length || 1);
-                    const allTechs = pm.technicians && pm.technicians.length > 0 ? pm.technicians : (pm.technician ? [pm.technician] : []);
+                    const rawTechs = pm.technicians && pm.technicians.length > 0 ? pm.technicians : (pm.technician ? [pm.technician] : []);
+                    const validTechs = rawTechs.filter(t => technicians.includes(t));
+                    const allTechs = validTechs.length > 0 ? validTechs : (technicians.length > 0 ? [technicians[0]] : rawTechs);
+                    const people = pm.peopleCount && pm.peopleCount > 0 ? pm.peopleCount : (allTechs.length || 1);
                     const loc = pm.destination || (pm.machineId ? `แท่นเครื่อง ${pm.machineId}` : 'ไม่ได้ระบุ');
 
                     const taskInfoFields = [
@@ -1594,8 +1629,10 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
                   if (selectedItem.type === 'Repair') {
                     const rep = selectedItem.data as RepairLog;
                     const mach = machines.find(m => m.id === rep.machineId);
-                    const people = rep.peopleCount || (rep.technicians?.length || 1);
-                    const allTechs = rep.technicians && rep.technicians.length > 0 ? rep.technicians : (rep.technician ? [rep.technician] : []);
+                    const rawTechs = rep.technicians && rep.technicians.length > 0 ? rep.technicians : (rep.technician ? [rep.technician] : []);
+                    const validTechs = rawTechs.filter(t => technicians.includes(t));
+                    const allTechs = validTechs.length > 0 ? validTechs : (technicians.length > 0 ? [technicians[0]] : rawTechs);
+                    const people = rep.peopleCount && rep.peopleCount > 0 ? rep.peopleCount : (allTechs.length || 1);
                     const loc = rep.destination || (rep.machineId ? `แท่นเครื่อง ${rep.machineId}` : 'ไม่ได้ระบุ');
                     const bTime = rep.breakdownTime ? (rep.breakdownTime.includes('T') ? rep.breakdownTime.slice(11, 16) : rep.breakdownTime) : undefined;
                     const dTime = rep.repairDoneTime ? (rep.repairDoneTime.includes('T') ? rep.repairDoneTime.slice(11, 16) : rep.repairDoneTime) : undefined;
@@ -1688,8 +1725,10 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
 
                   // Other task
                   const oth = selectedItem.data as ContactOtherTask;
-                  const people = oth.peopleCount || (oth.technicians?.length || 1);
-                  const allTechs = oth.technicians && oth.technicians.length > 0 ? oth.technicians : [];
+                  const rawTechs = oth.technicians && oth.technicians.length > 0 ? oth.technicians : [];
+                  const validTechs = rawTechs.filter(t => technicians.includes(t));
+                  const allTechs = validTechs.length > 0 ? validTechs : (technicians.length > 0 ? [technicians[0]] : rawTechs);
+                  const people = oth.peopleCount && oth.peopleCount > 0 ? oth.peopleCount : (allTechs.length || 1);
 
                   const taskInfoFields = [
                     { label: 'ชื่องาน / ภารกิจ', value: oth.title },

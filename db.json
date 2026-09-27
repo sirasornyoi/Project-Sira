@@ -1009,26 +1009,7 @@
     }
   ],
   "technicians": [
-    "ช่าง 1",
-    "ช่าง 2",
-    "ช่าง 3",
-    "ช่าง 4",
-    "ช่าง 5",
-    "ช่าง 6",
-    "ช่าง 7",
-    "ช่าง 8",
-    "ช่าง 9",
-    "ช่าง 10",
-    "ช่าง 11",
-    "ช่าง 12",
-    "ช่าง 13",
-    "ช่าง 14",
-    "ช่าง 15",
-    "ช่าง 16",
-    "ช่าง 17",
-    "ช่าง 18",
-    "ช่าง 19",
-    "ช่าง 20"
+    "ช่างมัน"
   ],
   "employees": [
     {
@@ -1619,17 +1600,21 @@
     {
       "id": "sched-01",
       "type": "PM",
-      "technician": "ช่าง 1",
+      "technician": "ช่างมัน",
       "date": "2026-06-10",
       "machineId": "RIM01",
       "pmPlanId": "plan-pm-01",
       "status": "รอดำเนินการ",
-      "duration": 45
+      "duration": 45,
+      "technicians": [
+        "ช่างมัน"
+      ],
+      "peopleCount": 1
     },
     {
       "id": "sched-02",
       "type": "Operation",
-      "technician": "ช่าง 2",
+      "technician": "ช่างมัน",
       "date": "2026-06-10",
       "line": "ไลน์ซูชิ A",
       "startTime": "08:00",
@@ -1642,25 +1627,32 @@
         4,
         5
       ],
-      "duration": 480
+      "duration": 480,
+      "technicians": [
+        "ช่างมัน"
+      ],
+      "peopleCount": 1
     },
     {
       "id": "sched-03",
       "type": "PM",
-      "technician": "ช่าง 5",
+      "technician": "ช่างมัน",
       "date": "2026-06-09",
       "machineId": "FFS01",
       "pmPlanId": "plan-pm-03",
       "status": "รอดำเนินการ",
-      "duration": 30
+      "duration": 30,
+      "technicians": [
+        "ช่างมัน"
+      ],
+      "peopleCount": 1
     },
     {
       "id": "sched-04",
       "type": "PM",
-      "technician": "ช่าง 3",
+      "technician": "ช่างมัน",
       "technicians": [
-        "ช่าง 3",
-        "ช่าง 4"
+        "ช่างมัน"
       ],
       "date": "2026-06-08",
       "machineId": "VAC01",
@@ -1677,15 +1669,15 @@
           "totalCost": 450
         }
       ],
-      "otherCost": 0
+      "otherCost": 0,
+      "peopleCount": 1
     },
     {
       "id": "pm-seed-01",
       "type": "PM",
-      "technician": "ช่าง 1",
+      "technician": "ช่างมัน",
       "technicians": [
-        "ช่าง 1",
-        "ช่าง 2"
+        "ช่างมัน"
       ],
       "date": "2026-09-09",
       "machineId": "RIM01",
@@ -1693,14 +1685,14 @@
       "status": "กำลังทำ",
       "duration": 45,
       "destination": "ไลน์ผสมข้าว A (ชั้น 2)",
-      "peopleCount": 2
+      "peopleCount": 1
     },
     {
       "id": "pm-seed-02",
       "type": "PM",
-      "technician": "ช่าง 3",
+      "technician": "ช่างมัน",
       "technicians": [
-        "ช่าง 3"
+        "ช่างมัน"
       ],
       "date": "2026-09-10",
       "machineId": "TOC02",
@@ -1713,10 +1705,9 @@
     {
       "id": "pm-seed-03",
       "type": "PM",
-      "technician": "ช่าง 5",
+      "technician": "ช่างมัน",
       "technicians": [
-        "ช่าง 5",
-        "ช่าง 6"
+        "ช่างมัน"
       ],
       "date": "2026-09-18",
       "machineId": "VAC05",
@@ -1724,7 +1715,7 @@
       "status": "รอดำเนินการ",
       "duration": 90,
       "destination": "ห้องเย็น VACUUM อาคาร B",
-      "peopleCount": 2
+      "peopleCount": 1
     },
     {
       "id": "other-seed-01",
@@ -1733,17 +1724,17 @@
       "category": "งานติดต่อ",
       "date": "2026-09-09",
       "destination": "ร้านเจริญอะไหล่ยนต์ (พระราม 2)",
-      "peopleCount": 2,
+      "peopleCount": 1,
       "technicians": [
-        "ช่าง 7",
-        "ช่าง 8"
+        "ช่างมัน"
       ],
       "technicianNamesText": "ช่าง 7, ช่าง 8",
       "startTime": "09:30",
       "endTime": "12:30",
       "duration": 180,
       "status": "รอดำเนินการ",
-      "notes": "นำใบขอซื้อและตัวอย่างสายพานเดิมไปเทียบขนาดจริง"
+      "notes": "นำใบขอซื้อและตัวอย่างสายพานเดิมไปเทียบขนาดจริง",
+      "technician": "ช่างมัน"
     },
     {
       "id": "other-seed-02",
@@ -1752,17 +1743,17 @@
       "category": "งานโรงกลึง/ภายนอก",
       "date": "2026-09-10",
       "destination": "โรงกลึง CNC มีนบุรี",
-      "peopleCount": 2,
+      "peopleCount": 1,
       "technicians": [
-        "ช่าง 9",
-        "ช่าง 10"
+        "ช่างมัน"
       ],
       "technicianNamesText": "ช่าง 9, ช่าง 10",
       "startTime": "13:00",
       "endTime": "16:30",
       "duration": 210,
       "status": "รอดำเนินการ",
-      "notes": "ตรวจรับใบส่งของและกำหนดวันส่งมอบกลับภายใน 3 วัน"
+      "notes": "ตรวจรับใบส่งของและกำหนดวันส่งมอบกลับภายใน 3 วัน",
+      "technician": "ช่างมัน"
     },
     {
       "id": "other-seed-03",
@@ -1771,26 +1762,24 @@
       "category": "งานประชุม/อบรม",
       "date": "2026-09-15",
       "destination": "ห้องประชุมช่าง / อาคาร 1",
-      "peopleCount": 4,
+      "peopleCount": 1,
       "technicians": [
-        "ช่าง 1",
-        "ช่าง 2",
-        "ช่าง 3",
-        "ช่าง 4"
+        "ช่างมัน"
       ],
       "technicianNamesText": "ทีมช่าง กะเช้า 4 คน",
       "startTime": "10:00",
       "endTime": "11:30",
       "duration": 90,
       "status": "รอดำเนินการ",
-      "notes": "เตรียมเอกสารคู่มือความปลอดภัยก่อนเริ่มกะ"
+      "notes": "เตรียมเอกสารคู่มือความปลอดภัยก่อนเริ่มกะ",
+      "technician": "ช่างมัน"
     }
   ],
   "repairs": [
     {
       "id": "rep-01",
       "type": "Repair",
-      "technician": "ช่าง 1",
+      "technician": "ช่างมัน",
       "date": "2026-06-08",
       "machineId": "FFS02",
       "breakdownTime": "2026-06-08T09:15",
@@ -1913,14 +1902,18 @@
         ],
         "analyzedBy": "ช่าง 1",
         "updatedAt": "2026-09-23T09:26:24.386Z"
-      }
+      },
+      "technicians": [
+        "ช่างมัน"
+      ],
+      "peopleCount": 1
     },
     {
       "id": "rep-02",
       "type": "Repair",
-      "technician": "ช่าง 2",
+      "technician": "ช่างมัน",
       "technicians": [
-        "ช่าง 2"
+        "ช่างมัน"
       ],
       "date": "2026-06-09",
       "machineId": "VAC02",
@@ -1936,15 +1929,15 @@
       "duration": 135,
       "status": "ปิดงาน",
       "usedParts": [],
-      "otherCost": 100000
+      "otherCost": 100000,
+      "peopleCount": 1
     },
     {
       "id": "rep-seed-01",
       "type": "Repair",
-      "technician": "ช่าง 4",
+      "technician": "ช่างมัน",
       "technicians": [
-        "ช่าง 4",
-        "ช่าง 5"
+        "ช่างมัน"
       ],
       "date": "2026-09-09",
       "machineId": "VAC01",
@@ -1958,7 +1951,7 @@
       "why5": "ยังไม่ถึงรอบเปลี่ยนตามแผน",
       "correctiveAction": "ล้างทำความสะอาดโซลินอยด์วาล์วและเปลี่ยนซีลยางใหม่",
       "destination": "หน้างานห้องเย็น VACUUM อาคาร B",
-      "peopleCount": 2,
+      "peopleCount": 1,
       "duration": 90,
       "status": "กำลังซ่อม"
     }
