@@ -100,15 +100,31 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
 
   // Save technician names changes
   const handleSaveTechs = () => {
-    // Clean and validate rows: trim, ignore empty, and deduplicate
-    const cleanedRows: { orig: string; name: string }[] = [];
-    const seenNames = new Set<string>();
-
+    // Check for duplicates among non-empty trimmed names
+    const nameCounts = new Map<string, number>();
     for (const item of tempTechs) {
       const trimmed = item.name.trim();
       if (!trimmed) continue;
-      if (seenNames.has(trimmed)) continue;
-      seenNames.add(trimmed);
+      nameCounts.set(trimmed, (nameCounts.get(trimmed) || 0) + 1);
+    }
+
+    const duplicates: string[] = [];
+    nameCounts.forEach((count, name) => {
+      if (count > 1) {
+        duplicates.push(name);
+      }
+    });
+
+    if (duplicates.length > 0) {
+      alert(`ชื่อช่างซ้ำกัน: ${duplicates.join(', ')} กรุณาแก้ไขก่อนบันทึก`);
+      return;
+    }
+
+    // Clean and validate rows: trim, ignore empty
+    const cleanedRows: { orig: string; name: string }[] = [];
+    for (const item of tempTechs) {
+      const trimmed = item.name.trim();
+      if (!trimmed) continue;
       cleanedRows.push({ orig: item.orig, name: trimmed });
     }
 

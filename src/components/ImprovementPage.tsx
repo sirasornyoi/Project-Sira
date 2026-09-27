@@ -535,15 +535,18 @@ export const ImprovementPage: React.FC = () => {
                     }}
                     className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-200"
                   >
-                    {technicians.map(t => (
-                      <option key={t} value={t}>{t}</option>
-                    ))}
+                    {(() => {
+                      const extra = newTechnician && !technicians.includes(newTechnician) ? [newTechnician] : [];
+                      return [...technicians, ...extra].map(t => (
+                        <option key={t} value={t}>{t}{!technicians.includes(t) ? ' (ลบแล้ว)' : ''}</option>
+                      ));
+                    })()}
                   </select>
                 </div>
               </div>
 
               {/* Multi-selection co-technicians */}
-              <div className="space-y-1.5 bg-slate-900/40 p-3 rounded-xl border border-slate-750">
+              <div className="space-y-1.5 bg-slate-900/40 p-3 rounded-xl border border-slate-755">
                 <label className="text-[11px] font-semibold text-slate-300 flex justify-between items-center">
                   <span>ช่างผู้ร่วมพัฒนา/รับผิดชอบร่วมทีมเพิ่มเติม (เลือกได้หลายคน)</span>
                   <span className="text-[9px] text-[#38bdf8] font-mono font-bold">
@@ -551,37 +554,44 @@ export const ImprovementPage: React.FC = () => {
                   </span>
                 </label>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 max-h-[110px] overflow-y-auto pr-1">
-                  {technicians.map(tech => {
-                    const isMain = tech === newTechnician;
-                    const isSelected = newCoTechnicians.includes(tech);
-                    
-                    if (isMain) return null;
-                    
-                    return (
-                      <label 
-                        key={tech} 
-                        className={`p-1.5 rounded-lg border flex items-center gap-1.5 cursor-pointer text-[10.5px] select-none transition ${
-                          isSelected 
-                            ? 'bg-slate-800 border-cyan-500/50 text-slate-100' 
-                            : 'bg-slate-900/80 border-slate-750 hover:border-slate-700 text-slate-400'
-                        }`}
-                      >
-                        <input 
-                          type="checkbox" 
-                          checked={isSelected}
-                          onChange={() => {
-                            if (isSelected) {
-                              setNewCoTechnicians(prev => prev.filter(t => t !== tech));
-                            } else {
-                              setNewCoTechnicians(prev => [...prev, tech]);
-                            }
-                          }}
-                          className="rounded text-cyan-500 border-slate-705 focus:ring-0 w-3 h-3 cursor-pointer"
-                        />
-                        <span className="truncate">{tech}</span>
-                      </label>
-                    );
-                  })}
+                  {(() => {
+                    const extraTechs = newCoTechnicians.filter(t => !technicians.includes(t));
+                    const allTechs = [...technicians, ...extraTechs];
+                    return allTechs.map(tech => {
+                      const isMain = tech === newTechnician;
+                      const isSelected = newCoTechnicians.includes(tech);
+                      const isDeleted = !technicians.includes(tech);
+                      
+                      if (isMain) return null;
+                      
+                      return (
+                        <label 
+                          key={tech} 
+                          className={`p-1.5 rounded-lg border flex items-center gap-1.5 cursor-pointer text-[10.5px] select-none transition ${
+                            isDeleted
+                              ? 'line-through opacity-70 bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-300 dark:border-slate-700'
+                              : isSelected 
+                                ? 'bg-slate-800 border-cyan-500/50 text-slate-100' 
+                                : 'bg-slate-900/80 border-slate-750 hover:border-slate-700 text-slate-400'
+                          }`}
+                        >
+                          <input 
+                            type="checkbox" 
+                            checked={isSelected}
+                            onChange={() => {
+                              if (isSelected) {
+                                setNewCoTechnicians(prev => prev.filter(t => t !== tech));
+                              } else {
+                                setNewCoTechnicians(prev => [...prev, tech]);
+                              }
+                            }}
+                            className="rounded text-cyan-500 border-slate-705 focus:ring-0 w-3 h-3 cursor-pointer"
+                          />
+                          <span className="truncate">{tech}{isDeleted ? ' (ลบแล้ว)' : ''}</span>
+                        </label>
+                      );
+                    });
+                  })()}
                 </div>
               </div>
 
@@ -726,9 +736,14 @@ export const ImprovementPage: React.FC = () => {
                     }}
                     className="mt-1 bg-slate-900 border border-slate-700 text-[10.5px] text-slate-200 font-semibold rounded px-1.5 py-1 focus:outline-none w-full"
                   >
-                    {technicians.map(t => (
-                      <option key={t} value={t}>{t}</option>
-                    ))}
+                    {(() => {
+                      const extra = selectedProject.technician && !technicians.includes(selectedProject.technician)
+                        ? [selectedProject.technician]
+                        : [];
+                      return [...technicians, ...extra].map(t => (
+                        <option key={t} value={t}>{t}{!technicians.includes(t) ? ' (ลบแล้ว)' : ''}</option>
+                      ));
+                    })()}
                   </select>
                 </div>
                 <div>
@@ -764,55 +779,66 @@ export const ImprovementPage: React.FC = () => {
                   </span>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-2 pt-1">
-                  {technicians.map(tech => {
-                    const isMain = tech === selectedProject.technician;
-                    const isCo = (selectedProject.technicians || []).includes(tech);
-                    
-                    if (isMain) {
-                      return (
-                        <div key={tech} className="bg-cyan-500/10 border border-cyan-500/20 p-2 rounded-lg flex items-center gap-2 select-none" title="ผู้รับผิดชอบหลัก">
-                          <input type="checkbox" checked={true} disabled className="rounded text-cyan-500 border-slate-700 focus:ring-0 w-3.5 h-3.5 cursor-not-allowed" />
-                          <div className="min-w-0">
-                            <p className="text-[10px] font-bold text-cyan-400 truncate">{tech}</p>
-                            <p className="text-[7.5px] text-slate-450 font-bold block uppercase tracking-wider leading-none mt-0.5">🌟 หัวหน้าทีม</p>
+                  {(() => {
+                    const currentCos = selectedProject.technicians || [];
+                    const extraTechs = currentCos.filter(t => !technicians.includes(t));
+                    const allTechs = [...technicians, ...extraTechs];
+                    return allTechs.map(tech => {
+                      const isMain = tech === selectedProject.technician;
+                      const isCo = currentCos.includes(tech);
+                      const isDeleted = !technicians.includes(tech);
+                      
+                      if (isMain) {
+                        return (
+                          <div key={tech} className="bg-cyan-500/10 border border-cyan-500/20 p-2 rounded-lg flex items-center gap-2 select-none" title="ผู้รับผิดชอบหลัก">
+                            <input type="checkbox" checked={true} disabled className="rounded text-cyan-500 border-slate-700 focus:ring-0 w-3.5 h-3.5 cursor-not-allowed" />
+                            <div className="min-w-0">
+                              <p className={`text-[10px] font-bold text-cyan-400 truncate ${isDeleted ? 'line-through opacity-70' : ''}`}>
+                                {tech}{isDeleted ? ' (ลบแล้ว)' : ''}
+                              </p>
+                              <p className="text-[7.5px] text-slate-450 font-bold block uppercase tracking-wider leading-none mt-0.5">🌟 หัวหน้าทีม</p>
+                            </div>
                           </div>
-                        </div>
+                        );
+                      }
+                      
+                      return (
+                        <label 
+                          key={tech} 
+                          className={`p-2 rounded-lg border transition-all flex items-center gap-2 cursor-pointer select-none ${
+                            isDeleted
+                              ? 'line-through opacity-70 bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-300 dark:border-slate-700'
+                              : isCo 
+                                ? 'bg-slate-850 border-cyan-500/40 text-slate-100' 
+                                : 'bg-slate-900 border-slate-750 hover:border-slate-700 text-slate-450'
+                          }`}
+                        >
+                          <input 
+                            type="checkbox" 
+                            checked={isCo}
+                            onChange={() => {
+                              const updatedCos = isCo
+                                ? currentCos.filter(t => t !== tech)
+                                : [...currentCos, tech];
+                              
+                              setImprovements(prev => prev.map(p => {
+                                if (p.id === selectedProject.id) {
+                                  const updated = { ...p, technicians: updatedCos };
+                                  setSelectedProject(updated);
+                                  return updated;
+                                }
+                                return p;
+                              }));
+                            }}
+                            className="rounded text-cyan-500 border-slate-700 focus:ring-0 w-3.5 h-3.5 cursor-pointer"
+                          />
+                          <span className="text-[10.5px] font-medium truncate">
+                            {tech}{isDeleted ? ' (ลบแล้ว)' : ''}
+                          </span>
+                        </label>
                       );
-                    }
-                    
-                    return (
-                      <label 
-                        key={tech} 
-                        className={`p-2 rounded-lg border transition-all flex items-center gap-2 cursor-pointer select-none ${
-                          isCo 
-                            ? 'bg-slate-850 border-cyan-500/40 text-slate-100' 
-                            : 'bg-slate-900 border-slate-750 hover:border-slate-700 text-slate-450'
-                        }`}
-                      >
-                        <input 
-                          type="checkbox" 
-                          checked={isCo}
-                          onChange={() => {
-                            const currentCos = selectedProject.technicians || [];
-                            const updatedCos = currentCos.includes(tech)
-                              ? currentCos.filter(t => t !== tech)
-                              : [...currentCos, tech];
-                            
-                            setImprovements(prev => prev.map(p => {
-                              if (p.id === selectedProject.id) {
-                                const updated = { ...p, technicians: updatedCos };
-                                setSelectedProject(updated);
-                                return updated;
-                              }
-                              return p;
-                            }));
-                          }}
-                          className="rounded text-cyan-500 border-slate-700 focus:ring-0 w-3.5 h-3.5 cursor-pointer"
-                        />
-                        <span className="text-[10.5px] font-medium truncate">{tech}</span>
-                      </label>
-                    );
-                  })}
+                    });
+                  })()}
                 </div>
               </div>
 

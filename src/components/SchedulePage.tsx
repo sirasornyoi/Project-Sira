@@ -2283,24 +2283,31 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
                 <div className="space-y-1.5">
                   <p className="text-[11px] text-slate-600 dark:text-slate-400">คลิกเลือกชื่อช่างในกลุ่ม (ช่างที่ปฏิบัติงาน):</p>
                   <div className="flex flex-wrap gap-1.5 max-h-28 overflow-y-auto p-2 bg-slate-100 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-750 scrollbar-none">
-                    {technicians.map((tech) => {
-                      const isSelected = formSelectedTechs.includes(tech);
-                      return (
-                        <button
-                          type="button"
-                          key={tech}
-                          onClick={() => handleToggleTech(tech)}
-                          className={`text-xs px-2.5 py-1 rounded-lg border font-medium transition flex items-center gap-1 ${
-                            isSelected
-                              ? 'bg-accent border-transparent font-bold shadow'
-                              : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:border-slate-400'
-                          }`}
-                        >
-                          {isSelected && <Check size={11} />}
-                          {tech}
-                        </button>
-                      );
-                    })}
+                    {(() => {
+                      const extraTechs = formSelectedTechs.filter(t => !technicians.includes(t));
+                      const allDisplayTechs = [...technicians, ...extraTechs];
+                      return allDisplayTechs.map((tech) => {
+                        const isSelected = formSelectedTechs.includes(tech);
+                        const isDeleted = !technicians.includes(tech);
+                        return (
+                          <button
+                            type="button"
+                            key={tech}
+                            onClick={() => handleToggleTech(tech)}
+                            className={`text-xs px-2.5 py-1 rounded-lg border font-medium transition flex items-center gap-1 cursor-pointer ${
+                              isDeleted
+                                ? 'line-through opacity-70 bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-300 dark:border-slate-700'
+                                : isSelected
+                                  ? 'bg-accent border-transparent font-bold shadow'
+                                  : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:border-slate-400'
+                            }`}
+                          >
+                            {isSelected && !isDeleted && <Check size={11} />}
+                            {tech}{isDeleted ? ' (ลบแล้ว)' : ''}
+                          </button>
+                        );
+                      });
+                    })()}
                   </div>
                 </div>
 

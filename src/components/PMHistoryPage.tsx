@@ -1592,24 +1592,31 @@ export const PMHistoryPage: React.FC = () => {
                   ทีมช่างที่เข้าร่วมงาน (สามารถเลือกคู่หูร่วมทำ PM ได้หลายคน)
                 </label>
                 <div className="grid grid-cols-3 gap-2 bg-slate-50 dark:bg-slate-900/60 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800">
-                  {technicians.map((t, idx) => {
-                    const isSelected = formTechnicians.includes(t);
-                    return (
-                      <button
-                        key={idx}
-                        type="button"
-                        onClick={() => toggleTechnician(t)}
-                        className={`px-2 py-1.5 rounded-lg border text-left transition-all duration-150 flex items-center justify-between text-[10.5px] cursor-pointer ${
-                          isSelected 
-                            ? 'bg-cyan-50 border-cyan-400 text-cyan-800 dark:bg-cyan-500/10 dark:border-cyan-550 dark:text-cyan-300 font-bold' 
-                            : 'bg-white dark:bg-[#050a14] border-slate-300 dark:border-slate-800 text-slate-700 dark:text-slate-450 hover:text-slate-900 dark:hover:text-slate-200 hover:border-slate-400 dark:hover:border-slate-700'
-                        }`}
-                      >
-                        <span className="truncate">{t}</span>
-                        {isSelected && <CheckCircle size={10} className="text-cyan-600 dark:text-cyan-400 shrink-0 ml-1" />}
-                      </button>
-                    );
-                  })}
+                  {(() => {
+                    const extraTechs = formTechnicians.filter(t => !technicians.includes(t));
+                    const allDisplayTechs = [...technicians, ...extraTechs];
+                    return allDisplayTechs.map((t, idx) => {
+                      const isSelected = formTechnicians.includes(t);
+                      const isDeleted = !technicians.includes(t);
+                      return (
+                        <button
+                          key={t || idx}
+                          type="button"
+                          onClick={() => toggleTechnician(t)}
+                          className={`px-2 py-1.5 rounded-lg border text-left transition-all duration-150 flex items-center justify-between text-[10.5px] cursor-pointer ${
+                            isDeleted
+                              ? 'line-through opacity-70 bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-300 dark:border-slate-700'
+                              : isSelected 
+                                ? 'bg-cyan-50 border-cyan-400 text-cyan-800 dark:bg-cyan-500/10 dark:border-cyan-550 dark:text-cyan-300 font-bold' 
+                                : 'bg-white dark:bg-[#050a14] border-slate-300 dark:border-slate-800 text-slate-700 dark:text-slate-450 hover:text-slate-900 dark:hover:text-slate-200 hover:border-slate-400 dark:hover:border-slate-700'
+                          }`}
+                        >
+                          <span className="truncate">{t}{isDeleted ? ' (ลบแล้ว)' : ''}</span>
+                          {isSelected && !isDeleted && <CheckCircle size={10} className="text-cyan-600 dark:text-cyan-400 shrink-0 ml-1" />}
+                        </button>
+                      );
+                    });
+                  })()}
                 </div>
               </div>
 

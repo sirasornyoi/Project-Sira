@@ -56,7 +56,7 @@ export const RepairPage: React.FC = () => {
     otherCost: '',
     status: ''
   });
-  const [importPreview, setImportPreview] = useState<RepairLog[]>([]);
+  const [importPreview, setImportPreview] = useState<(RepairLog & { missingTime?: boolean })[]>([]);
   const [importError, setImportError] = useState<string>('');
   const [isDragging, setIsDragging] = useState<boolean>(false);
 
@@ -623,12 +623,21 @@ export const RepairPage: React.FC = () => {
       }
 
       // Calculate duration
-      let duration = 60;
-      if (breakdownTime && repairDoneTime && status === 'ปิดงาน') {
-        const t1 = new Date(breakdownTime).getTime();
-        const t2 = new Date(repairDoneTime).getTime();
-        if (!isNaN(t1) && !isNaN(t2) && t2 > t1) {
-          duration = Math.round((t2 - t1) / 1000 / 60);
+      let duration = 0;
+      let missingTime = false;
+      if (status === 'ปิดงาน') {
+        if (!breakdownTimeInput || !repairDoneTimeInput || !repairDoneTime) {
+          duration = 0;
+          missingTime = true;
+        } else {
+          const t1 = new Date(breakdownTime).getTime();
+          const t2 = new Date(repairDoneTime).getTime();
+          if (isNaN(t1) || isNaN(t2) || t2 <= t1) {
+            duration = 0;
+            missingTime = true;
+          } else {
+            duration = Math.round((t2 - t1) / 1000 / 60);
+          }
         }
       }
 
@@ -651,7 +660,8 @@ export const RepairPage: React.FC = () => {
         duration,
         status,
         usedParts: [],
-        otherCost: otherCostVal
+        otherCost: otherCostVal,
+        missingTime
       };
     });
 
@@ -771,17 +781,19 @@ export const RepairPage: React.FC = () => {
       return;
     }
 
-    const finalRepairs = importPreview.map(rep => {
-      const exists = machines.some(m => m.id.toLowerCase() === rep.machineId.toLowerCase());
+    const finalRepairs: RepairLog[] = importPreview.map(rep => {
+      const { missingTime: _m, ...cleanRep } = rep;
+      const targetRep: RepairLog = { ...cleanRep };
+      const exists = machines.some(m => m.id.toLowerCase() === targetRep.machineId.toLowerCase());
       if (!exists) {
-        const found = machines.find(m => m.id.toLowerCase().trim() === rep.machineId.toLowerCase().trim());
+        const found = machines.find(m => m.id.toLowerCase().trim() === targetRep.machineId.toLowerCase().trim());
         if (found) {
-          rep.machineId = found.id;
+          targetRep.machineId = found.id;
         } else {
-          rep.machineId = machines[0]?.id || 'RIM01';
+          targetRep.machineId = machines[0]?.id || 'RIM01';
         }
       }
-      return rep;
+      return targetRep;
     });
 
     setRepairs(prev => [...finalRepairs, ...prev]);
@@ -1350,27 +1362,34 @@ export const RepairPage: React.FC = () => {
                 
                 {/* Scrollable grid area */}
                 <div className="mt-1.5 max-h-[140px] overflow-y-auto border border-border dark:border-slate-750 bg-white dark:bg-slate-950 rounded-lg p-2.5 grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  {technicians.map(t => {
-                    const isChecked = formTechnicians.includes(t);
-                    return (
-                      <label 
-                        key={t} 
-                        className={`flex items-center gap-1.5 p-1.5 rounded-md border cursor-pointer select-none transition-all ${
-                          isChecked 
-                            ? 'bg-cyan-50 dark:bg-cyan-500/10 border-cyan-400 dark:border-cyan-500/30 text-cyan-800 dark:text-cyan-300 font-bold' 
-                            : 'bg-slate-50 dark:bg-slate-900/50 border-border dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-fg dark:hover:text-slate-300 hover:border-slate-300 dark:hover:border-slate-750'
-                        }`}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={isChecked}
-                          onChange={() => toggleTechnician(t)}
-                          className="w-3.5 h-3.5 rounded accent-cyan-500 cursor-pointer"
-                        />
-                        <span className="text-[11px] truncate">{t}</span>
-                      </label>
-                    );
-                  })}
+                  {(() => {
+                    const extraTechs = formTechnicians.filter(t => !technicians.includes(t));
+                    const allDisplayTechs = [...technicians, ...extraTechs];
+                    return allDisplayTechs.map(t => {
+                      const isChecked = formTechnicians.includes(t);
+                      const isDeleted = !technicians.includes(t);
+                      return (
+                        <label 
+                          key={t} 
+                          className={`flex items-center gap-1.5 p-1.5 rounded-md border cursor-pointer select-none transition-all ${
+                            isDeleted
+                              ? 'line-through opacity-70 bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-300 dark:border-slate-700'
+                              : isChecked 
+                                ? 'bg-cyan-50 dark:bg-cyan-500/10 border-cyan-400 dark:border-cyan-500/30 text-cyan-800 dark:text-cyan-300 font-bold' 
+                                : 'bg-slate-50 dark:bg-slate-900/50 border-border dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-fg dark:hover:text-slate-300 hover:border-slate-300 dark:hover:border-slate-750'
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={() => toggleTechnician(t)}
+                            className="w-3.5 h-3.5 rounded accent-cyan-500 cursor-pointer"
+                          />
+                          <span className="text-[11px] truncate">{t}{isDeleted ? ' (ลบแล้ว)' : ''}</span>
+                        </label>
+                      );
+                    });
+                  })()}
                 </div>
               </div>
 
@@ -2313,9 +2332,22 @@ export const RepairPage: React.FC = () => {
               {/* Import Preview Section */}
               {importPreview.length > 0 && (
                 <div className="space-y-3">
-                  <h4 className="text-xs font-extrabold text-slate-700 dark:text-slate-250 uppercase tracking-wide flex items-center gap-1.5">
-                    👀 พรีวิวตัวอย่างข้อมูลนำเข้า (แรกเริ่ม {Math.min(5, importPreview.length)} จาก {importPreview.length} รายการ)
-                  </h4>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <h4 className="text-xs font-extrabold text-slate-700 dark:text-slate-250 uppercase tracking-wide flex items-center gap-1.5">
+                      👀 พรีวิวตัวอย่างข้อมูลนำเข้า (แรกเริ่ม {Math.min(5, importPreview.length)} จาก {importPreview.length} รายการ)
+                    </h4>
+                    {(() => {
+                      const missingCount = importPreview.filter(p => p.missingTime).length;
+                      if (missingCount > 0) {
+                        return (
+                          <span className="text-xs font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-700/50 px-2.5 py-1 rounded-md">
+                            ⚠ มี {missingCount} รายการไม่มีเวลาซ่อม จะบันทึกเป็น 0 นาที
+                          </span>
+                        );
+                      }
+                      return null;
+                    })()}
+                  </div>
                   
                   <div className="border border-border dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-950/20">
                     <table className="w-full text-left border-collapse">
@@ -2348,7 +2380,15 @@ export const RepairPage: React.FC = () => {
                                 {preview.technician}
                               </td>
                               <td className="py-2 px-3 font-mono text-center text-slate-600 dark:text-slate-400">
-                                {preview.status === 'ปิดงาน' ? `${preview.duration} นาที` : '-'}
+                                {preview.status === 'ปิดงาน' ? (
+                                  preview.missingTime ? (
+                                    <span className="text-amber-600 dark:text-amber-400 font-semibold">
+                                      ⚠ ไม่มีเวลา (0 นาที)
+                                    </span>
+                                  ) : (
+                                    `${preview.duration} นาที`
+                                  )
+                                ) : '-'}
                               </td>
                               <td className="py-2 px-3 text-center">
                                 <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold ${
