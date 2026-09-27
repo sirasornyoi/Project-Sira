@@ -1823,9 +1823,9 @@
       "status": "กำลังซ่อม"
     },
     {
-      "id": "test-repair-1",
+      "id": "test-repair-harden",
       "machineId": "RIM-01",
-      "description": "Test granular change",
+      "description": "Harden test",
       "status": "ปกติ"
     }
   ],

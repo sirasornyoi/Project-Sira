@@ -74,7 +74,7 @@ let inMemoryData: AppData = {
   settings: {}
 };
 
-let currentRevision = 1;
+let currentRevision = Date.now();
 
 function saveDbFileAtomic(data: any) {
   const tmpFile = `${DB_FILE}.tmp`;
@@ -198,7 +198,7 @@ async function startServer() {
         inMemoryData.zones = Array.isArray(m.zones) ? m.zones : [];
         inMemoryData.settings = m.settings && typeof m.settings === "object" ? m.settings : {};
       }
-      currentRevision = 1;
+      currentRevision = Date.now();
       console.log(`[Server] Loaded data from Firestore into memory (revision ${currentRevision}).`);
     } catch (err) {
       console.error("[Server] Error initializing Firestore:", err);
@@ -223,11 +223,11 @@ async function startServer() {
           inMemoryData[field] = parsed[field] !== undefined ? parsed[field] : (field === 'settings' ? {} : []);
         }
       }
-      currentRevision = 1;
+      currentRevision = Date.now();
       console.log(`[Server] Loaded data from db.json into memory (revision ${currentRevision}).`);
     } catch (err) {
       console.warn("[Server] Error reading db.json, using defaults:", err);
-      currentRevision = 1;
+      currentRevision = Date.now();
     }
   }
 
@@ -261,6 +261,8 @@ async function startServer() {
       const ops: Array<{ type: 'set' | 'delete'; ref: DocumentReference; data?: any; merge?: boolean }> = [];
 
       let hasModifications = false;
+      const modifiedCollections: Partial<Record<ArrayCollectionName, any[]>> = {};
+      const modifiedMeta: Partial<Record<MetaFieldName, any>> = {};
 
       if (changes && typeof changes === "object") {
         for (const col of ARRAY_COLLECTIONS) {
@@ -268,6 +270,8 @@ async function startServer() {
           if (!colChange) continue;
 
           const { upsert, delete: toDelete } = colChange;
+          let list = [...(inMemoryData[col] || [])];
+          let colModified = false;
 
           // Process upserts
           if (Array.isArray(upsert)) {
@@ -281,14 +285,14 @@ async function startServer() {
                 continue;
               }
 
-              // Apply to in-memory data
-              const list = inMemoryData[col];
+              // Apply to cloned list
               const idx = list.findIndex((item: any) => String(item.id) === String(record.id));
               if (idx >= 0) {
                 list[idx] = record;
               } else {
                 list.push(record);
               }
+              colModified = true;
               hasModifications = true;
 
               if (isFirestoreMode && firestoreDb) {
@@ -305,7 +309,8 @@ async function startServer() {
           if (Array.isArray(toDelete)) {
             for (const id of toDelete) {
               if (id === undefined || id === null) continue;
-              inMemoryData[col] = inMemoryData[col].filter((item: any) => String(item.id) !== String(id));
+              list = list.filter((item: any) => String(item.id) !== String(id));
+              colModified = true;
               hasModifications = true;
 
               if (isFirestoreMode && firestoreDb) {
@@ -316,6 +321,10 @@ async function startServer() {
               }
             }
           }
+
+          if (colModified) {
+            modifiedCollections[col] = list;
+          }
         }
       }
 
@@ -324,7 +333,7 @@ async function startServer() {
         const metaUpdates: any = {};
         for (const field of META_FIELDS) {
           if (meta[field] !== undefined) {
-            inMemoryData[field] = meta[field];
+            modifiedMeta[field] = meta[field];
             metaUpdates[field] = meta[field];
             hasModifications = true;
           }
@@ -340,18 +349,30 @@ async function startServer() {
         }
       }
 
-      // Commit to persistence
+      // Commit to persistence FIRST before updating in-memory state
       if (isFirestoreMode && firestoreDb) {
         if (ops.length > 0) {
           await commitBatches(firestoreDb, ops);
         }
       } else {
         if (hasModifications) {
-          saveDbFileAtomic(inMemoryData);
+          const dataToWrite = {
+            ...inMemoryData,
+            ...modifiedCollections,
+            ...modifiedMeta
+          };
+          saveDbFileAtomic(dataToWrite);
         }
       }
 
+      // Only after successful commit, assign the copy to inMemoryData and increment revision
       if (hasModifications) {
+        for (const col of Object.keys(modifiedCollections) as ArrayCollectionName[]) {
+          inMemoryData[col] = modifiedCollections[col]!;
+        }
+        for (const field of Object.keys(modifiedMeta) as MetaFieldName[]) {
+          inMemoryData[field] = modifiedMeta[field];
+        }
         currentRevision++;
       }
 

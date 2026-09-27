@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 import { 
   Machine, PMPlan, PMScheduleItem, OperationScheduleItem, 
   RepairLog, ImprovementProject, SystemSettings, ScheduleItem, Employee,
@@ -217,6 +217,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const lastLocalSaveTimeRef = useRef<number>(0);
   const currentRevRef = useRef<number>(0);
+  const inFlightSaveRef = useRef<boolean>(false);
+  const rejectedOversizedRef = useRef<Set<string>>(new Set());
 
   const lastSyncedSnapshotRef = useRef<{
     machines: Machine[];
@@ -256,6 +258,39 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     'zones',
     'settings'
   ] as const;
+
+  const hasPendingChanges = (curr: any, snapshot: any): boolean => {
+    if (!snapshot) return false;
+    for (const key of ARRAY_ENTITY_KEYS) {
+      const currList: any[] = curr[key] || [];
+      const snapList: any[] = snapshot[key] || [];
+      const snapMap = new Map<string, any>(snapList.map((item: any) => [String(item.id), item]));
+      const currMap = new Map<string, any>(currList.map((item: any) => [String(item.id), item]));
+
+      for (const item of currList) {
+        const id = String(item.id);
+        const snapItem = snapMap.get(id);
+        if (!snapItem || JSON.stringify(item) !== JSON.stringify(snapItem)) {
+          const itemKey = `${key}:${item.id}:${JSON.stringify(item).length}`;
+          if (!rejectedOversizedRef.current.has(itemKey)) {
+            return true;
+          }
+        }
+      }
+      for (const snapItem of snapList) {
+        const id = String(snapItem.id);
+        if (!currMap.has(id)) {
+          return true;
+        }
+      }
+    }
+    for (const key of META_KEYS) {
+      if (JSON.stringify(curr[key]) !== JSON.stringify(snapshot[key])) {
+        return true;
+      }
+    }
+    return false;
+  };
 
   const currentStateRef = useRef({
     machines, technicians, employees, pmPlans, pmMachineIds, schedules,
@@ -622,126 +657,156 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     } catch (e) {
       console.warn("LocalStorage quota warning:", e);
     }
-
-    const saveToServer = async () => {
-      const curr = currentStateRef.current;
-      const snapshot = lastSyncedSnapshotRef.current;
-      if (!snapshot) return;
-
-      const changes: Record<string, { upsert: any[]; delete: string[] }> = {};
-      let hasChanges = false;
-
-      for (const key of ARRAY_ENTITY_KEYS) {
-        const currList: any[] = curr[key] || [];
-        const snapList: any[] = snapshot[key] || [];
-
-        const snapMap = new Map<string, any>(snapList.map((item: any) => [String(item.id), item]));
-        const currMap = new Map<string, any>(currList.map((item: any) => [String(item.id), item]));
-
-        const upsert: any[] = [];
-        const toDelete: string[] = [];
-
-        for (const item of currList) {
-          const id = String(item.id);
-          const snapItem = snapMap.get(id);
-          if (!snapItem || JSON.stringify(item) !== JSON.stringify(snapItem)) {
-            upsert.push(item);
-          }
-        }
-
-        for (const snapItem of snapList) {
-          const id = String(snapItem.id);
-          if (!currMap.has(id)) {
-            toDelete.push(id);
-          }
-        }
-
-        if (upsert.length > 0 || toDelete.length > 0) {
-          changes[key] = { upsert, delete: toDelete };
-          hasChanges = true;
-        }
-      }
-
-      const metaChanges: Record<string, any> = {};
-      let hasMetaChanges = false;
-
-      for (const key of META_KEYS) {
-        const currVal = curr[key];
-        const snapVal = snapshot[key];
-        if (JSON.stringify(currVal) !== JSON.stringify(snapVal)) {
-          metaChanges[key] = currVal;
-          hasMetaChanges = true;
-        }
-      }
-
-      if (!hasChanges && !hasMetaChanges) {
-        // Diff is empty, skip POST!
-        return;
-      }
-
-      try {
-        lastLocalSaveTimeRef.current = Date.now();
-        const payload: any = { changes };
-        if (hasMetaChanges) {
-          payload.meta = metaChanges;
-        }
-
-        const response = await fetch("/api/db/changes", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-          },
-          body: JSON.stringify(payload)
-        });
-
-        if (response.ok) {
-          const resData = await response.json();
-          const rejectedList: Array<{ collection: string; id: string; reason: string }> = resData.rejected || [];
-
-          if (rejectedList.length > 0) {
-            alert("บันทึกไม่สำเร็จ: ข้อมูลรายการนี้ใหญ่เกินไป (รูป/ไฟล์แนบ) กรุณาลดขนาดไฟล์");
-          }
-
-          const rejectedSet = new Set(rejectedList.map(r => `${r.collection}:${r.id}`));
-
-          // Update snapshot with saved data
-          if (lastSyncedSnapshotRef.current) {
-            for (const key of ARRAY_ENTITY_KEYS) {
-              const change = changes[key];
-              if (change) {
-                const successfulUpserts = change.upsert.filter(u => !rejectedSet.has(`${key}:${u.id}`));
-                const deletedIds = new Set(change.delete);
-
-                let updatedSnapList = (lastSyncedSnapshotRef.current[key] || []).filter(
-                  (item: any) => !deletedIds.has(String(item.id)) && !successfulUpserts.some(u => String(u.id) === String(item.id))
-                );
-                updatedSnapList = updatedSnapList.concat(successfulUpserts);
-                lastSyncedSnapshotRef.current[key] = updatedSnapList;
-              }
-            }
-
-            for (const key of META_KEYS) {
-              if (metaChanges[key] !== undefined) {
-                (lastSyncedSnapshotRef.current as any)[key] = JSON.parse(JSON.stringify(metaChanges[key]));
-              }
-            }
-          }
-
-          if (typeof resData.revision === "number") {
-            currentRevRef.current = resData.revision;
-          }
-        }
-      } catch (error) {
-        console.warn("Notice: Sync with server paused (server unreachable):", error);
-      }
-    };
-
-    const timerId = setTimeout(saveToServer, 500);
-    return () => clearTimeout(timerId);
   }, [
     machines, technicians, employees, pmPlans, pmMachineIds, schedules,
     repairs, improvements, leaves, spareParts, timeBreakParts, plannedProductionTimes, settings, zones, whyWhyDrafts, isLoaded
+  ]);
+
+  const saveToServer = useCallback(async () => {
+    if (inFlightSaveRef.current) return;
+    const curr = currentStateRef.current;
+    const snapshot = lastSyncedSnapshotRef.current;
+    if (!snapshot) return;
+
+    const changes: Record<string, { upsert: any[]; delete: string[] }> = {};
+    let hasChanges = false;
+
+    for (const key of ARRAY_ENTITY_KEYS) {
+      const currList: any[] = curr[key] || [];
+      const snapList: any[] = snapshot[key] || [];
+
+      const snapMap = new Map<string, any>(snapList.map((item: any) => [String(item.id), item]));
+      const currMap = new Map<string, any>(currList.map((item: any) => [String(item.id), item]));
+
+      const upsert: any[] = [];
+      const toDelete: string[] = [];
+
+      for (const item of currList) {
+        const id = String(item.id);
+        const snapItem = snapMap.get(id);
+        if (!snapItem || JSON.stringify(item) !== JSON.stringify(snapItem)) {
+          const itemKey = `${key}:${item.id}:${JSON.stringify(item).length}`;
+          if (!rejectedOversizedRef.current.has(itemKey)) {
+            upsert.push(item);
+          }
+        }
+      }
+
+      for (const snapItem of snapList) {
+        const id = String(snapItem.id);
+        if (!currMap.has(id)) {
+          toDelete.push(id);
+        }
+      }
+
+      if (upsert.length > 0 || toDelete.length > 0) {
+        changes[key] = { upsert, delete: toDelete };
+        hasChanges = true;
+      }
+    }
+
+    const metaChanges: Record<string, any> = {};
+    let hasMetaChanges = false;
+
+    for (const key of META_KEYS) {
+      const currVal = curr[key];
+      const snapVal = snapshot[key];
+      if (JSON.stringify(currVal) !== JSON.stringify(snapVal)) {
+        metaChanges[key] = currVal;
+        hasMetaChanges = true;
+      }
+    }
+
+    if (!hasChanges && !hasMetaChanges) {
+      // Diff is empty, skip POST!
+      return;
+    }
+
+    inFlightSaveRef.current = true;
+    try {
+      lastLocalSaveTimeRef.current = Date.now();
+      const payload: any = { changes };
+      if (hasMetaChanges) {
+        payload.meta = metaChanges;
+      }
+
+      const response = await fetch("/api/db/changes", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (response.ok) {
+        const resData = await response.json();
+        const rejectedList: Array<{ collection: string; id: string; reason: string }> = resData.rejected || [];
+
+        let hasNewOversized = false;
+        for (const r of rejectedList) {
+          const rec = (curr[r.collection as typeof ARRAY_ENTITY_KEYS[number]] as any[])?.find((item: any) => String(item.id) === String(r.id));
+          const hash = rec ? JSON.stringify(rec).length : 0;
+          const key = `${r.collection}:${r.id}:${hash}`;
+          if (!rejectedOversizedRef.current.has(key)) {
+            rejectedOversizedRef.current.add(key);
+            hasNewOversized = true;
+          }
+        }
+        if (hasNewOversized) {
+          alert("บันทึกไม่สำเร็จ: ข้อมูลรายการนี้ใหญ่เกินไป (รูป/ไฟล์แนบ) กรุณาลดขนาดไฟล์");
+        }
+
+        const rejectedIdSet = new Set(rejectedList.map(r => `${r.collection}:${r.id}`));
+
+        // Update snapshot with saved data
+        if (lastSyncedSnapshotRef.current) {
+          for (const key of ARRAY_ENTITY_KEYS) {
+            const change = changes[key];
+            if (change) {
+              const successfulUpserts = change.upsert.filter(u => !rejectedIdSet.has(`${key}:${u.id}`));
+              const deletedIds = new Set(change.delete);
+
+              let updatedSnapList = (lastSyncedSnapshotRef.current[key] || []).filter(
+                (item: any) => !deletedIds.has(String(item.id)) && !successfulUpserts.some(u => String(u.id) === String(item.id))
+              );
+              updatedSnapList = updatedSnapList.concat(successfulUpserts);
+              lastSyncedSnapshotRef.current[key] = updatedSnapList;
+            }
+          }
+
+          for (const key of META_KEYS) {
+            if (metaChanges[key] !== undefined) {
+              (lastSyncedSnapshotRef.current as any)[key] = JSON.parse(JSON.stringify(metaChanges[key]));
+            }
+          }
+        }
+
+        if (typeof resData.revision === "number") {
+          currentRevRef.current = resData.revision;
+        }
+      } else {
+        console.warn("Notice: POST /api/db/changes failed with status", response.status);
+      }
+    } catch (error) {
+      console.warn("Notice: Sync with server paused (server unreachable):", error);
+    } finally {
+      inFlightSaveRef.current = false;
+    }
+  }, []);
+
+  // Save changes to Server only AFTER initial load is done (debounced)
+  useEffect(() => {
+    if (!isLoaded) return;
+
+    const timerId = setTimeout(() => {
+      saveToServer();
+    }, 500);
+
+    return () => clearTimeout(timerId);
+  }, [
+    machines, technicians, employees, pmPlans, pmMachineIds, schedules,
+    repairs, improvements, leaves, spareParts, timeBreakParts, plannedProductionTimes, settings, zones, whyWhyDrafts, isLoaded, saveToServer
   ]);
 
   // Polling for updates from other clients
@@ -770,12 +835,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (response.ok && contentType && contentType.includes("application/json")) {
           const serverData = await response.json();
 
-          // If server reports unchanged, skip
-          if (serverData.unchanged) {
-            return;
-          }
-
-          if (serverData && serverData.machines) {
+          // If server reports unchanged, skip updating local data from server
+          if (!serverData.unchanged && serverData.machines) {
             const curr = currentStateRef.current;
             const snapshot = lastSyncedSnapshotRef.current;
 
@@ -871,11 +932,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         console.warn("LAN Polling sync notice:", (err as Error)?.message || err);
       } finally {
         isPolling = false;
+        // At the end of every polling tick (including 'unchanged' responses), if no save is in flight and diff is not empty, retry saveToServer
+        if (!inFlightSaveRef.current && hasPendingChanges(currentStateRef.current, lastSyncedSnapshotRef.current)) {
+          saveToServer();
+        }
       }
     }, 4000);
 
     return () => clearInterval(intervalId);
-  }, [isLoaded]);
+  }, [isLoaded, saveToServer]);
 
   const addZone = (zoneName: string): boolean => {
     const trimmed = zoneName.trim();
