@@ -223,3 +223,11 @@ export function calculateMultiMachineKpi(
     overallAvailability
   };
 }
+
+/**
+ * Check if a machine is down (either marked down or currently undergoing repair)
+ */
+export function isMachineDown(machine: Machine, repairs: RepairLog[]): boolean {
+  if (machine.status === 'เสีย/ซ่อม') return true;
+  return repairs.some(r => r.machineId === machine.id && r.status === 'กำลังซ่อม');
+}

@@ -13,6 +13,7 @@ import { MachineImportModal } from './MachineImportModal';
 import { ZoneRoomManagerModal } from './ZoneRoomManagerModal';
 import { ZoneRoomFieldGroup } from './ZoneRoomFieldGroup';
 import { getTodayDateString } from '../utils/pmAlerts';
+import { isMachineDown } from '../utils/pmKpi';
 
 interface MachineGroup {
   name: string;
@@ -24,7 +25,7 @@ interface MachineGroup {
 }
 
 export const MachinePage: React.FC = () => {
-  const { machines, setMachines, pmPlans, setPmPlans, repairs, zones, addZone, addRoomToZone } = useApp();
+  const { machines, setMachines, pmPlans, setPmPlans, repairs, zones, addZone, addRoomToZone, schedules, setSchedules, setPmMachineIds } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedMachineId, setExpandedMachineId] = useState<string | null>(null);
   const [showZoneManagerModal, setShowZoneManagerModal] = useState(false);
@@ -84,8 +85,7 @@ export const MachinePage: React.FC = () => {
     const matchedPmPlans = pmPlans.filter(p => p.machineId === mId);
     
     const machineRecord = machines.find(m => m.id === mId);
-    const isRepairing = repairs.some(r => r.machineId === mId && (!r.repairDoneTime || r.repairDoneTime === ''));
-    const status = isRepairing ? 'เสีย/ซ่อม' : (machineRecord?.status || 'ปกติ');
+    const status = machineRecord && isMachineDown(machineRecord, repairs) ? 'เสีย/ซ่อม' : 'ปกติ';
 
     return {
       pmCount: matchedPmPlans.length,
@@ -681,7 +681,15 @@ export const MachinePage: React.FC = () => {
 
   const executeDeleteMachine = () => {
     if (!machineToDelete) return;
-    setMachines(prev => prev.filter(m => m.id !== machineToDelete.id));
+    const targetId = machineToDelete.id;
+    setMachines(prev => prev.filter(m => m.id !== targetId));
+    setPmMachineIds(prev => prev.filter(id => id !== targetId));
+    setSchedules(prev => prev.filter(s => {
+      if (s.type === 'PM' && s.machineId === targetId && s.status !== 'เสร็จสิ้น') {
+        return false;
+      }
+      return true;
+    }));
     setShowDeleteConfirm(false);
     setMachineToDelete(null);
   };
@@ -2525,6 +2533,9 @@ export const MachinePage: React.FC = () => {
                 <span className="text-[10px] text-rose-700 dark:text-rose-400 font-black tracking-wider uppercase block">⚠️ คำเตือนผลกระทบ:</span>
                 <p className="text-slate-600 dark:text-slate-400 text-[11px] leading-relaxed font-sans">
                   การลบทะเบียนนี้จะลบสัญลักษณ์ไอคอนและข้อมูลเครื่องพิกัดนี้ออก โดยเครื่องจักรดังกล่าวมีแผนบำรุงรักษา PM พ่วงอยู่จำนวน <b className="text-fg font-mono">{pmPlans.filter(p => p.machineId === machineToDelete.id).length} แผนงาน</b>
+                </p>
+                <p className="text-slate-600 dark:text-slate-400 text-[11px] leading-relaxed font-sans">
+                  งาน PM ที่ยังไม่ได้ทำของเครื่องนี้จะถูกลบ (ประวัติยังอยู่)
                 </p>
               </div>
               

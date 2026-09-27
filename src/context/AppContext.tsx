@@ -281,39 +281,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               }
             }
 
-            // Sanitize schedules against activeTechs
-            const rawSchedules = deduplicateById(serverData.schedules || PRELOADED_SCHEDULES);
-            const sanitizedSchedules = rawSchedules.map((s: any) => {
-              if (activeTechs.length === 0) return s;
-              let updated = { ...s };
-              if (updated.technicians && updated.technicians.length > 0) {
-                const valid = updated.technicians.filter((t: string) => activeTechs.includes(t));
-                updated.technicians = valid.length > 0 ? valid : [activeTechs[0]];
-                updated.peopleCount = updated.technicians.length;
-              }
-              if (!activeTechs.includes(updated.technician)) {
-                updated.technician = (updated.technicians && updated.technicians[0]) ? updated.technicians[0] : activeTechs[0];
-              }
-              return updated;
-            });
-            setSchedules(sanitizedSchedules);
-
-            // Sanitize repairs against activeTechs
-            const rawRepairs = deduplicateById(serverData.repairs || PRELOADED_REPAIRS);
-            const sanitizedRepairs = rawRepairs.map((r: any) => {
-              if (activeTechs.length === 0) return r;
-              let updated = { ...r };
-              if (updated.technicians && updated.technicians.length > 0) {
-                const valid = updated.technicians.filter((t: string) => activeTechs.includes(t));
-                updated.technicians = valid.length > 0 ? valid : [activeTechs[0]];
-                updated.peopleCount = updated.technicians.length;
-              }
-              if (!activeTechs.includes(updated.technician)) {
-                updated.technician = (updated.technicians && updated.technicians[0]) ? updated.technicians[0] : activeTechs[0];
-              }
-              return updated;
-            });
-            setRepairs(sanitizedRepairs);
+            setSchedules(deduplicateById(serverData.schedules || PRELOADED_SCHEDULES));
+            setRepairs(deduplicateById(serverData.repairs || PRELOADED_REPAIRS));
             setImprovements(deduplicateById(serverData.improvements || PRELOADED_IMPROVEMENTS));
             setSpareParts(deduplicateById(serverData.spareParts || PRELOADED_SPARE_PARTS));
             setLeaves(deduplicateById(serverData.leaves || []));

@@ -17,7 +17,7 @@ import {
 } from '../utils/pmTime';
 
 export const PMHistoryPage: React.FC = () => {
-  const { schedules, setSchedules, pmPlans, machines, technicians, spareParts, setSpareParts, settings } = useApp();
+  const { schedules, setSchedules, pmPlans, setPmPlans, machines, technicians, spareParts, setSpareParts, settings } = useApp();
   const todayStr = getTodayDateString();
 
   // Search/Filters states
@@ -242,6 +242,16 @@ export const PMHistoryPage: React.FC = () => {
         otherCost: Number(formOtherCost) || 0
       };
       setSchedules(prev => [newPmJob, ...prev]);
+    }
+
+    if (formStatus === 'เสร็จสิ้น' && formPlan && formDate) {
+      setPmPlans(prev => prev.map(p => {
+        if (p.id !== formPlan) return p;
+        if (!p.lastCheckedDate || p.lastCheckedDate < formDate) {
+          return { ...p, lastCheckedDate: formDate };
+        }
+        return p;
+      }));
     }
 
     setShowFormModal(false);

@@ -11,6 +11,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
   const { 
     technicians, setTechnicians, 
     setSchedules, setRepairs, setImprovements, setPmPlans,
+    setLeaves, setTimeBreakParts,
     settings, setSettings, 
     resetToDefaults, exportData, importData 
   } = useApp();
@@ -122,102 +123,90 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
     }
 
     const hasRenames = Object.keys(renamedMap).length > 0;
-    const origList: string[] = tempTechs.map(t => t.orig).filter(Boolean);
-    const updatedSet = new Set<string>(updatedTechs);
-    const hasDeletions = origList.some((orig: string) => !updatedSet.has(orig) && !renamedMap[orig]);
 
-    if (hasRenames || hasDeletions) {
+    if (hasRenames) {
       // Propagate to schedules
       setSchedules(prev => prev.map(s => {
-        let updated = { ...s };
-        // Apply renames
+        let updated = s;
         if (renamedMap[updated.technician]) {
-          updated.technician = renamedMap[updated.technician];
+          updated = { ...updated, technician: renamedMap[updated.technician] };
         }
-        if (updated.technicians && updated.technicians.length > 0) {
-          let mapped = updated.technicians.map(t => renamedMap[t] || t);
-          // Remove deleted technicians if we have valid updated technicians
-          if (updatedTechs.length > 0) {
-            mapped = mapped.filter(t => updatedSet.has(t));
-            if (mapped.length === 0) {
-              mapped = [updatedTechs[0]];
-            }
-          }
-          updated.technicians = mapped;
-          updated.peopleCount = mapped.length;
-        } else if (updatedTechs.length > 0 && !updatedSet.has(updated.technician)) {
-          updated.technicians = [updatedTechs[0]];
-          updated.peopleCount = 1;
+        if (updated.technicians && updated.technicians.some(t => renamedMap[t])) {
+          updated = {
+            ...updated,
+            technicians: updated.technicians.map(t => renamedMap[t] || t)
+          };
         }
-
-        // Validate primary technician
-        if (updatedTechs.length > 0 && !updatedSet.has(updated.technician)) {
-          updated.technician = (updated.technicians && updated.technicians[0]) ? updated.technicians[0] : updatedTechs[0];
-        }
-
         return updated;
       }));
 
       // Propagate to repairs
       setRepairs(prev => prev.map(r => {
-        let updated = { ...r };
+        let updated = r;
         if (renamedMap[updated.technician]) {
-          updated.technician = renamedMap[updated.technician];
+          updated = { ...updated, technician: renamedMap[updated.technician] };
         }
-        if (updated.technicians && updated.technicians.length > 0) {
-          let mapped = updated.technicians.map(t => renamedMap[t] || t);
-          if (updatedTechs.length > 0) {
-            mapped = mapped.filter(t => updatedSet.has(t));
-            if (mapped.length === 0) {
-              mapped = [updatedTechs[0]];
-            }
-          }
-          updated.technicians = mapped;
-          updated.peopleCount = mapped.length;
-        } else if (updatedTechs.length > 0 && !updatedSet.has(updated.technician)) {
-          updated.technicians = [updatedTechs[0]];
-          updated.peopleCount = 1;
+        if (updated.technicians && updated.technicians.some(t => renamedMap[t])) {
+          updated = {
+            ...updated,
+            technicians: updated.technicians.map(t => renamedMap[t] || t)
+          };
         }
-
-        if (updatedTechs.length > 0 && !updatedSet.has(updated.technician)) {
-          updated.technician = (updated.technicians && updated.technicians[0]) ? updated.technicians[0] : updatedTechs[0];
-        }
-
         return updated;
       }));
 
       // Propagate to improvements
       setImprovements(prev => prev.map(imp => {
-        let updated = { ...imp };
+        let updated = imp;
         if (renamedMap[imp.technician]) {
-          updated.technician = renamedMap[imp.technician];
+          updated = { ...updated, technician: renamedMap[imp.technician] };
         }
-        if (updated.technicians && updated.technicians.length > 0) {
-          let mapped = updated.technicians.map(t => renamedMap[t] || t);
-          if (updatedTechs.length > 0) {
-            mapped = mapped.filter(t => updatedSet.has(t));
-            if (mapped.length === 0) {
-              mapped = [updatedTechs[0]];
-            }
-          }
-          updated.technicians = mapped;
-        }
-        if (updatedTechs.length > 0 && !updatedSet.has(updated.technician)) {
-          updated.technician = updatedTechs[0];
+        if (updated.technicians && updated.technicians.some(t => renamedMap[t])) {
+          updated = {
+            ...updated,
+            technicians: updated.technicians.map(t => renamedMap[t] || t)
+          };
         }
         return updated;
       }));
 
       // Propagate to pmPlans
       setPmPlans(prev => prev.map(plan => {
-        if (!plan.inspectorTech) return plan;
-        if (renamedMap[plan.inspectorTech]) {
+        if (plan.inspectorTech && renamedMap[plan.inspectorTech]) {
           return { ...plan, inspectorTech: renamedMap[plan.inspectorTech] };
         }
-        if (!updatedSet.has(plan.inspectorTech) && !plan.inspectorTech.includes('ทีม') && updatedTechs.length > 0) {
-          return { ...plan, inspectorTech: updatedTechs[0] };
-        }
         return plan;
+      }));
+
+      // Propagate to leaves
+      setLeaves(prev => prev.map(lv => {
+        if (renamedMap[lv.technician]) {
+          return { ...lv, technician: renamedMap[lv.technician] };
+        }
+        return lv;
+      }));
+
+      // Propagate to timeBreakParts
+      setTimeBreakParts(prev => prev.map(part => {
+        let updated = part;
+        let modified = false;
+        let newAssigned = updated.assignedTechnician;
+        if (newAssigned && renamedMap[newAssigned]) {
+          newAssigned = renamedMap[newAssigned];
+          modified = true;
+        }
+        let newHistory = updated.history;
+        if (newHistory && newHistory.some(h => renamedMap[h.technician])) {
+          newHistory = newHistory.map(h => ({
+            ...h,
+            technician: renamedMap[h.technician] || h.technician
+          }));
+          modified = true;
+        }
+        if (modified) {
+          return { ...updated, assignedTechnician: newAssigned, history: newHistory };
+        }
+        return updated;
       }));
     }
 

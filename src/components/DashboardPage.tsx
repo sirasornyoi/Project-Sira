@@ -12,7 +12,7 @@ import {
   FileText, Coffee, Sparkles, Wrench, Package
 } from 'lucide-react';
 import { getTodayDateString } from '../utils/pmAlerts';
-import { calculateMachineKpi, calculateMultiMachineKpi } from '../utils/pmKpi';
+import { calculateMachineKpi, calculateMultiMachineKpi, isMachineDown } from '../utils/pmKpi';
 import { getActualMinutes, getPlannedMinutes, getPmVariance } from '../utils/pmTime';
 import { PMScheduleItem } from '../types';
 
@@ -385,11 +385,8 @@ export const DashboardPage: React.FC = () => {
 
   // ---------------- PART: Plant Health Overview Calculations ----------------
   const totalMachinesCount = machines.length;
-  // Compute active machine count: machines not 'เสีย/ซ่อม' and with no active repair having 'กำลังซ่อม' status.
-  const activeMachinesCount = machines.filter(m => {
-    const isDownInRepair = repairs.some(r => r.machineId === m.id && r.status === 'กำลังซ่อม');
-    return m.status !== 'เสีย/ซ่อม' && !isDownInRepair;
-  }).length;
+  // Compute active machine count using isMachineDown
+  const activeMachinesCount = machines.filter(m => !isMachineDown(m, repairs)).length;
   const healthPercent = totalMachinesCount > 0 ? Math.round((activeMachinesCount / totalMachinesCount) * 100) : 100;
 
   const pendingRepairsCount = repairs.filter(r => r.status === 'กำลังซ่อม').length;
