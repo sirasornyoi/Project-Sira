@@ -216,6 +216,47 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   });
 
   const lastLocalSaveTimeRef = useRef<number>(0);
+  const currentRevRef = useRef<number>(0);
+
+  const lastSyncedSnapshotRef = useRef<{
+    machines: Machine[];
+    technicians: string[];
+    employees: Employee[];
+    pmPlans: PMPlan[];
+    pmMachineIds: string[];
+    schedules: ScheduleItem[];
+    repairs: RepairLog[];
+    improvements: ImprovementProject[];
+    leaves: TechnicianLeave[];
+    spareParts: SparePart[];
+    timeBreakParts: TimeBreakPartItem[];
+    plannedProductionTimes: PlannedProductionTime[];
+    settings: SystemSettings;
+    zones: ZoneStructure[];
+    whyWhyDrafts: WhyWhyAnalysis[];
+  } | null>(null);
+
+  const ARRAY_ENTITY_KEYS = [
+    'machines',
+    'employees',
+    'pmPlans',
+    'schedules',
+    'repairs',
+    'improvements',
+    'leaves',
+    'spareParts',
+    'timeBreakParts',
+    'plannedProductionTimes',
+    'whyWhyDrafts'
+  ] as const;
+
+  const META_KEYS = [
+    'technicians',
+    'pmMachineIds',
+    'zones',
+    'settings'
+  ] as const;
+
   const currentStateRef = useRef({
     machines, technicians, employees, pmPlans, pmMachineIds, schedules,
     repairs, improvements, leaves, spareParts, timeBreakParts, plannedProductionTimes, settings, zones, whyWhyDrafts
@@ -259,46 +300,88 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 notes: m.notes || pre.notes
               };
             });
-            setMachines(deduplicateById(enriched));
-            const activeTechs = Array.from(new Set(serverData.technicians || PRELOADED_TECHNICIANS));
+            const dedupMachines = deduplicateById(enriched);
+            setMachines(dedupMachines);
+            const activeTechs = Array.from(new Set(serverData.technicians || PRELOADED_TECHNICIANS)) as string[];
             setTechnicians(activeTechs);
-            setEmployees(deduplicateById(serverData.employees || []));
-            setPmPlans(deduplicateById(serverData.pmPlans || PRELOADED_PM_PLANS));
+            const dedupEmployees = deduplicateById(serverData.employees || []);
+            setEmployees(dedupEmployees);
+            const dedupPlans = deduplicateById(serverData.pmPlans || PRELOADED_PM_PLANS);
+            setPmPlans(dedupPlans);
+
+            let currentPmMachines: string[] = [];
             if (serverData.pmMachineIds && Array.isArray(serverData.pmMachineIds)) {
-              setPmMachineIds(serverData.pmMachineIds);
+              currentPmMachines = serverData.pmMachineIds;
+              setPmMachineIds(currentPmMachines);
             } else {
               const stored = localStorage.getItem('maint_pm_machine_ids');
               if (stored) {
                 try {
                   const parsed = JSON.parse(stored);
-                  if (Array.isArray(parsed)) setPmMachineIds(parsed);
-                  else setPmMachineIds(enriched.map(m => m.id));
+                  if (Array.isArray(parsed)) currentPmMachines = parsed;
+                  else currentPmMachines = enriched.map(m => m.id);
                 } catch {
-                  setPmMachineIds(enriched.map(m => m.id));
+                  currentPmMachines = enriched.map(m => m.id);
                 }
               } else {
-                setPmMachineIds(enriched.map(m => m.id));
+                currentPmMachines = enriched.map(m => m.id);
               }
+              setPmMachineIds(currentPmMachines);
             }
 
-            setSchedules(deduplicateById(serverData.schedules || PRELOADED_SCHEDULES));
-            setRepairs(deduplicateById(serverData.repairs || PRELOADED_REPAIRS));
-            setImprovements(deduplicateById(serverData.improvements || PRELOADED_IMPROVEMENTS));
-            setSpareParts(deduplicateById(serverData.spareParts || PRELOADED_SPARE_PARTS));
-            setLeaves(deduplicateById(serverData.leaves || []));
-            setTimeBreakParts(deduplicateById(serverData.timeBreakParts || PRELOADED_TIME_BREAK_PARTS));
-            setPlannedProductionTimes(deduplicateById(serverData.plannedProductionTimes || []));
+            const dedupSchedules = deduplicateById(serverData.schedules || PRELOADED_SCHEDULES);
+            setSchedules(dedupSchedules);
+            const dedupRepairs = deduplicateById(serverData.repairs || PRELOADED_REPAIRS);
+            setRepairs(dedupRepairs);
+            const dedupImprovements = deduplicateById(serverData.improvements || PRELOADED_IMPROVEMENTS);
+            setImprovements(dedupImprovements);
+            const dedupSpareParts = deduplicateById(serverData.spareParts || PRELOADED_SPARE_PARTS);
+            setSpareParts(dedupSpareParts);
+            const dedupLeaves = deduplicateById(serverData.leaves || []);
+            setLeaves(dedupLeaves);
+            const dedupTimeBreak = deduplicateById(serverData.timeBreakParts || PRELOADED_TIME_BREAK_PARTS);
+            setTimeBreakParts(dedupTimeBreak);
+            const dedupProdTimes = deduplicateById(serverData.plannedProductionTimes || []);
+            setPlannedProductionTimes(dedupProdTimes);
+
+            let resolvedZones: ZoneStructure[] = [];
             if (serverData.zones && Array.isArray(serverData.zones)) {
-              setZones(mergeZonesWithMachines(serverData.zones, enriched));
+              resolvedZones = mergeZonesWithMachines(serverData.zones, enriched);
             } else {
-              setZones(extractDefaultZones(enriched));
+              resolvedZones = extractDefaultZones(enriched);
             }
+            setZones(resolvedZones);
+
+            const dedupWhyWhy = deduplicateById(serverData.whyWhyDrafts || []);
             if (serverData.whyWhyDrafts && Array.isArray(serverData.whyWhyDrafts)) {
-              setWhyWhyDrafts(deduplicateById(serverData.whyWhyDrafts));
+              setWhyWhyDrafts(dedupWhyWhy);
             }
+
+            const resolvedSettings = serverData.settings || settings;
             if (serverData.settings) {
-              setSettings(serverData.settings);
+              setSettings(resolvedSettings);
             }
+
+            // Snapshot initialization for server data
+            currentRevRef.current = typeof serverData.revision === 'number' ? serverData.revision : 1;
+            lastSyncedSnapshotRef.current = {
+              machines: dedupMachines,
+              technicians: activeTechs,
+              employees: dedupEmployees,
+              pmPlans: dedupPlans,
+              pmMachineIds: currentPmMachines,
+              schedules: dedupSchedules,
+              repairs: dedupRepairs,
+              improvements: dedupImprovements,
+              leaves: dedupLeaves,
+              spareParts: dedupSpareParts,
+              timeBreakParts: dedupTimeBreak,
+              plannedProductionTimes: dedupProdTimes,
+              settings: resolvedSettings,
+              zones: resolvedZones,
+              whyWhyDrafts: dedupWhyWhy
+            };
+
             setIsLoaded(true);
             return;
           }
@@ -365,24 +448,32 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
         setPmPlans(deduplicateById(safeJsonParse(storedPlans, PRELOADED_PM_PLANS)));
 
+        let finalPmMachines: string[] = [];
         if (storedPmMachines) {
           try {
             const parsed = JSON.parse(storedPmMachines);
-            if (Array.isArray(parsed)) setPmMachineIds(parsed);
-            else setPmMachineIds(currentLoadedMachines.map(m => m.id));
+            if (Array.isArray(parsed)) finalPmMachines = parsed;
+            else finalPmMachines = currentLoadedMachines.map(m => m.id);
           } catch {
-            setPmMachineIds(currentLoadedMachines.map(m => m.id));
+            finalPmMachines = currentLoadedMachines.map(m => m.id);
           }
         } else {
-          setPmMachineIds(currentLoadedMachines.map(m => m.id));
+          finalPmMachines = currentLoadedMachines.map(m => m.id);
         }
+        setPmMachineIds(finalPmMachines);
 
-        setSchedules(deduplicateById(safeJsonParse(storedSchedules, PRELOADED_SCHEDULES)));
-        setRepairs(deduplicateById(safeJsonParse(storedRepairs, PRELOADED_REPAIRS)));
-        setImprovements(deduplicateById(safeJsonParse(storedImprovements, PRELOADED_IMPROVEMENTS)));
-        setSpareParts(deduplicateById(safeJsonParse(storedSpareParts, PRELOADED_SPARE_PARTS)));
-        setTimeBreakParts(deduplicateById(safeJsonParse(storedTimeBreakParts, PRELOADED_TIME_BREAK_PARTS)));
-        setPlannedProductionTimes(deduplicateById(safeJsonParse(storedPlannedProdTimes, [])));
+        const finalSchedules = deduplicateById(safeJsonParse(storedSchedules, PRELOADED_SCHEDULES));
+        setSchedules(finalSchedules);
+        const finalRepairs = deduplicateById(safeJsonParse(storedRepairs, PRELOADED_REPAIRS));
+        setRepairs(finalRepairs);
+        const finalImprovements = deduplicateById(safeJsonParse(storedImprovements, PRELOADED_IMPROVEMENTS));
+        setImprovements(finalImprovements);
+        const finalSpareParts = deduplicateById(safeJsonParse(storedSpareParts, PRELOADED_SPARE_PARTS));
+        setSpareParts(finalSpareParts);
+        const finalTimeBreak = deduplicateById(safeJsonParse(storedTimeBreakParts, PRELOADED_TIME_BREAK_PARTS));
+        setTimeBreakParts(finalTimeBreak);
+        const finalProdTimes = deduplicateById(safeJsonParse(storedPlannedProdTimes, []));
+        setPlannedProductionTimes(finalProdTimes);
 
         const preloadingLeaves = [
           { id: 'lv-001', technician: 'ช่าง 1', date: '2026-06-08', type: 'ลากิจ' as const, note: 'ติดต่อราชการครอบครัว' },
@@ -390,32 +481,60 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           { id: 'lv-003', technician: 'ช่าง 3', date: '2026-06-12', type: 'ลาพักร้อน' as const, note: 'พักผ่อนประจำปีต่างจังหวัด (ภูเก็ต)' },
           { id: 'lv-004', technician: 'ช่าง 4', date: '2026-06-14', type: 'วันหยุดประจำสัปดาห์' as const, note: 'สลับวันหยุดประจำโรงงาน' },
         ];
-        setLeaves(deduplicateById(safeJsonParse(storedLeaves, preloadingLeaves)));
+        const finalLeaves = deduplicateById(safeJsonParse(storedLeaves, preloadingLeaves));
+        setLeaves(finalLeaves);
 
+        let finalSettings = settings;
         if (storedSettings) {
           try {
-            setSettings(JSON.parse(storedSettings));
+            finalSettings = JSON.parse(storedSettings);
+            setSettings(finalSettings);
           } catch {}
         }
 
+        let finalDrafts: WhyWhyAnalysis[] = [];
         const storedDrafts = localStorage.getItem('tpm_whyWhyDrafts');
         if (storedDrafts) {
           try {
             const parsedDrafts = JSON.parse(storedDrafts);
-            if (Array.isArray(parsedDrafts)) setWhyWhyDrafts(parsedDrafts);
+            if (Array.isArray(parsedDrafts)) {
+              finalDrafts = parsedDrafts;
+              setWhyWhyDrafts(finalDrafts);
+            }
           } catch {}
         }
 
+        let finalZones: ZoneStructure[] = [];
         if (storedZones) {
           try {
             const parsedZones = JSON.parse(storedZones);
-            setZones(Array.isArray(parsedZones) ? parsedZones : extractDefaultZones(currentLoadedMachines));
+            finalZones = Array.isArray(parsedZones) ? parsedZones : extractDefaultZones(currentLoadedMachines);
           } catch {
-            setZones(extractDefaultZones(currentLoadedMachines));
+            finalZones = extractDefaultZones(currentLoadedMachines);
           }
         } else {
-          setZones(extractDefaultZones(currentLoadedMachines));
+          finalZones = extractDefaultZones(currentLoadedMachines);
         }
+        setZones(finalZones);
+
+        currentRevRef.current = 0;
+        lastSyncedSnapshotRef.current = {
+          machines: currentLoadedMachines,
+          technicians: safeJsonParse(storedTechs, PRELOADED_TECHNICIANS),
+          employees: defaultEmployees,
+          pmPlans: deduplicateById(safeJsonParse(storedPlans, PRELOADED_PM_PLANS)),
+          pmMachineIds: finalPmMachines,
+          schedules: finalSchedules,
+          repairs: finalRepairs,
+          improvements: finalImprovements,
+          leaves: finalLeaves,
+          spareParts: finalSpareParts,
+          timeBreakParts: finalTimeBreak,
+          plannedProductionTimes: finalProdTimes,
+          settings: finalSettings,
+          zones: finalZones,
+          whyWhyDrafts: finalDrafts
+        };
 
         setIsLoaded(true);
       } catch (e) {
@@ -481,10 +600,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     if (!isLoaded) return;
 
-    // Immediately record local edit time to prevent polling from overwriting state during debounce
     lastLocalSaveTimeRef.current = Date.now();
 
-    // Save to localStorage as backup safely
+    // Save to localStorage as offline backup safely
     try {
       localStorage.setItem('maint_machines', JSON.stringify(machines));
       localStorage.setItem('maint_technicians', JSON.stringify(technicians));
@@ -505,35 +623,115 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       console.warn("LocalStorage quota warning:", e);
     }
 
-    const dataToSave = {
-      machines: deduplicateById(machines),
-      technicians: Array.from(new Set(technicians)),
-      employees: deduplicateById(employees),
-      pmPlans: deduplicateById(pmPlans),
-      pmMachineIds: Array.from(new Set(pmMachineIds)),
-      schedules: deduplicateById(schedules),
-      repairs: deduplicateById(repairs),
-      improvements: deduplicateById(improvements),
-      leaves: deduplicateById(leaves),
-      spareParts: deduplicateById(spareParts),
-      timeBreakParts: deduplicateById(timeBreakParts),
-      plannedProductionTimes: deduplicateById(plannedProductionTimes),
-      settings,
-      zones,
-      whyWhyDrafts: deduplicateById(whyWhyDrafts)
-    };
-
     const saveToServer = async () => {
+      const curr = currentStateRef.current;
+      const snapshot = lastSyncedSnapshotRef.current;
+      if (!snapshot) return;
+
+      const changes: Record<string, { upsert: any[]; delete: string[] }> = {};
+      let hasChanges = false;
+
+      for (const key of ARRAY_ENTITY_KEYS) {
+        const currList: any[] = curr[key] || [];
+        const snapList: any[] = snapshot[key] || [];
+
+        const snapMap = new Map<string, any>(snapList.map((item: any) => [String(item.id), item]));
+        const currMap = new Map<string, any>(currList.map((item: any) => [String(item.id), item]));
+
+        const upsert: any[] = [];
+        const toDelete: string[] = [];
+
+        for (const item of currList) {
+          const id = String(item.id);
+          const snapItem = snapMap.get(id);
+          if (!snapItem || JSON.stringify(item) !== JSON.stringify(snapItem)) {
+            upsert.push(item);
+          }
+        }
+
+        for (const snapItem of snapList) {
+          const id = String(snapItem.id);
+          if (!currMap.has(id)) {
+            toDelete.push(id);
+          }
+        }
+
+        if (upsert.length > 0 || toDelete.length > 0) {
+          changes[key] = { upsert, delete: toDelete };
+          hasChanges = true;
+        }
+      }
+
+      const metaChanges: Record<string, any> = {};
+      let hasMetaChanges = false;
+
+      for (const key of META_KEYS) {
+        const currVal = curr[key];
+        const snapVal = snapshot[key];
+        if (JSON.stringify(currVal) !== JSON.stringify(snapVal)) {
+          metaChanges[key] = currVal;
+          hasMetaChanges = true;
+        }
+      }
+
+      if (!hasChanges && !hasMetaChanges) {
+        // Diff is empty, skip POST!
+        return;
+      }
+
       try {
         lastLocalSaveTimeRef.current = Date.now();
-        await fetch("/api/db", {
+        const payload: any = { changes };
+        if (hasMetaChanges) {
+          payload.meta = metaChanges;
+        }
+
+        const response = await fetch("/api/db/changes", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             "Accept": "application/json"
           },
-          body: JSON.stringify(dataToSave)
+          body: JSON.stringify(payload)
         });
+
+        if (response.ok) {
+          const resData = await response.json();
+          const rejectedList: Array<{ collection: string; id: string; reason: string }> = resData.rejected || [];
+
+          if (rejectedList.length > 0) {
+            alert("บันทึกไม่สำเร็จ: ข้อมูลรายการนี้ใหญ่เกินไป (รูป/ไฟล์แนบ) กรุณาลดขนาดไฟล์");
+          }
+
+          const rejectedSet = new Set(rejectedList.map(r => `${r.collection}:${r.id}`));
+
+          // Update snapshot with saved data
+          if (lastSyncedSnapshotRef.current) {
+            for (const key of ARRAY_ENTITY_KEYS) {
+              const change = changes[key];
+              if (change) {
+                const successfulUpserts = change.upsert.filter(u => !rejectedSet.has(`${key}:${u.id}`));
+                const deletedIds = new Set(change.delete);
+
+                let updatedSnapList = (lastSyncedSnapshotRef.current[key] || []).filter(
+                  (item: any) => !deletedIds.has(String(item.id)) && !successfulUpserts.some(u => String(u.id) === String(item.id))
+                );
+                updatedSnapList = updatedSnapList.concat(successfulUpserts);
+                lastSyncedSnapshotRef.current[key] = updatedSnapList;
+              }
+            }
+
+            for (const key of META_KEYS) {
+              if (metaChanges[key] !== undefined) {
+                (lastSyncedSnapshotRef.current as any)[key] = JSON.parse(JSON.stringify(metaChanges[key]));
+              }
+            }
+          }
+
+          if (typeof resData.revision === "number") {
+            currentRevRef.current = resData.revision;
+          }
+        }
       } catch (error) {
         console.warn("Notice: Sync with server paused (server unreachable):", error);
       }
@@ -546,7 +744,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     repairs, improvements, leaves, spareParts, timeBreakParts, plannedProductionTimes, settings, zones, whyWhyDrafts, isLoaded
   ]);
 
-  // Polling for updates from other LAN clients
+  // Polling for updates from other clients
   useEffect(() => {
     if (!isLoaded) return;
 
@@ -554,19 +752,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     const intervalId = setInterval(async () => {
       if (isPolling) return;
-
-      // Skip polling if a local save was performed in the last 4 seconds to avoid race conditions
-      if (Date.now() - lastLocalSaveTimeRef.current < 4000) {
-        return;
-      }
-
       isPolling = true;
 
       try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-        const response = await fetch("/api/db", {
+        const rev = currentRevRef.current;
+        const response = await fetch(`/api/db?rev=${rev}`, {
           headers: {
             "Accept": "application/json"
           },
@@ -576,46 +769,110 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const contentType = response.headers.get("content-type");
         if (response.ok && contentType && contentType.includes("application/json")) {
           const serverData = await response.json();
+
+          // If server reports unchanged, skip
+          if (serverData.unchanged) {
+            return;
+          }
+
           if (serverData && serverData.machines) {
-            const checkAndSet = (localVal: any, serverVal: any, setter: any) => {
-              if (serverVal !== undefined && JSON.stringify(localVal) !== JSON.stringify(serverVal)) {
-                setter(serverVal);
-              }
+            const curr = currentStateRef.current;
+            const snapshot = lastSyncedSnapshotRef.current;
+
+            if (typeof serverData.revision === 'number') {
+              currentRevRef.current = serverData.revision;
+            }
+
+            const arraySetters: Record<typeof ARRAY_ENTITY_KEYS[number], (val: any) => void> = {
+              machines: setMachines,
+              employees: setEmployees,
+              pmPlans: setPmPlans,
+              schedules: setSchedules,
+              repairs: setRepairs,
+              improvements: setImprovements,
+              leaves: setLeaves,
+              spareParts: setSpareParts,
+              timeBreakParts: setTimeBreakParts,
+              plannedProductionTimes: setPlannedProductionTimes,
+              whyWhyDrafts: setWhyWhyDrafts,
             };
 
-            const curr = currentStateRef.current;
-            checkAndSet(curr.machines, serverData.machines, setMachines);
-            checkAndSet(curr.technicians, serverData.technicians, setTechnicians);
-            checkAndSet(curr.employees, serverData.employees, setEmployees);
-            checkAndSet(curr.pmPlans, serverData.pmPlans, setPmPlans);
-            if (serverData.pmMachineIds && Array.isArray(serverData.pmMachineIds)) {
-              checkAndSet(curr.pmMachineIds, serverData.pmMachineIds, setPmMachineIds);
+            for (const key of ARRAY_ENTITY_KEYS) {
+              const serverList: any[] = serverData[key] || [];
+              const currList: any[] = curr[key] || [];
+              const snapList: any[] = snapshot ? ((snapshot as any)[key] || []) : [];
+
+              const snapMap = new Map<string, any>(snapList.map((item: any) => [String(item.id), item]));
+              const currMap = new Map<string, any>(currList.map((item: any) => [String(item.id), item]));
+
+              // Compute pending local changes (diff of curr vs snap)
+              const pendingUpserts = new Map<string, any>();
+              for (const item of currList) {
+                const id = String(item.id);
+                const snapItem = snapMap.get(id);
+                if (!snapItem || JSON.stringify(item) !== JSON.stringify(snapItem)) {
+                  pendingUpserts.set(id, item);
+                }
+              }
+
+              const pendingDeletes = new Set<string>();
+              for (const snapItem of snapList) {
+                const id = String(snapItem.id);
+                if (!currMap.has(id)) {
+                  pendingDeletes.add(id);
+                }
+              }
+
+              // Apply server data minus pending deletes, plus pending upserts
+              let merged = serverList.filter((item: any) => !pendingDeletes.has(String(item.id)));
+              const mergedMap = new Map<string, any>(merged.map((item: any) => [String(item.id), item]));
+              for (const [id, item] of pendingUpserts) {
+                mergedMap.set(id, item);
+              }
+              const nextStateList = Array.from(mergedMap.values());
+
+              if (lastSyncedSnapshotRef.current) {
+                (lastSyncedSnapshotRef.current as any)[key] = [...serverList];
+              }
+
+              if (JSON.stringify(currList) !== JSON.stringify(nextStateList)) {
+                arraySetters[key](nextStateList);
+              }
             }
-            checkAndSet(curr.schedules, serverData.schedules, setSchedules);
-            checkAndSet(curr.repairs, serverData.repairs, setRepairs);
-            checkAndSet(curr.improvements, serverData.improvements, setImprovements);
-            checkAndSet(curr.leaves, serverData.leaves, setLeaves);
-            checkAndSet(curr.spareParts, serverData.spareParts, setSpareParts);
-            checkAndSet(curr.timeBreakParts, serverData.timeBreakParts, setTimeBreakParts);
-            if (serverData.plannedProductionTimes) {
-              checkAndSet(curr.plannedProductionTimes, serverData.plannedProductionTimes, setPlannedProductionTimes);
-            }
-            checkAndSet(curr.settings, serverData.settings, setSettings);
-            if (serverData.zones) {
-              checkAndSet(curr.zones, serverData.zones, setZones);
-            }
-            if (serverData.whyWhyDrafts) {
-              checkAndSet(curr.whyWhyDrafts, serverData.whyWhyDrafts, setWhyWhyDrafts);
+
+            const metaSetters: Record<typeof META_KEYS[number], (val: any) => void> = {
+              technicians: setTechnicians,
+              pmMachineIds: setPmMachineIds,
+              zones: setZones,
+              settings: setSettings,
+            };
+
+            for (const key of META_KEYS) {
+              if (serverData[key] !== undefined) {
+                const currVal = curr[key];
+                const snapVal = snapshot ? (snapshot as any)[key] : undefined;
+
+                const hasPendingEdit = snapshot && JSON.stringify(currVal) !== JSON.stringify(snapVal);
+
+                if (lastSyncedSnapshotRef.current) {
+                  (lastSyncedSnapshotRef.current as any)[key] = JSON.parse(JSON.stringify(serverData[key]));
+                }
+
+                if (!hasPendingEdit) {
+                  if (JSON.stringify(currVal) !== JSON.stringify(serverData[key])) {
+                    metaSetters[key](serverData[key]);
+                  }
+                }
+              }
             }
           }
         }
       } catch (err) {
-        // Polling is a background task; log as notice rather than unhandled fatal error
         console.warn("LAN Polling sync notice:", (err as Error)?.message || err);
       } finally {
         isPolling = false;
       }
-    }, 4000); // poll every 4 seconds
+    }, 4000);
 
     return () => clearInterval(intervalId);
   }, [isLoaded]);

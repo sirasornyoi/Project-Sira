@@ -1008,28 +1008,6 @@
       "lineGroup": "CONVEYOR"
     }
   ],
-  "technicians": [
-    "ช่าง 1",
-    "ช่าง 2",
-    "ช่าง 3",
-    "ช่าง 4",
-    "ช่าง 5",
-    "ช่าง 6",
-    "ช่าง 7",
-    "ช่าง 8",
-    "ช่าง 9",
-    "ช่าง 10",
-    "ช่าง 11",
-    "ช่าง 12",
-    "ช่าง 13",
-    "ช่าง 14",
-    "ช่าง 15",
-    "ช่าง 16",
-    "ช่าง 17",
-    "ช่าง 18",
-    "ช่าง 19",
-    "ช่าง 20"
-  ],
   "employees": [
     {
       "id": "ENG-001",
@@ -1219,153 +1197,291 @@
       ],
       "spareParts": "ใบมีดเตเปอร์คัตเตอร์, ลวดความร้อนสำรอง",
       "ttm": 30
+    },
+    {
+      "id": "plan-pm-rim02-1",
+      "machineId": "RIM02",
+      "title": "ตรวจสภาพและทำความสะอาด Rice Mixer ประจำสัปดาห์",
+      "frequency": "รายสัปดาห์",
+      "steps": [
+        {
+          "title": "ตรวจสอบใบกวนและจุดยึด",
+          "stdTime": 15,
+          "result": "ยังไม่ตรวจ",
+          "done": false,
+          "abnormalDetail": "",
+          "remark": ""
+        },
+        {
+          "title": "ทำความสะอาดหัวฉีดน้ำส้มสายชู",
+          "stdTime": 10,
+          "result": "ยังไม่ตรวจ",
+          "done": false,
+          "abnormalDetail": "",
+          "remark": ""
+        },
+        {
+          "title": "ตรวจสอบระบบขับเคลื่อนและเฟืองเกียร์",
+          "stdTime": 20,
+          "done": false,
+          "result": "ยังไม่ตรวจ",
+          "abnormalDetail": "",
+          "remark": ""
+        }
+      ],
+      "spareParts": "น้ำมันหล่อลื่นเกรดอาหาร NSF-H1",
+      "ttm": 45,
+      "lastCheckedDate": ""
+    },
+    {
+      "id": "plan-pm-vac02-1",
+      "machineId": "VAC02",
+      "title": "ตรวจสอบระบบสุญญากาศและซีลยางประตู",
+      "frequency": "รายเดือน",
+      "steps": [
+        {
+          "title": "ตรวจวัดประสิทธิภาพปั๊มสุญญากาศ",
+          "stdTime": 30,
+          "done": false,
+          "result": "ยังไม่ตรวจ",
+          "abnormalDetail": "",
+          "remark": ""
+        },
+        {
+          "title": "ตรวจสอบความตึงและการล้าของซีลยาง",
+          "stdTime": 15,
+          "done": false,
+          "result": "ยังไม่ตรวจ",
+          "abnormalDetail": "",
+          "remark": ""
+        },
+        {
+          "title": "ตรวจเช็ควาล์วควบคุมแรงดันลม",
+          "stdTime": 15,
+          "done": false,
+          "result": "ยังไม่ตรวจ",
+          "abnormalDetail": "",
+          "remark": ""
+        }
+      ],
+      "spareParts": "ซีลยางขอบประตู VAC01, น้ำมันแวคคั่มปั๊ม",
+      "ttm": 60,
+      "lastCheckedDate": ""
+    },
+    {
+      "id": "plan-pm-vac03-1",
+      "machineId": "VAC03",
+      "title": "ตรวจสอบระบบสุญญากาศและซีลยางประตู",
+      "frequency": "รายเดือน",
+      "steps": [
+        {
+          "title": "ตรวจวัดประสิทธิภาพปั๊มสุญญากาศ",
+          "stdTime": 30,
+          "done": false,
+          "result": "ยังไม่ตรวจ",
+          "abnormalDetail": "",
+          "remark": ""
+        },
+        {
+          "title": "ตรวจสอบความตึงและการล้าของซีลยาง",
+          "stdTime": 15,
+          "done": false,
+          "result": "ยังไม่ตรวจ",
+          "abnormalDetail": "",
+          "remark": ""
+        },
+        {
+          "title": "ตรวจเช็ควาล์วควบคุมแรงดันลม",
+          "stdTime": 15,
+          "done": false,
+          "result": "ยังไม่ตรวจ",
+          "abnormalDetail": "",
+          "remark": ""
+        }
+      ],
+      "spareParts": "ซีลยางขอบประตู VAC01, น้ำมันแวคคั่มปั๊ม",
+      "ttm": 60,
+      "lastCheckedDate": ""
+    },
+    {
+      "id": "plan-pm-vac04-1",
+      "machineId": "VAC04",
+      "title": "ตรวจสอบระบบสุญญากาศและซีลยางประตู",
+      "frequency": "รายเดือน",
+      "steps": [
+        {
+          "title": "ตรวจวัดประสิทธิภาพปั๊มสุญญากาศ",
+          "stdTime": 30,
+          "done": false,
+          "result": "ยังไม่ตรวจ",
+          "abnormalDetail": "",
+          "remark": ""
+        },
+        {
+          "title": "ตรวจสอบความตึงและการล้าของซีลยาง",
+          "stdTime": 15,
+          "done": false,
+          "result": "ยังไม่ตรวจ",
+          "abnormalDetail": "",
+          "remark": ""
+        },
+        {
+          "title": "ตรวจเช็ควาล์วควบคุมแรงดันลม",
+          "stdTime": 15,
+          "done": false,
+          "result": "ยังไม่ตรวจ",
+          "abnormalDetail": "",
+          "remark": ""
+        }
+      ],
+      "spareParts": "ซีลยางขอบประตู VAC01, น้ำมันแวคคั่มปั๊ม",
+      "ttm": 60,
+      "lastCheckedDate": ""
+    },
+    {
+      "id": "plan-pm-vac05-1",
+      "machineId": "VAC05",
+      "title": "ตรวจสอบระบบสุญญากาศและซีลยางประตู",
+      "frequency": "รายเดือน",
+      "steps": [
+        {
+          "title": "ตรวจวัดประสิทธิภาพปั๊มสุญญากาศ",
+          "stdTime": 30,
+          "done": false,
+          "result": "ยังไม่ตรวจ",
+          "abnormalDetail": "",
+          "remark": ""
+        },
+        {
+          "title": "ตรวจสอบความตึงและการล้าของซีลยาง",
+          "stdTime": 15,
+          "done": false,
+          "result": "ยังไม่ตรวจ",
+          "abnormalDetail": "",
+          "remark": ""
+        },
+        {
+          "title": "ตรวจเช็ควาล์วควบคุมแรงดันลม",
+          "stdTime": 15,
+          "done": false,
+          "result": "ยังไม่ตรวจ",
+          "abnormalDetail": "",
+          "remark": ""
+        }
+      ],
+      "spareParts": "ซีลยางขอบประตู VAC01, น้ำมันแวคคั่มปั๊ม",
+      "ttm": 60,
+      "lastCheckedDate": ""
+    },
+    {
+      "id": "plan-pm-vac06-1",
+      "machineId": "VAC06",
+      "title": "ตรวจสอบระบบสุญญากาศและซีลยางประตู",
+      "frequency": "รายเดือน",
+      "steps": [
+        {
+          "title": "ตรวจวัดประสิทธิภาพปั๊มสุญญากาศ",
+          "stdTime": 30,
+          "done": false,
+          "result": "ยังไม่ตรวจ",
+          "abnormalDetail": "",
+          "remark": ""
+        },
+        {
+          "title": "ตรวจสอบความตึงและการล้าของซีลยาง",
+          "stdTime": 15,
+          "done": false,
+          "result": "ยังไม่ตรวจ",
+          "abnormalDetail": "",
+          "remark": ""
+        },
+        {
+          "title": "ตรวจเช็ควาล์วควบคุมแรงดันลม",
+          "stdTime": 15,
+          "done": false,
+          "result": "ยังไม่ตรวจ",
+          "abnormalDetail": "",
+          "remark": ""
+        }
+      ],
+      "spareParts": "ซีลยางขอบประตู VAC01, น้ำมันแวคคั่มปั๊ม",
+      "ttm": 60,
+      "lastCheckedDate": ""
+    },
+    {
+      "id": "plan-pm-ffs02-1",
+      "machineId": "FFS02",
+      "title": "ตรวจเช็คชุดฮีตเตอร์และใบมีดตัดซองสไลด์",
+      "frequency": "รายสัปดาห์",
+      "steps": [
+        {
+          "title": "ตรวจสอบอุณหภูมิฮีตเตอร์และสายไฟ",
+          "stdTime": 15,
+          "done": false,
+          "result": "ยังไม่ตรวจ",
+          "abnormalDetail": "",
+          "remark": ""
+        },
+        {
+          "title": "ทดลองความคมของใบมีดตัดสไลด์",
+          "stdTime": 15,
+          "done": false,
+          "result": "ยังไม่ตรวจ",
+          "abnormalDetail": "",
+          "remark": ""
+        }
+      ],
+      "spareParts": "ใบมีดเตเปอร์คัตเตอร์, ลวดความร้อนสำรอง",
+      "ttm": 30,
+      "lastCheckedDate": ""
+    },
+    {
+      "id": "plan-pm-ffs03-1",
+      "machineId": "FFS03",
+      "title": "ตรวจเช็คชุดฮีตเตอร์และใบมีดตัดซองสไลด์",
+      "frequency": "รายสัปดาห์",
+      "steps": [
+        {
+          "title": "ตรวจสอบอุณหภูมิฮีตเตอร์และสายไฟ",
+          "stdTime": 15,
+          "done": false,
+          "result": "ยังไม่ตรวจ",
+          "abnormalDetail": "",
+          "remark": ""
+        },
+        {
+          "title": "ทดลองความคมของใบมีดตัดสไลด์",
+          "stdTime": 15,
+          "done": false,
+          "result": "ยังไม่ตรวจ",
+          "abnormalDetail": "",
+          "remark": ""
+        }
+      ],
+      "spareParts": "ใบมีดเตเปอร์คัตเตอร์, ลวดความร้อนสำรอง",
+      "ttm": 30,
+      "lastCheckedDate": ""
     }
-  ],
-  "pmMachineIds": [
-    "RIM01",
-    "RIM02",
-    "TOC01",
-    "TOC02",
-    "VAC01",
-    "VAC02",
-    "VAC03",
-    "VAC04",
-    "VAC05",
-    "VAC06",
-    "FFS01",
-    "FFS02",
-    "FFS03",
-    "ATS01",
-    "ATS02",
-    "ATS03",
-    "ATS04",
-    "ATS05",
-    "ATS06",
-    "MTD01",
-    "MTD02",
-    "MTD03",
-    "MTD04",
-    "MTD05",
-    "MTD06",
-    "MTD07",
-    "MTD08",
-    "XRA01",
-    "XRA02",
-    "XRA03",
-    "XRA04",
-    "XRA05",
-    "XRA06",
-    "XRA07",
-    "XRA08",
-    "RFD01",
-    "RFD02",
-    "RFD03",
-    "BAN01",
-    "BAN02",
-    "BAN03",
-    "BAN04",
-    "BAN05",
-    "BAN06",
-    "BCF01",
-    "BCF02",
-    "BCF03",
-    "BCF04",
-    "BCF05",
-    "BCF06",
-    "BCH01",
-    "CDU01",
-    "CDU02",
-    "CDU03",
-    "CDU04",
-    "CDU05",
-    "CDU06",
-    "TLP01",
-    "TLP02",
-    "TLP03",
-    "TLP04",
-    "TLP05",
-    "TLP06",
-    "TLP07",
-    "TLP08",
-    "TLP09",
-    "TLP10",
-    "TLP11",
-    "TLP12",
-    "TLP13",
-    "TLP14",
-    "TLP15",
-    "INK01",
-    "INK02",
-    "INK03",
-    "INK04",
-    "STK01",
-    "STK02",
-    "STK03",
-    "STK04",
-    "STK05",
-    "STK06",
-    "STK07",
-    "OFR01",
-    "ONR01",
-    "ORS01",
-    "ARB01",
-    "WPM01",
-    "FOM01",
-    "SRM01",
-    "GKT01",
-    "MIV01",
-    "MIV02",
-    "MIV03",
-    "MIX01",
-    "UFL01",
-    "UFL02",
-    "RJT01",
-    "RJT02",
-    "RJT03",
-    "RJT04",
-    "RJT05",
-    "RJT06",
-    "RJT07",
-    "RJT08",
-    "STN01",
-    "STN02",
-    "PAC01",
-    "PAC02",
-    "LSE01",
-    "CLM01",
-    "SEH01",
-    "CUC01",
-    "RST01",
-    "RSW01",
-    "CUF01",
-    "RPT01",
-    "RPT02",
-    "WDV01",
-    "WDR01",
-    "TTB01",
-    "TTB02",
-    "TTB03",
-    "TTB04",
-    "TTB05",
-    "FDJ01",
-    "FMC01",
-    "FMC02"
   ],
   "schedules": [
     {
       "id": "sched-01",
       "type": "PM",
-      "technician": "ช่าง 1",
+      "technician": "ช่างมัน",
       "date": "2026-06-10",
       "machineId": "RIM01",
       "pmPlanId": "plan-pm-01",
       "status": "รอดำเนินการ",
-      "duration": 45
+      "duration": 45,
+      "technicians": [
+        "ช่างมัน"
+      ],
+      "peopleCount": 1
     },
     {
       "id": "sched-02",
       "type": "Operation",
-      "technician": "ช่าง 2",
+      "technician": "ช่างมัน",
       "date": "2026-06-10",
       "line": "ไลน์ซูชิ A",
       "startTime": "08:00",
@@ -1378,25 +1494,32 @@
         4,
         5
       ],
-      "duration": 480
+      "duration": 480,
+      "technicians": [
+        "ช่างมัน"
+      ],
+      "peopleCount": 1
     },
     {
       "id": "sched-03",
       "type": "PM",
-      "technician": "ช่าง 5",
+      "technician": "ช่างมัน",
       "date": "2026-06-09",
       "machineId": "FFS01",
       "pmPlanId": "plan-pm-03",
       "status": "รอดำเนินการ",
-      "duration": 30
+      "duration": 30,
+      "technicians": [
+        "ช่างมัน"
+      ],
+      "peopleCount": 1
     },
     {
       "id": "sched-04",
       "type": "PM",
-      "technician": "ช่าง 3",
+      "technician": "ช่างมัน",
       "technicians": [
-        "ช่าง 3",
-        "ช่าง 4"
+        "ช่างมัน"
       ],
       "date": "2026-06-08",
       "machineId": "VAC01",
@@ -1413,15 +1536,15 @@
           "totalCost": 450
         }
       ],
-      "otherCost": 0
+      "otherCost": 0,
+      "peopleCount": 1
     },
     {
       "id": "pm-seed-01",
       "type": "PM",
-      "technician": "ช่าง 1",
+      "technician": "ช่างมัน",
       "technicians": [
-        "ช่าง 1",
-        "ช่าง 2"
+        "ช่างมัน"
       ],
       "date": "2026-09-09",
       "machineId": "RIM01",
@@ -1429,14 +1552,14 @@
       "status": "กำลังทำ",
       "duration": 45,
       "destination": "ไลน์ผสมข้าว A (ชั้น 2)",
-      "peopleCount": 2
+      "peopleCount": 1
     },
     {
       "id": "pm-seed-02",
       "type": "PM",
-      "technician": "ช่าง 3",
+      "technician": "ช่างมัน",
       "technicians": [
-        "ช่าง 3"
+        "ช่างมัน"
       ],
       "date": "2026-09-10",
       "machineId": "TOC02",
@@ -1449,10 +1572,9 @@
     {
       "id": "pm-seed-03",
       "type": "PM",
-      "technician": "ช่าง 5",
+      "technician": "ช่างมัน",
       "technicians": [
-        "ช่าง 5",
-        "ช่าง 6"
+        "ช่างมัน"
       ],
       "date": "2026-09-18",
       "machineId": "VAC05",
@@ -1460,7 +1582,7 @@
       "status": "รอดำเนินการ",
       "duration": 90,
       "destination": "ห้องเย็น VACUUM อาคาร B",
-      "peopleCount": 2
+      "peopleCount": 1
     },
     {
       "id": "other-seed-01",
@@ -1469,17 +1591,17 @@
       "category": "งานติดต่อ",
       "date": "2026-09-09",
       "destination": "ร้านเจริญอะไหล่ยนต์ (พระราม 2)",
-      "peopleCount": 2,
+      "peopleCount": 1,
       "technicians": [
-        "ช่าง 7",
-        "ช่าง 8"
+        "ช่างมัน"
       ],
       "technicianNamesText": "ช่าง 7, ช่าง 8",
       "startTime": "09:30",
       "endTime": "12:30",
       "duration": 180,
       "status": "รอดำเนินการ",
-      "notes": "นำใบขอซื้อและตัวอย่างสายพานเดิมไปเทียบขนาดจริง"
+      "notes": "นำใบขอซื้อและตัวอย่างสายพานเดิมไปเทียบขนาดจริง",
+      "technician": "ช่างมัน"
     },
     {
       "id": "other-seed-02",
@@ -1488,17 +1610,17 @@
       "category": "งานโรงกลึง/ภายนอก",
       "date": "2026-09-10",
       "destination": "โรงกลึง CNC มีนบุรี",
-      "peopleCount": 2,
+      "peopleCount": 1,
       "technicians": [
-        "ช่าง 9",
-        "ช่าง 10"
+        "ช่างมัน"
       ],
       "technicianNamesText": "ช่าง 9, ช่าง 10",
       "startTime": "13:00",
       "endTime": "16:30",
       "duration": 210,
       "status": "รอดำเนินการ",
-      "notes": "ตรวจรับใบส่งของและกำหนดวันส่งมอบกลับภายใน 3 วัน"
+      "notes": "ตรวจรับใบส่งของและกำหนดวันส่งมอบกลับภายใน 3 วัน",
+      "technician": "ช่างมัน"
     },
     {
       "id": "other-seed-03",
@@ -1507,26 +1629,24 @@
       "category": "งานประชุม/อบรม",
       "date": "2026-09-15",
       "destination": "ห้องประชุมช่าง / อาคาร 1",
-      "peopleCount": 4,
+      "peopleCount": 1,
       "technicians": [
-        "ช่าง 1",
-        "ช่าง 2",
-        "ช่าง 3",
-        "ช่าง 4"
+        "ช่างมัน"
       ],
       "technicianNamesText": "ทีมช่าง กะเช้า 4 คน",
       "startTime": "10:00",
       "endTime": "11:30",
       "duration": 90,
       "status": "รอดำเนินการ",
-      "notes": "เตรียมเอกสารคู่มือความปลอดภัยก่อนเริ่มกะ"
+      "notes": "เตรียมเอกสารคู่มือความปลอดภัยก่อนเริ่มกะ",
+      "technician": "ช่างมัน"
     }
   ],
   "repairs": [
     {
       "id": "rep-01",
       "type": "Repair",
-      "technician": "ช่าง 1",
+      "technician": "ช่างมัน",
       "date": "2026-06-08",
       "machineId": "FFS02",
       "breakdownTime": "2026-06-08T09:15",
@@ -1649,14 +1769,18 @@
         ],
         "analyzedBy": "ช่าง 1",
         "updatedAt": "2026-09-23T09:26:24.386Z"
-      }
+      },
+      "technicians": [
+        "ช่างมัน"
+      ],
+      "peopleCount": 1
     },
     {
       "id": "rep-02",
       "type": "Repair",
-      "technician": "ช่าง 2",
+      "technician": "ช่างมัน",
       "technicians": [
-        "ช่าง 2"
+        "ช่างมัน"
       ],
       "date": "2026-06-09",
       "machineId": "VAC02",
@@ -1672,15 +1796,15 @@
       "duration": 135,
       "status": "ปิดงาน",
       "usedParts": [],
-      "otherCost": 100000
+      "otherCost": 100000,
+      "peopleCount": 1
     },
     {
       "id": "rep-seed-01",
       "type": "Repair",
-      "technician": "ช่าง 4",
+      "technician": "ช่างมัน",
       "technicians": [
-        "ช่าง 4",
-        "ช่าง 5"
+        "ช่างมัน"
       ],
       "date": "2026-09-09",
       "machineId": "VAC01",
@@ -1694,9 +1818,15 @@
       "why5": "ยังไม่ถึงรอบเปลี่ยนตามแผน",
       "correctiveAction": "ล้างทำความสะอาดโซลินอยด์วาล์วและเปลี่ยนซีลยางใหม่",
       "destination": "หน้างานห้องเย็น VACUUM อาคาร B",
-      "peopleCount": 2,
+      "peopleCount": 1,
       "duration": 90,
       "status": "กำลังซ่อม"
+    },
+    {
+      "id": "test-repair-1",
+      "machineId": "RIM-01",
+      "description": "Test granular change",
+      "status": "ปกติ"
     }
   ],
   "improvements": [
@@ -2203,30 +2333,141 @@
       ]
     }
   ],
-  "settings": {
-    "workingHoursPerDay": 8,
-    "lineNotifyEnabled": false,
-    "lineNotifyToken": "",
-    "stdMttr": {
-      "RIM": 60,
-      "TOC": 45,
-      "VAC": 90,
-      "FFS": 60,
-      "ATS": 60,
-      "MTD": 30,
-      "XRA": 45,
-      "RFD": 45,
-      "BAN": 45,
-      "BCF": 120,
-      "CDU": 120,
-      "TLP": 30,
-      "INK": 30,
-      "STK": 45,
-      "OFR": 90,
-      "RJT": 30,
-      "PAC": 60
-    }
-  },
+  "plannedProductionTimes": [],
+  "whyWhyDrafts": [],
+  "technicians": [
+    "ช่างมัน"
+  ],
+  "pmMachineIds": [
+    "RIM01",
+    "RIM02",
+    "TOC01",
+    "TOC02",
+    "VAC01",
+    "VAC02",
+    "VAC03",
+    "VAC04",
+    "VAC05",
+    "VAC06",
+    "FFS01",
+    "FFS02",
+    "FFS03",
+    "ATS01",
+    "ATS02",
+    "ATS03",
+    "ATS04",
+    "ATS05",
+    "ATS06",
+    "MTD01",
+    "MTD02",
+    "MTD03",
+    "MTD04",
+    "MTD05",
+    "MTD06",
+    "MTD07",
+    "MTD08",
+    "XRA01",
+    "XRA02",
+    "XRA03",
+    "XRA04",
+    "XRA05",
+    "XRA06",
+    "XRA07",
+    "XRA08",
+    "RFD01",
+    "RFD02",
+    "RFD03",
+    "BAN01",
+    "BAN02",
+    "BAN03",
+    "BAN04",
+    "BAN05",
+    "BAN06",
+    "BCF01",
+    "BCF02",
+    "BCF03",
+    "BCF04",
+    "BCF05",
+    "BCF06",
+    "BCH01",
+    "CDU01",
+    "CDU02",
+    "CDU03",
+    "CDU04",
+    "CDU05",
+    "CDU06",
+    "TLP01",
+    "TLP02",
+    "TLP03",
+    "TLP04",
+    "TLP05",
+    "TLP06",
+    "TLP07",
+    "TLP08",
+    "TLP09",
+    "TLP10",
+    "TLP11",
+    "TLP12",
+    "TLP13",
+    "TLP14",
+    "TLP15",
+    "INK01",
+    "INK02",
+    "INK03",
+    "INK04",
+    "STK01",
+    "STK02",
+    "STK03",
+    "STK04",
+    "STK05",
+    "STK06",
+    "STK07",
+    "OFR01",
+    "ONR01",
+    "ORS01",
+    "ARB01",
+    "WPM01",
+    "FOM01",
+    "SRM01",
+    "GKT01",
+    "MIV01",
+    "MIV02",
+    "MIV03",
+    "MIX01",
+    "UFL01",
+    "UFL02",
+    "RJT01",
+    "RJT02",
+    "RJT03",
+    "RJT04",
+    "RJT05",
+    "RJT06",
+    "RJT07",
+    "RJT08",
+    "STN01",
+    "STN02",
+    "PAC01",
+    "PAC02",
+    "LSE01",
+    "CLM01",
+    "SEH01",
+    "CUC01",
+    "RST01",
+    "RSW01",
+    "CUF01",
+    "RPT01",
+    "RPT02",
+    "WDV01",
+    "WDR01",
+    "TTB01",
+    "TTB02",
+    "TTB03",
+    "TTB04",
+    "TTB05",
+    "FDJ01",
+    "FMC01",
+    "FMC02"
+  ],
   "zones": [
     {
       "id": "โซนตรวจสอบคุณภาพ",
@@ -2389,5 +2630,28 @@
       "rooms": []
     }
   ],
-  "whyWhyDrafts": []
+  "settings": {
+    "workingHoursPerDay": 8,
+    "lineNotifyEnabled": false,
+    "lineNotifyToken": "",
+    "stdMttr": {
+      "RIM": 60,
+      "TOC": 45,
+      "VAC": 90,
+      "FFS": 60,
+      "ATS": 60,
+      "MTD": 30,
+      "XRA": 45,
+      "RFD": 45,
+      "BAN": 45,
+      "BCF": 120,
+      "CDU": 120,
+      "TLP": 30,
+      "INK": 30,
+      "STK": 45,
+      "OFR": 90,
+      "RJT": 30,
+      "PAC": 60
+    }
+  }
 }

@@ -3,14 +3,233 @@ import path from "path";
 import { createServer as createViteServer } from "vite";
 import dotenv from "dotenv";
 import fs from "fs";
+import { initializeApp, getApps } from "firebase-admin/app";
+import { getFirestore, Firestore, DocumentReference } from "firebase-admin/firestore";
 
 dotenv.config();
 
 const DB_FILE = path.join(process.cwd(), "db.json");
+const isFirestoreMode = process.env.PERSISTENCE === "firestore";
+let firestoreDb: Firestore | null = null;
+
+if (isFirestoreMode) {
+  if (getApps().length === 0) {
+    initializeApp();
+  }
+  firestoreDb = getFirestore();
+}
+
+const ARRAY_COLLECTIONS = [
+  "machines",
+  "employees",
+  "pmPlans",
+  "schedules",
+  "repairs",
+  "improvements",
+  "leaves",
+  "spareParts",
+  "timeBreakParts",
+  "plannedProductionTimes",
+  "whyWhyDrafts"
+] as const;
+
+type ArrayCollectionName = typeof ARRAY_COLLECTIONS[number];
+
+const META_FIELDS = ["technicians", "pmMachineIds", "zones", "settings"] as const;
+type MetaFieldName = typeof META_FIELDS[number];
+
+interface AppData {
+  machines: any[];
+  employees: any[];
+  pmPlans: any[];
+  schedules: any[];
+  repairs: any[];
+  improvements: any[];
+  leaves: any[];
+  spareParts: any[];
+  timeBreakParts: any[];
+  plannedProductionTimes: any[];
+  whyWhyDrafts: any[];
+  technicians: string[];
+  pmMachineIds: string[];
+  zones: any[];
+  settings: any;
+}
+
+let inMemoryData: AppData = {
+  machines: [],
+  employees: [],
+  pmPlans: [],
+  schedules: [],
+  repairs: [],
+  improvements: [],
+  leaves: [],
+  spareParts: [],
+  timeBreakParts: [],
+  plannedProductionTimes: [],
+  whyWhyDrafts: [],
+  technicians: [],
+  pmMachineIds: [],
+  zones: [],
+  settings: {}
+};
+
+let currentRevision = 1;
+
+function saveDbFileAtomic(data: any) {
+  const tmpFile = `${DB_FILE}.tmp`;
+  const backupFile = path.join(process.cwd(), "db.json.bak");
+  try {
+    fs.writeFileSync(tmpFile, JSON.stringify(data, null, 2), "utf-8");
+    if (fs.existsSync(DB_FILE)) {
+      fs.copyFileSync(DB_FILE, backupFile);
+    }
+    fs.renameSync(tmpFile, DB_FILE);
+  } catch (err) {
+    console.error("Error writing db.json atomic:", err);
+    if (fs.existsSync(tmpFile)) {
+      try {
+        fs.unlinkSync(tmpFile);
+      } catch {}
+    }
+    throw err;
+  }
+}
+
+async function commitBatches(
+  db: Firestore,
+  ops: Array<{ type: 'set' | 'delete'; ref: DocumentReference; data?: any; merge?: boolean }>
+) {
+  const BATCH_SIZE = 450;
+  for (let i = 0; i < ops.length; i += BATCH_SIZE) {
+    const chunk = ops.slice(i, i + BATCH_SIZE);
+    const batch = db.batch();
+    for (const op of chunk) {
+      if (op.type === 'set') {
+        if (op.merge) {
+          batch.set(op.ref, op.data, { merge: true });
+        } else {
+          batch.set(op.ref, op.data);
+        }
+      } else if (op.type === 'delete') {
+        batch.delete(op.ref);
+      }
+    }
+    await batch.commit();
+  }
+}
 
 async function startServer() {
   const app = express();
   const PORT = 3000;
+
+  // Initialize storage layer
+  if (isFirestoreMode && firestoreDb) {
+    console.log("[Server] Persistence mode: FIRESTORE");
+    try {
+      // Check if Firestore is empty
+      const metaDoc = await firestoreDb.collection("meta").doc("app").get();
+      const machinesSnap = await firestoreDb.collection("machines").limit(1).get();
+      const isEmpty = !metaDoc.exists && machinesSnap.empty;
+
+      if (isEmpty) {
+        console.log("[Server] Firestore is empty, seeding from db.json...");
+        let seedData: any = null;
+        if (fs.existsSync(DB_FILE)) {
+          try {
+            const raw = fs.readFileSync(DB_FILE, "utf-8");
+            if (raw.trim()) seedData = JSON.parse(raw);
+          } catch (e) {
+            console.warn("[Server] Could not parse db.json for seeding:", e);
+          }
+        }
+        if (!seedData) {
+          const bakFile = path.join(process.cwd(), "db.json.bak");
+          if (fs.existsSync(bakFile)) {
+            try {
+              const raw = fs.readFileSync(bakFile, "utf-8");
+              if (raw.trim()) seedData = JSON.parse(raw);
+            } catch {}
+          }
+        }
+
+        if (seedData) {
+          const seedOps: Array<{ type: 'set'; ref: DocumentReference; data: any }> = [];
+          for (const col of ARRAY_COLLECTIONS) {
+            if (Array.isArray(seedData[col])) {
+              for (const record of seedData[col]) {
+                if (record && record.id !== undefined && record.id !== null) {
+                  seedOps.push({
+                    type: 'set',
+                    ref: firestoreDb.collection(col).doc(String(record.id)),
+                    data: record
+                  });
+                }
+              }
+            }
+          }
+
+          seedOps.push({
+            type: 'set',
+            ref: firestoreDb.collection("meta").doc("app"),
+            data: {
+              technicians: seedData.technicians || [],
+              pmMachineIds: seedData.pmMachineIds || [],
+              zones: seedData.zones || [],
+              settings: seedData.settings || {}
+            }
+          });
+
+          await commitBatches(firestoreDb, seedOps);
+          console.log(`[Server] Seeded ${seedOps.length} documents into Firestore.`);
+        }
+      }
+
+      // Load all collections from Firestore into in-memory object
+      for (const col of ARRAY_COLLECTIONS) {
+        const snap = await firestoreDb.collection(col).get();
+        inMemoryData[col] = snap.docs.map(doc => doc.data());
+      }
+      const loadedMeta = await firestoreDb.collection("meta").doc("app").get();
+      if (loadedMeta.exists) {
+        const m = loadedMeta.data() || {};
+        inMemoryData.technicians = Array.isArray(m.technicians) ? m.technicians : [];
+        inMemoryData.pmMachineIds = Array.isArray(m.pmMachineIds) ? m.pmMachineIds : [];
+        inMemoryData.zones = Array.isArray(m.zones) ? m.zones : [];
+        inMemoryData.settings = m.settings && typeof m.settings === "object" ? m.settings : {};
+      }
+      currentRevision = 1;
+      console.log(`[Server] Loaded data from Firestore into memory (revision ${currentRevision}).`);
+    } catch (err) {
+      console.error("[Server] Error initializing Firestore:", err);
+      throw err;
+    }
+  } else {
+    console.log("[Server] Persistence mode: LOCAL FILE (db.json)");
+    try {
+      const backupFile = path.join(process.cwd(), "db.json.bak");
+      let raw = "";
+      if (fs.existsSync(DB_FILE)) {
+        raw = fs.readFileSync(DB_FILE, "utf-8");
+      } else if (fs.existsSync(backupFile)) {
+        raw = fs.readFileSync(backupFile, "utf-8");
+      }
+      if (raw.trim()) {
+        const parsed = JSON.parse(raw);
+        for (const col of ARRAY_COLLECTIONS) {
+          inMemoryData[col] = Array.isArray(parsed[col]) ? parsed[col] : [];
+        }
+        for (const field of META_FIELDS) {
+          inMemoryData[field] = parsed[field] !== undefined ? parsed[field] : (field === 'settings' ? {} : []);
+        }
+      }
+      currentRevision = 1;
+      console.log(`[Server] Loaded data from db.json into memory (revision ${currentRevision}).`);
+    } catch (err) {
+      console.warn("[Server] Error reading db.json, using defaults:", err);
+      currentRevision = 1;
+    }
+  }
 
   // Middleware for parsing JSON and URL encoded forms with 50mb limit for attachments
   app.use(express.json({ limit: "50mb" }));
@@ -21,41 +240,141 @@ async function startServer() {
     res.json({ status: "ok" });
   });
 
-  // API Route: Load Database
+  // API Route: Load Database (served from memory only, rev support)
   app.get("/api/db", (req, res) => {
     res.setHeader("Content-Type", "application/json; charset=utf-8");
-    const backupFile = path.join(process.cwd(), "db.json.bak");
+    const reqRev = req.query.rev;
+    if (reqRev !== undefined && reqRev !== null && reqRev !== "") {
+      const revNum = Number(reqRev);
+      if (!isNaN(revNum) && revNum === currentRevision) {
+        return res.json({ unchanged: true, revision: currentRevision });
+      }
+    }
+    return res.json({ ...inMemoryData, revision: currentRevision });
+  });
+
+  // API Route: Granular Database Changes
+  app.post("/api/db/changes", async (req, res) => {
     try {
-      if (fs.existsSync(DB_FILE)) {
-        const fileContent = fs.readFileSync(DB_FILE, "utf-8");
-        if (fileContent.trim()) {
-          try {
-            return res.json(JSON.parse(fileContent));
-          } catch (parseErr) {
-            console.warn("db.json was invalid JSON, trying backup:", parseErr);
-            if (fs.existsSync(backupFile)) {
-              const bakContent = fs.readFileSync(backupFile, "utf-8");
-              return res.json(JSON.parse(bakContent));
+      const { changes, meta } = req.body || {};
+      const rejected: Array<{ collection: string; id: string; reason: string }> = [];
+      const ops: Array<{ type: 'set' | 'delete'; ref: DocumentReference; data?: any; merge?: boolean }> = [];
+
+      let hasModifications = false;
+
+      if (changes && typeof changes === "object") {
+        for (const col of ARRAY_COLLECTIONS) {
+          const colChange = changes[col];
+          if (!colChange) continue;
+
+          const { upsert, delete: toDelete } = colChange;
+
+          // Process upserts
+          if (Array.isArray(upsert)) {
+            for (const record of upsert) {
+              if (!record || record.id === undefined || record.id === null) continue;
+              const jsonStr = JSON.stringify(record);
+              const sizeInBytes = Buffer.byteLength(jsonStr, 'utf-8');
+
+              if (sizeInBytes > 900000) {
+                rejected.push({ collection: col, id: String(record.id), reason: 'too_large' });
+                continue;
+              }
+
+              // Apply to in-memory data
+              const list = inMemoryData[col];
+              const idx = list.findIndex((item: any) => String(item.id) === String(record.id));
+              if (idx >= 0) {
+                list[idx] = record;
+              } else {
+                list.push(record);
+              }
+              hasModifications = true;
+
+              if (isFirestoreMode && firestoreDb) {
+                ops.push({
+                  type: 'set',
+                  ref: firestoreDb.collection(col).doc(String(record.id)),
+                  data: record
+                });
+              }
+            }
+          }
+
+          // Process deletes
+          if (Array.isArray(toDelete)) {
+            for (const id of toDelete) {
+              if (id === undefined || id === null) continue;
+              inMemoryData[col] = inMemoryData[col].filter((item: any) => String(item.id) !== String(id));
+              hasModifications = true;
+
+              if (isFirestoreMode && firestoreDb) {
+                ops.push({
+                  type: 'delete',
+                  ref: firestoreDb.collection(col).doc(String(id))
+                });
+              }
             }
           }
         }
-        return res.json({});
-      } else if (fs.existsSync(backupFile)) {
-        const bakContent = fs.readFileSync(backupFile, "utf-8");
-        return res.json(JSON.parse(bakContent));
-      } else {
-        return res.json({});
       }
+
+      // Process meta
+      if (meta && typeof meta === "object") {
+        const metaUpdates: any = {};
+        for (const field of META_FIELDS) {
+          if (meta[field] !== undefined) {
+            inMemoryData[field] = meta[field];
+            metaUpdates[field] = meta[field];
+            hasModifications = true;
+          }
+        }
+
+        if (Object.keys(metaUpdates).length > 0 && isFirestoreMode && firestoreDb) {
+          ops.push({
+            type: 'set',
+            ref: firestoreDb.collection("meta").doc("app"),
+            data: metaUpdates,
+            merge: true
+          });
+        }
+      }
+
+      // Commit to persistence
+      if (isFirestoreMode && firestoreDb) {
+        if (ops.length > 0) {
+          await commitBatches(firestoreDb, ops);
+        }
+      } else {
+        if (hasModifications) {
+          saveDbFileAtomic(inMemoryData);
+        }
+      }
+
+      if (hasModifications) {
+        currentRevision++;
+      }
+
+      const responsePayload: any = { revision: currentRevision };
+      if (rejected.length > 0) {
+        responsePayload.rejected = rejected;
+      }
+
+      return res.json(responsePayload);
     } catch (error) {
-      console.error("Error reading db.json:", error);
-      return res.status(500).json({ success: false, message: "Failed to read database file on server." });
+      console.error("Error in POST /api/db/changes:", error);
+      return res.status(500).json({ success: false, message: (error as Error).message });
     }
   });
 
-  // API Route: Save Database (Atomic write with automatic backup)
+  // API Route: Save Database (deprecated in firestore mode, maintained for local file mode)
   app.post("/api/db", (req, res) => {
-    const tmpFile = `${DB_FILE}.tmp`;
-    const backupFile = path.join(process.cwd(), "db.json.bak");
+    if (isFirestoreMode) {
+      return res.status(410).json({
+        success: false,
+        message: "POST /api/db is deprecated and disabled in firestore mode. Use POST /api/db/changes."
+      });
+    }
 
     try {
       const data = req.body;
@@ -73,25 +392,23 @@ async function startServer() {
         });
       }
 
-      // 1. Write atomically to temporary file first
-      fs.writeFileSync(tmpFile, JSON.stringify(data, null, 2), "utf-8");
-
-      // 2. Backup existing database if it exists
-      if (fs.existsSync(DB_FILE)) {
-        fs.copyFileSync(DB_FILE, backupFile);
+      for (const col of ARRAY_COLLECTIONS) {
+        if (Array.isArray(data[col])) {
+          inMemoryData[col] = data[col];
+        }
+      }
+      for (const field of META_FIELDS) {
+        if (data[field] !== undefined) {
+          inMemoryData[field] = data[field];
+        }
       }
 
-      // 3. Atomically replace db.json with the temporary file
-      fs.renameSync(tmpFile, DB_FILE);
+      saveDbFileAtomic(inMemoryData);
+      currentRevision++;
 
-      return res.json({ success: true, message: "Database saved successfully." });
+      return res.json({ success: true, revision: currentRevision, message: "Database saved successfully." });
     } catch (error) {
       console.error("Error writing db.json:", error);
-      if (fs.existsSync(tmpFile)) {
-        try {
-          fs.unlinkSync(tmpFile);
-        } catch {}
-      }
       return res.status(500).json({ success: false, message: "Failed to save database file on server." });
     }
   });
