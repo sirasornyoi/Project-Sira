@@ -1008,128 +1008,6 @@
       "lineGroup": "CONVEYOR"
     }
   ],
-  "employees": [
-    {
-      "id": "ENG-001",
-      "name": "ช่าง 1",
-      "position": "ช่างบำรุงรักษา",
-      "password": "1234"
-    },
-    {
-      "id": "ENG-002",
-      "name": "ช่าง 2",
-      "position": "ช่างบำรุงรักษา",
-      "password": "1234"
-    },
-    {
-      "id": "ENG-003",
-      "name": "ช่าง 3",
-      "position": "ช่างบำรุงรักษา",
-      "password": "1234"
-    },
-    {
-      "id": "ENG-004",
-      "name": "ช่าง 4",
-      "position": "ช่างบำรุงรักษา",
-      "password": "1234"
-    },
-    {
-      "id": "ENG-005",
-      "name": "ช่าง 5",
-      "position": "ช่างบำรุงรักษา",
-      "password": "1234"
-    },
-    {
-      "id": "ENG-006",
-      "name": "ช่าง 6",
-      "position": "ช่างบำรุงรักษา",
-      "password": "1234"
-    },
-    {
-      "id": "ENG-007",
-      "name": "ช่าง 7",
-      "position": "ช่างบำรุงรักษา",
-      "password": "1234"
-    },
-    {
-      "id": "ENG-008",
-      "name": "ช่าง 8",
-      "position": "ช่างบำรุงรักษา",
-      "password": "1234"
-    },
-    {
-      "id": "ENG-009",
-      "name": "ช่าง 9",
-      "position": "ช่างบำรุงรักษา",
-      "password": "1234"
-    },
-    {
-      "id": "ENG-010",
-      "name": "ช่าง 10",
-      "position": "ช่างบำรุงรักษา",
-      "password": "1234"
-    },
-    {
-      "id": "ENG-011",
-      "name": "ช่าง 11",
-      "position": "ช่างบำรุงรักษา",
-      "password": "1234"
-    },
-    {
-      "id": "ENG-012",
-      "name": "ช่าง 12",
-      "position": "ช่างบำรุงรักษา",
-      "password": "1234"
-    },
-    {
-      "id": "ENG-013",
-      "name": "ช่าง 13",
-      "position": "ช่างบำรุงรักษา",
-      "password": "1234"
-    },
-    {
-      "id": "ENG-014",
-      "name": "ช่าง 14",
-      "position": "ช่างบำรุงรักษา",
-      "password": "1234"
-    },
-    {
-      "id": "ENG-015",
-      "name": "ช่าง 15",
-      "position": "ช่างบำรุงรักษา",
-      "password": "1234"
-    },
-    {
-      "id": "ENG-016",
-      "name": "ช่าง 16",
-      "position": "ช่างบำรุงรักษา",
-      "password": "1234"
-    },
-    {
-      "id": "ENG-017",
-      "name": "ช่าง 17",
-      "position": "ช่างบำรุงรักษา",
-      "password": "1234"
-    },
-    {
-      "id": "ENG-018",
-      "name": "ช่าง 18",
-      "position": "ช่างบำรุงรักษา",
-      "password": "1234"
-    },
-    {
-      "id": "ENG-019",
-      "name": "ช่าง 19",
-      "position": "ช่างบำรุงรักษา",
-      "password": "1234"
-    },
-    {
-      "id": "ENG-020",
-      "name": "ช่าง 20",
-      "position": "ช่างบำรุงรักษา",
-      "password": "1234"
-    }
-  ],
   "pmPlans": [
     {
       "id": "plan-pm-01",
@@ -1915,36 +1793,6 @@
       "photoAfter": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='400' viewBox='0 0 600 400'><rect width='600' height='400' fill='%23064e3b'/><rect x='40' y='40' width='520' height='320' fill='%23022c22' stroke='%2310b981' stroke-width='4' rx='16'/><text x='300' y='180' text-anchor='middle' fill='%2334d399' font-size='22' font-family='sans-serif' font-weight='bold'>AFTER: ติดตั้ง Limit Switch และไฟเตือน Safety</text></svg>"
     }
   ],
-  "leaves": [
-    {
-      "id": "lv-001",
-      "technician": "ช่าง 1",
-      "date": "2026-06-08",
-      "type": "ลากิจ",
-      "note": "ติดต่อราชการครอบครัว"
-    },
-    {
-      "id": "lv-002",
-      "technician": "ช่าง 2",
-      "date": "2026-06-11",
-      "type": "ลาป่วย",
-      "note": "ปวดศีรษะ เป็นไข้หวัด"
-    },
-    {
-      "id": "lv-003",
-      "technician": "ช่าง 3",
-      "date": "2026-06-12",
-      "type": "ลาพักร้อน",
-      "note": "พักผ่อนประจำปีต่างจังหวัด (ภูเก็ต)"
-    },
-    {
-      "id": "lv-004",
-      "technician": "ช่าง 4",
-      "date": "2026-06-14",
-      "type": "วันหยุดประจำสัปดาห์",
-      "note": "สลับวันหยุดประจำโรงงาน"
-    }
-  ],
   "spareParts": [
     {
       "id": "SP-01",
@@ -2647,5 +2495,6 @@
       "RJT": 30,
       "PAC": 60
     }
-  }
+  },
+  "technicianShifts": {}
 }

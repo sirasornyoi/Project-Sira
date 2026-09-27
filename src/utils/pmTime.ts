@@ -66,3 +66,24 @@ export function formatPmMinutes(v: number | null | undefined): string {
   }
   return 'ไม่ได้ระบุ';
 }
+
+/**
+ * Returns the hours between shift start and end time (HH:MM),
+ * adding 24 h when end <= start, or null when the shift is not set.
+ */
+export function getShiftHours(shift?: { start: string; end: string } | null): number | null {
+  if (!shift || !shift.start || !shift.end) {
+    return null;
+  }
+  const [startH, startM] = shift.start.split(':').map(Number);
+  const [endH, endM] = shift.end.split(':').map(Number);
+  if (isNaN(startH) || isNaN(startM) || isNaN(endH) || isNaN(endM)) {
+    return null;
+  }
+  const startMinutes = startH * 60 + startM;
+  let endMinutes = endH * 60 + endM;
+  if (endMinutes <= startMinutes) {
+    endMinutes += 24 * 60;
+  }
+  return (endMinutes - startMinutes) / 60;
+}

@@ -17,7 +17,7 @@ import { compressImageFile } from '../utils/imageUtils';
 export const TechnicianPortfolioPage: React.FC = () => {
   const { 
     technicians, 
-    employees, 
+    technicianShifts,
     improvements, 
     repairs, 
     schedules, 
@@ -159,8 +159,9 @@ export const TechnicianPortfolioPage: React.FC = () => {
     setDeleteConfirmModal(null);
   };
 
-  // Selected Employee Details if present in employees array
-  const currentEmp = employees.find(e => e.name === selectedTech);
+  // Work shift text for selected technician
+  const currentShift = technicianShifts[selectedTech];
+  const shiftText = currentShift ? `เวลางาน ${currentShift.start}–${currentShift.end}` : 'ยังไม่กำหนดเวลางาน';
 
   // Filter Kaizen/Improvement projects for selected technician
   const techImprovements = improvements.filter(imp => {
@@ -285,8 +286,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
       [''],
       ['=== ข้อมูลช่างซ่อมบำรุง (Technician Profile) ==='],
       ['ชื่อช่าง:', selectedTech],
-      ['ตำแหน่งงาน:', currentEmp?.position || 'ช่างซ่อมบำรุง'],
-      ['รหัสพนักงาน:', currentEmp?.id || '-'],
+      ['เวลางาน:', shiftText],
       ['สังกัดฝ่าย/แผนก:', 'ฝ่ายวิศวกรรมและซ่อมบำรุง (Food Plant Maintenance)'],
       ['มาตรฐานโรงงาน:', 'ผ่านการรับรองมาตรฐาน GMP / HACCP Food Safety'],
       [''],
@@ -598,10 +598,10 @@ export const TechnicianPortfolioPage: React.FC = () => {
                 </span>
               </div>
               <p style="margin:2px 0 0 0; font-size:11px; font-weight:600; color:#334155;">
-                ตำแหน่ง: ${currentEmp?.position || 'ช่างซ่อมบำรุงประจำโรงงาน'}
+                ${shiftText}
               </p>
               <p style="margin:1px 0 0 0; font-size:10px; color:#64748b;">
-                รหัสพนักงาน: ${currentEmp?.id || '-'} | สังกัด: แผนกวิศวกรรมและซ่อมบำรุง (Food Plant Maintenance)
+                สังกัด: แผนกวิศวกรรมและซ่อมบำรุง (Food Plant Maintenance)
               </p>
             </div>
           </div>
@@ -610,9 +610,6 @@ export const TechnicianPortfolioPage: React.FC = () => {
             <span style="background:#e0f2fe; color:#0369a1; border:1px solid #bae6fd; padding:3px 8px; border-radius:6px; font-weight:bold; display:inline-block;">
               🛡️ ผ่านเกณฑ์รับรอง GMP โรงงานอาหาร
             </span>
-            <p style="margin:4px 0 0 0; color:#475569;">
-              ความเชี่ยวชาญ: ${currentEmp?.skills?.join(', ') || 'ระบบเครื่องกล, ซ่อมบำรุงด่วน, ปรับปรุง Kaizen'}
-            </p>
           </div>
         </div>
 
@@ -1050,7 +1047,8 @@ export const TechnicianPortfolioPage: React.FC = () => {
           <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-slate-800">
             {technicians.map((tech) => {
               const isSelected = selectedTech === tech;
-              const empInfo = employees.find(e => e.name === tech);
+              const shift = technicianShifts[tech];
+              const chipShiftText = shift ? `เวลางาน ${shift.start}–${shift.end}` : 'ยังไม่กำหนดเวลางาน';
               const kaizenCount = improvements.filter(imp => imp.technician === tech || imp.technicians?.includes(tech)).length;
 
               return (
@@ -1072,7 +1070,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
 
                   <div className="text-left">
                     <p className="leading-none">{tech}</p>
-                    {empInfo && <p className={`text-[9px] font-normal leading-none mt-0.5 ${isSelected ? 'text-slate-800' : 'text-slate-400'}`}>{empInfo.position}</p>}
+                    <p className={`text-[9px] font-normal leading-none mt-0.5 ${isSelected ? 'text-slate-800' : 'text-slate-400'}`}>{chipShiftText}</p>
                   </div>
 
                   {kaizenCount > 0 && (
@@ -1101,18 +1099,13 @@ export const TechnicianPortfolioPage: React.FC = () => {
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <h2 className="text-lg font-black text-fg">{selectedTech}</h2>
-                  {currentEmp?.id && (
-                    <span className="px-2 py-0.5 bg-slate-800 text-slate-300 font-mono text-[10px] rounded border border-slate-700">
-                      ID: {currentEmp.id}
-                    </span>
-                  )}
                   <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded text-[10px] font-bold">
                     วิศวกรซ่อมบำรุงประจำโรงงาน
                   </span>
                 </div>
 
                 <p className="text-xs text-slate-400">
-                  ตำแหน่ง: <strong className="text-slate-200">{currentEmp?.position || 'ช่างเทคนิคซ่อมบำรุงโรงงาน'}</strong>
+                  <strong className="text-slate-200">{shiftText}</strong>
                 </p>
 
                 <div className="flex items-center gap-3 pt-1 text-[11px] text-slate-400">
@@ -2082,10 +2075,10 @@ export const TechnicianPortfolioPage: React.FC = () => {
                         </span>
                       </div>
                       <p className="text-xs font-semibold text-slate-700">
-                        ตำแหน่ง: {currentEmp?.position || 'ช่างซ่อมบำรุงประจำโรงงาน'}
+                        {shiftText}
                       </p>
                       <p className="text-[11px] text-slate-500">
-                        รหัสพนักงาน: {currentEmp?.id || '-'} | สังกัด: แผนกวิศวกรรมและซ่อมบำรุง (Food Plant Maintenance)
+                        สังกัด: แผนกวิศวกรรมและซ่อมบำรุง (Food Plant Maintenance)
                       </p>
                     </div>
                   </div>
@@ -2094,9 +2087,6 @@ export const TechnicianPortfolioPage: React.FC = () => {
                     <span className="inline-block px-2.5 py-1 bg-cyan-50 text-cyan-800 border border-cyan-200 rounded-lg font-bold">
                       🛡️ ผ่านเกณฑ์รับรอง GMP โรงงานอาหาร
                     </span>
-                    <p className="text-slate-600">
-                      ความเชี่ยวชาญ: {currentEmp?.skills?.join(', ') || 'ระบบเครื่องกล, ซ่อมบำรุงด่วน, ปรับปรุง Kaizen'}
-                    </p>
                   </div>
                 </div>
               </div>

@@ -13,11 +13,11 @@ import {
 } from 'lucide-react';
 import { getTodayDateString } from '../utils/pmAlerts';
 import { calculateMachineKpi, calculateMultiMachineKpi, isMachineDown } from '../utils/pmKpi';
-import { getActualMinutes, getPlannedMinutes, getPmVariance } from '../utils/pmTime';
+import { getActualMinutes, getPlannedMinutes, getPmVariance, getShiftHours } from '../utils/pmTime';
 import { PMScheduleItem } from '../types';
 
 export const DashboardPage: React.FC = () => {
-  const { machines, pmPlans, schedules, repairs, improvements, settings, technicians, leaves, spareParts, plannedProductionTimes } = useApp();
+  const { machines, pmPlans, schedules, repairs, improvements, settings, technicians, technicianShifts, spareParts, plannedProductionTimes } = useApp();
   
   // Selected technician for Technician Profile Card overlay modal
   const [selectedTechnician, setSelectedTechnician] = useState<string | null>(null);
@@ -280,7 +280,8 @@ export const DashboardPage: React.FC = () => {
     const totalHrs = parseFloat((totalMins / 60).toFixed(1));
     
     // Threshold capacity (e.g. 8 hours/day * 30 days = 240 hours)
-    const monthlyMaxHours = settings.workingHoursPerDay * daysInMonth; 
+    const capacityPerDay = getShiftHours(technicianShifts[tech]) ?? settings.workingHoursPerDay;
+    const monthlyMaxHours = capacityPerDay * daysInMonth; 
     const utilizationPct = Math.round((totalHrs / monthlyMaxHours) * 100);
 
     // Classify workload state
@@ -1641,19 +1642,6 @@ export const DashboardPage: React.FC = () => {
 
         const avgDeviationMin = repairCaseCount > 0 ? parseFloat((totalDeviationMin / repairCaseCount).toFixed(1)) : 0;
 
-        // 3. Attendance & Leave history for selected month
-        const techMonthLeaves = leaves ? leaves.filter(l => l.technician === techName && l.date.startsWith(selectedMonth)) : [];
-        const personalLeaveCount = techMonthLeaves.filter(l => l.type === 'ลากิจ').length;
-        const sickLeaveCount = techMonthLeaves.filter(l => l.type === 'ลาป่วย').length;
-        const vacationLeaveCount = techMonthLeaves.filter(l => l.type === 'ลาพักร้อน').length;
-        const weekendOffCount = techMonthLeaves.filter(l => l.type === 'วันหยุดประจำสัปดาห์').length;
-        const otherLeaveCount = techMonthLeaves.filter(l => l.type === 'ลาอื่น ๆ').length;
-
-        // Exclude weekend rest days from actual leaves of absence
-        const actualAbsences = personalLeaveCount + sickLeaveCount + vacationLeaveCount + otherLeaveCount;
-        const workingDaysInMonth = 30;
-        const attendanceRate = Math.max(0, Math.min(100, Math.round(((workingDaysInMonth - actualAbsences) / workingDaysInMonth) * 100)));
-
         return (
           <div 
             className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in"
@@ -1710,8 +1698,8 @@ export const DashboardPage: React.FC = () => {
               {/* Modal Core Area (Scrollable contents and Bento stats grid) */}
               <div className="p-6 overflow-y-auto space-y-6 flex-1 text-slate-200 scrollbar-thin">
                 
-                {/* 3 Stats Hero Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                {/* 2 Stats Hero Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   
                   {/* KPI card 1: Total month tasks completed */}
                   <div className="bg-slate-950/40 border border-slate-800 p-4.5 rounded-xl flex flex-col justify-between">
@@ -1788,100 +1776,11 @@ export const DashboardPage: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* KPI card 3: Attendance History & Rate */}
-                  <div className="bg-slate-950/40 border border-slate-800 p-4.5 rounded-xl flex flex-col justify-between">
-                    <div>
-                      <div className="flex justify-between items-center mb-1.5">
-                        <span className="text-[10.5px] text-slate-400 font-bold uppercase tracking-wider">อัตราการมาปฏิบัติทีม (Attendance Rate)</span>
-                        <Calendar size={16} className="text-purple-400" />
-                      </div>
-                      <div className="text-2xl font-black text-purple-400 font-mono">
-                        {attendanceRate}% <span className="text-sm text-slate-300 font-normal">มาทำงาน</span>
-                      </div>
-                      <p className="text-[10px] text-slate-450 mt-1">
-                        คำนวณจากจำนวนวันที่ลานอกกติกามาตรฐานประจำเดือน ({selectedMonth})
-                      </p>
-                    </div>
-
-                    {/* Compact Leave Tally Stats */}
-                    <div className="mt-4 pt-3.5 border-t border-slate-800/60 block">
-                      <div className="grid grid-cols-4 gap-1 text-[9px] text-center font-mono font-bold">
-                        <div className="bg-red-500/5 hover:bg-red-500/10 border border-red-500/10 text-red-400 p-1 rounded">
-                          <span className="text-[7.5px] text-slate-500 block">ลาป่วย</span>
-                          <span>{sickLeaveCount} วัน</span>
-                        </div>
-                        <div className="bg-amber-500/5 hover:bg-amber-500/10 border border-amber-500/10 text-amber-400 p-1 rounded">
-                          <span className="text-[7.5px] text-slate-500 block">ลากิจ</span>
-                          <span>{personalLeaveCount} วัน</span>
-                        </div>
-                        <div className="bg-emerald-500/5 hover:bg-emerald-500/10 border border-emerald-500/10 text-emerald-400 p-1 rounded">
-                          <span className="text-[7.5px] text-slate-500 block">พักร้อน</span>
-                          <span>{vacationLeaveCount} วัน</span>
-                        </div>
-                        <div className="bg-slate-800 border border-slate-700 p-1 rounded text-slate-400">
-                          <span className="text-[7.5px] text-slate-500 block">วันหยุดกะ</span>
-                          <span>{weekendOffCount} วัน</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
                 </div>
 
-                {/* Split lists: Left Column for Leave attendance records, Right Column for Emergency performance log */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-2">
-                  
-                  {/* Attendance Log (Column 5) */}
-                  <div className="lg:col-span-5 bg-slate-950/20 p-4 border border-slate-800 rounded-2xl flex flex-col space-y-4">
-                    <div>
-                      <h4 className="text-xs font-black text-fg uppercase tracking-wider flex items-center gap-1.5 border-b border-slate-800 pb-2">
-                        <Coffee size={14} className="text-amber-400" />
-                        <span>รายงานบันทึกการลาและวันหยุดกะประจำเดือน</span>
-                      </h4>
-                      <p className="text-[10px] text-slate-400.5 mt-1 font-sans">
-                        การติดตามสิทธิ์ลากิจ, ลาป่วย, พักร้อน และวันหยุดพนักงานช่างอย่างเป็นวินัย
-                      </p>
-                    </div>
-
-                    <div className="flex-1 overflow-y-auto max-h-[290px] pr-1 space-y-2.5 scrollbar-thin">
-                      {techMonthLeaves.length === 0 ? (
-                        <div className="p-8 text-center text-xs text-slate-500 dark:text-slate-300 italic border border-dashed border-slate-300 dark:border-slate-800/80 rounded-xl">
-                          ไม่มีบันทึกการลากิจ/ลาหยุด ในฐานข้อมูลสำหรับเดือนนี้
-                        </div>
-                      ) : (
-                        [...techMonthLeaves].sort((a,b) => b.date.localeCompare(a.date)).map(lv => {
-                          const badgeColor = 
-                            lv.type === 'ลาป่วย' ? 'bg-red-500/10 text-red-400 border-red-500/20' :
-                            lv.type === 'ลากิจ' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' :
-                            lv.type === 'ลาพักร้อน' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
-                            lv.type === 'วันหยุดประจำสัปดาห์' ? 'bg-slate-800/60 text-slate-400 border-slate-750' : 'bg-slate-800 text-slate-350 border-slate-700';
-
-                          return (
-                            <div key={lv.id} className="p-3 bg-slate-900/60 border border-slate-850 rounded-xl flex items-start justify-between gap-3 text-xs">
-                              <div className="space-y-1 min-w-0">
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  <span className={`px-2 py-0.5 rounded text-[8.5px] font-black border uppercase ${badgeColor}`}>
-                                    {lv.type}
-                                  </span>
-                                  <span className="font-mono text-fg text-[10.5px] font-bold">
-                                    📅 {lv.date}
-                                  </span>
-                                </div>
-                                {lv.note && (
-                                  <p className="text-[10px] text-slate-400 italic font-medium leading-relaxed truncate" title={lv.note}>
-                                    📝 หมายเหตุ: "{lv.note}"
-                                  </p>
-                                )}
-                              </div>
-                            </div>
-                          );
-                        })
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Technical Repairs Performance logs (Column 7) */}
-                  <div className="lg:col-span-7 bg-slate-950/20 p-4 border border-slate-800 rounded-2xl flex flex-col space-y-4">
+                {/* Technical Repairs Performance logs */}
+                <div className="pt-2">
+                  <div className="bg-slate-950/20 p-4 border border-slate-800 rounded-2xl flex flex-col space-y-4">
                     <div>
                       <h4 className="text-xs font-black text-fg uppercase tracking-wider flex items-center gap-1.5 border-b border-slate-800 pb-2">
                         <Wrench size={14} className="text-rose-400" />
@@ -1892,7 +1791,7 @@ export const DashboardPage: React.FC = () => {
                       </p>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto max-h-[290px] pr-1 space-y-2.5 scrollbar-thin">
+                    <div className="flex-1 overflow-y-auto max-h-[340px] pr-1 space-y-2.5 scrollbar-thin">
                       {individualRepairsWithDeviation.length === 0 ? (
                         <div className="p-8 text-center text-xs text-slate-500 dark:text-slate-300 italic border border-dashed border-slate-300 dark:border-slate-800/80 rounded-xl">
                           ไม่มีบันทึกประวัติลุยงานซ่อมหยุดด่วน (Emergency Repairs) ในประวัติ
@@ -1935,9 +1834,7 @@ export const DashboardPage: React.FC = () => {
                       )}
                     </div>
                   </div>
-
                 </div>
-
               </div>
 
               {/* Modal footer section */}

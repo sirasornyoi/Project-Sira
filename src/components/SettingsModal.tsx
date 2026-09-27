@@ -10,8 +10,9 @@ interface SettingsModalProps {
 export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
   const { 
     technicians, setTechnicians, 
+    technicianShifts, setTechnicianShifts,
     setSchedules, setRepairs, setImprovements, setPmPlans,
-    setLeaves, setTimeBreakParts,
+    setTimeBreakParts,
     settings, setSettings, 
     resetToDefaults, exportData, importData 
   } = useApp();
@@ -32,9 +33,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
   const [testStatus, setTestStatus] = useState<{ type: 'idle' | 'success' | 'error'; msg: string }>({ type: 'idle', msg: '' });
   const [isTesting, setIsTesting] = useState<boolean>(false);
 
-  // Technician input state with identity tracking ({ orig, name })
-  const [tempTechs, setTempTechs] = useState<{ orig: string; name: string }[]>(() =>
-    technicians.map(t => ({ orig: t, name: t }))
+  // Technician input state with identity tracking and shifts ({ orig, name, start, end })
+  const [tempTechs, setTempTechs] = useState<{ orig: string; name: string; start: string; end: string }[]>(() =>
+    technicians.map(t => ({
+      orig: t,
+      name: t,
+      start: technicianShifts[t]?.start || '',
+      end: technicianShifts[t]?.end || ''
+    }))
   );
   const [newTechName, setNewTechName] = useState('');
 
@@ -89,7 +95,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
       alert("มีชื่อช่างพนักงานนี้ในระบบแล้ว");
       return;
     }
-    setTempTechs(prev => [...prev, { orig: '', name: trimmed }]);
+    setTempTechs(prev => [...prev, { orig: '', name: trimmed, start: '', end: '' }]);
     setNewTechName('');
   };
 
@@ -120,15 +126,35 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
       return;
     }
 
-    // Clean and validate rows: trim, ignore empty
-    const cleanedRows: { orig: string; name: string }[] = [];
+    // Check if only one of start/end is filled
     for (const item of tempTechs) {
       const trimmed = item.name.trim();
       if (!trimmed) continue;
-      cleanedRows.push({ orig: item.orig, name: trimmed });
+      const hasStart = !!item.start;
+      const hasEnd = !!item.end;
+      if ((hasStart && !hasEnd) || (!hasStart && hasEnd)) {
+        alert("กรุณากรอกเวลาเริ่มและออกงานให้ครบ");
+        return;
+      }
+    }
+
+    // Clean and validate rows: trim, ignore empty
+    const cleanedRows: { orig: string; name: string; start: string; end: string }[] = [];
+    for (const item of tempTechs) {
+      const trimmed = item.name.trim();
+      if (!trimmed) continue;
+      cleanedRows.push({ orig: item.orig, name: trimmed, start: item.start || '', end: item.end || '' });
     }
 
     const updatedTechs = cleanedRows.map(r => r.name);
+
+    // Build new technician shifts from rows
+    const nextTechnicianShifts: Record<string, { start: string; end: string }> = {};
+    for (const row of cleanedRows) {
+      if (row.start && row.end) {
+        nextTechnicianShifts[row.name] = { start: row.start, end: row.end };
+      }
+    }
 
     // Build renamedMap ONLY for rows where orig is not empty AND orig !== name.
     const renamedMap: Record<string, string> = {};
@@ -194,14 +220,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
         return plan;
       }));
 
-      // Propagate to leaves
-      setLeaves(prev => prev.map(lv => {
-        if (renamedMap[lv.technician]) {
-          return { ...lv, technician: renamedMap[lv.technician] };
-        }
-        return lv;
-      }));
-
       // Propagate to timeBreakParts
       setTimeBreakParts(prev => prev.map(part => {
         let updated = part;
@@ -227,7 +245,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
     }
 
     setTechnicians(updatedTechs);
-    setTempTechs(cleanedRows.map(r => ({ orig: r.name, name: r.name })));
+    setTechnicianShifts(nextTechnicianShifts);
+    setTempTechs(cleanedRows.map(r => ({ orig: r.name, name: r.name, start: r.start, end: r.end })));
     alert("บันทึกรายชื่อช่างหลักและแก้ไขเชื่อมโยงประวัติงานเรียบร้อยแล้ว");
   };
 
@@ -471,23 +490,25 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
                       <tr className="bg-slate-100 dark:bg-slate-900 border-b border-border dark:border-slate-700 text-slate-600 dark:text-slate-400 font-semibold uppercase text-[10px]">
-                        <th className="py-2.5 px-4 w-12 text-center">ลำดับ</th>
-                        <th className="py-2.5 px-4">ชื่อเรียก / ประจำเครื่อง</th>
-                        <th className="py-2.5 px-4 w-16 text-center">จัดการ</th>
+                        <th className="py-2.5 px-3 w-10 text-center">ลำดับ</th>
+                        <th className="py-2.5 px-3">ชื่อเรียก / ประจำเครื่อง</th>
+                        <th className="py-2.5 px-3 w-32">เริ่มงาน</th>
+                        <th className="py-2.5 px-3 w-32">ออกงาน</th>
+                        <th className="py-2.5 px-3 w-14 text-center">จัดการ</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-border dark:divide-slate-700/40 text-slate-700 dark:text-slate-300">
                       {tempTechs.length === 0 ? (
                         <tr>
-                          <td colSpan={3} className="py-6 text-center text-slate-400 text-xs">
+                          <td colSpan={5} className="py-6 text-center text-slate-400 text-xs">
                             ยังไม่มีรายชื่อช่างในระบบ (สามารถพิมพ์ชื่อด้านบนเพื่อเพิ่มได้)
                           </td>
                         </tr>
                       ) : (
                         tempTechs.map((item, i) => (
                           <tr key={i} className="hover:bg-slate-50 dark:hover:bg-slate-900/40">
-                            <td className="py-2.5 px-4 text-center text-slate-400 font-mono">{i + 1}</td>
-                            <td className="py-2.5 px-4 font-bold">
+                            <td className="py-2.5 px-3 text-center text-slate-400 font-mono">{i + 1}</td>
+                            <td className="py-2.5 px-3 font-bold">
                               <input
                                 type="text"
                                 value={item.name}
@@ -502,7 +523,37 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                                 className="w-full bg-white dark:bg-slate-950/60 border border-border dark:border-slate-700/80 rounded px-2 py-1 text-xs text-fg dark:text-slate-200 focus:outline-none focus:border-cyan-500 font-sans font-medium"
                               />
                             </td>
-                            <td className="py-2.5 px-4 text-center">
+                            <td className="py-2.5 px-3">
+                              <input
+                                type="time"
+                                value={item.start}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setTempTechs(prev => {
+                                    const cloned = [...prev];
+                                    cloned[i] = { ...cloned[i], start: val };
+                                    return cloned;
+                                  });
+                                }}
+                                className="w-full bg-white dark:bg-slate-950/60 border border-border dark:border-slate-700/80 rounded px-2 py-1 text-xs text-fg dark:text-slate-200 focus:outline-none focus:border-cyan-500 font-sans font-medium"
+                              />
+                            </td>
+                            <td className="py-2.5 px-3">
+                              <input
+                                type="time"
+                                value={item.end}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setTempTechs(prev => {
+                                    const cloned = [...prev];
+                                    cloned[i] = { ...cloned[i], end: val };
+                                    return cloned;
+                                  });
+                                }}
+                                className="w-full bg-white dark:bg-slate-950/60 border border-border dark:border-slate-700/80 rounded px-2 py-1 text-xs text-fg dark:text-slate-200 focus:outline-none focus:border-cyan-500 font-sans font-medium"
+                              />
+                            </td>
+                            <td className="py-2.5 px-3 text-center">
                               <button
                                 onClick={() => handleRemoveTech(i)}
                                 className="text-slate-400 hover:text-rose-500 text-sm transition bg-slate-100 dark:bg-slate-950/20 hover:bg-slate-200 dark:hover:bg-slate-900 p-1 rounded cursor-pointer"

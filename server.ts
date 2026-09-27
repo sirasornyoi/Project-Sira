@@ -21,12 +21,10 @@ if (isFirestoreMode) {
 
 const ARRAY_COLLECTIONS = [
   "machines",
-  "employees",
   "pmPlans",
   "schedules",
   "repairs",
   "improvements",
-  "leaves",
   "spareParts",
   "timeBreakParts",
   "plannedProductionTimes",
@@ -35,22 +33,21 @@ const ARRAY_COLLECTIONS = [
 
 type ArrayCollectionName = typeof ARRAY_COLLECTIONS[number];
 
-const META_FIELDS = ["technicians", "pmMachineIds", "zones", "settings"] as const;
+const META_FIELDS = ["technicians", "technicianShifts", "pmMachineIds", "zones", "settings"] as const;
 type MetaFieldName = typeof META_FIELDS[number];
 
 interface AppData {
   machines: any[];
-  employees: any[];
   pmPlans: any[];
   schedules: any[];
   repairs: any[];
   improvements: any[];
-  leaves: any[];
   spareParts: any[];
   timeBreakParts: any[];
   plannedProductionTimes: any[];
   whyWhyDrafts: any[];
   technicians: string[];
+  technicianShifts: Record<string, { start: string; end: string }>;
   pmMachineIds: string[];
   zones: any[];
   settings: any;
@@ -58,17 +55,16 @@ interface AppData {
 
 let inMemoryData: AppData = {
   machines: [],
-  employees: [],
   pmPlans: [],
   schedules: [],
   repairs: [],
   improvements: [],
-  leaves: [],
   spareParts: [],
   timeBreakParts: [],
   plannedProductionTimes: [],
   whyWhyDrafts: [],
   technicians: [],
+  technicianShifts: {},
   pmMachineIds: [],
   zones: [],
   settings: {}

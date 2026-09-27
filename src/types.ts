@@ -215,23 +215,6 @@ export interface SystemSettings {
   lastMorningSummaryDate?: string;
 }
 
-export interface Employee {
-  id: string; // รหัสพนักงาน (เช่น ENG-001)
-  name: string; // ชื่อ-นามสกุล
-  position: string; // ตำแหน่งงาน
-  password?: string; // รหัสผ่านเริ่มต้น คือ 1234
-}
-
-export type LeaveType = 'ลากิจ' | 'ลาป่วย' | 'ลาพักร้อน' | 'วันหยุดประจำสัปดาห์' | 'ลาอื่น ๆ';
-
-export interface TechnicianLeave {
-  id: string;
-  technician: string; // ชื่อช่าง
-  date: string; // YYYY-MM-DD
-  type: LeaveType;
-  note?: string; // หมายเหตุเพิ่มเติม
-}
-
 export interface SparePart {
   id: string; // รหัสอะไหล่ (SKU), เช่น SP-01
   name: string; // ชื่ออะไหล่

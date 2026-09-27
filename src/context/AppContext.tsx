@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 import { 
   Machine, PMPlan, PMScheduleItem, OperationScheduleItem, 
-  RepairLog, ImprovementProject, SystemSettings, ScheduleItem, Employee,
-  TechnicianLeave, SparePart, TimeBreakPartItem, ZoneStructure,
+  RepairLog, ImprovementProject, SystemSettings, ScheduleItem,
+  SparePart, TimeBreakPartItem, ZoneStructure,
   WhyWhyAnalysis, PlannedProductionTime
 } from '../types';
 import { 
@@ -18,8 +18,8 @@ interface AppContextType {
   setMachines: React.Dispatch<React.SetStateAction<Machine[]>>;
   technicians: string[];
   setTechnicians: React.Dispatch<React.SetStateAction<string[]>>;
-  employees: Employee[];
-  setEmployees: React.Dispatch<React.SetStateAction<Employee[]>>;
+  technicianShifts: Record<string, { start: string; end: string }>;
+  setTechnicianShifts: React.Dispatch<React.SetStateAction<Record<string, { start: string; end: string }>>>;
   pmPlans: PMPlan[];
   setPmPlans: React.Dispatch<React.SetStateAction<PMPlan[]>>;
   pmMachineIds: string[];
@@ -30,8 +30,6 @@ interface AppContextType {
   setRepairs: React.Dispatch<React.SetStateAction<RepairLog[]>>;
   improvements: ImprovementProject[];
   setImprovements: React.Dispatch<React.SetStateAction<ImprovementProject[]>>;
-  leaves: TechnicianLeave[];
-  setLeaves: React.Dispatch<React.SetStateAction<TechnicianLeave[]>>;
   settings: SystemSettings;
   setSettings: React.Dispatch<React.SetStateAction<SystemSettings>>;
   spareParts: SparePart[];
@@ -145,7 +143,7 @@ function safeJsonParse<T>(raw: string | null, fallback: T): T {
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [machines, setMachines] = useState<Machine[]>([]);
   const [technicians, setTechnicians] = useState<string[]>([]);
-  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [technicianShifts, setTechnicianShifts] = useState<Record<string, { start: string; end: string }>>({});
   const [pmPlans, setPmPlans] = useState<PMPlan[]>([]);
   const [pmMachineIds, setPmMachineIds] = useState<string[]>(() => {
     try {
@@ -167,7 +165,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [schedules, setSchedules] = useState<ScheduleItem[]>([]);
   const [repairs, setRepairs] = useState<RepairLog[]>([]);
   const [improvements, setImprovements] = useState<ImprovementProject[]>([]);
-  const [leaves, setLeaves] = useState<TechnicianLeave[]>([]);
   const [spareParts, setSpareParts] = useState<SparePart[]>([]);
   const [timeBreakParts, setTimeBreakParts] = useState<TimeBreakPartItem[]>([]);
   const [plannedProductionTimes, setPlannedProductionTimes] = useState<PlannedProductionTime[]>([]);
@@ -223,13 +220,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const lastSyncedSnapshotRef = useRef<{
     machines: Machine[];
     technicians: string[];
-    employees: Employee[];
+    technicianShifts: Record<string, { start: string; end: string }>;
     pmPlans: PMPlan[];
     pmMachineIds: string[];
     schedules: ScheduleItem[];
     repairs: RepairLog[];
     improvements: ImprovementProject[];
-    leaves: TechnicianLeave[];
     spareParts: SparePart[];
     timeBreakParts: TimeBreakPartItem[];
     plannedProductionTimes: PlannedProductionTime[];
@@ -240,12 +236,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const ARRAY_ENTITY_KEYS = [
     'machines',
-    'employees',
     'pmPlans',
     'schedules',
     'repairs',
     'improvements',
-    'leaves',
     'spareParts',
     'timeBreakParts',
     'plannedProductionTimes',
@@ -254,6 +248,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const META_KEYS = [
     'technicians',
+    'technicianShifts',
     'pmMachineIds',
     'zones',
     'settings'
@@ -293,20 +288,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const currentStateRef = useRef({
-    machines, technicians, employees, pmPlans, pmMachineIds, schedules,
-    repairs, improvements, leaves, spareParts, timeBreakParts, plannedProductionTimes, settings, zones, whyWhyDrafts
+    machines, technicians, technicianShifts, pmPlans, pmMachineIds, schedules,
+    repairs, improvements, spareParts, timeBreakParts, plannedProductionTimes, settings, zones, whyWhyDrafts
   });
 
   // Always keep currentStateRef up-to-date with the latest state values
   useEffect(() => {
     currentStateRef.current = {
-      machines, technicians, employees, pmPlans, pmMachineIds, schedules,
-      repairs, improvements, leaves, spareParts, timeBreakParts, plannedProductionTimes, settings, zones, whyWhyDrafts
+      machines, technicians, technicianShifts, pmPlans, pmMachineIds, schedules,
+      repairs, improvements, spareParts, timeBreakParts, plannedProductionTimes, settings, zones, whyWhyDrafts
     };
   });
 
   // Load from Server or fall back to LocalStorage/preloads
   useEffect(() => {
+    // Remove obsolete leave and employee data from localStorage
+    localStorage.removeItem('maint_leaves');
+    localStorage.removeItem('maint_employees');
+
     const initDb = async () => {
       try {
         const response = await fetch("/api/db", {
@@ -339,8 +338,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             setMachines(dedupMachines);
             const activeTechs = Array.from(new Set(serverData.technicians || PRELOADED_TECHNICIANS)) as string[];
             setTechnicians(activeTechs);
-            const dedupEmployees = deduplicateById(serverData.employees || []);
-            setEmployees(dedupEmployees);
+            const loadedShifts = (serverData.technicianShifts && typeof serverData.technicianShifts === 'object') ? serverData.technicianShifts : {};
+            setTechnicianShifts(loadedShifts);
             const dedupPlans = deduplicateById(serverData.pmPlans || PRELOADED_PM_PLANS);
             setPmPlans(dedupPlans);
 
@@ -372,8 +371,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             setImprovements(dedupImprovements);
             const dedupSpareParts = deduplicateById(serverData.spareParts || PRELOADED_SPARE_PARTS);
             setSpareParts(dedupSpareParts);
-            const dedupLeaves = deduplicateById(serverData.leaves || []);
-            setLeaves(dedupLeaves);
             const dedupTimeBreak = deduplicateById(serverData.timeBreakParts || PRELOADED_TIME_BREAK_PARTS);
             setTimeBreakParts(dedupTimeBreak);
             const dedupProdTimes = deduplicateById(serverData.plannedProductionTimes || []);
@@ -402,13 +399,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             lastSyncedSnapshotRef.current = {
               machines: dedupMachines,
               technicians: activeTechs,
-              employees: dedupEmployees,
+              technicianShifts: loadedShifts,
               pmPlans: dedupPlans,
               pmMachineIds: currentPmMachines,
               schedules: dedupSchedules,
               repairs: dedupRepairs,
               improvements: dedupImprovements,
-              leaves: dedupLeaves,
               spareParts: dedupSpareParts,
               timeBreakParts: dedupTimeBreak,
               plannedProductionTimes: dedupProdTimes,
@@ -429,15 +425,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       try {
         const storedMachines = localStorage.getItem('maint_machines');
         const storedTechs = localStorage.getItem('maint_technicians');
+        const storedTechnicianShifts = localStorage.getItem('maint_technician_shifts');
         const storedPlans = localStorage.getItem('maint_pm_plans');
         const storedPmMachines = localStorage.getItem('maint_pm_machine_ids');
         const storedSchedules = localStorage.getItem('maint_schedule');
         const storedRepairs = localStorage.getItem('maint_repairs');
         const storedImprovements = localStorage.getItem('maint_improvements');
         const storedSettings = localStorage.getItem('maint_settings');
-        const storedEmployees = localStorage.getItem('maint_employees');
         const storedSpareParts = localStorage.getItem('maint_spare_parts');
-        const storedLeaves = localStorage.getItem('maint_leaves');
         const storedTimeBreakParts = localStorage.getItem('maint_time_break_parts');
         const storedPlannedProdTimes = localStorage.getItem('maint_planned_production_times');
         const storedZones = localStorage.getItem('maint_zones');
@@ -471,15 +466,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
         setMachines(currentLoadedMachines);
 
-        setTechnicians(safeJsonParse(storedTechs, PRELOADED_TECHNICIANS));
-
-        const defaultEmployees = PRELOADED_TECHNICIANS.map((tech, idx) => ({
-          id: `ENG-${String(idx + 1).padStart(3, '0')}`,
-          name: tech,
-          position: 'ช่างบำรุงรักษา',
-          password: '1234'
-        }));
-        setEmployees(safeJsonParse(storedEmployees, defaultEmployees));
+        const loadedTechs = safeJsonParse(storedTechs, PRELOADED_TECHNICIANS);
+        setTechnicians(loadedTechs);
+        const loadedShifts = safeJsonParse<Record<string, { start: string; end: string }>>(storedTechnicianShifts, {});
+        setTechnicianShifts(loadedShifts);
 
         setPmPlans(deduplicateById(safeJsonParse(storedPlans, PRELOADED_PM_PLANS)));
 
@@ -509,15 +499,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setTimeBreakParts(finalTimeBreak);
         const finalProdTimes = deduplicateById(safeJsonParse(storedPlannedProdTimes, []));
         setPlannedProductionTimes(finalProdTimes);
-
-        const preloadingLeaves = [
-          { id: 'lv-001', technician: 'ช่าง 1', date: '2026-06-08', type: 'ลากิจ' as const, note: 'ติดต่อราชการครอบครัว' },
-          { id: 'lv-002', technician: 'ช่าง 2', date: '2026-06-11', type: 'ลาป่วย' as const, note: 'ปวดศีรษะ เป็นไข้หวัด' },
-          { id: 'lv-003', technician: 'ช่าง 3', date: '2026-06-12', type: 'ลาพักร้อน' as const, note: 'พักผ่อนประจำปีต่างจังหวัด (ภูเก็ต)' },
-          { id: 'lv-004', technician: 'ช่าง 4', date: '2026-06-14', type: 'วันหยุดประจำสัปดาห์' as const, note: 'สลับวันหยุดประจำโรงงาน' },
-        ];
-        const finalLeaves = deduplicateById(safeJsonParse(storedLeaves, preloadingLeaves));
-        setLeaves(finalLeaves);
 
         let finalSettings = settings;
         if (storedSettings) {
@@ -555,14 +536,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         currentRevRef.current = 0;
         lastSyncedSnapshotRef.current = {
           machines: currentLoadedMachines,
-          technicians: safeJsonParse(storedTechs, PRELOADED_TECHNICIANS),
-          employees: defaultEmployees,
+          technicians: loadedTechs,
+          technicianShifts: loadedShifts,
           pmPlans: deduplicateById(safeJsonParse(storedPlans, PRELOADED_PM_PLANS)),
           pmMachineIds: finalPmMachines,
           schedules: finalSchedules,
           repairs: finalRepairs,
           improvements: finalImprovements,
-          leaves: finalLeaves,
           spareParts: finalSpareParts,
           timeBreakParts: finalTimeBreak,
           plannedProductionTimes: finalProdTimes,
@@ -641,12 +621,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     try {
       localStorage.setItem('maint_machines', JSON.stringify(machines));
       localStorage.setItem('maint_technicians', JSON.stringify(technicians));
-      localStorage.setItem('maint_employees', JSON.stringify(employees));
+      localStorage.setItem('maint_technician_shifts', JSON.stringify(technicianShifts));
       localStorage.setItem('maint_pm_plans', JSON.stringify(pmPlans));
       localStorage.setItem('maint_schedule', JSON.stringify(schedules));
       localStorage.setItem('maint_repairs', JSON.stringify(repairs));
       localStorage.setItem('maint_improvements', JSON.stringify(improvements));
-      localStorage.setItem('maint_leaves', JSON.stringify(leaves));
       localStorage.setItem('maint_spare_parts', JSON.stringify(spareParts));
       localStorage.setItem('maint_time_break_parts', JSON.stringify(timeBreakParts));
       localStorage.setItem('maint_planned_production_times', JSON.stringify(plannedProductionTimes));
@@ -658,8 +637,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       console.warn("LocalStorage quota warning:", e);
     }
   }, [
-    machines, technicians, employees, pmPlans, pmMachineIds, schedules,
-    repairs, improvements, leaves, spareParts, timeBreakParts, plannedProductionTimes, settings, zones, whyWhyDrafts, isLoaded
+    machines, technicians, technicianShifts, pmPlans, pmMachineIds, schedules,
+    repairs, improvements, spareParts, timeBreakParts, plannedProductionTimes, settings, zones, whyWhyDrafts, isLoaded
   ]);
 
   const saveToServer = useCallback(async () => {
@@ -805,8 +784,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     return () => clearTimeout(timerId);
   }, [
-    machines, technicians, employees, pmPlans, pmMachineIds, schedules,
-    repairs, improvements, leaves, spareParts, timeBreakParts, plannedProductionTimes, settings, zones, whyWhyDrafts, isLoaded, saveToServer
+    machines, technicians, technicianShifts, pmPlans, pmMachineIds, schedules,
+    repairs, improvements, spareParts, timeBreakParts, plannedProductionTimes, settings, zones, whyWhyDrafts, isLoaded, saveToServer
   ]);
 
   // Polling for updates from other clients
@@ -846,12 +825,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
             const arraySetters: Record<typeof ARRAY_ENTITY_KEYS[number], (val: any) => void> = {
               machines: setMachines,
-              employees: setEmployees,
               pmPlans: setPmPlans,
               schedules: setSchedules,
               repairs: setRepairs,
               improvements: setImprovements,
-              leaves: setLeaves,
               spareParts: setSpareParts,
               timeBreakParts: setTimeBreakParts,
               plannedProductionTimes: setPlannedProductionTimes,
@@ -903,6 +880,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
             const metaSetters: Record<typeof META_KEYS[number], (val: any) => void> = {
               technicians: setTechnicians,
+              technicianShifts: setTechnicianShifts,
               pmMachineIds: setPmMachineIds,
               zones: setZones,
               settings: setSettings,
@@ -1074,13 +1052,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const resetToDefaults = () => {
     setMachines(PRELOADED_MACHINES);
     setTechnicians(PRELOADED_TECHNICIANS);
-    const defaultEmployees = PRELOADED_TECHNICIANS.map((tech, idx) => ({
-      id: `ENG-${String(idx + 1).padStart(3, '0')}`,
-      name: tech,
-      position: 'ช่างบำรุงรักษา',
-      password: '1234'
-    }));
-    setEmployees(defaultEmployees);
+    setTechnicianShifts({});
     setPmPlans(PRELOADED_PM_PLANS);
     setSchedules(PRELOADED_SCHEDULES);
     setRepairs(PRELOADED_REPAIRS);
@@ -1088,13 +1060,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setTimeBreakParts(PRELOADED_TIME_BREAK_PARTS);
     const defZones = extractDefaultZones(PRELOADED_MACHINES);
     setZones(defZones);
-    const preloadingLeaves = [
-      { id: 'lv-001', technician: 'ช่าง 1', date: '2026-06-08', type: 'ลากิจ' as const, note: 'ติดต่อราชการครอบครัว' },
-      { id: 'lv-002', technician: 'ช่าง 2', date: '2026-06-11', type: 'ลาป่วย' as const, note: 'ปวดศีรษะ เป็นไข้หวัด' },
-      { id: 'lv-003', technician: 'ช่าง 3', date: '2026-06-12', type: 'ลาพักร้อน' as const, note: 'พักผ่อนประจำปีต่างจังหวัด (ภูเก็ต)' },
-      { id: 'lv-004', technician: 'ช่าง 4', date: '2026-06-14', type: 'วันหยุดประจำสัปดาห์' as const, note: 'สลับวันหยุดประจำโรงงาน' },
-    ];
-    setLeaves(preloadingLeaves);
     setSettings({
       workingHoursPerDay: 8,
       lineNotifyEnabled: false,
@@ -1128,12 +1093,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     localStorage.setItem('maint_machines', JSON.stringify(PRELOADED_MACHINES));
     localStorage.setItem('maint_technicians', JSON.stringify(PRELOADED_TECHNICIANS));
-    localStorage.setItem('maint_employees', JSON.stringify(defaultEmployees));
+    localStorage.setItem('maint_technician_shifts', JSON.stringify({}));
+    localStorage.removeItem('maint_employees');
+    localStorage.removeItem('maint_leaves');
     localStorage.setItem('maint_pm_plans', JSON.stringify(PRELOADED_PM_PLANS));
     localStorage.setItem('maint_schedule', JSON.stringify(PRELOADED_SCHEDULES));
     localStorage.setItem('maint_repairs', JSON.stringify(PRELOADED_REPAIRS));
     localStorage.setItem('maint_improvements', JSON.stringify(PRELOADED_IMPROVEMENTS));
-    localStorage.setItem('maint_leaves', JSON.stringify(preloadingLeaves));
     setSpareParts(PRELOADED_SPARE_PARTS);
     localStorage.setItem('maint_spare_parts', JSON.stringify(PRELOADED_SPARE_PARTS));
     localStorage.setItem('maint_time_break_parts', JSON.stringify(PRELOADED_TIME_BREAK_PARTS));
@@ -1151,13 +1117,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const dataObj = {
       machines,
       technicians,
-      employees,
+      technicianShifts,
       pmPlans,
       pmMachineIds,
       schedules,
       repairs,
       improvements,
-      leaves,
       spareParts,
       timeBreakParts,
       plannedProductionTimes,
@@ -1173,13 +1138,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const dataObj = JSON.parse(jsonStr);
       if (dataObj.machines) setMachines(dataObj.machines);
       if (dataObj.technicians) setTechnicians(dataObj.technicians);
-      if (dataObj.employees) setEmployees(dataObj.employees);
+      if (dataObj.technicianShifts && typeof dataObj.technicianShifts === 'object') setTechnicianShifts(dataObj.technicianShifts);
       if (dataObj.pmPlans) setPmPlans(dataObj.pmPlans);
       if (dataObj.pmMachineIds && Array.isArray(dataObj.pmMachineIds)) setPmMachineIds(dataObj.pmMachineIds);
       if (dataObj.schedules) setSchedules(dataObj.schedules);
       if (dataObj.repairs) setRepairs(dataObj.repairs);
       if (dataObj.improvements) setImprovements(dataObj.improvements);
-      if (dataObj.leaves) setLeaves(dataObj.leaves);
       if (dataObj.spareParts) setSpareParts(dataObj.spareParts);
       if (dataObj.timeBreakParts) setTimeBreakParts(dataObj.timeBreakParts);
       if (dataObj.plannedProductionTimes && Array.isArray(dataObj.plannedProductionTimes)) {
@@ -1200,13 +1164,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     <AppContext.Provider value={{
       machines, setMachines,
       technicians, setTechnicians,
-      employees, setEmployees,
+      technicianShifts, setTechnicianShifts,
       pmPlans, setPmPlans,
       pmMachineIds, setPmMachineIds,
       schedules, setSchedules,
       repairs, setRepairs,
       improvements, setImprovements,
-      leaves, setLeaves,
       settings, setSettings,
       spareParts, setSpareParts,
       timeBreakParts, setTimeBreakParts,
