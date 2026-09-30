@@ -565,7 +565,7 @@ export const WhyWhySubTab: React.FC<WhyWhySubTabProps> = ({
                 setCreateMachineFilter('');
                 setShowCreateModal(true);
               }}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-xs font-bold transition cursor-pointer shadow-xs"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-accent rounded-lg text-xs font-bold transition cursor-pointer shadow-xs"
               title="จับคู่ผังร่างนี้เข้ากับเคสแจ้งซ่อม (Breakdown)"
             >
               <Link2 size={13} />
@@ -959,7 +959,7 @@ export const WhyWhySubTab: React.FC<WhyWhySubTabProps> = ({
           <button
             type="button"
             onClick={() => setShowCreateModal(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs shadow-xs transition cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent font-bold text-xs shadow-xs transition cursor-pointer"
           >
             <Plus size={14} />
             <span>สร้าง/จับคู่ Why-Why</span>
@@ -1029,7 +1029,7 @@ export const WhyWhySubTab: React.FC<WhyWhySubTabProps> = ({
                     <button
                       type="button"
                       onClick={() => setActiveRepairId(repair.id)}
-                      className="px-2.5 py-1 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-xs font-bold transition cursor-pointer shadow-xs whitespace-nowrap"
+                      className="px-2.5 py-1 bg-accent rounded-lg text-xs font-bold transition cursor-pointer shadow-xs whitespace-nowrap"
                     >
                       ดู/แก้ Why-Why
                     </button>
@@ -1182,7 +1182,7 @@ export const WhyWhySubTab: React.FC<WhyWhySubTabProps> = ({
                         className={`px-3 py-1.5 rounded-lg font-bold text-xs transition cursor-pointer shrink-0 flex items-center gap-1 ${
                           pairingDraftId
                             ? 'bg-amber-500 hover:bg-amber-600 text-white'
-                            : 'bg-cyan-600 group-hover:bg-cyan-500 text-white'
+                            : 'bg-accent'
                         }`}
                       >
                         {pairingDraftId ? (

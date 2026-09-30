@@ -295,7 +295,7 @@ export const PresentationPage: React.FC = () => {
               onClick={() => setActiveTab('pm-analysis')}
               className={`px-3 py-1.5 text-[11px] font-black rounded-lg transition-all ${
                 activeTab === 'pm-analysis' 
-                  ? 'bg-cyan-500 text-slate-950 font-black' 
+                  ? 'bg-accent font-black' 
                   : 'text-slate-400 hover:text-fg hover:bg-slate-900'
               }`}
             >
@@ -305,7 +305,7 @@ export const PresentationPage: React.FC = () => {
               onClick={() => setActiveTab('repair-analysis')}
               className={`px-3 py-1.5 text-[11px] font-black rounded-lg transition-all ${
                 activeTab === 'repair-analysis' 
-                  ? 'bg-cyan-500 text-slate-950 font-black' 
+                  ? 'bg-accent font-black' 
                   : 'text-slate-400 hover:text-fg hover:bg-slate-900'
               }`}
             >
@@ -315,7 +315,7 @@ export const PresentationPage: React.FC = () => {
               onClick={() => setActiveTab('tree')}
               className={`px-3 py-1.5 text-[11px] font-black rounded-lg transition-all ${
                 activeTab === 'tree' 
-                  ? 'bg-cyan-500 text-slate-950 font-black' 
+                  ? 'bg-accent font-black' 
                   : 'text-indigo-400 hover:text-fg hover:bg-slate-900'
               }`}
             >

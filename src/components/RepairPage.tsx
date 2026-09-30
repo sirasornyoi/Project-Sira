@@ -2181,9 +2181,9 @@ export const RepairPage: React.FC = () => {
                     setSelectedRepairDetail(null);
                     handleEditClick(currentLog);
                   }}
-                  className="flex items-center gap-1.5 bg-cyan-600 hover:bg-cyan-500 dark:bg-cyan-500 dark:hover:bg-cyan-400 text-white dark:text-slate-950 font-bold text-xs px-4.5 py-2 rounded-lg transition shadow-md cursor-pointer"
+                  className="flex items-center gap-1.5 bg-accent font-bold text-xs px-4.5 py-2 rounded-lg transition shadow-md cursor-pointer"
                 >
-                  <Edit size={13} className="text-white dark:text-slate-950" />
+                  <Edit size={13} />
                   แก้ไขประวัติซ่อม
                 </button>
                 <button
@@ -2264,7 +2264,7 @@ export const RepairPage: React.FC = () => {
                     รองรับไฟล์นามสกุล .xlsx, .xls, .csv เท่านั้น
                   </span>
                   
-                  <label className="mt-4 bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold px-4 py-2 rounded-lg cursor-pointer transition shadow-md">
+                  <label className="mt-4 bg-accent text-xs font-bold px-4 py-2 rounded-lg cursor-pointer transition shadow-md">
                     เลือกไฟล์ในเครื่อง
                     <input 
                       type="file" 

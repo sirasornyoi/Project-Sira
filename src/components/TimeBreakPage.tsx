@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import * as XLSX from 'xlsx';
 import { useApp } from '../context/AppContext';
 import { TimeBreakPartItem, TimeBreakHistoryRecord, Machine } from '../types';
+import { getTodayDateString } from '../utils/pmAlerts';
 import { 
   Clock, Plus, Search, Filter, AlertTriangle, CheckCircle, 
   Calendar, Wrench, RefreshCw, ChevronRight, ChevronDown, ChevronUp, Layers, Tag, 
@@ -711,7 +712,7 @@ export const TimeBreakPage: React.FC = () => {
       }
 
       const filePrefix = targetMachineId ? `TimeBreak_${targetMachineId}` : `TimeBreak_Parts_Plan_${selectedMonth}`;
-      const fileName = `${filePrefix}_${new Date().toISOString().split('T')[0]}.xlsx`;
+      const fileName = `${filePrefix}_${getTodayDateString()}.xlsx`;
       XLSX.writeFile(wb, fileName);
 
       setExportSuccessMsg(`ส่งออกไฟล์ "${fileName}" สำเร็จ (${partsToExport.length} รายการอะไหล่)`);
@@ -1186,7 +1187,7 @@ export const TimeBreakPage: React.FC = () => {
                     onClick={() => setViewMode('grouped')}
                     className={`px-3 py-1.5 rounded-md text-xs font-bold flex items-center gap-1.5 transition-all ${
                       viewMode === 'grouped'
-                        ? 'bg-cyan-600 text-white shadow-xs'
+                        ? 'bg-accent shadow-xs'
                         : 'text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-fg'
                     }`}
                     title="รวมเครื่องชื่อซ้ำไว้ที่เดียวกัน และกดแยกดูได้"
@@ -1199,7 +1200,7 @@ export const TimeBreakPage: React.FC = () => {
                     onClick={() => setViewMode('flat')}
                     className={`px-3 py-1.5 rounded-md text-xs font-bold flex items-center gap-1.5 transition-all ${
                       viewMode === 'flat'
-                        ? 'bg-cyan-600 text-white shadow-xs'
+                        ? 'bg-accent shadow-xs'
                         : 'text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-fg'
                     }`}
                     title="แสดงแยกเรียงทีละเครื่องจักรทุกเครื่อง"
@@ -1305,7 +1306,7 @@ export const TimeBreakPage: React.FC = () => {
                                   }}
                                   className={`p-1 rounded transition-colors ${
                                     isExpanded 
-                                      ? 'bg-cyan-600 text-white font-bold' 
+                                      ? 'bg-accent font-bold' 
                                       : 'bg-white dark:bg-slate-800 text-cyan-800 dark:text-cyan-400 hover:bg-cyan-50 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 shadow-xs'
                                   }`}
                                   title={isExpanded ? 'ยุบรวม' : 'กดแยกดูรายเครื่อง'}
@@ -1865,7 +1866,7 @@ export const TimeBreakPage: React.FC = () => {
                         onClick={() => setSelectedMachineId(sm.id)}
                         className={`px-2.5 py-1 rounded-lg text-xs font-mono font-semibold transition-all flex items-center gap-1.5 ${
                           isCurrent
-                            ? 'bg-cyan-600 text-white shadow-sm ring-1 ring-cyan-500'
+                            ? 'bg-accent shadow-sm ring-1 ring-cyan-500'
                             : 'bg-surface dark:bg-slate-900 text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-fg hover:bg-slate-100 dark:hover:bg-slate-800 border border-border dark:border-slate-800'
                         }`}
                       >
@@ -1897,7 +1898,7 @@ export const TimeBreakPage: React.FC = () => {
                   </p>
                   <button
                     onClick={() => handleOpenAddPart(activeMachine.id)}
-                    className="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold rounded-lg inline-flex items-center gap-2 shadow"
+                    className="px-4 py-2 bg-accent text-xs font-semibold rounded-lg inline-flex items-center gap-2 shadow"
                   >
                     <Plus className="w-4 h-4" />
                     เพิ่ม Part แรกสำหรับเครื่องนี้
@@ -2248,7 +2249,7 @@ export const TimeBreakPage: React.FC = () => {
                       }}
                       className={`px-2 py-0.5 rounded border transition-colors ${
                         formIntervalValue === preset.val && formIntervalUnit === preset.unit
-                          ? 'bg-cyan-600 text-white border-cyan-600'
+                          ? 'bg-accent border-cyan-600'
                           : 'bg-surface dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-border dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800'
                       }`}
                     >
@@ -2751,7 +2752,7 @@ export const TimeBreakPage: React.FC = () => {
                 type="button"
                 id="btn-confirm-copy-tb-part"
                 onClick={confirmCopyPartToSiblings}
-                className="w-1/2 bg-cyan-600 hover:bg-cyan-500 text-white py-2.5 rounded-xl cursor-pointer transition shadow-lg shadow-cyan-600/20"
+                className="w-1/2 bg-accent py-2.5 rounded-xl cursor-pointer transition shadow-lg"
               >
                 ยืนยันคัดลอก
               </button>

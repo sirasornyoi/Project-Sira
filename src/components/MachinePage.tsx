@@ -269,7 +269,7 @@ export const MachinePage: React.FC = () => {
 
       XLSX.utils.book_append_sheet(wb, ws, 'ทะเบียนเครื่องจักร');
 
-      const fileName = `ทะเบียนเครื่องจักร_Machines_${new Date().toISOString().split('T')[0]}.xlsx`;
+      const fileName = `ทะเบียนเครื่องจักร_Machines_${getTodayDateString()}.xlsx`;
       XLSX.writeFile(wb, fileName);
       setFeedbackMessage({ 
         type: 'success', 

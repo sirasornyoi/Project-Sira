@@ -19,6 +19,7 @@ import {
   CHANGE_POINT_EXPLANATION,
   buildReverseLogicSentence
 } from '../utils/whyWhyUtils';
+import { getTodayDateString } from '../utils/pmAlerts';
 
 function findNodeInRoots(roots: WhyNode[], id: string): WhyNode | null {
   for (const r of roots) {
@@ -738,7 +739,7 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
     const cleanPhenomenon = (value.phenomenon || 'WhyWhy')
       .slice(0, 24)
       .replace(/[^a-zA-Z0-9ก-๙_-]/g, '_');
-    const dateStr = new Date().toISOString().slice(0, 10);
+    const dateStr = getTodayDateString();
     return `WhyWhy_${cleanMachine}_${cleanPhenomenon}_${dateStr}`;
   };
 
@@ -1175,7 +1176,7 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
                 <button
                   type="button"
                   onClick={handleAutoDraftReverseLogic}
-                  className="shrink-0 flex items-center gap-1 px-2.5 py-1 bg-cyan-600 hover:bg-cyan-700 active:bg-cyan-800 text-white rounded-lg font-bold text-xs shadow-xs transition cursor-pointer"
+                  className="shrink-0 flex items-center gap-1 px-2.5 py-1 bg-accent rounded-lg font-bold text-xs shadow-xs transition cursor-pointer"
                   title="สร้างประโยค เพราะ...จึง... จากกล่อง Why ตามเส้นลูกศร"
                 >
                   <Sparkles size={12} />
@@ -1470,7 +1471,7 @@ export const WhyWhyCanvasBuilder: React.FC<WhyWhyCanvasBuilderProps> = ({
                           <button
                             type="button"
                             onClick={() => setEditingNodeId(null)}
-                            className="flex items-center gap-0.5 px-2 py-0.5 text-[10px] font-bold bg-cyan-600 hover:bg-cyan-700 text-white rounded transition cursor-pointer"
+                            className="flex items-center gap-0.5 px-2 py-0.5 text-[10px] font-bold bg-accent rounded transition cursor-pointer"
                           >
                             <Check size={11} /> เสร็จสิ้น
                           </button>

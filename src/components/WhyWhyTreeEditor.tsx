@@ -213,7 +213,7 @@ export const WhyWhyTreeEditor: React.FC<WhyWhyTreeEditorProps> = ({
                 onClick={() => handleUpdate({ occurrenceType: 'first' })}
                 className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition ${
                   value.occurrenceType === 'first'
-                    ? 'bg-blue-600 text-white shadow-xs'
+                    ? 'bg-accent shadow-xs'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
                 }`}
               >
@@ -465,7 +465,7 @@ export const WhyWhyTreeEditor: React.FC<WhyWhyTreeEditorProps> = ({
               <button
                 type="button"
                 onClick={() => handleCreateBranch(selectedAxisForNewBranch)}
-                className="px-4 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold shadow-sm"
+                className="px-4 py-1.5 rounded-lg bg-accent text-xs font-bold shadow-sm"
               >
                 ยืนยันและสร้างกิ่งใหม่
               </button>

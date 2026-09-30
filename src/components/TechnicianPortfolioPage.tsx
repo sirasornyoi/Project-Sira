@@ -13,6 +13,7 @@ import html2canvas from 'html2canvas';
 import { useApp } from '../context/AppContext';
 import { ImprovementProject, RepairLog, PMScheduleItem } from '../types';
 import { compressImageFile } from '../utils/imageUtils';
+import { getTodayDateString } from '../utils/pmAlerts';
 
 export const TechnicianPortfolioPage: React.FC = () => {
   const { 
@@ -48,8 +49,8 @@ export const TechnicianPortfolioPage: React.FC = () => {
   const [newTitle, setNewTitle] = useState<string>('');
   const [newDesc, setNewDesc] = useState<string>('');
   const [newMachineId, setNewMachineId] = useState<string>('');
-  const [newStartDate, setNewStartDate] = useState<string>(new Date().toISOString().split('T')[0]);
-  const [newEndDate, setNewEndDate] = useState<string>(new Date().toISOString().split('T')[0]);
+  const [newStartDate, setNewStartDate] = useState<string>(getTodayDateString());
+  const [newEndDate, setNewEndDate] = useState<string>(getTodayDateString());
   const [newStatus, setNewStatus] = useState<'วางแผน' | 'กำลังดำเนินการ' | 'เสร็จแล้ว'>('กำลังดำเนินการ');
   const [newWorkHours, setNewWorkHours] = useState<number>(2);
   const [newWorkNote, setNewWorkNote] = useState<string>('');
@@ -431,7 +432,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
     ];
     XLSX.utils.book_append_sheet(wb, wsPM, 'ประวัติงาน PM');
 
-    const dateStr = new Date().toISOString().split('T')[0];
+    const dateStr = getTodayDateString();
     const cleanTechName = selectedTech.replace(/[^a-zA-Z0-9ก-๙]/g, '_');
     XLSX.writeFile(wb, `Portfolio_ผลงาน_${cleanTechName}_${dateStr}.xlsx`);
   };
@@ -730,7 +731,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
     }
 
     const cleanTechName = selectedTech.replace(/[^a-zA-Z0-9ก-๙]/g, '_');
-    const dateStr = new Date().toISOString().split('T')[0];
+    const dateStr = getTodayDateString();
     const reportHTML = buildStandalonePortfolioHTML();
 
     const fullPageHTML = `
@@ -859,7 +860,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
       setPdfProgressText('กำลังเตรียมข้อมูลเอกสาร...');
 
       const cleanTechName = selectedTech.replace(/[^a-zA-Z0-9ก-๙]/g, '_');
-      const dateStr = new Date().toISOString().split('T')[0];
+      const dateStr = getTodayDateString();
       const reportHTML = buildStandalonePortfolioHTML();
 
       setPdfProgressText('กำลังเรนเดอร์โครงสร้างเอกสาร...');
@@ -1058,7 +1059,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
                   onClick={() => setSelectedTech(tech)}
                   className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 shrink-0 border ${
                     isSelected 
-                      ? 'bg-cyan-500 text-slate-950 border-cyan-400 shadow-md shadow-cyan-500/10' 
+                      ? 'bg-accent border-cyan-400 shadow-md shadow-cyan-500/10' 
                       : 'bg-slate-950/80 hover:bg-slate-800 text-slate-300 border-slate-800'
                   }`}
                 >
@@ -1164,7 +1165,7 @@ export const TechnicianPortfolioPage: React.FC = () => {
             onClick={() => setActiveTab('all')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shrink-0 ${
               activeTab === 'all' 
-                ? 'bg-cyan-600 dark:bg-cyan-500 text-white dark:text-slate-950 font-bold shadow-sm' 
+                ? 'bg-accent font-bold shadow-sm' 
                 : 'bg-slate-100 dark:bg-slate-950 text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-fg border border-slate-200 dark:border-slate-800'
             }`}
           >

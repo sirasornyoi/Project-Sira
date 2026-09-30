@@ -577,28 +577,22 @@ button, input, select, textarea {
 }
 
 /* Active / Selected item in sidebar (Light mode) */
-.light-theme #app-sidebar-nav button.sidebar-active,
-.light-theme #app-sidebar-nav button.bg-cyan-500 {
+.light-theme #app-sidebar-nav button.sidebar-active {
   background-color: var(--sidebar-active-bg) !important;
   color: var(--sidebar-active-fg) !important;
   box-shadow: 0 4px 12px -2px rgba(3, 105, 161, 0.15) !important;
 }
 
-.light-theme #app-sidebar-nav button.sidebar-active svg,
-.light-theme #app-sidebar-nav button.bg-cyan-500 svg {
+.light-theme #app-sidebar-nav button.sidebar-active svg {
   color: var(--sidebar-active-fg) !important;
 }
 
-.light-theme #app-sidebar-nav button.sidebar-active p,
-.light-theme #app-sidebar-nav button.bg-cyan-500 p {
+.light-theme #app-sidebar-nav button.sidebar-active p {
   color: var(--sidebar-active-fg) !important;
 }
 
 .light-theme #app-sidebar-nav button.sidebar-active p.sidebar-desc,
-.light-theme #app-sidebar-nav button.sidebar-active .text-\[9px\],
-.light-theme #app-sidebar-nav button.bg-cyan-500 p.text-slate-800,
-.light-theme #app-sidebar-nav button.bg-cyan-500 p.text-slate-900,
-.light-theme #app-sidebar-nav button.bg-cyan-500 .text-\[9px\] {
+.light-theme #app-sidebar-nav button.sidebar-active .text-\[9px\] {
   color: var(--sidebar-active-fg) !important;
 }
 
@@ -1235,11 +1229,6 @@ button, input, select, textarea {
   background-color: #f1f5f9 !important;
 }
 
-.light-theme #schedule-view-mode-tabs button.bg-cyan-500 {
-  background-color: #0284c7 !important;
-  color: #ffffff !important;
-}
-
 /* --- SchedulePage Monthly Calendar Grid Light Theme Overrides --- */
 .light-theme #monthly-calendar-container {
   background-color: var(--surface) !important;
@@ -1501,11 +1490,6 @@ button, input, select, textarea {
 .light-theme #monthly-sub-tabs button:hover {
   color: #0f172a !important;
   background-color: #e2e8f0 !important;
-}
-
-.light-theme #monthly-sub-tabs button.bg-cyan-500 {
-  background-color: #0284c7 !important;
-  color: #ffffff !important;
 }
 
 /* PM Calendar Instructions & Days of Week */
@@ -5181,11 +5165,6 @@ button, input, select, textarea {
   background-color: #cbd5e1 !important;
 }
 
-.light-theme #executive-presentation-dashboard button.bg-cyan-500 {
-  background-color: #0284c7 !important;
-  color: #ffffff !important;
-}
-
 /* 2. Statistical KPI Cards */
 .light-theme #executive-presentation-dashboard div.grid-cols-1.\md\:grid-cols-3 > div.bg-slate-900 {
   background-color: var(--surface) !important;
@@ -7809,161 +7788,3 @@ button, input, select, textarea {
   background: linear-gradient(to right, #059669, #0d9488) !important;
   color: #ffffff !important;
 }
-
-/* ==========================================================================
-   GLOBAL LIGHT MODE: ALL BLUE / CYAN / SKY / INDIGO BOXES & BUTTONS HAVE WHITE TEXT
-   ========================================================================== */
-.light-theme .bg-blue-500,
-.light-theme .bg-blue-600,
-.light-theme .bg-blue-700,
-.light-theme .bg-blue-800,
-.light-theme .bg-blue-900,
-.light-theme .bg-cyan-500,
-.light-theme .bg-cyan-600,
-.light-theme .bg-cyan-700,
-.light-theme .bg-cyan-800,
-.light-theme .bg-cyan-900,
-.light-theme .bg-sky-500,
-.light-theme .bg-sky-600,
-.light-theme .bg-sky-700,
-.light-theme .bg-sky-800,
-.light-theme .bg-sky-900,
-.light-theme .bg-indigo-500,
-.light-theme .bg-indigo-600,
-.light-theme .bg-indigo-700,
-.light-theme .bg-indigo-800,
-.light-theme .bg-indigo-900,
-.light-theme .bg-\[\#0284c7\],
-.light-theme .bg-\[\#0369a1\],
-.light-theme .bg-\[\#2563eb\],
-.light-theme .bg-\[\#1d4ed8\],
-.light-theme .bg-\[\#1e40af\],
-.light-theme .bg-\[\#1e3a8a\],
-.light-theme button[class*="bg-blue-600"],
-.light-theme button[class*="bg-blue-500"],
-.light-theme button[class*="bg-cyan-600"],
-.light-theme button[class*="bg-cyan-500"],
-.light-theme button[class*="bg-sky-600"],
-.light-theme button[class*="bg-sky-500"],
-.light-theme button[class*="bg-indigo-600"],
-.light-theme button[class*="bg-indigo-500"],
-.light-theme a[class*="bg-blue-600"],
-.light-theme a[class*="bg-cyan-600"],
-.light-theme #btn-add-pm-machine,
-.light-theme #btn-add-pm-plan,
-.light-theme #pm-right-machine-header #btn-add-pm-plan,
-.light-theme #pm-left-machine-selector #btn-add-pm-machine {
-  color: #ffffff !important;
-}
-
-.light-theme #pm-right-machine-header #btn-add-pm-plan span,
-.light-theme #pm-right-machine-header #btn-add-pm-plan svg,
-.light-theme #pm-right-machine-header #btn-add-pm-plan *,
-.light-theme #pm-left-machine-selector #btn-add-pm-machine span,
-.light-theme #pm-left-machine-selector #btn-add-pm-machine svg,
-.light-theme #pm-left-machine-selector #btn-add-pm-machine *,
-.light-theme #btn-add-pm-plan span,
-.light-theme #btn-add-pm-plan svg,
-.light-theme #btn-add-pm-plan *,
-.light-theme #btn-add-pm-machine span,
-.light-theme #btn-add-pm-machine svg,
-.light-theme #btn-add-pm-machine * {
-  color: #ffffff !important;
-}
-
-.light-theme .bg-blue-500 *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
-.light-theme .bg-blue-600 *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
-.light-theme .bg-blue-700 *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
-.light-theme .bg-blue-800 *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
-.light-theme .bg-blue-900 *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
-.light-theme .bg-cyan-500 *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
-.light-theme .bg-cyan-600 *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
-.light-theme .bg-cyan-700 *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
-.light-theme .bg-cyan-800 *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
-.light-theme .bg-cyan-900 *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
-.light-theme .bg-sky-500 *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
-.light-theme .bg-sky-600 *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
-.light-theme .bg-sky-700 *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
-.light-theme .bg-sky-800 *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
-.light-theme .bg-sky-900 *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
-.light-theme .bg-indigo-500 *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
-.light-theme .bg-indigo-600 *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
-.light-theme .bg-indigo-700 *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
-.light-theme .bg-indigo-800 *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
-.light-theme .bg-indigo-900 *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
-.light-theme .bg-\[\#0284c7\] *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
-.light-theme .bg-\[\#0369a1\] *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
-.light-theme .bg-\[\#2563eb\] *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *),
-.light-theme .bg-\[\#1d4ed8\] *:not(input):not(textarea):not(select):not(.bg-white):not(.bg-white *) {
-  color: #ffffff !important;
-}
-
-.light-theme .bg-blue-500 span,
-.light-theme .bg-blue-600 span,
-.light-theme .bg-blue-700 span,
-.light-theme .bg-cyan-500 span,
-.light-theme .bg-cyan-600 span,
-.light-theme .bg-cyan-700 span,
-.light-theme .bg-sky-500 span,
-.light-theme .bg-sky-600 span,
-.light-theme .bg-sky-700 span,
-.light-theme .bg-indigo-500 span,
-.light-theme .bg-indigo-600 span,
-.light-theme .bg-indigo-700 span,
-.light-theme .bg-\[\#0284c7\] span,
-.light-theme .bg-\[\#0369a1\] span,
-.light-theme .bg-\[\#2563eb\] span,
-.light-theme .bg-\[\#1d4ed8\] span,
-.light-theme .bg-blue-500 p,
-.light-theme .bg-blue-600 p,
-.light-theme .bg-cyan-500 p,
-.light-theme .bg-cyan-600 p,
-.light-theme .bg-sky-500 p,
-.light-theme .bg-sky-600 p {
-  color: #ffffff !important;
-}
-
-.light-theme .bg-blue-500 svg,
-.light-theme .bg-blue-600 svg,
-.light-theme .bg-blue-700 svg,
-.light-theme .bg-cyan-500 svg,
-.light-theme .bg-cyan-600 svg,
-.light-theme .bg-cyan-700 svg,
-.light-theme .bg-sky-500 svg,
-.light-theme .bg-sky-600 svg,
-.light-theme .bg-sky-700 svg,
-.light-theme .bg-indigo-500 svg,
-.light-theme .bg-indigo-600 svg,
-.light-theme .bg-indigo-700 svg,
-.light-theme .bg-\[\#0284c7\] svg,
-.light-theme .bg-\[\#0369a1\] svg,
-.light-theme .bg-\[\#2563eb\] svg,
-.light-theme .bg-\[\#1d4ed8\] svg {
-  color: #ffffff !important;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

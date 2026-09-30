@@ -152,7 +152,7 @@ export const ZoneRoomFieldGroup: React.FC<ZoneRoomFieldGroupProps> = ({
               type="button"
               id={`${idPrefix}-btn-confirm-custom-zone`}
               onClick={() => handleSaveCustomZone()}
-              className="p-1.5 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-md transition cursor-pointer shadow-sm"
+              className="p-1.5 bg-accent font-bold rounded-md transition cursor-pointer shadow-sm"
               title="บันทึกโซน"
             >
               <Check size={14} />
@@ -257,7 +257,7 @@ export const ZoneRoomFieldGroup: React.FC<ZoneRoomFieldGroupProps> = ({
               type="button"
               id={`${idPrefix}-btn-confirm-custom-room`}
               onClick={() => handleSaveCustomRoom()}
-              className="p-1.5 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-md transition cursor-pointer shadow-sm"
+              className="p-1.5 bg-accent font-bold rounded-md transition cursor-pointer shadow-sm"
               title="บันทึกห้อง"
             >
               <Check size={14} />

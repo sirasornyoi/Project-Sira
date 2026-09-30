@@ -39,7 +39,7 @@ export const StatsAndPresentationHub: React.FC<StatsAndPresentationHubProps> = (
             onClick={() => setSubTab('stats')}
             className={`flex items-center gap-2 px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
               subTab === 'stats'
-                ? 'bg-cyan-600 text-white shadow-sm'
+                ? 'bg-accent shadow-sm'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-900'
             }`}
           >
@@ -52,7 +52,7 @@ export const StatsAndPresentationHub: React.FC<StatsAndPresentationHubProps> = (
             onClick={() => setSubTab('presentation')}
             className={`flex items-center gap-2 px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
               subTab === 'presentation'
-                ? 'bg-cyan-600 text-white shadow-sm'
+                ? 'bg-accent shadow-sm'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-900'
             }`}
           >

@@ -264,7 +264,7 @@ export const ZoneRoomManagerModal: React.FC<ZoneRoomManagerModalProps> = ({
                       id="save-new-zone-btn"
                       type="submit"
                       disabled={!newZoneInput.trim()}
-                      className="px-3.5 py-1.5 text-xs bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg font-bold disabled:opacity-50 transition cursor-pointer"
+                      className="px-3.5 py-1.5 text-xs bg-accent rounded-lg font-bold disabled:opacity-50 transition cursor-pointer"
                     >
                       บันทึกโซน
                     </button>
@@ -417,7 +417,7 @@ export const ZoneRoomManagerModal: React.FC<ZoneRoomManagerModalProps> = ({
                         setIsAddingRoom(true);
                         setNewRoomInput('');
                       }}
-                      className="px-3 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
+                      className="px-3 py-1.5 bg-accent rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
                     >
                       <Plus className="w-3.5 h-3.5" />
                       เพิ่มห้องในโซนนี้
@@ -446,7 +446,7 @@ export const ZoneRoomManagerModal: React.FC<ZoneRoomManagerModalProps> = ({
                           id="save-new-room-btn"
                           type="submit"
                           disabled={!newRoomInput.trim()}
-                          className="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-xs font-bold whitespace-nowrap disabled:opacity-50 transition cursor-pointer"
+                          className="px-4 py-2 bg-accent rounded-lg text-xs font-bold whitespace-nowrap disabled:opacity-50 transition cursor-pointer"
                         >
                           บันทึกห้อง
                         </button>
