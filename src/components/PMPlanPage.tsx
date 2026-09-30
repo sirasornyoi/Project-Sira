@@ -378,8 +378,8 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
       return;
     }
 
-    if (result.schedules) {
-      setSchedules(result.schedules);
+    if (result.job) {
+      setSchedules(prev => prev.some(s => s.id === result.job!.id) ? prev.map(s => s.id === result.job!.id ? result.job! : s) : [...prev, result.job!]);
     }
     if (result.plan) {
       setPmPlans(prev => prev.map(p => p.id === result.plan!.id ? result.plan! : p));
@@ -824,7 +824,7 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
     setPlanFrequency('รายเดือน');
     setPlanSpareParts('');
     setPlanSparePartsQty('');
-    setPlanInspectorTech('ทีมช่างบำรุงรักษา');
+    setPlanInspectorTech('');
     setPlanAcknowledgingDept('ฝ่ายผลิต');
     setPlanSupervisorName('หัวหน้าหน่วย PM');
     setPlanLastCheckedDate(getTodayDateString());

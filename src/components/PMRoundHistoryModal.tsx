@@ -68,11 +68,11 @@ export const PMRoundHistoryModal: React.FC<PMRoundHistoryModalProps> = ({
   // Selected job for sheet view (defaults to first filtered job)
   const activeJob = useMemo(() => {
     if (selectedJobId) {
-      const found = filteredJobs.find(j => j.id === selectedJobId) || roundJobs.find(j => j.id === selectedJobId);
+      const found = filteredJobs.find(j => j.id === selectedJobId);
       if (found) return found;
     }
     return filteredJobs[0] || null;
-  }, [selectedJobId, filteredJobs, roundJobs]);
+  }, [selectedJobId, filteredJobs]);
 
   // Find previous round job relative to activeJob in roundJobs
   const prevJob = useMemo(() => {
@@ -171,7 +171,10 @@ export const PMRoundHistoryModal: React.FC<PMRoundHistoryModalProps> = ({
               <span className="text-slate-600 dark:text-slate-400 text-[11px]">ปี:</span>
               <select
                 value={filterYear}
-                onChange={(e) => setFilterYear(e.target.value)}
+                onChange={(e) => {
+                  setFilterYear(e.target.value);
+                  setSelectedJobId(null);
+                }}
                 className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-1 text-xs text-slate-900 dark:text-slate-200 focus:outline-none"
               >
                 <option value="all">ทุกปี ({availableYears.length})</option>
@@ -186,7 +189,10 @@ export const PMRoundHistoryModal: React.FC<PMRoundHistoryModalProps> = ({
               <span className="text-slate-600 dark:text-slate-400 text-[11px]">ช่าง:</span>
               <select
                 value={filterTech}
-                onChange={(e) => setFilterTech(e.target.value)}
+                onChange={(e) => {
+                  setFilterTech(e.target.value);
+                  setSelectedJobId(null);
+                }}
                 className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-1 text-xs text-slate-900 dark:text-slate-200 focus:outline-none"
               >
                 <option value="all">ช่างทุกคน</option>
@@ -350,10 +356,19 @@ export const PMRoundHistoryModal: React.FC<PMRoundHistoryModalProps> = ({
                         const isAbnormal = step.result === 'ไม่ปกติ';
 
                         // Match step in previous round job
-                        const prevStep = prevJob?.checklistResult?.steps?.find(ps => 
-                          (ps.id && step.id && ps.id === step.id) || 
-                          (ps.title === step.title && (ps.itemNo === step.itemNo || !step.itemNo))
-                        );
+                        const prevSteps = prevJob?.checklistResult?.steps || [];
+                        const prevStep = (() => {
+                          if (step.id) {
+                            const byId = prevSteps.find(ps => Boolean(ps.id && ps.id === step.id));
+                            if (byId) return byId;
+                          }
+                          const byThree = prevSteps.find(ps => ps.itemNo === step.itemNo && ps.title === step.title && ps.standard === step.standard);
+                          if (byThree) return byThree;
+                          if (prevSteps[idx] && prevSteps[idx].title === step.title) {
+                            return prevSteps[idx];
+                          }
+                          return undefined;
+                        })();
 
                         // Highlight if changed from previous round
                         const isChanged = Boolean(
