@@ -64,6 +64,7 @@ export interface PMScheduleItem {
   technician: string;
   technicians?: string[]; // ช่างที่ปฏิบัติงานร่วมกัน
   date: string; // YYYY-MM-DD
+  createdAt?: string; // เวลาบันทึกครั้งแรก
   machineId: string;
   pmPlanId: string;
   title?: string; // Optional PM title / task description

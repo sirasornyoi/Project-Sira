@@ -98,6 +98,7 @@ export function recordPmRound({
       const updatedJob: PMScheduleItem = {
         ...existingDoneWithChecklist,
         date,
+        createdAt: existingDoneWithChecklist.createdAt || existingDoneWithChecklist.checklistResult?.recordedAt || getNowLocalDateTimeString(),
         technician: technicians[0],
         technicians,
         peopleCount: technicians.length,
@@ -126,6 +127,7 @@ export function recordPmRound({
     const jobToComplete: PMScheduleItem = {
       ...pendingJob,
       date,
+      createdAt: pendingJob.createdAt || getNowLocalDateTimeString(),
       technician: technicians[0],
       technicians,
       peopleCount: technicians.length,
@@ -150,6 +152,7 @@ export function recordPmRound({
     type: 'PM',
     status: 'เสร็จสิ้น',
     date,
+    createdAt: getNowLocalDateTimeString(),
     machineId: plan.machineId,
     pmPlanId: plan.id,
     technician: technicians[0],

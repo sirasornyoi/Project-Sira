@@ -3,11 +3,11 @@ import * as XLSX from 'xlsx';
 import { useApp } from '../context/AppContext';
 import { PMPlan, PMFrequency, PMStep, Machine, PMScheduleItem } from '../types';
 import { 
-  Search, Plus, Trash2, Edit3, CheckCircle, PackageOpen, 
+  Search, Plus, Trash2, Edit3, CheckCircle, CheckCircle2, PackageOpen, 
   Clock, ClipboardList, Copy, Upload, Download, Check, AlertTriangle, 
   Sparkles, FileSpreadsheet, ArrowLeftRight, CheckSquare, Square, 
   Calendar, User, Wrench, ShieldCheck, RefreshCw, FileText, ChevronDown, ChevronUp,
-  Maximize2, Minimize2, History, Layers, Share2
+  Maximize2, Minimize2, History, Layers, Share2, X
 } from 'lucide-react';
 import { 
   exportPMReportToExcel, 
@@ -17,7 +17,7 @@ import {
 } from '../utils/pmExcelUtils';
 import { PMKpiPanel } from './PMKpiPanel';
 import { PMHistoryPage } from './PMHistoryPage';
-import { getTodayDateString } from '../utils/pmAlerts';
+import { getTodayDateString, getNowLocalDateTimeString } from '../utils/pmAlerts';
 import { completePmJob, planHasProgress, resetPlanChecklist, recordPmRound } from '../utils/pmChecklist';
 import { PMRoundHistoryModal } from './PMRoundHistoryModal';
 
@@ -51,6 +51,12 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
   const [cardRecordDates, setCardRecordDates] = useState<Record<string, string>>({});
   const [cardRecordTechs, setCardRecordTechs] = useState<Record<string, string[]>>({});
   const [cardRecordDurations, setCardRecordDurations] = useState<Record<string, string>>({});
+
+  // Direct Recording Modal state (accessible from header / toolbar)
+  const [recordingModalPlan, setRecordingModalPlan] = useState<PMPlan | null>(null);
+  const [modalRecordDate, setModalRecordDate] = useState<string>(getTodayDateString());
+  const [modalRecordTechs, setModalRecordTechs] = useState<string[]>([]);
+  const [modalRecordDuration, setModalRecordDuration] = useState<string>('');
 
   useEffect(() => {
     if (!toast) return;
@@ -338,9 +344,24 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
     }
   };
 
-  const handleRecordRound = (plan: PMPlan, overwrite = false, overrideDuration?: number) => {
+  const handleOpenRecordRoundModal = (plan: PMPlan) => {
+    setRecordingModalPlan(plan);
     const date = cardRecordDates[plan.id] || getTodayDateString();
-    const techs = cardRecordTechs[plan.id] ?? getInitialTechsForPlanAndDate(plan, date);
+    setModalRecordDate(date);
+    const initialTechs = cardRecordTechs[plan.id] ?? getInitialTechsForPlanAndDate(plan, date);
+    setModalRecordTechs(initialTechs);
+    setModalRecordDuration(cardRecordDurations[plan.id] || (plan.ttm ? String(plan.ttm) : ''));
+  };
+
+  const handleRecordRound = (
+    plan: PMPlan, 
+    overwrite = false, 
+    overrideDuration?: number,
+    overrideDate?: string,
+    overrideTechs?: string[]
+  ) => {
+    const date = overrideDate || cardRecordDates[plan.id] || getTodayDateString();
+    const techs = overrideTechs || (cardRecordTechs[plan.id] ?? getInitialTechsForPlanAndDate(plan, date));
 
     if (techs.length === 0) {
       setToast({ text: "กรุณาเลือกผู้ทำการ PM อย่างน้อย 1 คน", type: 'error' });
@@ -1467,6 +1488,32 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
               <Plus size={14} strokeWidth={2.5} />
               <span className="font-extrabold">+ เพิ่มงานแผน PM ใหม่</span>
             </button>
+
+            {/* 7. Record PM & PM History Buttons (In empty space) */}
+            {activeMachinePlans.length > 0 && (
+              <>
+                <button
+                  id="btn-toolbar-record-pm"
+                  type="button"
+                  onClick={() => handleOpenRecordRoundModal(activeMachinePlans[0])}
+                  className="flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-xl text-xs transition cursor-pointer shadow-md"
+                  title="บันทึกการทำ PM สำหรับเครื่องนี้"
+                >
+                  <CheckCircle2 size={15} strokeWidth={2.5} />
+                  <span>บันทึกการทำ PM</span>
+                </button>
+                <button
+                  id="btn-toolbar-history-pm"
+                  type="button"
+                  onClick={() => setHistoryModalPlan(activeMachinePlans[0])}
+                  className="flex items-center gap-1.5 px-3.5 py-2 bg-blue-50 hover:bg-blue-100 border border-blue-300 text-blue-800 dark:bg-blue-500/15 dark:border-blue-500/30 dark:text-blue-300 dark:hover:bg-blue-500/25 rounded-xl text-xs font-bold transition cursor-pointer shadow-2xs"
+                  title="เปิดดูประวัติการบันทึก PM ย้อนหลัง แก้ไขหรือลบรายการ"
+                >
+                  <History size={14} strokeWidth={2.2} />
+                  <span>ประวัติ PM</span>
+                </button>
+              </>
+            )}
           </div>
         </div>
 
@@ -1649,6 +1696,19 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
                       <div className="flex items-center gap-1.5">
                         <button
                           type="button"
+                          id={`btn-record-plan-header-${plan.id}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenRecordRoundModal(plan);
+                          }}
+                          className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-500 dark:hover:bg-emerald-600 dark:text-slate-950 rounded-lg text-xs font-bold transition cursor-pointer shadow-xs hover:shadow"
+                          title="บันทึกการทำ PM รอบนี้ลงในประวัติและตารางงาน"
+                        >
+                          <CheckCircle2 size={13} strokeWidth={2.5} />
+                          <span>บันทึกการทำ PM</span>
+                        </button>
+                        <button
+                          type="button"
                           id={`btn-history-plan-${plan.id}`}
                           onClick={() => setHistoryModalPlan(plan)}
                           className="flex items-center gap-1.5 px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 border border-blue-300 text-blue-800 dark:bg-blue-500/15 dark:border-blue-500/30 dark:text-blue-300 dark:hover:bg-blue-500/25 rounded-lg text-xs font-bold transition cursor-pointer shadow-2xs"
@@ -1727,13 +1787,23 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
                           </button>
                         </div>
 
-                        {/* Add Step Button (+ เพิ่มการทำ PM) */}
+                        {/* Add Step & Record PM Buttons */}
                         <div className="flex items-center gap-2">
                           {abnormalSteps > 0 && (
                             <span className="text-[11px] font-bold text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/15 border border-rose-300 dark:border-rose-500/30 px-2 py-0.5 rounded-lg flex items-center gap-1">
                               <AlertTriangle size={12} /> พบผิดปกติ {abnormalSteps} รายการ
                             </span>
                           )}
+                          <button
+                            type="button"
+                            id={`btn-record-plan-tabletop-${plan.id}`}
+                            onClick={() => handleOpenRecordRoundModal(plan)}
+                            className="flex items-center gap-1.5 px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-lg text-[11px] transition cursor-pointer shadow-xs"
+                            title="บันทึกการทำ PM รอบนี้ลงในประวัติและตารางงาน"
+                          >
+                            <CheckCircle2 size={13} strokeWidth={2.5} />
+                            <span>บันทึกการทำ PM</span>
+                          </button>
                           <button
                             onClick={() => handleOpenAddStepModal(plan.id)}
                             className="flex items-center gap-1 px-3 py-1 bg-cyan-50 hover:bg-cyan-100 text-cyan-800 border border-cyan-300 dark:bg-cyan-500/20 dark:hover:bg-cyan-500/30 dark:text-cyan-300 dark:border-cyan-500/30 rounded-lg text-[11px] font-bold transition cursor-pointer"
@@ -2030,7 +2100,7 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
                           <div className="flex items-center gap-2">
                             <Calendar size={15} className="text-cyan-600 dark:text-cyan-400 shrink-0" />
                             <div>
-                              <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100">บันทึกผลการทำ PM รอบรายเดือน</h4>
+                              <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100">บันทึกการทำ PM รอบรายเดือน</h4>
                               <p className="text-[10.5px] text-slate-500 dark:text-slate-400">
                                 บันทึกผลตรวจเช็คลิสต์ลงในประวัติของเดือนนี้ และปิดใบงาน PM ในตารางงาน
                               </p>
@@ -2038,16 +2108,28 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
                           </div>
                           
                           <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+                            {/* Actual Date Performed */}
                             <div className="flex items-center gap-1.5">
-                              <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-400 shrink-0">วันที่ทำ PM:</label>
+                              <label className="text-[11px] font-semibold text-cyan-800 dark:text-cyan-300 shrink-0 flex items-center gap-1">
+                                <Calendar size={12} className="text-cyan-600 dark:text-cyan-400" />
+                                วันที่ทำจริง:
+                              </label>
                               <input
                                 type="date"
                                 value={cardRecordDates[plan.id] || getTodayDateString()}
                                 onChange={(e) => handleCardDateChange(plan, e.target.value)}
-                                className="bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-1 text-xs text-slate-900 dark:text-slate-200 focus:outline-none focus:border-cyan-500"
+                                className="bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-1 text-xs text-slate-900 dark:text-slate-200 focus:outline-none focus:border-cyan-500 font-mono font-bold"
                               />
                             </div>
 
+                            {/* First Recorded Timestamp Display */}
+                            <div className="flex items-center gap-1.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-2.5 py-1 text-xs">
+                              <Clock size={12} className="text-slate-400 shrink-0" />
+                              <span className="text-slate-500 dark:text-slate-400 text-[10.5px]">เวลาบันทึกครั้งแรก:</span>
+                              <span className="font-mono font-bold text-slate-700 dark:text-slate-300 text-[11px]">{getNowLocalDateTimeString()}</span>
+                            </div>
+
+                            {/* Actual Duration */}
                             <div className="flex items-center gap-1.5">
                               <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-400 shrink-0">เวลาที่ใช้จริง (นาที) – ไม่บังคับ:</label>
                               <input
@@ -2112,10 +2194,10 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
                                   type="button"
                                   disabled={!hasSelectedTech}
                                   onClick={() => handleRecordRound(plan)}
-                                  className="flex items-center gap-1.5 px-4 py-2 bg-accent font-extrabold text-xs rounded-xl shadow-md transition disabled:bg-slate-200 dark:disabled:bg-slate-800 disabled:text-slate-400 dark:disabled:text-slate-600 disabled:cursor-not-allowed cursor-pointer"
+                                  className="flex items-center gap-1.5 px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-md transition disabled:bg-slate-200 dark:disabled:bg-slate-800 disabled:text-slate-400 dark:disabled:text-slate-600 disabled:cursor-not-allowed cursor-pointer"
                                 >
-                                  <CheckCircle size={14} />
-                                  <span>{!hasSelectedTech ? 'เลือกผู้ทำการ PM' : 'บันทึกผล PM'}</span>
+                                  <CheckCircle2 size={15} strokeWidth={2.5} />
+                                  <span>{!hasSelectedTech ? 'เลือกผู้ทำการ PM' : 'บันทึกการทำ PM'}</span>
                                 </button>
                               </div>
                             </div>
@@ -3462,8 +3544,12 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
               <p className="leading-relaxed">
                 พบประวัติการทำ PM รอบเดือนนี้แล้ว (บันทึกเมื่อวันที่ <b>{conflictData.existingJob.date}</b> โดย {conflictData.existingJob.technicians?.join(', ') || conflictData.existingJob.technician || 'ช่าง'})
               </p>
+              <div className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 font-mono text-[11px] space-y-1">
+                <p>📅 <b>วันที่ทำจริงรอบใหม่:</b> {conflictData.date}</p>
+                <p>🕒 <b>เวลาบันทึกครั้งแรกเดิม:</b> {conflictData.existingJob.createdAt || conflictData.existingJob.checklistResult?.recordedAt || conflictData.existingJob.date}</p>
+              </div>
               <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                คุณต้องการบันทึกทับผลการตรวจของรอบนี้หรือไม่? หากบันทึกทับ ผลตรวจและรายชื่อช่างของรอบนี้จะถูกแทนที่ด้วยผลตรวจล่าสุด
+                คุณต้องการบันทึกทับผลการตรวจของรอบนี้หรือไม่? หากบันทึกทับ ผลตรวจและรายชื่อช่างของรอบนี้จะถูกแทนที่ด้วยผลตรวจล่าสุด (เวลาบันทึกครั้งแรกจะยังคงเดิม)
               </p>
             </div>
 
@@ -3479,7 +3565,7 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
               <button
                 type="button"
                 id="btn-confirm-overwrite-conflict"
-                onClick={() => handleRecordRound(conflictData.plan, true, conflictData.actualDuration)}
+                onClick={() => handleRecordRound(conflictData.plan, true, conflictData.actualDuration, conflictData.date, conflictData.technicians)}
                 className="bg-amber-600 hover:bg-amber-500 text-white font-extrabold px-4.5 py-2 rounded-xl transition shadow-lg shadow-amber-600/20 cursor-pointer"
               >
                 บันทึกทับ
@@ -3488,6 +3574,208 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
           </div>
         </div>
       )}
+
+      {/* MODAL: DIRECT PM RECORDING MODAL ("บันทึกการทำ PM") */}
+      {recordingModalPlan && (() => {
+        const hasSelectedTech = modalRecordTechs.length > 0;
+        const totalSteps = (recordingModalPlan.steps || []).length;
+        const doneSteps = (recordingModalPlan.steps || []).filter(s => s.done).length;
+        const abnormalSteps = (recordingModalPlan.steps || []).filter(s => s.result === 'ไม่ปกติ').length;
+        const targetMachine = machines.find(m => m.id === recordingModalPlan.machineId) || selectedMachine;
+
+        return (
+          <div 
+            id="modal-direct-record-pm"
+            className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-3 sm:p-5 overflow-y-auto animate-in fade-in duration-100"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setRecordingModalPlan(null);
+            }}
+          >
+            <div 
+              className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-xl shadow-2xl overflow-hidden space-y-0"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="p-4 bg-emerald-600 dark:bg-emerald-700 text-white flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2 rounded-xl bg-white/15 shrink-0">
+                    <CheckCircle2 size={20} strokeWidth={2.5} />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-extrabold tracking-wide">
+                      บันทึกการทำ PM
+                    </h3>
+                    <p className="text-[11px] text-emerald-100 mt-0.5">
+                      {recordingModalPlan.title} • เครื่อง {targetMachine?.name || recordingModalPlan.machineId}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setRecordingModalPlan(null)}
+                  className="p-1 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition cursor-pointer"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              {/* Body */}
+              <div className="p-5 space-y-4 text-xs">
+                
+                {/* Summary of checklist progress */}
+                <div className="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center justify-between gap-3">
+                  <div>
+                    <span className="font-semibold text-slate-700 dark:text-slate-300">ความคืบหน้าการตรวจ:</span>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="font-bold text-slate-900 dark:text-slate-100 text-sm">
+                        ตรวจแล้ว {doneSteps} / {totalSteps} ข้อ
+                      </span>
+                      {abnormalSteps > 0 && (
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
+                          ⚠️ ผิดปกติ {abnormalSteps} ข้อ
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setExpandedPlanIds(prev => ({ ...prev, [recordingModalPlan.id]: true }));
+                      setRecordingModalPlan(null);
+                    }}
+                    className="text-[11px] font-bold text-cyan-600 hover:text-cyan-700 dark:text-cyan-400 underline underline-offset-2 cursor-pointer"
+                  >
+                    ดู/แก้ไขรายการเช็คลิสต์
+                  </button>
+                </div>
+
+                {/* Separated Dates: First recorded vs Actual Date */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {/* First Recorded Timestamp (Read-only) */}
+                  <div className="bg-slate-100 dark:bg-slate-800/80 p-3 rounded-xl border border-slate-200 dark:border-slate-700 space-y-1">
+                    <span className="text-[10.5px] font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                      <Clock size={12} className="text-slate-500" />
+                      เวลาบันทึกครั้งแรก:
+                    </span>
+                    <p className="font-mono text-xs font-bold text-slate-700 dark:text-slate-300">
+                      {getNowLocalDateTimeString()}
+                    </p>
+                    <span className="text-[9.5px] text-slate-400 block">
+                      * ประทับเวลาอัตโนมัติขณะกดบันทึก
+                    </span>
+                  </div>
+
+                  {/* Actual Date Performed (Editable) */}
+                  <div className="bg-cyan-50/60 dark:bg-cyan-950/30 p-3 rounded-xl border border-cyan-200 dark:border-cyan-800 space-y-1">
+                    <label className="text-[10.5px] font-bold text-cyan-800 dark:text-cyan-300 flex items-center gap-1">
+                      <Calendar size={12} className="text-cyan-600" />
+                      วันที่ทำจริง:
+                    </label>
+                    <input
+                      type="date"
+                      value={modalRecordDate}
+                      onChange={(e) => {
+                        const newDate = e.target.value;
+                        setModalRecordDate(newDate);
+                        const suggestedTechs = getInitialTechsForPlanAndDate(recordingModalPlan, newDate);
+                        if (suggestedTechs.length > 0) {
+                          setModalRecordTechs(suggestedTechs);
+                        }
+                      }}
+                      className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-1 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-cyan-500 font-mono font-bold"
+                    />
+                  </div>
+                </div>
+
+                {/* Duration */}
+                <div className="space-y-1">
+                  <label className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                    <Clock size={12} className="text-cyan-600" />
+                    เวลาที่ใช้จริง (นาที) – ไม่บังคับ:
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    placeholder={recordingModalPlan.ttm ? `มาตรฐาน ${recordingModalPlan.ttm} นาที` : 'เช่น 30'}
+                    value={modalRecordDuration}
+                    onChange={(e) => setModalRecordDuration(e.target.value)}
+                    className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-cyan-500"
+                  />
+                </div>
+
+                {/* Technicians */}
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center text-[11px]">
+                    <span className="font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                      <User size={12} className="text-cyan-600" />
+                      ผู้ทำการ PM (เลือกได้หลายคน):
+                    </span>
+                    <span className="text-slate-500 dark:text-slate-400">
+                      เลือกแล้ว <b className="text-cyan-700 dark:text-cyan-400">{modalRecordTechs.length}</b> คน
+                    </span>
+                  </div>
+
+                  <div className="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto p-1 border border-slate-200 dark:border-slate-800 rounded-lg bg-slate-50/50 dark:bg-slate-900/50">
+                    {technicians.map((tech) => {
+                      const isSelected = modalRecordTechs.includes(tech);
+                      return (
+                        <button
+                          key={tech}
+                          type="button"
+                          onClick={() => {
+                            setModalRecordTechs(prev =>
+                              prev.includes(tech) ? prev.filter(t => t !== tech) : [...prev, tech]
+                            );
+                          }}
+                          className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium transition cursor-pointer ${
+                            isSelected
+                              ? 'bg-accent shadow-xs'
+                              : 'bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-cyan-500'
+                          }`}
+                        >
+                          {isSelected && <Check size={12} strokeWidth={2.5} />}
+                          <span>{tech}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {!hasSelectedTech && (
+                    <p className="text-[11px] text-amber-600 dark:text-amber-400 font-medium">
+                      * กรุณาเลือกผู้ทำการ PM อย่างน้อย 1 คน
+                    </p>
+                  )}
+                </div>
+
+              </div>
+
+              {/* Footer */}
+              <div className="p-4 bg-slate-50 dark:bg-slate-800/80 border-t border-slate-200 dark:border-slate-800 flex justify-between items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setRecordingModalPlan(null)}
+                  className="px-4 py-2 border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-medium transition cursor-pointer"
+                >
+                  ยกเลิก
+                </button>
+                <button
+                  type="button"
+                  disabled={!hasSelectedTech}
+                  onClick={() => {
+                    const dur = modalRecordDuration.trim() !== '' ? Number(modalRecordDuration) : undefined;
+                    handleRecordRound(recordingModalPlan, false, dur, modalRecordDate, modalRecordTechs);
+                    setRecordingModalPlan(null);
+                  }}
+                  className="flex items-center gap-1.5 px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-md transition disabled:bg-slate-300 dark:disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  <CheckCircle2 size={14} />
+                  <span>บันทึกการทำ PM</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* MODAL: PM ROUND HISTORY MODAL */}
       {historyModalPlan && (
