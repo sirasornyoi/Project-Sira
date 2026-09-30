@@ -19,9 +19,6 @@ import { PMScheduleItem } from '../types';
 export const DashboardPage: React.FC = () => {
   const { machines, pmPlans, schedules, repairs, improvements, settings, technicians, technicianShifts, spareParts, plannedProductionTimes } = useApp();
   
-  // Selected technician for Technician Profile Card overlay modal
-  const [selectedTechnician, setSelectedTechnician] = useState<string | null>(null);
-  
   // Tab control: 'overview' for the rich industrial analysis, 'live-control' for Live work / workload / TTM / MTTR
   const [activeTab, setActiveTab] = useState<'overview' | 'live-control'>('live-control');
 
@@ -1053,9 +1050,7 @@ export const DashboardPage: React.FC = () => {
                     return (
                       <div 
                         key={tw.name}
-                        onClick={() => setSelectedTechnician(tw.name)}
-                        className="bg-slate-900/60 border border-slate-750 p-4.5 rounded-xl flex flex-col justify-between space-y-3 hover:border-cyan-500/25 hover:bg-slate-900/90 hover:scale-[1.02] cursor-pointer transition-all shadow-md select-none"
-                        title="คลิกเพื่อเปิดดูประวัติและผลงานช่างโดยละเอียด"
+                        className="bg-slate-900/60 border border-slate-750 p-4.5 rounded-xl flex flex-col justify-between space-y-3 hover:border-cyan-500/25 hover:bg-slate-900/90 transition-all shadow-md"
                       >
                         <div className="flex justify-between items-start">
                           <div>
@@ -1140,11 +1135,9 @@ export const DashboardPage: React.FC = () => {
                   return (
                     <div 
                       key={tech.name} 
-                      onClick={() => setSelectedTechnician(tech.name)}
-                      className={`p-3 rounded-xl border transition-all flex items-center justify-between gap-3 cursor-pointer hover:border-cyan-500/30 hover:bg-slate-900/90 select-none ${
-                        index === 0 ? 'bg-gradient-to-r from-cyan-950/25 to-slate-900 border-cyan-500/25 shadow-md' : 'bg-slate-900/30 border-slate-750/70 hover:border-slate-600'
+                      className={`p-3 rounded-xl border transition-all flex items-center justify-between gap-3 ${
+                        index === 0 ? 'bg-gradient-to-r from-cyan-950/25 to-slate-900 border-cyan-500/25 shadow-md' : 'bg-slate-900/30 border-slate-750/70'
                       }`}
-                      title="คลิกเพื่อเปิดดูโปรไฟล์และสถิติช่างโดยละเอียด"
                     >
                       {/* Left: Rank & Info */}
                       <div className="flex items-center gap-2.5 min-w-0">
@@ -1589,268 +1582,6 @@ export const DashboardPage: React.FC = () => {
 
         </div>
       )}
-
-      {/* ======================= TECHNICIAN PROFILE CARD MODAL ======================= */}
-      {selectedTechnician && (() => {
-        const techName = selectedTechnician;
-        const workloadData = activeTechnicianWorkload.find(tw => tw.name === techName);
-        
-        // 1. Task Completion metrics for this month
-        const techMonthPM = schedules.filter(s => 
-          (s.technicians ? s.technicians.includes(techName) : s.technician === techName) &&
-          s.type === 'PM' && 
-          s.status === 'เสร็จสิ้น' && 
-          s.date.startsWith(selectedMonth)
-        ).length;
-        
-        const techMonthRepairs = repairs.filter(r => 
-          (r.technicians ? r.technicians.includes(techName) : r.technician === techName) &&
-          r.status !== 'กำลังซ่อม' && 
-          r.date.startsWith(selectedMonth)
-        ).length;
-
-        const techMonthImprovements = improvements.filter(proj => 
-          (proj.technicians ? proj.technicians.includes(techName) : proj.technician === techName) &&
-          (proj.workLogs || []).some(wl => wl.date.startsWith(selectedMonth))
-        ).length;
-
-        const totalMonthCompletedTasks = techMonthPM + techMonthRepairs + techMonthImprovements;
-
-        // 2. MTTR Deviation over all time (performance indicator)
-        const techRepairsList = repairs.filter(r => 
-          (r.technicians ? r.technicians.includes(techName) : r.technician === techName) &&
-          r.status !== 'กำลังซ่อม'
-        );
-
-        let totalDeviationMin = 0;
-        let repairCaseCount = 0;
-        
-        const individualRepairsWithDeviation = techRepairsList.map(r => {
-          const machinePrefix = r.machineId.substring(0, 3).toUpperCase();
-          const standardMttr = settings.stdMttr[machinePrefix] || 60;
-          const deviation = r.duration - standardMttr;
-          
-          totalDeviationMin += deviation;
-          repairCaseCount++;
-          
-          return {
-            ...r,
-            standard: standardMttr,
-            deviation
-          };
-        }).sort((a,b) => b.date.localeCompare(a.date)); // Sort by newest date
-
-        const avgDeviationMin = repairCaseCount > 0 ? parseFloat((totalDeviationMin / repairCaseCount).toFixed(1)) : 0;
-
-        return (
-          <div 
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in"
-            id="tech-profile-card-modal-overlay"
-            onClick={() => setSelectedTechnician(null)}
-          >
-            <div 
-              className="bg-slate-900 border border-slate-750 rounded-2xl w-full max-w-5xl max-h-[92vh] overflow-hidden shadow-2xl flex flex-col"
-              id="tech-profile-card-modal"
-              onClick={(e) => e.stopPropagation()}
-            >
-              
-              {/* Modal Banner Profile Header */}
-              <div className="p-6 border-b border-slate-800 bg-gradient-to-r from-slate-950/80 to-slate-900 shrink-0 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                  {/* Decorative Initials Avatar */}
-                  <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-cyan-500 via-indigo-500 to-purple-600 flex items-center justify-center text-fg font-black text-xl shadow-lg ring-2 ring-slate-800 shrink-0 select-none">
-                    {techName.substring(0, 2).toUpperCase()}
-                  </div>
-                  <div>
-                    <span className="px-2 py-0.5 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded font-bold text-[9px] uppercase tracking-wider">
-                      Technician Performance Card
-                    </span>
-                    <h2 className="text-xl font-black text-fg mt-1 flex items-center gap-2">
-                      {techName}
-                      <span className="text-xs font-normal text-slate-400">| ช่างซ่อมบำรุงวิทยฐานะอาวุโส</span>
-                    </h2>
-                    <p className="text-xs text-slate-400 mt-0.5 flex items-center gap-1.5 font-sans">
-                      <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                      แผนกปฏิบัติการซ่อมบำรุงรักษาโรงงาน (Factory Maintenance & Automation Service)
-                    </p>
-                  </div>
-                </div>
-
-                {/* Right actions: Workload state + Close button */}
-                <div className="flex items-center gap-3">
-                  {workloadData && (
-                    <div className="text-right">
-                      <span className="text-[10px] text-slate-400 block font-bold mb-1 uppercase tracking-wider">สถานะภาระงานเดือนนี้</span>
-                      <span className={`px-3 py-1 rounded-full text-xs font-black border ${workloadData.badgeColor}`}>
-                        {workloadData.loadLabel}
-                      </span>
-                    </div>
-                  )}
-                  <button 
-                    onClick={() => setSelectedTechnician(null)}
-                    className="text-slate-400 hover:text-fg p-2 hover:bg-slate-800 rounded-xl transition duration-150 font-bold shrink-0 shadow-inner ml-2 border border-slate-800"
-                  >
-                    <X size={15} />
-                  </button>
-                </div>
-              </div>
-
-              {/* Modal Core Area (Scrollable contents and Bento stats grid) */}
-              <div className="p-6 overflow-y-auto space-y-6 flex-1 text-slate-200 scrollbar-thin">
-                
-                {/* 2 Stats Hero Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  
-                  {/* KPI card 1: Total month tasks completed */}
-                  <div className="bg-slate-950/40 border border-slate-800 p-4.5 rounded-xl flex flex-col justify-between">
-                    <div>
-                      <div className="flex justify-between items-center mb-1.5">
-                        <span className="text-[10.5px] text-slate-400 font-bold uppercase tracking-wider">ใบงานปิดเสร็จสิ้นรวม</span>
-                        <ClipboardCheck size={16} className="text-cyan-400" />
-                      </div>
-                      <div className="text-2xl font-black text-cyan-400 font-mono">
-                        {totalMonthCompletedTasks} <span className="text-sm text-slate-300 font-normal">ใบงาน</span>
-                      </div>
-                      <p className="text-[10px] text-slate-400 mt-1">
-                        ปริมาณผลงานที่ทำเสร็จในกะและปิดใบงานในระบบในห้วงเดือนนี้
-                      </p>
-                    </div>
-
-                    {/* Breakdown distribution progress bar */}
-                    <div className="space-y-2 mt-4 pt-4 border-t border-slate-800/60">
-                      <div className="flex justify-between text-[10px] text-slate-450 uppercase font-bold">
-                        <span>PM: <b className="text-emerald-400">{techMonthPM}</b></span>
-                        <span>ซ่อมด่วน: <b className="text-rose-400">{techMonthRepairs}</b></span>
-                        <span>Kaizen: <b className="text-purple-400">{techMonthImprovements}</b></span>
-                      </div>
-                      <div className="w-full bg-slate-900 h-2 rounded-full flex overflow-hidden">
-                        {totalMonthCompletedTasks > 0 ? (
-                          <>
-                            <div className="bg-emerald-500 h-full" style={{ width: `${(techMonthPM / totalMonthCompletedTasks) * 100}%` }}></div>
-                            <div className="bg-rose-500 h-full" style={{ width: `${(techMonthRepairs / totalMonthCompletedTasks) * 100}%` }}></div>
-                            <div className="bg-purple-500 h-full" style={{ width: `${(techMonthImprovements / totalMonthCompletedTasks) * 100}%` }}></div>
-                          </>
-                        ) : (
-                          <div className="bg-slate-800 w-full h-full"></div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* KPI card 2: Average MTTR Deviation */}
-                  <div className="bg-slate-950/40 border border-slate-800 p-4.5 rounded-xl flex flex-col justify-between">
-                    <div>
-                      <div className="flex justify-between items-center mb-1.5">
-                        <span className="text-[10.5px] text-slate-400 font-bold uppercase tracking-wider">ค่าเบี่ยงเบนเวลาเฉลี่ย (MTTR Deviation)</span>
-                        <Clock size={16} className="text-rose-450" />
-                      </div>
-                      <div className="text-2xl font-black font-mono flex items-center gap-1.5">
-                        <span className={avgDeviationMin <= 0 ? 'text-emerald-400' : 'text-rose-400'}>
-                          {avgDeviationMin <= 0 ? `${avgDeviationMin}` : `+${avgDeviationMin}`}
-                        </span>
-                        <span className="text-sm text-slate-300 font-normal">นาที/เคส</span>
-                      </div>
-                      <p className="text-[10px] text-slate-450 mt-1">
-                        เปรียบเทียบเวลาซ่อมฉุกเฉินจริง กับเกณฑ์มาตรฐานเป้าหมายของแต่ละเครื่องจักร
-                      </p>
-                    </div>
-
-                    <div className="mt-4 pt-3.5 border-t border-slate-800/60 flex items-center gap-2.5">
-                      {repairCaseCount > 0 ? (
-                        avgDeviationMin <= 0 ? (
-                          <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-lg p-2 text-[10px] font-medium leading-relaxed w-full flex items-center gap-2">
-                            <span className="text-base">⚡</span>
-                            <span>ทำเวลาดีกว่าเกณฑ์เฉลี่ยมาตรฐาน (ซ่อมรวดเร็วเป็นพิเศษ)</span>
-                          </div>
-                        ) : (
-                          <div className="bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-lg p-2 text-[10px] font-medium leading-relaxed w-full flex items-center gap-2">
-                            <span className="text-base">⚠️</span>
-                            <span>ใช้เวลาเยอะกว่าเป้าหมายกลุ่ม (ควรวิเคราะห์ทักษะเฉพาะด้าน)</span>
-                          </div>
-                        )
-                      ) : (
-                        <div className="bg-slate-900 border border-slate-800 text-slate-450 rounded-lg p-2 text-[10px] leading-relaxed w-full text-center italic">
-                          ไม่มีบันทึกประวัติซ่อมด่วนในเดือนนี้
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                </div>
-
-                {/* Technical Repairs Performance logs */}
-                <div className="pt-2">
-                  <div className="bg-slate-950/20 p-4 border border-slate-800 rounded-2xl flex flex-col space-y-4">
-                    <div>
-                      <h4 className="text-xs font-black text-fg uppercase tracking-wider flex items-center gap-1.5 border-b border-slate-800 pb-2">
-                        <Wrench size={14} className="text-rose-400" />
-                        <span>รายงานบันทึกประวัติซ่อมฉุกเฉินด่วนแยกรายเคส</span>
-                      </h4>
-                      <p className="text-[10px] text-slate-400 mt-1 font-sans">
-                        วิเคราะห์ความรวดเร็วและทักษะการกู้คืนเครื่องจักรของช่างเทียบต่อดัชนีเวลา standard MTTR
-                      </p>
-                    </div>
-
-                    <div className="flex-1 overflow-y-auto max-h-[340px] pr-1 space-y-2.5 scrollbar-thin">
-                      {individualRepairsWithDeviation.length === 0 ? (
-                        <div className="p-8 text-center text-xs text-slate-500 dark:text-slate-300 italic border border-dashed border-slate-300 dark:border-slate-800/80 rounded-xl">
-                          ไม่มีบันทึกประวัติลุยงานซ่อมหยุดด่วน (Emergency Repairs) ในประวัติ
-                        </div>
-                      ) : (
-                        individualRepairsWithDeviation.map(rep => {
-                          const isBetter = rep.deviation <= 0;
-                          return (
-                            <div key={rep.id} className="p-3 bg-slate-900/60 border border-slate-850 rounded-xl space-y-2 text-xs">
-                              {/* Top metadata line */}
-                              <div className="flex justify-between items-start flex-wrap gap-2">
-                                <div className="space-y-0.5">
-                                  <p className="font-mono font-black text-cyan-400 text-xs">
-                                    ⚙️ {rep.machineId} <span className="text-[10px] text-slate-500 font-mono font-medium">({rep.date})</span>
-                                  </p>
-                                  <p className="text-[10px] text-slate-350 leading-relaxed max-w-[280px] break-words">
-                                    🚨 อาการ: {rep.symptoms}
-                                  </p>
-                                </div>
-
-                                {/* Custom individual Deviation Pill */}
-                                <div className="text-right">
-                                  <span className={`px-2 py-1 rounded font-mono font-bold text-[9.5px] inline-flex items-center gap-0.5 ${
-                                    isBetter ? 'text-emerald-400 bg-emerald-500/5 border border-emerald-500/10' : 'text-rose-400 bg-rose-500/5 border border-rose-500/10'
-                                  }`}>
-                                    {isBetter ? '⚡ ' : '⚠️ '}
-                                    {isBetter ? `${rep.deviation} นาที` : `+${rep.deviation} นาที`}
-                                  </span>
-                                </div>
-                              </div>
-
-                              {/* Target comparing values footer */}
-                              <div className="pt-2 border-t border-slate-800/50 flex justify-between text-[9px] text-slate-450 uppercase font-mono">
-                                <span>เวลามาตรฐาน (Goal): <b className="text-slate-300">{rep.standard} ม.</b></span>
-                                <span>เวลาที่ใช้จริง (Actual): <b className="text-slate-205">{rep.duration} ม.</b></span>
-                              </div>
-                            </div>
-                          );
-                        })
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Modal footer section */}
-              <div className="p-4 border-t border-slate-800 bg-slate-950/40 flex justify-end gap-3 shrink-0">
-                <button 
-                  onClick={() => setSelectedTechnician(null)}
-                  className="px-4.5 py-2 bg-slate-800 hover:bg-slate-705 text-fg font-black rounded-xl text-xs transition cursor-pointer select-none"
-                >
-                  ปิดหน้าต่างโปรไฟล์
-                </button>
-              </div>
-
-            </div>
-          </div>
-        );
-      })()}
 
     </div>
   );
