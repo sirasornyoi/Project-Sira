@@ -52,6 +52,7 @@ export interface RecordPmRoundParams {
   technicians: string[];
   schedules: any[];
   overwrite?: boolean;
+  actualDuration?: number;
 }
 
 export interface RecordPmRoundResult {
@@ -71,7 +72,8 @@ export function recordPmRound({
   date,
   technicians,
   schedules,
-  overwrite = false
+  overwrite = false,
+  actualDuration
 }: RecordPmRoundParams): RecordPmRoundResult {
   if (!planHasProgress(plan)) {
     return { error: 'ยังไม่ได้ติ๊กรายการ' };
@@ -99,7 +101,8 @@ export function recordPmRound({
         technician: technicians[0],
         technicians,
         peopleCount: technicians.length,
-        checklistResult: snapshotChecklist(plan)
+        checklistResult: snapshotChecklist(plan),
+        ...(actualDuration !== undefined && actualDuration > 0 ? { actualDuration } : {})
       };
       const newSchedules = schedules.map(s => s.id === existingDoneWithChecklist.id ? updatedJob : s);
       const updatedPlan: PMPlan = {
@@ -125,7 +128,8 @@ export function recordPmRound({
       date,
       technician: technicians[0],
       technicians,
-      peopleCount: technicians.length
+      peopleCount: technicians.length,
+      ...(actualDuration !== undefined && actualDuration > 0 ? { actualDuration } : {})
     };
     const { job: completedJob, plan: resetPlan } = completePmJob(jobToComplete, plan);
     const updatedPlan: PMPlan = {
@@ -151,8 +155,8 @@ export function recordPmRound({
     technician: technicians[0],
     technicians,
     peopleCount: technicians.length,
-    duration: plan.ttm || 30,
-    actualDuration: plan.ttm || 30,
+    duration: plan.ttm || 0,
+    actualDuration: actualDuration !== undefined && actualDuration > 0 ? actualDuration : undefined,
     destination: '',
     checklistResult: snapshotChecklist(plan)
   };

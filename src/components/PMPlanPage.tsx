@@ -47,9 +47,10 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
   const [historyModalPlan, setHistoryModalPlan] = useState<PMPlan | null>(null);
 
   // PM Round recording card state
-  const [conflictData, setConflictData] = useState<{ plan: PMPlan; existingJob: PMScheduleItem; date: string; technicians: string[] } | null>(null);
+  const [conflictData, setConflictData] = useState<{ plan: PMPlan; existingJob: PMScheduleItem; date: string; technicians: string[]; actualDuration?: number } | null>(null);
   const [cardRecordDates, setCardRecordDates] = useState<Record<string, string>>({});
   const [cardRecordTechs, setCardRecordTechs] = useState<Record<string, string[]>>({});
+  const [cardRecordDurations, setCardRecordDurations] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (!toast) return;
@@ -337,25 +338,32 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
     }
   };
 
-  const handleRecordRound = (plan: PMPlan, overwrite = false) => {
+  const handleRecordRound = (plan: PMPlan, overwrite = false, overrideDuration?: number) => {
     const date = cardRecordDates[plan.id] || getTodayDateString();
     const techs = cardRecordTechs[plan.id] ?? getInitialTechsForPlanAndDate(plan, date);
 
     if (techs.length === 0) {
-      alert("กรุณาเลือกผู้ทำการ PM อย่างน้อย 1 คน");
+      setToast({ text: "กรุณาเลือกผู้ทำการ PM อย่างน้อย 1 คน", type: 'error' });
       return;
     }
+
+    const rawDur = cardRecordDurations[plan.id];
+    const durFromInput = rawDur !== undefined && rawDur.trim() !== '' ? Number(rawDur) : undefined;
+    const actualDuration = overrideDuration !== undefined
+      ? overrideDuration
+      : (durFromInput !== undefined && !isNaN(durFromInput) && durFromInput > 0 ? durFromInput : undefined);
 
     const result = recordPmRound({
       plan,
       date,
       technicians: techs,
       schedules,
-      overwrite
+      overwrite,
+      actualDuration
     });
 
     if (result.error) {
-      alert(result.error);
+      setToast({ text: result.error, type: 'error' });
       return;
     }
 
@@ -364,7 +372,8 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
         plan,
         existingJob: result.conflict,
         date,
-        technicians: techs
+        technicians: techs,
+        actualDuration
       });
       return;
     }
@@ -388,6 +397,11 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
     setToast({ text: `บันทึก PM เดือน ${monthName} ${thYear} แล้ว`, type: 'success' });
     setConflictData(null);
     setCardRecordTechs(prev => {
+      const next = { ...prev };
+      delete next[plan.id];
+      return next;
+    });
+    setCardRecordDurations(prev => {
       const next = { ...prev };
       delete next[plan.id];
       return next;
@@ -2023,14 +2037,28 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
                             </div>
                           </div>
                           
-                          <div className="flex items-center gap-2 w-full sm:w-auto">
-                            <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-400 shrink-0">วันที่ทำ PM:</label>
-                            <input
-                              type="date"
-                              value={cardRecordDates[plan.id] || getTodayDateString()}
-                              onChange={(e) => handleCardDateChange(plan, e.target.value)}
-                              className="bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-1 text-xs text-slate-900 dark:text-slate-200 focus:outline-none focus:border-cyan-500"
-                            />
+                          <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+                            <div className="flex items-center gap-1.5">
+                              <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-400 shrink-0">วันที่ทำ PM:</label>
+                              <input
+                                type="date"
+                                value={cardRecordDates[plan.id] || getTodayDateString()}
+                                onChange={(e) => handleCardDateChange(plan, e.target.value)}
+                                className="bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-1 text-xs text-slate-900 dark:text-slate-200 focus:outline-none focus:border-cyan-500"
+                              />
+                            </div>
+
+                            <div className="flex items-center gap-1.5">
+                              <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-400 shrink-0">เวลาที่ใช้จริง (นาที) – ไม่บังคับ:</label>
+                              <input
+                                type="number"
+                                min="1"
+                                placeholder={plan.ttm ? `มาตรฐาน ${plan.ttm} น.` : 'เช่น 30'}
+                                value={cardRecordDurations[plan.id] ?? ''}
+                                onChange={(e) => setCardRecordDurations(prev => ({ ...prev, [plan.id]: e.target.value }))}
+                                className="w-28 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-1 text-xs text-slate-900 dark:text-slate-200 focus:outline-none focus:border-cyan-500"
+                              />
+                            </div>
                           </div>
                         </div>
 
@@ -3388,7 +3416,7 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
                       const curDate = cardRecordDates[targetResetPlan.id] || getTodayDateString();
                       const curTechs = cardRecordTechs[targetResetPlan.id] ?? getInitialTechsForPlanAndDate(targetResetPlan, curDate);
                       if (curTechs.length === 0) {
-                        alert("กรุณาเลือกผู้ทำการ PM อย่างน้อย 1 คนก่อนบันทึก");
+                        setToast({ text: "กรุณาเลือกผู้ทำการ PM อย่างน้อย 1 คนก่อนบันทึก", type: 'error' });
                         return;
                       }
                       handleRecordRound(targetResetPlan);
@@ -3451,7 +3479,7 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
               <button
                 type="button"
                 id="btn-confirm-overwrite-conflict"
-                onClick={() => handleRecordRound(conflictData.plan, true)}
+                onClick={() => handleRecordRound(conflictData.plan, true, conflictData.actualDuration)}
                 className="bg-amber-600 hover:bg-amber-500 text-white font-extrabold px-4.5 py-2 rounded-xl transition shadow-lg shadow-amber-600/20 cursor-pointer"
               >
                 บันทึกทับ
