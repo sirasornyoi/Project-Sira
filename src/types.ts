@@ -25,6 +25,8 @@ export interface PMStep {
   stdTime: number; // in minutes
   result?: 'ปกติ' | 'ไม่ปกติ' | 'ยังไม่ตรวจ'; // ผลการ PM
   abnormalDetail?: string; // รายละเอียดสิ่งที่ผิดปกติ หรือ ค่าที่วัดได้
+  actionTaken?: 'แก้ไข/เปลี่ยนทันที' | 'แจ้งซ่อม/ติดตาม'; // การดำเนินการเมื่อพบสิ่งผิดปกติ
+  actionDetail?: string; // รายละเอียดการแก้ไขเพิ่มเติม
   remark?: string; // หมายเหตุ (เช่น เบอร์ลูกปืน, ข้อควรระวัง)
   done?: boolean; // ติ๊กสิ่งที่ทำแล้ว (Checklist Completed)
 }
@@ -75,6 +77,11 @@ export interface PMScheduleItem {
   rescheduledReason?: string; // เหตุผลในการเลื่อนแผน (เช่น เครื่องติดไลน์ผลิตเร่งด่วน, รออะไหล่)
   rescheduledCount?: number; // จำนวนครั้งที่มีการเลื่อนแผน
   rescheduleHistory?: PMRescheduleHistoryItem[]; // ประวัติการเลื่อนแผนแต่ละครั้ง
+  checklistResult?: {
+    planTitle: string;
+    steps: PMStep[];
+    recordedAt: string;
+  };
 }
 
 export interface OperationScheduleItem {

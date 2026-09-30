@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import * as XLSX from 'xlsx';
 import { useApp } from '../context/AppContext';
-import { PMPlan, PMFrequency, PMStep, Machine } from '../types';
+import { PMPlan, PMFrequency, PMStep, Machine, PMScheduleItem } from '../types';
 import { 
   Search, Plus, Trash2, Edit3, CheckCircle, PackageOpen, 
   Clock, ClipboardList, Copy, Upload, Download, Check, AlertTriangle, 
@@ -18,24 +18,44 @@ import {
 import { PMKpiPanel } from './PMKpiPanel';
 import { PMHistoryPage } from './PMHistoryPage';
 import { getTodayDateString } from '../utils/pmAlerts';
+import { completePmJob } from '../utils/pmChecklist';
 
 export interface PMPlanPageProps {
   initialSubTab?: 'plan' | 'kpi' | 'history';
   navToken?: number;
   focusMachineId?: string;
   focusPlanId?: string;
+  focusJobId?: string;
 }
 
 export const PMPlanPage: React.FC<PMPlanPageProps> = ({ 
   initialSubTab = 'plan', 
   navToken = 0,
   focusMachineId,
-  focusPlanId
+  focusPlanId,
+  focusJobId
 }) => {
-  const { machines, pmPlans, setPmPlans, pmMachineIds, setPmMachineIds } = useApp();
+  const { machines, pmPlans, setPmPlans, pmMachineIds, setPmMachineIds, schedules, setSchedules } = useApp();
 
   const [activeSubTab, setActiveSubTab] = useState<'plan' | 'kpi' | 'history'>(initialSubTab);
   const [highlightedPlanId, setHighlightedPlanId] = useState<string | null>(null);
+  const [activeFocusJobId, setActiveFocusJobId] = useState<string | undefined>(focusJobId);
+  const [toast, setToast] = useState<{ text: string; type: 'success' | 'info' | 'error' } | null>(null);
+
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(null), 3000);
+    return () => clearTimeout(t);
+  }, [toast]);
+
+  const activeFocusJob = useMemo(() => {
+    if (!activeFocusJobId) return undefined;
+    return schedules.find(s => s.id === activeFocusJobId && s.type === 'PM') as PMScheduleItem | undefined;
+  }, [schedules, activeFocusJobId]);
+
+  useEffect(() => {
+    setActiveFocusJobId(focusJobId);
+  }, [focusJobId, navToken]);
 
   useEffect(() => {
     if (initialSubTab) {
@@ -387,7 +407,8 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
       updatedSteps[stepIndex] = {
         ...targetStep,
         result,
-        done: isDone
+        done: isDone,
+        ...(result !== 'ไม่ปกติ' ? { actionTaken: undefined, actionDetail: '' } : {})
       };
 
       return {
@@ -398,8 +419,8 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
     }));
   };
 
-  // Update step abnormal detail or remark inline
-  const handleUpdateStepField = (planId: string, stepIndex: number, field: 'abnormalDetail' | 'remark', val: string) => {
+  // Update step abnormal detail, remark, or actionDetail inline
+  const handleUpdateStepField = (planId: string, stepIndex: number, field: 'abnormalDetail' | 'remark' | 'actionDetail', val: string) => {
     setPmPlans(prev => prev.map(plan => {
       if (plan.id !== planId) return plan;
       const updatedSteps = [...(plan.steps || [])];
@@ -412,6 +433,44 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
 
       return { ...plan, steps: updatedSteps };
     }));
+  };
+
+  // Set actionTaken for abnormal PM step
+  const handleSetStepActionTaken = (
+    planId: string, 
+    stepIndex: number, 
+    actionTaken?: 'แก้ไข/เปลี่ยนทันที' | 'แจ้งซ่อม/ติดตาม'
+  ) => {
+    setPmPlans(prev => prev.map(plan => {
+      if (plan.id !== planId) return plan;
+      const updatedSteps = [...(plan.steps || [])];
+      if (!updatedSteps[stepIndex]) return plan;
+
+      updatedSteps[stepIndex] = {
+        ...updatedSteps[stepIndex],
+        actionTaken
+      };
+
+      return { ...plan, steps: updatedSteps };
+    }));
+  };
+
+  // Complete focused PM job and reset plan checklist
+  const handleCompleteFocusJob = (job: PMScheduleItem, plan: PMPlan) => {
+    const { job: completedJob, plan: resetPlan } = completePmJob(job, plan);
+    setSchedules(prev => prev.map(s => s.id === job.id ? completedJob : s));
+    if (resetPlan) {
+      setPmPlans(prev => prev.map(p => {
+        if (p.id !== resetPlan.id) return p;
+        const nextPlan = { ...resetPlan };
+        if (job.date && (!nextPlan.lastCheckedDate || nextPlan.lastCheckedDate < job.date)) {
+          nextPlan.lastCheckedDate = job.date;
+        }
+        return nextPlan;
+      }));
+    }
+    setToast({ text: `บันทึกผลตรวจและปิดงาน PM (${job.machineId}) เรียบร้อยแล้ว`, type: 'success' });
+    setActiveFocusJobId(undefined);
   };
 
   // Mark all checklist steps as done
@@ -1361,6 +1420,26 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
                       : 'border-slate-200 dark:border-slate-800'
                   }`}
                 >
+                  {/* Active Job PM Checklist Banner */}
+                  {activeFocusJob && activeFocusJob.status !== 'เสร็จสิ้น' && (plan.id === activeFocusJob.pmPlanId || plan.id === focusPlanId) && (
+                    <div className="bg-amber-500/10 dark:bg-amber-500/15 border-b border-amber-300 dark:border-amber-500/30 px-4 py-2.5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-xs">
+                      <div className="flex items-center gap-2 text-amber-900 dark:text-amber-200">
+                        <ClipboardList size={16} className="text-amber-600 dark:text-amber-400 shrink-0" />
+                        <span className="font-semibold">
+                          กำลังบันทึกผลงาน PM วันที่ {activeFocusJob.date} · ช่าง {activeFocusJob.technicians && activeFocusJob.technicians.length > 0 ? activeFocusJob.technicians.join(', ') : (activeFocusJob.technician || 'ไม่ระบุ')}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        id="btn-complete-pm-job-from-checklist"
+                        onClick={() => handleCompleteFocusJob(activeFocusJob, plan)}
+                        className="px-3.5 py-1.5 bg-accent text-xs font-bold rounded-xl shadow transition cursor-pointer shrink-0"
+                      >
+                        บันทึกผลตรวจและปิดงาน
+                      </button>
+                    </div>
+                  )}
+
                   {/* Card Header */}
                   <div className="p-4 bg-slate-50 dark:bg-slate-900/90 border-b border-slate-200 dark:border-slate-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
                     <div className="flex items-start gap-3 flex-1 min-w-0">
@@ -1656,6 +1735,26 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
                                         isAbnormal ? 'border-rose-300 text-rose-700 dark:border-rose-500/50 dark:text-rose-200' : 'border-border dark:border-slate-700/80'
                                       }`}
                                     />
+                                    {isAbnormal && (
+                                      <div className="mt-1.5 space-y-1">
+                                        <select
+                                          value={step.actionTaken || ''}
+                                          onChange={(e) => handleSetStepActionTaken(plan.id, idx, (e.target.value || undefined) as any)}
+                                          className="w-full bg-surface dark:bg-slate-950/80 border border-rose-300 dark:border-rose-500/40 rounded-lg px-2 py-0.5 text-[11px] text-slate-800 dark:text-slate-200 focus:outline-none"
+                                        >
+                                          <option value="">ยังไม่ระบุ</option>
+                                          <option value="แก้ไข/เปลี่ยนทันที">แก้ไข/เปลี่ยนทันที</option>
+                                          <option value="แจ้งซ่อม/ติดตาม">แจ้งซ่อม/ติดตาม</option>
+                                        </select>
+                                        <input
+                                          type="text"
+                                          placeholder="รายละเอียดการแก้ไข..."
+                                          value={step.actionDetail || ''}
+                                          onChange={(e) => handleUpdateStepField(plan.id, idx, 'actionDetail', e.target.value)}
+                                          className="w-full bg-surface dark:bg-slate-950/80 border border-rose-200 dark:border-rose-500/30 rounded-lg px-2 py-0.5 text-[11px] text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-cyan-500"
+                                        />
+                                      </div>
+                                    )}
                                   </td>
 
                                   {/* 8. Remark */}
@@ -3166,6 +3265,15 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
         </div>
       )}
 
+        </div>
+      )}
+
+      {toast && (
+        <div className="fixed bottom-5 right-5 z-50 animate-in fade-in slide-in-from-bottom-2 duration-200">
+          <div className="bg-emerald-600 text-white px-4 py-2.5 rounded-xl shadow-lg font-medium text-xs flex items-center gap-2">
+            <Check size={16} />
+            <span>{toast.text}</span>
+          </div>
         </div>
       )}
     </div>

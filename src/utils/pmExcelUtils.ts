@@ -162,7 +162,16 @@ export const exportPMReportToExcel = (
       // ✓ ลงคอลัมน์ 20 (ปกติ) หรือ 22 (ไม่ปกติ)
       if (isNormal) dataRow[20] = '✓';
       if (isAbnormal) dataRow[22] = '✓';
-      dataRow[24] = step.abnormalDetail || '';
+      let abnormalText = step.abnormalDetail || '';
+      if (step.actionTaken || step.actionDetail) {
+        const actionPart = step.actionTaken && step.actionDetail
+          ? `${step.actionTaken}: ${step.actionDetail}`
+          : (step.actionTaken || step.actionDetail || '');
+        if (actionPart) {
+          abnormalText = abnormalText ? `${abnormalText} [${actionPart}]` : `[${actionPart}]`;
+        }
+      }
+      dataRow[24] = abnormalText;
       dataRow[32] = step.remark || '';
     } else {
       dataRow[0] = idx + 1;

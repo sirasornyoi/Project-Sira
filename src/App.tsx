@@ -61,12 +61,12 @@ function AppContent() {
   // Sub-tab control for PMPlanPage (plan vs kpi vs history)
   const [pmPlanSubTab, setPmPlanSubTab] = useState<'plan' | 'kpi' | 'history'>('plan');
   const [pmPlanNavToken, setPmPlanNavToken] = useState<number>(0);
-  const [pmFocus, setPmFocus] = useState<{ machineId: string; planId: string } | null>(null);
+  const [pmFocus, setPmFocus] = useState<{ machineId: string; planId: string; jobId?: string } | null>(null);
 
   // Navigate directly to PM plan checklist for a specific machine & plan
-  const handleOpenPMChecklist = (machineId: string, pmPlanId: string) => {
+  const handleOpenPMChecklist = (machineId: string, pmPlanId: string, jobId?: string) => {
     setPmPlanSubTab('plan');
-    setPmFocus({ machineId, planId: pmPlanId });
+    setPmFocus({ machineId, planId: pmPlanId, jobId });
     setPmPlanNavToken(prev => prev + 1);
     setActivePage(2);
   };
@@ -110,6 +110,7 @@ function AppContent() {
           navToken={pmPlanNavToken} 
           focusMachineId={pmFocus?.machineId}
           focusPlanId={pmFocus?.planId}
+          focusJobId={pmFocus?.jobId}
         />
       );
       case 3: return <SchedulePage onOpenPMChecklist={handleOpenPMChecklist} />;

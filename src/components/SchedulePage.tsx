@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { formatPmMinutes, getPlannedMinutes } from '../utils/pmTime';
 import { getTodayDateString, getNowLocalDateTimeString } from '../utils/pmAlerts';
+import { completePmJob } from '../utils/pmChecklist';
 
 const TH_DAYS = ["อาทิตย์", "จันทร์", "อังคาร", "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์"];
 const TH_MONTHS = [
@@ -31,7 +32,7 @@ const DESTINATION_PRESETS = [
 ];
 
 export interface SchedulePageProps {
-  onOpenPMChecklist?: (machineId: string, pmPlanId: string) => void;
+  onOpenPMChecklist?: (machineId: string, pmPlanId: string, jobId?: string) => void;
 }
 
 export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist }) => {
@@ -524,18 +525,8 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
     if (formTaskType === 'PM') {
       const pmPlanIdUsed = formPmPlanId || (formMode === 'edit' ? (schedules.find(s => s.id === editingTaskId) as PMScheduleItem | undefined)?.pmPlanId : undefined) || pmPlans.find(p => p.machineId === formMachineId)?.id || 'plan-pm-01';
 
-      if (formStatus === 'เสร็จสิ้น' && pmPlanIdUsed && formDate) {
-        setPmPlans(prev => prev.map(p => {
-          if (p.id !== pmPlanIdUsed) return p;
-          if (!p.lastCheckedDate || p.lastCheckedDate < formDate) {
-            return { ...p, lastCheckedDate: formDate };
-          }
-          return p;
-        }));
-      }
-
       if (formMode === 'create') {
-        const newPM: PMScheduleItem = {
+        let newPM: PMScheduleItem = {
           id: `pm-${Date.now()}`,
           type: 'PM',
           technician: primaryTech,
@@ -548,26 +539,59 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
           destination: formDestination.trim(),
           peopleCount: Number(formPeopleCount) || allTechs.length
         };
+        if (formStatus === 'เสร็จสิ้น') {
+          const linkedPlan = pmPlans.find(p => p.id === pmPlanIdUsed);
+          if (linkedPlan) {
+            const { job: completedJob, plan: updatedPlan } = completePmJob(newPM, linkedPlan);
+            newPM = completedJob;
+            if (updatedPlan) {
+              setPmPlans(prev => prev.map(p => {
+                if (p.id !== linkedPlan.id) return p;
+                const nextPlan = { ...updatedPlan };
+                if (formDate && (!nextPlan.lastCheckedDate || nextPlan.lastCheckedDate < formDate)) {
+                  nextPlan.lastCheckedDate = formDate;
+                }
+                return nextPlan;
+              }));
+            }
+          }
+        }
         setSchedules(prev => [...prev, newPM]);
         setToast({ text: `เพิ่มงาน PM สำหรับ ${formMachineId} เรียบร้อยแล้ว`, type: 'success' });
       } else {
-        setSchedules(prev => prev.map(s => {
-          if (s.id === editingTaskId) {
-            return {
-              ...s,
-              technician: primaryTech,
-              technicians: allTechs,
-              date: formDate,
-              machineId: formMachineId,
-              pmPlanId: formPmPlanId || (s as PMScheduleItem).pmPlanId,
-              status: formStatus,
-              duration: Number(formDuration) || 0,
-              destination: formDestination.trim(),
-              peopleCount: Number(formPeopleCount) || allTechs.length
-            };
+        const existingJob = schedules.find(s => s.id === editingTaskId) as PMScheduleItem | undefined;
+        let updatedPM: PMScheduleItem = {
+          ...existingJob,
+          id: editingTaskId!,
+          type: 'PM',
+          technician: primaryTech,
+          technicians: allTechs,
+          date: formDate,
+          machineId: formMachineId,
+          pmPlanId: formPmPlanId || existingJob?.pmPlanId || pmPlanIdUsed,
+          status: formStatus,
+          duration: Number(formDuration) || 0,
+          destination: formDestination.trim(),
+          peopleCount: Number(formPeopleCount) || allTechs.length
+        };
+        if (formStatus === 'เสร็จสิ้น') {
+          const linkedPlan = pmPlans.find(p => p.id === updatedPM.pmPlanId);
+          if (linkedPlan) {
+            const { job: completedJob, plan: updatedPlan } = completePmJob(updatedPM, linkedPlan);
+            updatedPM = completedJob;
+            if (updatedPlan) {
+              setPmPlans(prev => prev.map(p => {
+                if (p.id !== linkedPlan.id) return p;
+                const nextPlan = { ...updatedPlan };
+                if (formDate && (!nextPlan.lastCheckedDate || nextPlan.lastCheckedDate < formDate)) {
+                  nextPlan.lastCheckedDate = formDate;
+                }
+                return nextPlan;
+              }));
+            }
           }
-          return s;
-        }));
+        }
+        setSchedules(prev => prev.map(s => s.id === editingTaskId ? updatedPM : s));
         setToast({ text: `อัปเดตข้อมูลงาน PM เรียบร้อยแล้ว`, type: 'success' });
       }
     } else if (formTaskType === 'Repair') {
@@ -720,17 +744,30 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
     } else {
       if (type === 'PM' && nextStatus === 'เสร็จสิ้น') {
         const pmItem = schedules.find(s => s.id === taskId) as PMScheduleItem | undefined;
-        if (pmItem && pmItem.pmPlanId && pmItem.date) {
-          setPmPlans(prev => prev.map(p => {
-            if (p.id !== pmItem.pmPlanId) return p;
-            if (!p.lastCheckedDate || p.lastCheckedDate < pmItem.date) {
-              return { ...p, lastCheckedDate: pmItem.date };
+        if (pmItem) {
+          const linkedPlan = pmPlans.find(p => p.id === pmItem.pmPlanId);
+          let completedJob: PMScheduleItem = { ...pmItem, status: nextStatus };
+          if (linkedPlan) {
+            const res = completePmJob(completedJob, linkedPlan);
+            completedJob = res.job;
+            if (res.plan) {
+              setPmPlans(prev => prev.map(p => {
+                if (p.id !== linkedPlan.id) return p;
+                const nextPlan = { ...res.plan! };
+                if (pmItem.date && (!nextPlan.lastCheckedDate || nextPlan.lastCheckedDate < pmItem.date)) {
+                  nextPlan.lastCheckedDate = pmItem.date;
+                }
+                return nextPlan;
+              }));
             }
-            return p;
-          }));
+          }
+          setSchedules(prev => prev.map(s => s.id === taskId ? completedJob : s));
+        } else {
+          setSchedules(prev => prev.map(s => s.id === taskId ? { ...s, status: nextStatus } : s));
         }
+      } else {
+        setSchedules(prev => prev.map(s => s.id === taskId ? { ...s, status: nextStatus } : s));
       }
-      setSchedules(prev => prev.map(s => s.id === taskId ? { ...s, status: nextStatus } : s));
     }
     setToast({ text: `ปรับสถานะเป็น "${nextStatus}" เรียบร้อยแล้ว`, type: 'info' });
   };
@@ -1566,7 +1603,7 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
                               onClick={() => {
                                 if (onOpenPMChecklist && pm.machineId) {
                                   setActiveDateStr(null);
-                                  onOpenPMChecklist(pm.machineId, pm.pmPlanId || plan?.id || '');
+                                  onOpenPMChecklist(pm.machineId, pm.pmPlanId || plan?.id || '', pm.id);
                                 }
                               }}
                               className="flex items-center gap-1.5 px-3 py-1.5 bg-accent text-xs font-bold rounded-xl shadow-md transition cursor-pointer"

@@ -5,7 +5,7 @@ import {
   Plus, Search, ClipboardCheck, Clock, ChevronDown, CheckCircle, 
   AlertTriangle, Filter, Trash2, Edit, FileSpreadsheet, Hourglass, 
   HelpCircle, Sparkles, TrendingUp, TrendingDown, Users, RefreshCw,
-  Bell, History, Send, ShieldAlert, ArrowRight, X
+  Bell, History, Send, ShieldAlert, ArrowRight, X, Download
 } from 'lucide-react';
 import { PMRescheduleModal } from './PMRescheduleModal';
 import { 
@@ -15,6 +15,8 @@ import {
 import { 
   formatPmMinutes, getPlannedMinutes, getActualMinutes, getPmVariance 
 } from '../utils/pmTime';
+import { completePmJob } from '../utils/pmChecklist';
+import { exportPMReportToExcel } from '../utils/pmExcelUtils';
 
 export const PMHistoryPage: React.FC = () => {
   const { schedules, setSchedules, pmPlans, setPmPlans, machines, technicians, spareParts, setSpareParts, settings } = useApp();
@@ -203,30 +205,47 @@ export const PMHistoryPage: React.FC = () => {
     }
     setSpareParts(tempSpareParts);
 
+    const linkedPlan = pmPlans.find(p => p.id === formPlan);
+
     if (editingId) {
       // Edit existing scheduled PM log
-      setSchedules(prev => prev.map(s => {
-        if (s.id === editingId && s.type === 'PM') {
-          return {
-            ...s,
-            machineId: formMachine,
-            pmPlanId: formPlan,
-            date: formDate,
-            technician: primaryTech,
-            technicians: formTechnicians,
-            duration: formDuration,
-            actualDuration: formStatus === 'เสร็จสิ้น' ? formActualDuration : undefined,
-            overtimeReason: (formStatus === 'เสร็จสิ้น' && formDuration > 0 && formActualDuration > formDuration) ? formOvertimeReason.trim() : undefined,
-            status: formStatus,
-            usedParts: formUsedParts,
-            otherCost: Number(formOtherCost) || 0
-          } as PMScheduleItem;
+      const oldPm = schedules.find(s => s.id === editingId && s.type === 'PM') as PMScheduleItem | undefined;
+      let updatedJob: PMScheduleItem = {
+        ...oldPm,
+        id: editingId,
+        type: 'PM',
+        machineId: formMachine,
+        pmPlanId: formPlan,
+        date: formDate,
+        technician: primaryTech,
+        technicians: formTechnicians,
+        duration: formDuration,
+        actualDuration: formStatus === 'เสร็จสิ้น' ? formActualDuration : undefined,
+        overtimeReason: (formStatus === 'เสร็จสิ้น' && formDuration > 0 && formActualDuration > formDuration) ? formOvertimeReason.trim() : undefined,
+        status: formStatus,
+        usedParts: formUsedParts,
+        otherCost: Number(formOtherCost) || 0
+      };
+
+      if (formStatus === 'เสร็จสิ้น' && linkedPlan) {
+        const res = completePmJob(updatedJob, linkedPlan);
+        updatedJob = res.job;
+        if (res.plan) {
+          setPmPlans(prev => prev.map(p => {
+            if (p.id !== linkedPlan.id) return p;
+            const nextPlan = { ...res.plan! };
+            if (formDate && (!nextPlan.lastCheckedDate || nextPlan.lastCheckedDate < formDate)) {
+              nextPlan.lastCheckedDate = formDate;
+            }
+            return nextPlan;
+          }));
         }
-        return s;
-      }));
+      }
+
+      setSchedules(prev => prev.map(s => s.id === editingId && s.type === 'PM' ? updatedJob : s));
     } else {
       // Add new PM record
-      const newPmJob: PMScheduleItem = {
+      let newPmJob: PMScheduleItem = {
         id: `pm-hist-${Date.now()}`,
         type: 'PM',
         technician: primaryTech,
@@ -241,17 +260,23 @@ export const PMHistoryPage: React.FC = () => {
         usedParts: formUsedParts,
         otherCost: Number(formOtherCost) || 0
       };
-      setSchedules(prev => [newPmJob, ...prev]);
-    }
 
-    if (formStatus === 'เสร็จสิ้น' && formPlan && formDate) {
-      setPmPlans(prev => prev.map(p => {
-        if (p.id !== formPlan) return p;
-        if (!p.lastCheckedDate || p.lastCheckedDate < formDate) {
-          return { ...p, lastCheckedDate: formDate };
+      if (formStatus === 'เสร็จสิ้น' && linkedPlan) {
+        const res = completePmJob(newPmJob, linkedPlan);
+        newPmJob = res.job;
+        if (res.plan) {
+          setPmPlans(prev => prev.map(p => {
+            if (p.id !== linkedPlan.id) return p;
+            const nextPlan = { ...res.plan! };
+            if (formDate && (!nextPlan.lastCheckedDate || nextPlan.lastCheckedDate < formDate)) {
+              nextPlan.lastCheckedDate = formDate;
+            }
+            return nextPlan;
+          }));
         }
-        return p;
-      }));
+      }
+
+      setSchedules(prev => [newPmJob, ...prev]);
     }
 
     setShowFormModal(false);
@@ -1275,6 +1300,108 @@ export const PMHistoryPage: React.FC = () => {
                     ? selectedPmDetail.technicians.join(', ') 
                     : selectedPmDetail.technician}
                 </p>
+              </div>
+
+              {/* Checklist Result Section */}
+              <div className="bg-slate-50 dark:bg-slate-900/60 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-3">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                  <div>
+                    <h4 className="text-[11px] font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5 uppercase tracking-wider">
+                      <ClipboardCheck size={14} className="text-cyan-600 dark:text-cyan-400" />
+                      ผลการตรวจเช็คลิสต์ PM (Checklist Result)
+                    </h4>
+                    {selectedPmDetail.checklistResult && (
+                      <p className="text-[10px] text-slate-500 mt-0.5">
+                        แผน: {selectedPmDetail.checklistResult.planTitle} · บันทึกเมื่อ {selectedPmDetail.checklistResult.recordedAt}
+                      </p>
+                    )}
+                  </div>
+                  {selectedPmDetail.checklistResult && (
+                    <button
+                      type="button"
+                      id="btn-export-pm-job-checklist"
+                      onClick={() => {
+                        const basePlan = pmPlans.find(p => p.id === selectedPmDetail.pmPlanId) || {
+                          id: selectedPmDetail.pmPlanId,
+                          machineId: selectedPmDetail.machineId,
+                          title: selectedPmDetail.checklistResult!.planTitle,
+                          frequency: 'รายเดือน',
+                          steps: selectedPmDetail.checklistResult!.steps,
+                          ttm: selectedPmDetail.duration || 0
+                        };
+                        const targetMachine = machines.find(m => m.id === selectedPmDetail.machineId);
+                        exportPMReportToExcel(
+                          { ...basePlan, title: selectedPmDetail.checklistResult!.planTitle, steps: selectedPmDetail.checklistResult!.steps },
+                          targetMachine,
+                          selectedPmDetail.date
+                        );
+                      }}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-accent text-xs font-bold rounded-lg shadow-sm transition cursor-pointer shrink-0"
+                    >
+                      <Download size={13} />
+                      <span>Export Excel ใบ PM รอบนี้</span>
+                    </button>
+                  )}
+                </div>
+
+                {selectedPmDetail.checklistResult ? (
+                  <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/60">
+                    <table className="w-full text-left text-xs border-collapse">
+                      <thead>
+                        <tr className="bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 text-[10.5px] uppercase font-bold border-b border-slate-200 dark:border-slate-800">
+                          <th className="py-2 px-2.5 text-center w-10">No.</th>
+                          <th className="py-2 px-3 min-w-[140px]">หัวข้อ</th>
+                          <th className="py-2 px-3 text-center w-20">ผล</th>
+                          <th className="py-2 px-3 min-w-[150px]">รายละเอียดที่ผิดปกติ</th>
+                          <th className="py-2 px-3 min-w-[150px]">การแก้ไข</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-200 dark:divide-slate-800 text-[11px]">
+                        {selectedPmDetail.checklistResult.steps.map((st, idx) => {
+                          const isAbnormal = st.result === 'ไม่ปกติ';
+                          const actionText = st.actionTaken
+                            ? `${st.actionTaken}${st.actionDetail ? `: ${st.actionDetail}` : ''}`
+                            : (st.actionDetail || '-');
+
+                          return (
+                            <tr
+                              key={st.id || idx}
+                              className={isAbnormal ? 'bg-rose-50 dark:bg-rose-950/20 text-rose-900 dark:text-rose-200' : 'hover:bg-slate-50 dark:hover:bg-slate-900/30'}
+                            >
+                              <td className="py-2 px-2.5 text-center font-mono text-slate-500 font-bold">
+                                {st.itemNo !== undefined ? st.itemNo : (idx + 1)}
+                              </td>
+                              <td className="py-2 px-3 font-medium text-slate-800 dark:text-slate-200">
+                                {st.title}
+                              </td>
+                              <td className="py-2 px-3 text-center">
+                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                                  st.result === 'ปกติ'
+                                    ? 'bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/30'
+                                    : st.result === 'ไม่ปกติ'
+                                      ? 'bg-rose-100 dark:bg-rose-950/50 text-rose-800 dark:text-rose-200 border border-rose-300 dark:border-rose-500/40 font-bold'
+                                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                                }`}>
+                                  {st.result || 'ยังไม่ตรวจ'}
+                                </span>
+                              </td>
+                              <td className="py-2 px-3 text-slate-700 dark:text-slate-300">
+                                {st.abnormalDetail || '-'}
+                              </td>
+                              <td className="py-2 px-3 text-slate-700 dark:text-slate-300">
+                                {actionText}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <p className="text-xs text-slate-500 dark:text-slate-400 italic text-center py-2 bg-white dark:bg-slate-950/20 rounded border border-slate-200 dark:border-slate-850">
+                    ไม่มีบันทึกผลเช็กลิสต์ของรอบนี้
+                  </p>
+                )}
               </div>
 
               {/* Reschedule Info / History in Detail Modal */}
