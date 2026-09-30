@@ -9,14 +9,13 @@ import { StatsAndPresentationHub } from './components/StatsAndPresentationHub';
 import { SettingsModal } from './components/SettingsModal';
 import { InventoryPage } from './components/InventoryPage';
 import { TimeBreakPage } from './components/TimeBreakPage';
-import { TechnicianPortfolioPage } from './components/TechnicianPortfolioPage';
 import { PMOverdueAlertModal } from './components/PMOverdueAlertModal';
 import { getOverdueAndRescheduledSummary, getTodayDateString } from './utils/pmAlerts';
 
 import { 
   Wrench, Activity, CalendarDays, ClipboardList, PenTool, 
   BarChart3, Settings, Menu, ChevronLeft, ChevronRight, Clock, ShieldCheck, Presentation, Users,
-  Sun, Moon, Package, ClipboardCheck, WifiOff, Award, Sparkles, AlertTriangle, Bell
+  Sun, Moon, Package, ClipboardCheck, WifiOff, Sparkles, AlertTriangle, Bell
 } from 'lucide-react';
 
 function AppContent() {
@@ -120,7 +119,6 @@ function AppContent() {
       case 10: return <InventoryPage />;
       case 6: return <StatsAndPresentationHub initialSubTab="stats" />;
       case 9: return <StatsAndPresentationHub initialSubTab="presentation" />;
-      case 12: return <TechnicianPortfolioPage />;
       default: return <SchedulePage onOpenPMChecklist={handleOpenPMChecklist} />;
     }
   };
@@ -134,8 +132,7 @@ function AppContent() {
     { id: 11, label: "เปลี่ยนอะไหล่ Time-Break", icon: Clock, desc: "ระบุเครื่อง/รอบเปลี่ยนอะไหล่" },
     { id: 5, label: "งานพัฒนา Kaizen", icon: PenTool, desc: "บอร์ดสเตตัสงาน" },
     { id: 10, label: "คลังอะไหล่สำรอง", icon: Package, desc: "ควบคุมความปลอดภัยสต็อก" },
-    { id: 6, label: "สถิติ & สรุปนำเสนอ", icon: BarChart3, desc: "Dashboard, MTTR & นำเสนอ" },
-    { id: 12, label: "Portfolio ช่าง", icon: Award, desc: "ประวัติผลงาน Kaizen & ปรับปรุง" }
+    { id: 6, label: "สถิติ & สรุปนำเสนอ", icon: BarChart3, desc: "Dashboard, MTTR & นำเสนอ" }
   ];
 
   return (
