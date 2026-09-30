@@ -162,16 +162,22 @@ export const exportPMReportToExcel = (
       // ✓ ลงคอลัมน์ 20 (ปกติ) หรือ 22 (ไม่ปกติ)
       if (isNormal) dataRow[20] = '✓';
       if (isAbnormal) dataRow[22] = '✓';
-      let abnormalText = step.abnormalDetail || '';
+      const detailParts: string[] = [];
+      if (step.measuredValue && step.measuredValue.trim()) {
+        detailParts.push(`ค่าที่วัด: ${step.measuredValue.trim()}`);
+      }
+      if (step.abnormalDetail && step.abnormalDetail.trim()) {
+        detailParts.push(step.abnormalDetail.trim());
+      }
       if (step.actionTaken || step.actionDetail) {
         const actionPart = step.actionTaken && step.actionDetail
           ? `${step.actionTaken}: ${step.actionDetail}`
           : (step.actionTaken || step.actionDetail || '');
-        if (actionPart) {
-          abnormalText = abnormalText ? `${abnormalText} [${actionPart}]` : `[${actionPart}]`;
+        if (actionPart.trim()) {
+          detailParts.push(`[${actionPart.trim()}]`);
         }
       }
-      dataRow[24] = abnormalText;
+      dataRow[24] = detailParts.join(' | ');
       dataRow[32] = step.remark || '';
     } else {
       dataRow[0] = idx + 1;

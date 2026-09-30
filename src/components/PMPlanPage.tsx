@@ -18,7 +18,8 @@ import {
 import { PMKpiPanel } from './PMKpiPanel';
 import { PMHistoryPage } from './PMHistoryPage';
 import { getTodayDateString } from '../utils/pmAlerts';
-import { completePmJob } from '../utils/pmChecklist';
+import { completePmJob, planHasProgress, resetPlanChecklist, recordPmRound } from '../utils/pmChecklist';
+import { PMRoundHistoryModal } from './PMRoundHistoryModal';
 
 export interface PMPlanPageProps {
   initialSubTab?: 'plan' | 'kpi' | 'history';
@@ -35,12 +36,20 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
   focusPlanId,
   focusJobId
 }) => {
-  const { machines, pmPlans, setPmPlans, pmMachineIds, setPmMachineIds, schedules, setSchedules } = useApp();
+  const { machines, pmPlans, setPmPlans, pmMachineIds, setPmMachineIds, schedules, setSchedules, technicians, repairs } = useApp();
 
   const [activeSubTab, setActiveSubTab] = useState<'plan' | 'kpi' | 'history'>(initialSubTab);
   const [highlightedPlanId, setHighlightedPlanId] = useState<string | null>(null);
   const [activeFocusJobId, setActiveFocusJobId] = useState<string | undefined>(focusJobId);
   const [toast, setToast] = useState<{ text: string; type: 'success' | 'info' | 'error' } | null>(null);
+
+  // PM Round history modal state
+  const [historyModalPlan, setHistoryModalPlan] = useState<PMPlan | null>(null);
+
+  // PM Round recording card state
+  const [conflictData, setConflictData] = useState<{ plan: PMPlan; existingJob: PMScheduleItem; date: string; technicians: string[] } | null>(null);
+  const [cardRecordDates, setCardRecordDates] = useState<Record<string, string>>({});
+  const [cardRecordTechs, setCardRecordTechs] = useState<Record<string, string[]>>({});
 
   useEffect(() => {
     if (!toast) return;
@@ -281,6 +290,110 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
   // Plans of the selected machine
   const activeMachinePlans = pmPlans.filter(p => p.machineId === selectedMachineId);
 
+  // Machine repairs for linking (sorted newest first)
+  const machineRepairs = useMemo(() => {
+    const currentMachId = selectedMachine?.id || selectedMachineId;
+    return (repairs || [])
+      .filter(r => r.machineId === currentMachId)
+      .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  }, [repairs, selectedMachine, selectedMachineId]);
+
+  // Helper to determine initial technicians for a plan and date
+  const getInitialTechsForPlanAndDate = (plan: PMPlan, dateStr: string): string[] => {
+    const month = dateStr.slice(0, 7);
+    const pending = schedules.find(
+      s => s.type === 'PM' && s.pmPlanId === plan.id && s.date && s.date.slice(0, 7) === month && s.status !== 'เสร็จสิ้น'
+    ) as PMScheduleItem | undefined;
+
+    if (pending) {
+      if (pending.technicians && pending.technicians.length > 0) {
+        return pending.technicians.filter(t => technicians.includes(t));
+      }
+      if (pending.technician && technicians.includes(pending.technician)) {
+        return [pending.technician];
+      }
+    }
+
+    if (plan.inspectorTech && technicians.includes(plan.inspectorTech)) {
+      return [plan.inspectorTech];
+    }
+
+    return [];
+  };
+
+  const handleToggleCardTech = (plan: PMPlan, tech: string) => {
+    const curDate = cardRecordDates[plan.id] || getTodayDateString();
+    const defaultTechs = getInitialTechsForPlanAndDate(plan, curDate);
+    const current = cardRecordTechs[plan.id] ?? defaultTechs;
+    const next = current.includes(tech) ? current.filter(t => t !== tech) : [...current, tech];
+    setCardRecordTechs(prev => ({ ...prev, [plan.id]: next }));
+  };
+
+  const handleCardDateChange = (plan: PMPlan, newDate: string) => {
+    setCardRecordDates(prev => ({ ...prev, [plan.id]: newDate }));
+    const newMonthTechs = getInitialTechsForPlanAndDate(plan, newDate);
+    if (newMonthTechs.length > 0) {
+      setCardRecordTechs(prev => ({ ...prev, [plan.id]: newMonthTechs }));
+    }
+  };
+
+  const handleRecordRound = (plan: PMPlan, overwrite = false) => {
+    const date = cardRecordDates[plan.id] || getTodayDateString();
+    const techs = cardRecordTechs[plan.id] ?? getInitialTechsForPlanAndDate(plan, date);
+
+    if (techs.length === 0) {
+      alert("กรุณาเลือกผู้ทำการ PM อย่างน้อย 1 คน");
+      return;
+    }
+
+    const result = recordPmRound({
+      plan,
+      date,
+      technicians: techs,
+      schedules,
+      overwrite
+    });
+
+    if (result.error) {
+      alert(result.error);
+      return;
+    }
+
+    if (result.conflict) {
+      setConflictData({
+        plan,
+        existingJob: result.conflict,
+        date,
+        technicians: techs
+      });
+      return;
+    }
+
+    if (result.schedules) {
+      setSchedules(result.schedules);
+    }
+    if (result.plan) {
+      setPmPlans(prev => prev.map(p => p.id === result.plan!.id ? result.plan! : p));
+    }
+
+    const parts = date.split('-');
+    const thaiMonths = [
+      "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+      "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+    ];
+    const mIdx = parseInt(parts[1], 10) - 1;
+    const thYear = parseInt(parts[0], 10) + 543;
+    const monthName = thaiMonths[mIdx] || parts[1];
+
+    setToast({ text: `บันทึก PM เดือน ${monthName} ${thYear} แล้ว`, type: 'success' });
+    setConflictData(null);
+    setCardRecordTechs(prev => {
+      const next = { ...prev };
+      delete next[plan.id];
+      return next;
+    });
+  };
+
   // Candidate target machines for sharing plans to (all machines except the source machine)
   const shareableTargetMachines = useMemo(() => {
     const candidates = machines.filter(m => m.id !== selectedMachineId);
@@ -419,8 +532,8 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
     }));
   };
 
-  // Update step abnormal detail, remark, or actionDetail inline
-  const handleUpdateStepField = (planId: string, stepIndex: number, field: 'abnormalDetail' | 'remark' | 'actionDetail', val: string) => {
+  // Update step abnormal detail, remark, actionDetail, measuredValue, or linkedRepairId inline
+  const handleUpdateStepField = (planId: string, stepIndex: number, field: 'abnormalDetail' | 'remark' | 'actionDetail' | 'measuredValue' | 'linkedRepairId', val: string) => {
     setPmPlans(prev => prev.map(plan => {
       if (plan.id !== planId) return plan;
       const updatedSteps = [...(plan.steps || [])];
@@ -498,14 +611,7 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
     if (!resetChecklistPlanId) return;
     setPmPlans(prev => prev.map(plan => {
       if (plan.id !== resetChecklistPlanId) return plan;
-      return {
-        ...plan,
-        steps: (plan.steps || []).map(s => ({
-          ...s,
-          done: false,
-          result: 'ยังไม่ตรวจ'
-        }))
-      };
+      return resetPlanChecklist(plan);
     }));
     setResetChecklistPlanId(null);
   };
@@ -1474,6 +1580,31 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
                               <User size={12} className="text-cyan-600 dark:text-cyan-400" /> ช่าง: {plan.inspectorTech}
                             </span>
                           )}
+                          {/* Monthly PM done badge */}
+                          {(() => {
+                            const curMonth = getTodayDateString().slice(0, 7);
+                            const doneJob = schedules.find(
+                              s => s.type === 'PM' && s.pmPlanId === plan.id && s.date && s.date.slice(0, 7) === curMonth && s.status === 'เสร็จสิ้น' && s.checklistResult
+                            ) as PMScheduleItem | undefined;
+
+                            if (doneJob) {
+                              const techList = (doneJob.technicians && doneJob.technicians.length > 0
+                                ? doneJob.technicians
+                                : [doneJob.technician]).filter(Boolean);
+                              const techText = techList.length > 0 ? techList.join(', ') : 'ไม่ระบุ';
+                              return (
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded border bg-emerald-500/15 border-emerald-500/30 text-emerald-700 dark:text-emerald-400 flex items-center gap-1">
+                                  <CheckCircle size={11} />
+                                  PM เดือนนี้: ทำแล้ว {doneJob.date} · {techText}
+                                </span>
+                              );
+                            }
+                            return (
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded border bg-slate-500/15 border-slate-500/30 text-slate-600 dark:text-slate-400 flex items-center gap-1">
+                                PM เดือนนี้: ยังไม่ทำ
+                              </span>
+                            );
+                          })()}
                         </div>
 
                         <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate" title={plan.title}>
@@ -1502,6 +1633,16 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
 
                       {/* Header quick buttons */}
                       <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          id={`btn-history-plan-${plan.id}`}
+                          onClick={() => setHistoryModalPlan(plan)}
+                          className="flex items-center gap-1.5 px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 border border-blue-300 text-blue-800 dark:bg-blue-500/15 dark:border-blue-500/30 dark:text-blue-300 dark:hover:bg-blue-500/25 rounded-lg text-xs font-bold transition cursor-pointer shadow-2xs"
+                          title="เปิดดูประวัติการบันทึก PM ย้อนหลังแต่ละรอบ"
+                        >
+                          <History size={13} strokeWidth={2.2} />
+                          <span>ประวัติ PM</span>
+                        </button>
                         <button
                           id={`btn-widen-plan-${plan.id}`}
                           onClick={() => setIsWide(!isWide)}
@@ -1726,6 +1867,19 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
 
                                   {/* 7. Abnormal detail / measurements */}
                                   <td className="py-2.5 px-3">
+                                    {((step.method && (step.method.includes('วัด') || step.method.includes('บันทึกค่า'))) || 
+                                      (step.standard && (step.standard.includes('วัด') || step.standard.includes('บันทึกค่า'))) || 
+                                      Boolean(step.measuredValue)) && (
+                                      <div className="mb-1.5">
+                                        <input
+                                          type="text"
+                                          placeholder="ค่าที่วัดได้ (เช่น 220V, 1.05A)..."
+                                          value={step.measuredValue || ''}
+                                          onChange={(e) => handleUpdateStepField(plan.id, idx, 'measuredValue', e.target.value)}
+                                          className="w-full bg-surface dark:bg-slate-950/80 border border-slate-300 dark:border-slate-700/80 rounded-lg px-2.5 py-1 text-xs text-fg placeholder:text-fg-muted/60 focus:outline-none focus:border-cyan-500 font-mono"
+                                        />
+                                      </div>
+                                    )}
                                     <input
                                       type="text"
                                       placeholder="บันทึกค่าที่วัดได้ หรือสิ่งผิดปกติ..."
@@ -1748,11 +1902,27 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
                                         </select>
                                         <input
                                           type="text"
-                                          placeholder="รายละเอียดการแก้ไข..."
+                                          placeholder={step.actionTaken === 'แก้ไข/เปลี่ยนทันที' ? "แก้ไข/เปลี่ยนอะไรระหว่าง PM (เช่น เปลี่ยนลูกปืน 6006 2 ตลับ)" : "รายละเอียดการแก้ไข..."}
                                           value={step.actionDetail || ''}
                                           onChange={(e) => handleUpdateStepField(plan.id, idx, 'actionDetail', e.target.value)}
                                           className="w-full bg-surface dark:bg-slate-950/80 border border-rose-200 dark:border-rose-500/30 rounded-lg px-2 py-0.5 text-[11px] text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-cyan-500"
                                         />
+                                        {step.actionTaken === 'แจ้งซ่อม/ติดตาม' && (
+                                          <div className="pt-0.5">
+                                            <select
+                                              value={step.linkedRepairId || ''}
+                                              onChange={(e) => handleUpdateStepField(plan.id, idx, 'linkedRepairId', e.target.value)}
+                                              className="w-full bg-surface dark:bg-slate-950/80 border border-amber-300 dark:border-amber-500/40 rounded-lg px-2 py-0.5 text-[10.5px] text-slate-800 dark:text-slate-200 focus:outline-none"
+                                            >
+                                              <option value="">-- ผูกใบแจ้งซ่อม (ไม่บังคับ) --</option>
+                                              {machineRepairs.map((r) => (
+                                                <option key={r.id} value={r.id}>
+                                                  {r.date} · {r.symptoms ? r.symptoms.slice(0, 30) : 'ไม่ได้ระบุอาการ'}
+                                                </option>
+                                              ))}
+                                            </select>
+                                          </div>
+                                        )}
                                       </div>
                                     )}
                                   </td>
@@ -1838,6 +2008,91 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
                             </div>
                           </div>
                         </div>
+                      </div>
+
+                      {/* Monthly PM Round Recording Section */}
+                      <div className="bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/60 rounded-xl p-3.5 space-y-3">
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2.5">
+                          <div className="flex items-center gap-2">
+                            <Calendar size={15} className="text-cyan-600 dark:text-cyan-400 shrink-0" />
+                            <div>
+                              <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100">บันทึกผลการทำ PM รอบรายเดือน</h4>
+                              <p className="text-[10.5px] text-slate-500 dark:text-slate-400">
+                                บันทึกผลตรวจเช็คลิสต์ลงในประวัติของเดือนนี้ และปิดใบงาน PM ในตารางงาน
+                              </p>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center gap-2 w-full sm:w-auto">
+                            <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-400 shrink-0">วันที่ทำ PM:</label>
+                            <input
+                              type="date"
+                              value={cardRecordDates[plan.id] || getTodayDateString()}
+                              onChange={(e) => handleCardDateChange(plan, e.target.value)}
+                              className="bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-1 text-xs text-slate-900 dark:text-slate-200 focus:outline-none focus:border-cyan-500"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Technicians Selection Chips */}
+                        {(() => {
+                          const curDate = cardRecordDates[plan.id] || getTodayDateString();
+                          const curTechs = cardRecordTechs[plan.id] ?? getInitialTechsForPlanAndDate(plan, curDate);
+                          const hasSelectedTech = curTechs.length > 0;
+
+                          return (
+                            <div className="space-y-2">
+                              <div className="flex justify-between items-center text-[11px]">
+                                <span className="font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                                  <User size={13} className="text-cyan-600 dark:text-cyan-400" />
+                                  ผู้ทำการ PM (เลือกได้หลายคน):
+                                </span>
+                                <span className="text-slate-500 dark:text-slate-400">
+                                  เลือกแล้ว <b className="text-cyan-700 dark:text-cyan-400">{curTechs.length}</b> คน
+                                </span>
+                              </div>
+
+                              <div className="flex flex-wrap gap-1.5">
+                                {technicians.map((tech) => {
+                                  const isSelected = curTechs.includes(tech);
+                                  return (
+                                    <button
+                                      key={tech}
+                                      type="button"
+                                      onClick={() => handleToggleCardTech(plan, tech)}
+                                      className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium transition cursor-pointer ${
+                                        isSelected
+                                          ? 'bg-accent shadow-xs'
+                                          : 'bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-cyan-500 hover:text-cyan-600'
+                                      }`}
+                                    >
+                                      {isSelected && <Check size={12} strokeWidth={2.5} />}
+                                      <span>{tech}</span>
+                                    </button>
+                                  );
+                                })}
+                              </div>
+
+                              {/* Record Button */}
+                              <div className="pt-2 flex justify-end items-center gap-2">
+                                {!hasSelectedTech && (
+                                  <span className="text-[11px] text-amber-600 dark:text-amber-400 font-medium">
+                                    * กรุณาเลือกผู้ทำการ PM อย่างน้อย 1 คน
+                                  </span>
+                                )}
+                                <button
+                                  type="button"
+                                  disabled={!hasSelectedTech}
+                                  onClick={() => handleRecordRound(plan)}
+                                  className="flex items-center gap-1.5 px-4 py-2 bg-accent font-extrabold text-xs rounded-xl shadow-md transition disabled:bg-slate-200 dark:disabled:bg-slate-800 disabled:text-slate-400 dark:disabled:text-slate-600 disabled:cursor-not-allowed cursor-pointer"
+                                >
+                                  <CheckCircle size={14} />
+                                  <span>{!hasSelectedTech ? 'เลือกผู้ทำการ PM' : 'บันทึกผล PM'}</span>
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })()}
                       </div>
 
                     </div>
@@ -2373,13 +2628,19 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <div className="space-y-1">
                   <label className="font-bold text-slate-700 dark:text-slate-300">ผู้ทำการ PM (ทีมช่าง)</label>
-                  <input
-                    type="text"
-                    placeholder="เช่น สมศักดิ์ ช่างเครื่อง"
+                  <select
                     value={planInspectorTech}
                     onChange={(e) => setPlanInspectorTech(e.target.value)}
                     className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-1.5 text-slate-900 dark:text-fg"
-                  />
+                  >
+                    <option value="">-- ไม่ระบุ --</option>
+                    {planInspectorTech && !technicians.includes(planInspectorTech) && (
+                      <option value={planInspectorTech}>{planInspectorTech} (เดิม)</option>
+                    )}
+                    {technicians.map((tech) => (
+                      <option key={tech} value={tech}>{tech}</option>
+                    ))}
+                  </select>
                 </div>
                 <div className="space-y-1">
                   <label className="font-bold text-slate-700 dark:text-slate-300">ผู้รับทราบ (ฝ่ายผลิต)</label>
@@ -3071,49 +3332,142 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
       )}
 
       {/* CONFIRMATION FOR RESETTING PM CHECKLIST */}
-      {resetChecklistPlanId && (
+      {resetChecklistPlanId && (() => {
+        const targetResetPlan = pmPlans.find(p => p.id === resetChecklistPlanId);
+        const hasProgress = planHasProgress(targetResetPlan);
+
+        return (
+          <div 
+            id="modal-reset-pm-checklist-confirm"
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/70 dark:bg-slate-950/85 backdrop-blur-sm p-4 animate-in fade-in duration-100"
+          >
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-6 rounded-2xl max-w-md w-full space-y-4 shadow-2xl text-xs text-slate-900 dark:text-slate-200">
+              <div className="flex items-center gap-3 text-amber-600 dark:text-amber-500 border-b border-slate-200 dark:border-slate-800 pb-3">
+                <RefreshCw size={22} className="shrink-0" />
+                <div>
+                  <h3 className="text-sm font-extrabold text-slate-900 dark:text-slate-100">รีเซ็ตผลการตรวจเช็คลิสต์</h3>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 font-normal">ล้างเครื่องหมายติ๊กทำแล้วและผลตรวจทั้งหมดในแผนนี้</p>
+                </div>
+              </div>
+              
+              <div className="space-y-3 text-slate-700 dark:text-slate-300">
+                {hasProgress ? (
+                  <div className="p-3 bg-amber-500/10 border border-amber-300 dark:border-amber-500/30 rounded-xl space-y-1 text-amber-900 dark:text-amber-200">
+                    <p className="font-bold flex items-center gap-1.5 text-xs">
+                      <AlertTriangle size={14} className="text-amber-600 dark:text-amber-400 shrink-0" />
+                      ผลที่ติ๊กไว้ยังไม่ได้บันทึกจะหาย
+                    </p>
+                    <p className="text-[11px] leading-relaxed">
+                      คุณได้ตรวจเช็ครายการบางส่วนไว้แล้ว หากต้องการเก็บผลเป็นประวัติประจำเดือน กรุณากด "บันทึกก่อนแล้วรีเซ็ต"
+                    </p>
+                  </div>
+                ) : (
+                  <p className="leading-relaxed">
+                    คุณต้องการรีเซ็ตผลการตรวจและเครื่องหมายเช็คลิสต์ทั้งหมดในแผนนี้ใช่หรือไม่?
+                  </p>
+                )}
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  (ทุกหัวข้อย่อยจะถูกเปลี่ยนสถานะกลับเป็น "ยังไม่ตรวจ")
+                </p>
+              </div>
+
+              <div className="flex flex-wrap gap-2 justify-end pt-2">
+                <button
+                  type="button"
+                  id="btn-cancel-reset-checklist"
+                  onClick={() => setResetChecklistPlanId(null)}
+                  className="border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 px-3.5 py-2 rounded-xl transition cursor-pointer font-medium"
+                >
+                  ยกเลิก
+                </button>
+                {hasProgress && targetResetPlan && (
+                  <button
+                    type="button"
+                    id="btn-save-then-reset-checklist"
+                    onClick={() => {
+                      const curDate = cardRecordDates[targetResetPlan.id] || getTodayDateString();
+                      const curTechs = cardRecordTechs[targetResetPlan.id] ?? getInitialTechsForPlanAndDate(targetResetPlan, curDate);
+                      if (curTechs.length === 0) {
+                        alert("กรุณาเลือกผู้ทำการ PM อย่างน้อย 1 คนก่อนบันทึก");
+                        return;
+                      }
+                      handleRecordRound(targetResetPlan);
+                      setResetChecklistPlanId(null);
+                    }}
+                    className="bg-accent font-bold px-3.5 py-2 rounded-xl transition shadow cursor-pointer"
+                  >
+                    บันทึกก่อนแล้วรีเซ็ต
+                  </button>
+                )}
+                <button
+                  type="button"
+                  id="btn-confirm-reset-checklist"
+                  onClick={confirmResetChecklist}
+                  className="bg-rose-600 hover:bg-rose-500 text-white font-bold px-3.5 py-2 rounded-xl transition shadow cursor-pointer"
+                >
+                  {hasProgress ? 'รีเซ็ตโดยไม่บันทึก' : 'ยืนยันรีเซ็ต'}
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* MODAL: PM ROUND CONFLICT (MONTH ALREADY RECORDED) */}
+      {conflictData && (
         <div 
-          id="modal-reset-pm-checklist-confirm"
+          id="modal-pm-conflict-confirm"
           className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/70 dark:bg-slate-950/85 backdrop-blur-sm p-4 animate-in fade-in duration-100"
         >
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-6 rounded-2xl max-w-md w-full space-y-4 shadow-2xl text-xs text-slate-900 dark:text-slate-200">
             <div className="flex items-center gap-3 text-amber-600 dark:text-amber-500 border-b border-slate-200 dark:border-slate-800 pb-3">
-              <RefreshCw size={22} className="shrink-0" />
+              <AlertTriangle size={22} className="shrink-0" />
               <div>
-                <h3 className="text-sm font-extrabold text-slate-900 dark:text-slate-100">รีเซ็ตผลการตรวจเช็คลิสต์</h3>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-normal">ล้างเครื่องหมายติ๊กทำแล้วและผลตรวจทั้งหมดในแผนนี้</p>
+                <h3 className="text-sm font-extrabold text-slate-900 dark:text-slate-100">มีบันทึก PM ของเดือนนี้แล้ว</h3>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-normal">
+                  เดือนนี้บันทึกแล้วเมื่อ {conflictData.existingJob.date}
+                </p>
               </div>
             </div>
             
             <div className="space-y-3 text-slate-700 dark:text-slate-300">
               <p className="leading-relaxed">
-                คุณต้องการรีเซ็ตผลการตรวจและเครื่องหมายเช็คลิสต์ทั้งหมดในแผนนี้ใช่หรือไม่?
+                พบประวัติการทำ PM รอบเดือนนี้แล้ว (บันทึกเมื่อวันที่ <b>{conflictData.existingJob.date}</b> โดย {conflictData.existingJob.technicians?.join(', ') || conflictData.existingJob.technician || 'ช่าง'})
               </p>
               <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                (ทุกหัวข้อย่อยจะถูกเปลี่ยนสถานะกลับเป็น "ยังไม่ตรวจ")
+                คุณต้องการบันทึกทับผลการตรวจของรอบนี้หรือไม่? หากบันทึกทับ ผลตรวจและรายชื่อช่างของรอบนี้จะถูกแทนที่ด้วยผลตรวจล่าสุด
               </p>
             </div>
 
             <div className="flex gap-2.5 justify-end pt-2">
               <button
                 type="button"
-                id="btn-cancel-reset-checklist"
-                onClick={() => setResetChecklistPlanId(null)}
+                id="btn-cancel-conflict"
+                onClick={() => setConflictData(null)}
                 className="border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 px-4 py-2 rounded-xl transition cursor-pointer font-medium"
               >
                 ยกเลิก
               </button>
               <button
                 type="button"
-                id="btn-confirm-reset-checklist"
-                onClick={confirmResetChecklist}
+                id="btn-confirm-overwrite-conflict"
+                onClick={() => handleRecordRound(conflictData.plan, true)}
                 className="bg-amber-600 hover:bg-amber-500 text-white font-extrabold px-4.5 py-2 rounded-xl transition shadow-lg shadow-amber-600/20 cursor-pointer"
               >
-                ยืนยันรีเซ็ต
+                บันทึกทับ
               </button>
             </div>
           </div>
         </div>
+      )}
+
+      {/* MODAL: PM ROUND HISTORY MODAL */}
+      {historyModalPlan && (
+        <PMRoundHistoryModal
+          plan={historyModalPlan}
+          machine={selectedMachine}
+          onClose={() => setHistoryModalPlan(null)}
+        />
       )}
 
       {/* ---------------------------------------------------- */}

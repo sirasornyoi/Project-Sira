@@ -29,6 +29,8 @@ export interface PMStep {
   actionDetail?: string; // รายละเอียดการแก้ไขเพิ่มเติม
   remark?: string; // หมายเหตุ (เช่น เบอร์ลูกปืน, ข้อควรระวัง)
   done?: boolean; // ติ๊กสิ่งที่ทำแล้ว (Checklist Completed)
+  measuredValue?: string; // ค่าที่วัดได้ เช่น 220V, 1.05A
+  linkedRepairId?: string; // (ข้อมูลเสริม) ผูกใบซ่อมที่มีอยู่ เมื่อ actionTaken = 'แจ้งซ่อม/ติดตาม'
 }
 
 export interface PMPlan {
