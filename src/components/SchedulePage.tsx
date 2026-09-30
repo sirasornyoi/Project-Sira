@@ -577,17 +577,30 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ onOpenPMChecklist })
         if (formStatus === 'เสร็จสิ้น') {
           const linkedPlan = pmPlans.find(p => p.id === updatedPM.pmPlanId);
           if (linkedPlan) {
-            const { job: completedJob, plan: updatedPlan } = completePmJob(updatedPM, linkedPlan);
-            updatedPM = completedJob;
-            if (updatedPlan) {
-              setPmPlans(prev => prev.map(p => {
-                if (p.id !== linkedPlan.id) return p;
-                const nextPlan = { ...updatedPlan };
-                if (formDate && (!nextPlan.lastCheckedDate || nextPlan.lastCheckedDate < formDate)) {
-                  nextPlan.lastCheckedDate = formDate;
-                }
-                return nextPlan;
-              }));
+            const isTransitionToDone = existingJob?.status !== 'เสร็จสิ้น';
+            if (isTransitionToDone) {
+              const { job: completedJob, plan: updatedPlan } = completePmJob(updatedPM, linkedPlan);
+              updatedPM = completedJob;
+              if (updatedPlan) {
+                setPmPlans(prev => prev.map(p => {
+                  if (p.id !== linkedPlan.id) return p;
+                  const nextPlan = { ...updatedPlan };
+                  if (formDate && (!nextPlan.lastCheckedDate || nextPlan.lastCheckedDate < formDate)) {
+                    nextPlan.lastCheckedDate = formDate;
+                  }
+                  return nextPlan;
+                }));
+              }
+            } else {
+              if (formDate) {
+                setPmPlans(prev => prev.map(p => {
+                  if (p.id !== linkedPlan.id) return p;
+                  if (!p.lastCheckedDate || p.lastCheckedDate < formDate) {
+                    return { ...p, lastCheckedDate: formDate };
+                  }
+                  return p;
+                }));
+              }
             }
           }
         }

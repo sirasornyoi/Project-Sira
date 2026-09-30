@@ -228,17 +228,30 @@ export const PMHistoryPage: React.FC = () => {
       };
 
       if (formStatus === 'เสร็จสิ้น' && linkedPlan) {
-        const res = completePmJob(updatedJob, linkedPlan);
-        updatedJob = res.job;
-        if (res.plan) {
-          setPmPlans(prev => prev.map(p => {
-            if (p.id !== linkedPlan.id) return p;
-            const nextPlan = { ...res.plan! };
-            if (formDate && (!nextPlan.lastCheckedDate || nextPlan.lastCheckedDate < formDate)) {
-              nextPlan.lastCheckedDate = formDate;
-            }
-            return nextPlan;
-          }));
+        const isTransitionToDone = oldPm?.status !== 'เสร็จสิ้น';
+        if (isTransitionToDone) {
+          const res = completePmJob(updatedJob, linkedPlan);
+          updatedJob = res.job;
+          if (res.plan) {
+            setPmPlans(prev => prev.map(p => {
+              if (p.id !== linkedPlan.id) return p;
+              const nextPlan = { ...res.plan! };
+              if (formDate && (!nextPlan.lastCheckedDate || nextPlan.lastCheckedDate < formDate)) {
+                nextPlan.lastCheckedDate = formDate;
+              }
+              return nextPlan;
+            }));
+          }
+        } else {
+          if (formDate) {
+            setPmPlans(prev => prev.map(p => {
+              if (p.id !== linkedPlan.id) return p;
+              if (!p.lastCheckedDate || p.lastCheckedDate < formDate) {
+                return { ...p, lastCheckedDate: formDate };
+              }
+              return p;
+            }));
+          }
         }
       }
 
