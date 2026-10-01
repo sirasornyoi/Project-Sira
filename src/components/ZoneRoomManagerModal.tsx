@@ -170,11 +170,11 @@ export const ZoneRoomManagerModal: React.FC<ZoneRoomManagerModalProps> = ({
     >
       <div 
         id="zone-room-manager-container"
-        className="bg-surface dark:bg-slate-900 text-fg dark:text-slate-100 rounded-2xl shadow-xl w-full max-w-4xl border border-border dark:border-slate-700/90 overflow-hidden flex flex-col max-h-[90vh] relative"
+        className="bg-surface dark:bg-slate-900 text-fg dark:text-slate-100 rounded-2xl shadow-2xl w-full max-w-4xl border border-border dark:border-slate-700/90 overflow-hidden flex flex-col h-[85vh] max-h-[820px] min-h-[480px] relative"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="px-6 py-4 border-b border-border dark:border-slate-800 bg-slate-50 dark:bg-slate-950/90 flex items-center justify-between">
+        <div className="px-6 py-4 border-b border-border dark:border-slate-800 bg-slate-50 dark:bg-slate-950/90 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-cyan-100 dark:bg-cyan-500/20 text-cyan-700 dark:text-cyan-400 border border-cyan-300 dark:border-cyan-500/40 flex items-center justify-center shadow-sm">
               <Layers className="w-5 h-5" />
@@ -197,7 +197,7 @@ export const ZoneRoomManagerModal: React.FC<ZoneRoomManagerModalProps> = ({
 
         {/* Feedback alert banner */}
         {actionFeedback && (
-          <div className="bg-emerald-50 dark:bg-emerald-950/90 border-b border-emerald-200 dark:border-emerald-500/40 px-6 py-2.5 text-xs text-emerald-800 dark:text-emerald-300 flex items-center gap-2 font-medium">
+          <div className="bg-emerald-50 dark:bg-emerald-950/90 border-b border-emerald-200 dark:border-emerald-500/40 px-6 py-2.5 text-xs text-emerald-800 dark:text-emerald-300 flex items-center gap-2 font-medium shrink-0">
             <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
             <span>{actionFeedback}</span>
           </div>
@@ -205,18 +205,18 @@ export const ZoneRoomManagerModal: React.FC<ZoneRoomManagerModalProps> = ({
 
         {/* Error alert banner */}
         {errorMessage && (
-          <div className="bg-rose-50 dark:bg-rose-950/90 border-b border-rose-200 dark:border-rose-500/40 px-6 py-2.5 text-xs text-rose-800 dark:text-rose-300 flex items-center gap-2 font-medium">
+          <div className="bg-rose-50 dark:bg-rose-950/90 border-b border-rose-200 dark:border-rose-500/40 px-6 py-2.5 text-xs text-rose-800 dark:text-rose-300 flex items-center gap-2 font-medium shrink-0">
             <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
             <span>{errorMessage}</span>
           </div>
         )}
 
         {/* Main Content Layout: Two Columns */}
-        <div className="flex-1 overflow-hidden grid grid-cols-1 md:grid-cols-12 min-h-[460px]">
+        <div className="flex-1 min-h-0 overflow-hidden grid grid-cols-1 md:grid-cols-12">
           {/* Left Column: Zones List (5 cols) */}
-          <div className="md:col-span-5 border-r border-border dark:border-slate-800 flex flex-col bg-slate-50/50 dark:bg-slate-900/90">
+          <div className="md:col-span-5 border-r border-border dark:border-slate-800 flex flex-col min-h-0 h-full bg-slate-50/50 dark:bg-slate-900/90 overflow-hidden">
             {/* Search and Add Zone */}
-            <div className="p-4 border-b border-border dark:border-slate-800 space-y-3 bg-slate-100/60 dark:bg-slate-950/40">
+            <div className="p-4 border-b border-border dark:border-slate-800 space-y-3 bg-slate-100/60 dark:bg-slate-950/40 shrink-0">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
                   <MapPin className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
@@ -286,7 +286,7 @@ export const ZoneRoomManagerModal: React.FC<ZoneRoomManagerModalProps> = ({
             </div>
 
             {/* Zones Scrollable List */}
-            <div className="flex-1 overflow-y-auto p-2.5 space-y-1.5 divide-y divide-border dark:divide-slate-800/40">
+            <div className="flex-1 min-h-0 overflow-y-auto p-2.5 space-y-1.5 divide-y divide-border dark:divide-slate-800/40 overscroll-contain">
               {filteredZones.length === 0 ? (
                 <div className="p-6 text-center text-slate-500 dark:text-slate-400 text-xs">
                   ไม่พบโซนที่ตรงกับการค้นหา
@@ -391,11 +391,11 @@ export const ZoneRoomManagerModal: React.FC<ZoneRoomManagerModalProps> = ({
           </div>
 
           {/* Right Column: Rooms inside Active Zone (7 cols) */}
-          <div className="md:col-span-7 flex flex-col bg-white dark:bg-slate-950/60">
+          <div className="md:col-span-7 flex flex-col min-h-0 h-full bg-white dark:bg-slate-950/60 overflow-hidden">
             {activeZone ? (
               <>
                 {/* Zone Details Header */}
-                <div className="p-4 border-b border-border dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 flex items-center justify-between">
+                <div className="p-4 border-b border-border dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 flex items-center justify-between shrink-0">
                   <div>
                     <div className="flex items-center gap-2">
                       <span className="text-[11px] font-semibold px-2 py-0.5 bg-cyan-100 dark:bg-cyan-950 text-cyan-800 dark:text-cyan-300 border border-cyan-300 dark:border-cyan-500/40 rounded-md">
@@ -427,7 +427,7 @@ export const ZoneRoomManagerModal: React.FC<ZoneRoomManagerModalProps> = ({
 
                 {/* Add Room Form */}
                 {isAddingRoom && (
-                  <div className="p-4 bg-slate-50 dark:bg-slate-900/90 border-b border-border dark:border-slate-800">
+                  <div className="p-4 bg-slate-50 dark:bg-slate-900/90 border-b border-border dark:border-slate-800 shrink-0">
                     <form onSubmit={handleAddRoom} className="space-y-2.5">
                       <label className="block text-xs font-semibold text-cyan-800 dark:text-cyan-300">
                         เพิ่มห้องใหม่ในโซน "{activeZone.name}":
@@ -463,7 +463,7 @@ export const ZoneRoomManagerModal: React.FC<ZoneRoomManagerModalProps> = ({
                 )}
 
                 {/* Rooms List */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-2">
+                <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-2 overscroll-contain">
                   {activeZone.rooms.length === 0 ? (
                     <div className="py-12 px-4 text-center border-2 border-dashed border-border dark:border-slate-800 rounded-xl">
                       <AlertCircle className="w-8 h-8 text-slate-400 dark:text-slate-500 mx-auto mb-2" />
@@ -606,7 +606,7 @@ export const ZoneRoomManagerModal: React.FC<ZoneRoomManagerModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-3 border-t border-border dark:border-slate-800 bg-slate-50 dark:bg-slate-950/90 flex items-center justify-between text-xs text-slate-600 dark:text-slate-400">
+        <div className="px-6 py-3 border-t border-border dark:border-slate-800 bg-slate-50 dark:bg-slate-950/90 flex items-center justify-between text-xs text-slate-600 dark:text-slate-400 shrink-0">
           <div className="flex items-center gap-2">
             <span className="font-semibold text-slate-700 dark:text-slate-300">ทั้งหมด:</span>
             <span>{zones.length} โซน</span>

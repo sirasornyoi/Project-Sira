@@ -147,24 +147,22 @@ export const MachinePage: React.FC = () => {
 
   const filteredMachines = useMemo(() => {
     return machines.filter(m => {
-      const zoneVal = (m.locationZone || '').trim();
-      if (selectedZone && zoneVal !== selectedZone) {
+      const zoneVal = (m.locationZone || m.lineGroup || '').trim();
+      if (selectedZone && zoneVal.toLowerCase() !== selectedZone.trim().toLowerCase()) {
         return false;
       }
       const roomVal = (m.locationRoom || '').trim();
-      if (selectedRoom && roomVal !== selectedRoom) {
+      if (selectedRoom && roomVal.toLowerCase() !== selectedRoom.trim().toLowerCase()) {
         return false;
       }
       if (!searchTerm) return true;
-      const term = searchTerm.toLowerCase();
+      const term = searchTerm.toLowerCase().trim();
       return (
         m.id.toLowerCase().includes(term) ||
         m.name.toLowerCase().includes(term) ||
-        m.lineGroup.toLowerCase().includes(term) ||
+        (m.lineGroup && m.lineGroup.toLowerCase().includes(term)) ||
         (m.model && m.model.toLowerCase().includes(term)) ||
         (m.vendor && m.vendor.toLowerCase().includes(term)) ||
-        (m.locationZone && m.locationZone.toLowerCase().includes(term)) ||
-        (m.locationRoom && m.locationRoom.toLowerCase().includes(term)) ||
         (m.serialNumber && m.serialNumber.toLowerCase().includes(term))
       );
     });
@@ -1359,18 +1357,18 @@ export const MachinePage: React.FC = () => {
 
       {/* Filter and search block */}
       <div className="bg-slate-800 border border-slate-700/80 rounded-xl p-4 space-y-3.5 shadow-md">
-        {/* Row 1: Search + Zone Filter + Room Filter + Clear Filters */}
+        {/* Row 1: Machine Search (เขียนชื่อเครื่องจักร) + Room Filter + Manage Zones + Clear Filters */}
         <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center">
-          {/* Search Input */}
-          <div className="relative flex-1 min-w-[220px]">
-            <Search className="absolute left-3 top-3 text-slate-400" size={18} />
+          {/* Machine Search Input ("ค้นหาเครื่องจักร เขียนชื่อเครื่องจักร") */}
+          <div className="relative flex-1 min-w-[240px]">
+            <Search className="absolute left-3 top-3 text-cyan-600 dark:text-cyan-400" size={18} />
             <input
               id="machine-search-input"
               type="text"
-              placeholder="ค้นหาด้วย รหัส ID, ชื่อเครื่องจักร, Model, S/N..."
+              placeholder="ค้นหาเครื่องจักร (เขียนชื่อเครื่องจักร, รหัส ID, Model...)"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-slate-900/90 border border-slate-700 rounded-lg pl-10 pr-8 py-2 text-slate-200 placeholder-slate-500 font-sans focus:outline-none focus:border-cyan-500 text-sm"
+              className="w-full bg-slate-900/90 border border-slate-700 rounded-lg pl-10 pr-8 py-2 text-slate-200 placeholder-slate-400 font-sans focus:outline-none focus:border-cyan-500 text-sm font-medium"
             />
             {searchTerm && (
               <button
@@ -1383,50 +1381,10 @@ export const MachinePage: React.FC = () => {
             )}
           </div>
 
-          {/* Zone Filter Dropdown */}
-          <div id="filter-zone-select-container" className="flex items-center gap-2 bg-surface dark:bg-slate-900/90 border border-border dark:border-slate-700 rounded-lg px-3 py-1.5 min-w-[190px]">
-            <Building size={15} className="text-cyan-600 dark:text-cyan-400 shrink-0" />
-            <div className="flex-1">
-              <label htmlFor="filter-zone-select" className="block text-[10px] text-fg dark:text-slate-200 font-semibold leading-tight">
-                กรองโซน (Zone):
-              </label>
-              <select
-                id="filter-zone-select"
-                value={selectedZone}
-                onChange={(e) => {
-                  setSelectedZone(e.target.value);
-                  setSelectedRoom(''); // Reset room when zone changes
-                }}
-                className="w-full bg-transparent text-fg dark:text-slate-200 text-xs font-semibold focus:outline-none cursor-pointer"
-              >
-                <option value="" className="bg-surface dark:bg-slate-900 text-fg dark:text-slate-300">
-                  ทุกโซน ({machines.length} เครื่อง)
-                </option>
-                {availableZones.map(([zone, count]) => (
-                  <option key={zone} value={zone} className="bg-surface dark:bg-slate-900 text-fg dark:text-slate-200">
-                    {zone} ({count} เครื่อง)
-                  </option>
-                ))}
-              </select>
-            </div>
-            {selectedZone && (
-              <button
-                onClick={() => {
-                  setSelectedZone('');
-                  setSelectedRoom('');
-                }}
-                className="text-slate-400 hover:text-rose-400 p-0.5 cursor-pointer"
-                title="ล้างการเลือกโซน"
-              >
-                <X size={13} />
-              </button>
-            )}
-          </div>
-
-          {/* Room Filter Dropdown */}
-          <div id="filter-room-select-container" className="flex items-center gap-2 bg-surface dark:bg-slate-900/90 border border-border dark:border-slate-700 rounded-lg px-3 py-1.5 min-w-[190px]">
+          {/* Room Filter Dropdown (ข้างขวา) */}
+          <div id="filter-room-select-container" className="flex items-center gap-2 bg-surface dark:bg-slate-900/90 border border-border dark:border-slate-700 rounded-lg px-3 py-1.5 min-w-[210px]">
             <MapPin size={15} className="text-cyan-600 dark:text-cyan-400 shrink-0" />
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <label htmlFor="filter-room-select" className="block text-[10px] text-fg dark:text-slate-200 font-semibold leading-tight">
                 กรองห้อง (Room):
               </label>
@@ -1434,7 +1392,7 @@ export const MachinePage: React.FC = () => {
                 id="filter-room-select"
                 value={selectedRoom}
                 onChange={(e) => setSelectedRoom(e.target.value)}
-                className="w-full bg-transparent text-fg dark:text-slate-200 text-xs font-semibold focus:outline-none cursor-pointer"
+                className="w-full bg-transparent text-fg dark:text-slate-200 text-xs font-semibold focus:outline-none cursor-pointer truncate"
               >
                 <option value="" className="bg-surface dark:bg-slate-900 text-fg dark:text-slate-300">
                   ทุกห้อง ({availableRooms.reduce((acc, [, c]) => acc + c, 0)} เครื่อง)
@@ -1449,7 +1407,7 @@ export const MachinePage: React.FC = () => {
             {selectedRoom && (
               <button
                 onClick={() => setSelectedRoom('')}
-                className="text-slate-400 hover:text-rose-400 p-0.5 cursor-pointer"
+                className="text-slate-400 hover:text-rose-400 p-0.5 cursor-pointer shrink-0"
                 title="ล้างการเลือกห้อง"
               >
                 <X size={13} />
@@ -1487,105 +1445,70 @@ export const MachinePage: React.FC = () => {
           )}
         </div>
 
-        {/* Row 2: Display Checkboxes (Show Zone, Show Room, or Both) + View Mode switcher */}
+        {/* Row 2: Zone Quick Chips ("เอาชื่อโซนมาเรียงเลย") + View Mode switcher */}
         <div className="flex flex-col lg:flex-row gap-3 items-start lg:items-center justify-between pt-2.5 border-t border-slate-200 dark:border-slate-700/60">
-          {/* Checkboxes to toggle Zone / Room columns visibility */}
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs">
-            <span className="text-slate-600 dark:text-slate-400 font-semibold flex items-center gap-1.5 mr-1">
-              <Eye size={14} className="text-cyan-600 dark:text-cyan-400" />
-              <span>แสดงคอลัมน์:</span>
+          {/* Zone Chips Row */}
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs">
+            <span className="text-slate-600 dark:text-slate-400 font-semibold flex items-center gap-1.5 mr-1 shrink-0">
+              <Building size={14} className="text-cyan-600 dark:text-cyan-400" />
+              <span>โซน:</span>
             </span>
 
-            {/* Checkbox: Zone */}
-            <label 
-              htmlFor="checkbox-show-zone"
-              className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg border cursor-pointer transition select-none ${
-                showZoneColumn
-                  ? 'bg-white dark:bg-cyan-950/60 border-cyan-500 dark:border-cyan-500/60 text-cyan-950 dark:text-cyan-300 font-bold shadow-xs'
-                  : 'bg-white dark:bg-slate-900/60 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-400 hover:border-slate-400'
+            {/* All Zones button */}
+            <button
+              type="button"
+              id="btn-zone-chip-all"
+              onClick={() => {
+                setSelectedZone('');
+                setSelectedRoom('');
+              }}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer flex items-center gap-1.5 shadow-2xs ${
+                !selectedZone
+                  ? 'bg-accent shadow-xs'
+                  : 'bg-white dark:bg-slate-900/80 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700'
               }`}
             >
-              <input
-                id="checkbox-show-zone"
-                type="checkbox"
-                checked={showZoneColumn}
-                onChange={(e) => setShowZoneColumn(e.target.checked)}
-                className="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-cyan-600 dark:text-cyan-500 focus:ring-cyan-500 bg-white dark:bg-slate-800 cursor-pointer"
-              />
-              <span>โซน (Zone)</span>
-            </label>
+              <span>ทั้งหมด</span>
+              <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono font-bold ${
+                !selectedZone ? 'bg-cyan-950/20 text-cyan-950 dark:text-cyan-200' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
+              }`}>
+                {machines.length}
+              </span>
+            </button>
 
-            {/* Checkbox: Room */}
-            <label 
-              htmlFor="checkbox-show-room"
-              className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg border cursor-pointer transition select-none ${
-                showRoomColumn
-                  ? 'bg-white dark:bg-cyan-950/60 border-cyan-500 dark:border-cyan-500/60 text-cyan-950 dark:text-cyan-300 font-bold shadow-xs'
-                  : 'bg-white dark:bg-slate-900/60 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-400 hover:border-slate-400'
-              }`}
-            >
-              <input
-                id="checkbox-show-room"
-                type="checkbox"
-                checked={showRoomColumn}
-                onChange={(e) => setShowRoomColumn(e.target.checked)}
-                className="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-cyan-600 dark:text-cyan-500 focus:ring-cyan-500 bg-white dark:bg-slate-800 cursor-pointer"
-              />
-              <span>ห้อง (Room)</span>
-            </label>
-
-            {/* Quick Presets: Both, Zone only, Room only */}
-            <div className="flex items-center gap-1 pl-1 sm:pl-2 sm:border-l sm:border-slate-200 dark:sm:border-slate-700">
-              <span className="text-[11px] text-slate-500 mr-1 hidden sm:inline font-medium">เลือกด่วน:</span>
-              <button
-                type="button"
-                id="btn-show-both-columns"
-                onClick={() => {
-                  setShowZoneColumn(true);
-                  setShowRoomColumn(true);
-                }}
-                className={`text-[11px] px-2.5 py-1 rounded-md transition cursor-pointer font-semibold ${
-                  showZoneColumn && showRoomColumn
-                    ? 'bg-cyan-50 dark:bg-cyan-500/25 text-cyan-900 dark:text-cyan-300 font-bold border border-cyan-400 dark:border-cyan-500/50 shadow-xs'
-                    : 'text-slate-700 dark:text-slate-400 hover:text-slate-950 dark:hover:text-slate-200 bg-white dark:bg-slate-900/80 border border-slate-300 dark:border-slate-800'
-                }`}
-                title="แสดงทั้งคอลัมน์โซนและห้อง"
-              >
-                ทั้งสอง
-              </button>
-              <button
-                type="button"
-                id="btn-show-zone-only"
-                onClick={() => {
-                  setShowZoneColumn(true);
-                  setShowRoomColumn(false);
-                }}
-                className={`text-[11px] px-2.5 py-1 rounded-md transition cursor-pointer font-semibold ${
-                  showZoneColumn && !showRoomColumn
-                    ? 'bg-cyan-50 dark:bg-cyan-500/25 text-cyan-900 dark:text-cyan-300 font-bold border border-cyan-400 dark:border-cyan-500/50 shadow-xs'
-                    : 'text-slate-700 dark:text-slate-400 hover:text-slate-950 dark:hover:text-slate-200 bg-white dark:bg-slate-900/80 border border-slate-300 dark:border-slate-800'
-                }`}
-                title="แสดงเฉพาะคอลัมน์โซน"
-              >
-                เฉพาะโซน
-              </button>
-              <button
-                type="button"
-                id="btn-show-room-only"
-                onClick={() => {
-                  setShowZoneColumn(false);
-                  setShowRoomColumn(true);
-                }}
-                className={`text-[11px] px-2.5 py-1 rounded-md transition cursor-pointer font-semibold ${
-                  !showZoneColumn && showRoomColumn
-                    ? 'bg-cyan-50 dark:bg-cyan-500/25 text-cyan-900 dark:text-cyan-300 font-bold border border-cyan-400 dark:border-cyan-500/50 shadow-xs'
-                    : 'text-slate-700 dark:text-slate-400 hover:text-slate-950 dark:hover:text-slate-200 bg-white dark:bg-slate-900/80 border border-slate-300 dark:border-slate-800'
-                }`}
-                title="แสดงเฉพาะคอลัมน์ห้อง"
-              >
-                เฉพาะห้อง
-              </button>
-            </div>
+            {/* Each Available Zone button */}
+            {availableZones.map(([zone, count]) => {
+              const isSelected = selectedZone === zone;
+              return (
+                <button
+                  key={zone}
+                  type="button"
+                  id={`btn-zone-chip-${zone}`}
+                  onClick={() => {
+                    if (isSelected) {
+                      setSelectedZone('');
+                      setSelectedRoom('');
+                    } else {
+                      setSelectedZone(zone);
+                      setSelectedRoom('');
+                    }
+                  }}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer flex items-center gap-1.5 shadow-2xs ${
+                    isSelected
+                      ? 'bg-accent shadow-xs'
+                      : 'bg-white dark:bg-slate-900/80 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700'
+                  }`}
+                  title={`แสดงเฉพาะเครื่องจักรในโซน ${zone}`}
+                >
+                  <span>{zone}</span>
+                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono font-bold ${
+                    isSelected ? 'bg-cyan-950/20 text-cyan-950 dark:text-cyan-200' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
+                  }`}>
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
           </div>
 
           {/* View mode & expand controls */}
