@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import * as XLSX from 'xlsx';
 import { useApp } from '../context/AppContext';
 import { PMPlan, PMFrequency, PMStep, Machine, PMScheduleItem } from '../types';
@@ -42,6 +42,20 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
   const [highlightedPlanId, setHighlightedPlanId] = useState<string | null>(null);
   const [activeFocusJobId, setActiveFocusJobId] = useState<string | undefined>(focusJobId);
   const [toast, setToast] = useState<{ text: string; type: 'success' | 'info' | 'error' } | null>(null);
+
+  // Excel dropdown menu state
+  const [showExcelMenu, setShowExcelMenu] = useState(false);
+  const excelMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (excelMenuRef.current && !excelMenuRef.current.contains(event.target as Node)) {
+        setShowExcelMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // PM Round history modal state
   const [historyModalPlan, setHistoryModalPlan] = useState<PMPlan | null>(null);
@@ -1391,11 +1405,134 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
 
           {/* Action Toolbar */}
           <div className="flex flex-wrap items-center gap-2 w-full xl:w-auto">
-            {/* Widen / Expand Toggle */}
+            {/* 1. Add New PM Plan (Primary Action) */}
+            <button
+              id="btn-add-pm-plan"
+              onClick={handleOpenNewForm}
+              className="flex items-center gap-1.5 px-4 py-2 bg-accent font-extrabold rounded-xl text-xs transition cursor-pointer shadow-md hover:shadow-lg"
+            >
+              <Plus size={14} strokeWidth={2.5} />
+              <span>+ เพิ่มงานแผน PM ใหม่</span>
+            </button>
+
+            {/* 2. Excel & Report Tools Dropdown */}
+            <div className="relative" ref={excelMenuRef}>
+              <button
+                id="btn-excel-menu"
+                type="button"
+                onClick={() => setShowExcelMenu(prev => !prev)}
+                className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 rounded-xl text-xs font-bold transition cursor-pointer shadow-2xs"
+                title="จัดการนำเข้า/ส่งออก Excel และดาวน์โหลดแม่แบบ"
+              >
+                <FileSpreadsheet size={14} className="text-emerald-600 dark:text-emerald-400" />
+                <span>Excel & รายงาน</span>
+                <ChevronDown size={13} className={`transition-transform duration-200 ${showExcelMenu ? 'rotate-180' : ''}`} />
+              </button>
+
+              {showExcelMenu && (
+                <div className="absolute right-0 mt-1.5 w-64 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-50 py-1.5 animate-in fade-in zoom-in-95 duration-100 text-xs divide-y divide-slate-100 dark:divide-slate-800">
+                  <div className="py-1">
+                    <button
+                      type="button"
+                      id="btn-import-pm-excel"
+                      onClick={() => {
+                        setShowExcelMenu(false);
+                        setImportedDataPreview(null);
+                        setImportFileName('');
+                        setImportError('');
+                        setShowImportModal(true);
+                      }}
+                      className="w-full text-left px-3.5 py-2.5 flex items-center gap-2.5 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 transition cursor-pointer"
+                    >
+                      <div className="p-1.5 bg-emerald-50 dark:bg-emerald-500/15 rounded-lg text-emerald-600 dark:text-emerald-400">
+                        <Upload size={14} />
+                      </div>
+                      <div>
+                        <div className="font-bold">นำเข้า Excel (ใบรายงาน PM)</div>
+                        <div className="text-[10px] text-slate-500 dark:text-slate-400">นำเข้าไฟล์รายงานตามแบบฟอร์มมาตรฐาน</div>
+                      </div>
+                    </button>
+
+                    <button
+                      type="button"
+                      id="btn-export-pm-excel"
+                      onClick={() => {
+                        setShowExcelMenu(false);
+                        if (activeMachinePlans.length === 0) {
+                          alert('ไม่พบแผนงาน PM สำหรับเครื่องจักรนี้');
+                          return;
+                        }
+                        exportPMReportToExcel(activeMachinePlans[0], selectedMachine);
+                      }}
+                      disabled={activeMachinePlans.length === 0}
+                      className="w-full text-left px-3.5 py-2.5 flex items-center gap-2.5 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      <div className="p-1.5 bg-cyan-50 dark:bg-cyan-500/15 rounded-lg text-cyan-600 dark:text-cyan-400">
+                        <Download size={14} />
+                      </div>
+                      <div>
+                        <div className="font-bold">ส่งออกใบรายงาน (Excel)</div>
+                        <div className="text-[10px] text-slate-500 dark:text-slate-400">ดาวน์โหลดเป็นไฟล์ .xlsx</div>
+                      </div>
+                    </button>
+                  </div>
+
+                  <div className="py-1">
+                    <button
+                      type="button"
+                      id="btn-download-pm-template"
+                      onClick={() => {
+                        setShowExcelMenu(false);
+                        exportPMTemplateExcel(selectedMachine);
+                      }}
+                      className="w-full text-left px-3.5 py-2.5 flex items-center gap-2.5 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 transition cursor-pointer"
+                    >
+                      <div className="p-1.5 bg-amber-50 dark:bg-amber-500/15 rounded-lg text-amber-600 dark:text-amber-400">
+                        <FileSpreadsheet size={14} />
+                      </div>
+                      <div>
+                        <div className="font-bold">ดาวน์โหลดแม่แบบ Excel เปล่า</div>
+                        <div className="text-[10px] text-slate-500 dark:text-slate-400">สำหรับนำไปกรอกข้อมูลใหม่</div>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* 3. Copy from another machine */}
+            <button
+              id="btn-copy-pm-plans"
+              onClick={() => {
+                setCopySourceMachineId('');
+                setSelectedPlansToCopy([]);
+                setShowCopyModal(true);
+              }}
+              className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 hover:border-slate-400 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 rounded-xl text-xs font-bold transition cursor-pointer shadow-2xs"
+              title="คัดลอกแผน PM จากเครื่องจักรอื่นมาที่เครื่องนี้"
+            >
+              <Copy size={14} className="text-indigo-600 dark:text-indigo-400" />
+              <span>คัดลอกแผน</span>
+            </button>
+
+            {/* 4. Share plan to other machines */}
+            {activeMachinePlans.length > 0 && (
+              <button
+                id="btn-toolbar-share-pm-plan"
+                onClick={() => handleOpenShareModal(activeMachinePlans[0])}
+                className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 hover:border-slate-400 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 rounded-xl text-xs font-bold transition cursor-pointer shadow-2xs"
+                title="แชร์แผน PM ของเครื่องนี้ไปยังเครื่องจักรอื่นได้ทุกเครื่อง หรือคนละชนิดได้"
+              >
+                <Share2 size={14} className="text-cyan-600 dark:text-cyan-400" />
+                <span>แชร์แผน</span>
+              </button>
+            )}
+
+            {/* 5. Widen / Expand Toggle */}
             <button
               id="btn-toggle-pm-widen"
               onClick={() => setIsWide(!isWide)}
-              className={`flex items-center gap-1.5 px-3 py-2 border rounded-xl text-xs font-bold transition cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3 py-2 border rounded-xl text-xs font-bold transition cursor-pointer shadow-2xs ${
                 isWide
                   ? 'bg-cyan-100 border-cyan-500 text-cyan-800 hover:bg-cyan-200 dark:bg-cyan-500/20 dark:border-cyan-500 dark:text-cyan-300 dark:hover:bg-cyan-500/30'
                   : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-100 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800'
@@ -1405,115 +1542,6 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
               {isWide ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
               <span>{isWide ? 'ย่อมุมมอง' : 'ขยายตาราง'}</span>
             </button>
-
-            {/* 1. Import Excel */}
-            <button
-              id="btn-import-pm-excel"
-              onClick={() => {
-                setImportedDataPreview(null);
-                setImportFileName('');
-                setImportError('');
-                setShowImportModal(true);
-              }}
-              className="flex items-center gap-1.5 px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-600/20 dark:hover:bg-emerald-600/30 dark:text-emerald-300 dark:border-emerald-500/30 rounded-xl text-xs font-bold transition cursor-pointer"
-              title="นำเข้าไฟล์ Excel ใบรายงาน PM ตามโครงสร้างตารางมาตรฐาน"
-            >
-              <Upload size={14} className="text-emerald-600 dark:text-emerald-400" />
-              <span>นำเข้า Excel (ใบรายงาน PM)</span>
-            </button>
-
-            {/* 2. Download Blank Template */}
-            <button
-              id="btn-download-pm-template"
-              onClick={() => exportPMTemplateExcel(selectedMachine)}
-              className="flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 dark:bg-slate-700/50 dark:hover:bg-slate-700 dark:text-slate-300 dark:border-slate-600 rounded-xl text-xs font-bold transition cursor-pointer"
-              title="ดาวน์โหลดไฟล์แม่แบบ Excel สำหรับนำไปกรอกหรือแก้ไขแล้วนำเข้ากลับมา"
-            >
-              <FileSpreadsheet size={14} className="text-amber-500 dark:text-amber-400" />
-              <span>ดาวน์โหลดแม่แบบ Excel</span>
-            </button>
-
-            {/* 3. Export Excel for current active plan or all */}
-            <button
-              id="btn-export-pm-excel"
-              onClick={() => {
-                if (activeMachinePlans.length === 0) {
-                  alert('ไม่พบแผนงาน PM สำหรับเครื่องจักรนี้');
-                  return;
-                }
-                // Export first or primary plan
-                exportPMReportToExcel(activeMachinePlans[0], selectedMachine);
-              }}
-              className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-300 text-cyan-800 hover:bg-slate-50 hover:border-cyan-400 dark:bg-slate-900 dark:border-slate-700 dark:text-cyan-300 dark:hover:bg-slate-800 dark:hover:border-slate-600 rounded-xl text-xs font-bold transition cursor-pointer"
-              title="ส่งออกใบรายงาน PM เป็นไฟล์ Excel (.xlsx) ตามแบบฟอร์ม"
-            >
-              <Download size={14} className="text-cyan-600 dark:text-cyan-400" />
-              <span>ส่งออกใบรายงาน (Excel)</span>
-            </button>
-
-            {/* 4. Copy from another machine */}
-            <button
-              id="btn-copy-pm-plans"
-              onClick={() => {
-                setCopySourceMachineId('');
-                setSelectedPlansToCopy([]);
-                setShowCopyModal(true);
-              }}
-              className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 hover:border-slate-400 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 rounded-xl text-xs font-bold transition cursor-pointer"
-              title="คัดลอกแผน PM จากเครื่องจักรอื่นมาที่เครื่องนี้"
-            >
-              <Copy size={14} className="text-indigo-600 dark:text-indigo-400" />
-              <span>คัดลอกแผน</span>
-            </button>
-
-            {/* 5. Share plan to other machines */}
-            {activeMachinePlans.length > 0 && (
-              <button
-                id="btn-toolbar-share-pm-plan"
-                onClick={() => handleOpenShareModal(activeMachinePlans[0])}
-                className="flex items-center gap-1.5 px-3 py-2 bg-cyan-50 border border-cyan-300 text-cyan-800 hover:bg-cyan-100 hover:border-cyan-400 dark:bg-cyan-500/15 dark:border-cyan-500/30 dark:text-cyan-300 dark:hover:bg-cyan-500/25 rounded-xl text-xs font-bold transition cursor-pointer"
-                title="แชร์แผน PM ของเครื่องนี้ไปยังเครื่องจักรอื่นได้ทุกเครื่อง หรือคนละชนิดได้"
-              >
-                <Share2 size={14} className="text-cyan-600 dark:text-cyan-400" />
-                <span>แชร์แผน</span>
-              </button>
-            )}
-
-            {/* 6. Add New PM Plan */}
-            <button
-              id="btn-add-pm-plan"
-              onClick={handleOpenNewForm}
-              className="flex items-center gap-1.5 px-4 py-2 bg-accent font-extrabold rounded-xl text-xs transition cursor-pointer shadow-md"
-            >
-              <Plus size={14} strokeWidth={2.5} />
-              <span className="font-extrabold">+ เพิ่มงานแผน PM ใหม่</span>
-            </button>
-
-            {/* 7. Record PM & PM History Buttons (In empty space) */}
-            {activeMachinePlans.length > 0 && (
-              <>
-                <button
-                  id="btn-toolbar-record-pm"
-                  type="button"
-                  onClick={() => handleOpenRecordRoundModal(activeMachinePlans[0])}
-                  className="flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-xl text-xs transition cursor-pointer shadow-md"
-                  title="บันทึกการทำ PM สำหรับเครื่องนี้"
-                >
-                  <CheckCircle2 size={15} strokeWidth={2.5} />
-                  <span>บันทึกการทำ PM</span>
-                </button>
-                <button
-                  id="btn-toolbar-history-pm"
-                  type="button"
-                  onClick={() => setHistoryModalPlan(activeMachinePlans[0])}
-                  className="flex items-center gap-1.5 px-3.5 py-2 bg-blue-50 hover:bg-blue-100 border border-blue-300 text-blue-800 dark:bg-blue-500/15 dark:border-blue-500/30 dark:text-blue-300 dark:hover:bg-blue-500/25 rounded-xl text-xs font-bold transition cursor-pointer shadow-2xs"
-                  title="เปิดดูประวัติการบันทึก PM ย้อนหลัง แก้ไขหรือลบรายการ"
-                >
-                  <History size={14} strokeWidth={2.2} />
-                  <span>ประวัติ PM</span>
-                </button>
-              </>
-            )}
           </div>
         </div>
 
@@ -1717,48 +1745,43 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
                           <History size={13} strokeWidth={2.2} />
                           <span>ประวัติ PM</span>
                         </button>
-                        <button
-                          id={`btn-widen-plan-${plan.id}`}
-                          onClick={() => setIsWide(!isWide)}
-                          className={`p-1.5 border rounded-lg text-xs transition cursor-pointer ${
-                            isWide
-                              ? 'bg-cyan-100 border-cyan-500 text-cyan-800 hover:bg-cyan-200 dark:bg-cyan-500/20 dark:border-cyan-500 dark:text-cyan-300 dark:hover:bg-cyan-500/30'
-                              : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-100 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800'
-                          }`}
-                          title={isWide ? 'ย่อกลับเป็น 2 คอลัมน์ (แสดงรายการเครื่องจักร)' : 'ขยายเต็มความกว้าง (ซ่อนรายการเครื่องจักร)'}
-                        >
-                          {isWide ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
-                        </button>
-                        <button
-                          onClick={() => exportPMReportToExcel(plan, selectedMachine)}
-                          className="p-1.5 bg-white border border-slate-300 hover:border-cyan-500 text-cyan-700 dark:bg-slate-900 dark:border-slate-700 dark:text-cyan-300 rounded-lg text-xs transition cursor-pointer"
-                          title="ส่งออกใบร่างนี้เป็น Excel"
-                        >
-                          <Download size={14} />
-                        </button>
-                        <button
-                          id={`btn-share-plan-${plan.id}`}
-                          onClick={() => handleOpenShareModal(plan)}
-                          className="flex items-center gap-1.5 px-2.5 py-1.5 bg-cyan-50 hover:bg-cyan-100 border border-cyan-300 text-cyan-800 dark:bg-cyan-500/15 dark:border-cyan-500/30 dark:text-cyan-300 dark:hover:bg-cyan-500/25 rounded-lg text-xs font-bold transition cursor-pointer shadow-2xs"
-                          title="แชร์แผนนี้ให้กับเครื่องอื่น หรือเครื่องที่ไม่ใช่ชนิดเดียวกันได้"
-                        >
-                          <Share2 size={13} strokeWidth={2.2} />
-                          <span>แชร์</span>
-                        </button>
-                        <button
-                          onClick={() => handleOpenEditForm(plan)}
-                          className="p-1.5 bg-white border border-slate-300 hover:border-slate-400 text-slate-700 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300 rounded-lg text-xs transition cursor-pointer"
-                          title="แก้ไขรายละเอียดแผน"
-                        >
-                          <Edit3 size={14} />
-                        </button>
-                        <button
-                          onClick={() => setDeleteConfirmId(plan.id)}
-                          className="p-1.5 bg-rose-50 border border-rose-200 hover:bg-rose-100 text-rose-600 dark:bg-rose-500/10 dark:border-rose-500/30 dark:hover:bg-rose-500 dark:text-rose-400 dark:hover:text-fg rounded-lg text-xs transition cursor-pointer"
-                          title="ลบแผนงาน PM นี้"
-                        >
-                          <Trash2 size={14} />
-                        </button>
+
+                        {/* Plan Secondary Tools (Compact group) */}
+                        <div className="flex items-center bg-slate-100 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-lg p-0.5" onClick={(e) => e.stopPropagation()}>
+                          <button
+                            type="button"
+                            onClick={() => exportPMReportToExcel(plan, selectedMachine)}
+                            className="p-1.5 text-slate-600 hover:text-cyan-600 dark:text-slate-400 dark:hover:text-cyan-300 rounded hover:bg-white dark:hover:bg-slate-700 transition cursor-pointer"
+                            title="ส่งออกใบร่างนี้เป็น Excel (.xlsx)"
+                          >
+                            <Download size={13} />
+                          </button>
+                          <button
+                            type="button"
+                            id={`btn-share-plan-${plan.id}`}
+                            onClick={() => handleOpenShareModal(plan)}
+                            className="p-1.5 text-slate-600 hover:text-cyan-600 dark:text-slate-400 dark:hover:text-cyan-300 rounded hover:bg-white dark:hover:bg-slate-700 transition cursor-pointer"
+                            title="แชร์แผนนี้ให้กับเครื่องอื่น"
+                          >
+                            <Share2 size={13} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleOpenEditForm(plan)}
+                            className="p-1.5 text-slate-600 hover:text-amber-600 dark:text-slate-400 dark:hover:text-amber-300 rounded hover:bg-white dark:hover:bg-slate-700 transition cursor-pointer"
+                            title="แก้ไขรายละเอียดแผน"
+                          >
+                            <Edit3 size={13} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setDeleteConfirmId(plan.id)}
+                            className="p-1.5 text-slate-600 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400 rounded hover:bg-white dark:hover:bg-slate-700 transition cursor-pointer"
+                            title="ลบแผนงาน PM นี้"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1787,23 +1810,13 @@ export const PMPlanPage: React.FC<PMPlanPageProps> = ({
                           </button>
                         </div>
 
-                        {/* Add Step & Record PM Buttons */}
+                        {/* Right: Abnormal badge and Add Step */}
                         <div className="flex items-center gap-2">
                           {abnormalSteps > 0 && (
                             <span className="text-[11px] font-bold text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/15 border border-rose-300 dark:border-rose-500/30 px-2 py-0.5 rounded-lg flex items-center gap-1">
                               <AlertTriangle size={12} /> พบผิดปกติ {abnormalSteps} รายการ
                             </span>
                           )}
-                          <button
-                            type="button"
-                            id={`btn-record-plan-tabletop-${plan.id}`}
-                            onClick={() => handleOpenRecordRoundModal(plan)}
-                            className="flex items-center gap-1.5 px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-lg text-[11px] transition cursor-pointer shadow-xs"
-                            title="บันทึกการทำ PM รอบนี้ลงในประวัติและตารางงาน"
-                          >
-                            <CheckCircle2 size={13} strokeWidth={2.5} />
-                            <span>บันทึกการทำ PM</span>
-                          </button>
                           <button
                             onClick={() => handleOpenAddStepModal(plan.id)}
                             className="flex items-center gap-1 px-3 py-1 bg-cyan-50 hover:bg-cyan-100 text-cyan-800 border border-cyan-300 dark:bg-cyan-500/20 dark:hover:bg-cyan-500/30 dark:text-cyan-300 dark:border-cyan-500/30 rounded-lg text-[11px] font-bold transition cursor-pointer"
