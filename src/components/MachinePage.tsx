@@ -1651,16 +1651,16 @@ export const MachinePage: React.FC = () => {
           <table className="w-full text-left border-collapse" id="machine-data-table">
             <thead>
               <tr className="bg-slate-800/80 border-b border-slate-700 text-slate-300 text-xs tracking-wider uppercase">
-                <th className="py-4 px-4 w-14 text-center font-medium">ลำดับ</th>
-                <th className="py-4 px-4 font-medium">ชื่อเครื่องจักร</th>
-                <th className="py-4 px-4 font-mono font-medium">รหัสเครื่องจักร (ID)</th>
-                {showZoneColumn && <th className="py-4 px-4 font-medium">โซน</th>}
-                {showRoomColumn && <th className="py-4 px-4 font-medium">ห้อง</th>}
-                <th className="py-4 px-4 text-center font-medium">แผน PM</th>
-                <th className="py-4 px-4 text-center font-medium">BD เดือนนี้</th>
-                <th className="py-4 px-4 text-center font-medium">สถานะ</th>
+                <th className="py-4 px-3 w-12 sm:w-14 text-center font-medium shrink-0">ลำดับ</th>
+                <th className="py-4 px-4 font-medium min-w-[280px] text-center">ชื่อเครื่องจักร</th>
+                <th className="py-4 px-3 w-44 font-mono font-medium text-center whitespace-nowrap">รหัสเครื่องจักร (ID)</th>
+                {showZoneColumn && <th className="py-4 px-3 w-32 text-center font-medium whitespace-nowrap">โซน</th>}
+                {showRoomColumn && <th className="py-4 px-3 w-28 text-center font-medium whitespace-nowrap">ห้อง</th>}
+                <th className="py-4 px-2 w-20 text-center font-medium whitespace-nowrap">แผน PM</th>
+                <th className="py-4 px-2 w-24 text-center font-medium whitespace-nowrap">BD เดือนนี้</th>
+                <th className="py-4 px-3 w-36 text-center font-medium whitespace-nowrap">สถานะ</th>
                 {viewMode === 'flat' && (
-                  <th className="py-4 px-4 text-center w-36 font-medium">การจัดการ</th>
+                  <th className="py-4 px-2 text-center w-28 font-medium whitespace-nowrap">การจัดการ</th>
                 )}
               </tr>
             </thead>
@@ -1693,12 +1693,12 @@ export const MachinePage: React.FC = () => {
                         }`}
                         title={isExpanded ? 'คลิกเพื่อย่อกลุ่มเครื่องจักร' : 'คลิกเพื่อคลี่ดูแยกตามลำดับเครื่องที่ 1, 2, 3...'}
                       >
-                        <td className="py-4 px-4 text-center text-slate-400 text-xs font-mono">
+                        <td className="py-4 px-3 text-center text-slate-400 text-xs font-mono w-12 sm:w-14">
                           {gIndex + 1}
                         </td>
                         
                         {/* Machine Name & Unit Count Badge with indicator chevron */}
-                        <td className="py-4 px-4">
+                        <td className="py-4 px-4 min-w-[280px]">
                           <div className="flex items-center gap-2.5">
                             <div className={`p-1.5 rounded-lg border transition shrink-0 ${
                               isExpanded 
@@ -1707,12 +1707,12 @@ export const MachinePage: React.FC = () => {
                             }`}>
                               {isExpanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
                             </div>
-                            <div>
+                            <div className="min-w-0 flex-1">
                               <div className="flex items-center gap-2 flex-wrap">
                                 <span className="font-extrabold text-slate-900 dark:text-slate-100 text-sm tracking-wide">
                                   {group.name}
                                 </span>
-                                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold border ${
+                                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold border shrink-0 ${
                                   group.machines.length > 1
                                     ? 'bg-cyan-50 dark:bg-cyan-500/20 text-cyan-900 dark:text-cyan-300 border-cyan-300 dark:border-cyan-500/40'
                                     : 'bg-white dark:bg-slate-700/60 text-slate-800 dark:text-slate-300 border-slate-300 dark:border-slate-600 shadow-xs'
@@ -1720,7 +1720,7 @@ export const MachinePage: React.FC = () => {
                                   {group.machines.length} เครื่อง
                                 </span>
                               </div>
-                              <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                              <span className="text-[11px] text-slate-500 dark:text-slate-400 block">
                                 {isExpanded ? 'คลิกเพื่อย่อรายการ' : 'คลิกเพื่อคลี่ดูเครื่องที่ 1, 2, 3...'}
                               </span>
                             </div>
@@ -1728,12 +1728,12 @@ export const MachinePage: React.FC = () => {
                         </td>
 
                         {/* Machine IDs in this group */}
-                        <td className="py-4 px-4">
-                          <div className="flex flex-wrap gap-1 items-center">
+                        <td className="py-4 px-3 w-44 text-center">
+                          <div className="flex flex-wrap gap-1 items-center justify-center">
                             {group.machines.map((m, mIdx) => (
                               <span 
                                 key={m.id}
-                                className="font-mono text-xs px-2 py-0.5 bg-slate-100 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700 text-cyan-900 dark:text-cyan-300 font-bold rounded"
+                                className="font-mono text-xs px-2 py-0.5 bg-slate-100 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700 text-cyan-900 dark:text-cyan-300 font-bold rounded whitespace-nowrap"
                                 title={`เครื่องที่ ${mIdx + 1}: ${m.id} | Model: ${m.model || '-'} | ห้อง: ${m.locationRoom || '-'}`}
                               >
                                 #{mIdx + 1}: {m.id}
@@ -1744,13 +1744,13 @@ export const MachinePage: React.FC = () => {
                       
                         {/* Zone */}
                         {showZoneColumn && (
-                          <td className="py-4 px-4">
-                            <div className="flex flex-wrap gap-1">
+                          <td className="py-4 px-3 w-32 whitespace-nowrap text-center">
+                            <div className="flex flex-wrap gap-1 justify-center">
                               {Array.from(new Set(group.machines.map(m => m.locationZone || m.lineGroup).filter(Boolean))).length > 0 ? (
                                 Array.from(new Set(group.machines.map(m => m.locationZone || m.lineGroup).filter(Boolean))).map((zone, zIdx) => (
                                   <span 
                                     key={zIdx}
-                                    className="pill-zone text-[11px] px-2.5 py-1 rounded-full border"
+                                    className="pill-zone text-[11px] px-2.5 py-0.5 rounded-full border truncate max-w-[120px]"
                                   >
                                     {zone}
                                   </span>
@@ -1764,13 +1764,13 @@ export const MachinePage: React.FC = () => {
 
                         {/* Room */}
                         {showRoomColumn && (
-                          <td className="py-4 px-4">
-                            <div className="flex flex-wrap gap-1">
+                          <td className="py-4 px-3 w-28 whitespace-nowrap text-center">
+                            <div className="flex flex-wrap gap-1 justify-center">
                               {Array.from(new Set(group.machines.map(m => m.locationRoom).filter(Boolean))).length > 0 ? (
                                 Array.from(new Set(group.machines.map(m => m.locationRoom).filter(Boolean))).map((room, rIdx) => (
                                   <span 
                                     key={rIdx}
-                                    className="pill-room text-[11px] px-2.5 py-1 rounded-md border"
+                                    className="pill-room text-[11px] px-2.5 py-0.5 rounded-md border truncate max-w-[100px]"
                                   >
                                     {room}
                                   </span>
@@ -1783,12 +1783,12 @@ export const MachinePage: React.FC = () => {
                         )}
 
                         {/* Total PM Plans */}
-                        <td className="py-4 px-4 text-center font-bold text-cyan-300 font-mono text-sm">
+                        <td className="py-4 px-2 w-20 text-center font-bold text-cyan-300 font-mono text-sm whitespace-nowrap">
                           {group.totalPmPlans} งาน
                         </td>
 
                         {/* Total Monthly BD */}
-                        <td className="py-4 px-4 text-center font-mono font-bold">
+                        <td className="py-4 px-2 w-24 text-center font-mono font-bold whitespace-nowrap">
                           {group.totalMonthlyBd > 0 ? (
                             <span className="text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded border border-rose-500/20">
                               {group.totalMonthlyBd} ครั้ง
@@ -1799,7 +1799,7 @@ export const MachinePage: React.FC = () => {
                         </td>
 
                         {/* Status Summary */}
-                        <td className="py-4 px-4 text-center">
+                        <td className="py-4 px-3 w-36 text-center whitespace-nowrap">
                           {group.breakdownCount === 0 ? (
                             <span className="inline-flex items-center gap-1.5 bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs px-2.5 py-1 rounded-full font-medium">
                               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -2028,24 +2028,24 @@ export const MachinePage: React.FC = () => {
                         id={`row-${m.id}`}
                         className={`hover:bg-slate-700/30 transition-colors ${isExpanded ? 'bg-slate-700/20' : ''}`}
                       >
-                        <td className="py-4 px-4 text-center text-slate-400 text-xs font-mono">
+                        <td className="py-4 px-3 text-center text-slate-400 text-xs font-mono w-12 sm:w-14">
                           {index + 1}
                         </td>
-                        <td className="py-4 px-4">
-                          <div className="font-medium text-slate-200">{m.name}</div>
+                        <td className="py-4 px-4 min-w-[280px]">
+                          <div className="font-bold text-slate-900 dark:text-slate-100 text-sm">{m.name}</div>
                           <div className="flex items-center gap-2 flex-wrap mt-1">
                             {m.model && (
-                              <span className="text-xs text-slate-400">Model: {m.model}</span>
+                              <span className="text-xs text-slate-500 dark:text-slate-400">Model: {m.model}</span>
                             )}
                           </div>
                         </td>
-                        <td className="py-4 px-4 font-mono font-bold text-cyan-400 text-sm">
+                        <td className="py-4 px-3 w-44 font-mono font-bold text-cyan-400 text-sm whitespace-nowrap text-center">
                           {m.id}
                         </td>
                         {/* Zone */}
                         {showZoneColumn && (
-                          <td className="py-4 px-4">
-                            <span className="pill-zone text-xs px-2.5 py-0.5 rounded-full border font-medium">
+                          <td className="py-4 px-3 w-32 whitespace-nowrap text-center">
+                            <span className="pill-zone text-xs px-2.5 py-0.5 rounded-full border font-medium truncate max-w-[120px] inline-block">
                               {m.locationZone || '-'}
                             </span>
                           </td>
@@ -2053,9 +2053,9 @@ export const MachinePage: React.FC = () => {
 
                         {/* Room */}
                         {showRoomColumn && (
-                          <td className="py-4 px-4">
-                            <div className="flex items-center gap-1.5">
-                              <span className="pill-room text-xs px-2.5 py-0.5 rounded-md border font-medium">
+                          <td className="py-4 px-3 w-28 whitespace-nowrap text-center">
+                            <div className="flex items-center justify-center gap-1.5">
+                              <span className="pill-room text-xs px-2.5 py-0.5 rounded-md border font-medium truncate max-w-[100px] inline-block">
                                 {m.locationRoom || '-'}
                               </span>
                             </div>
@@ -2066,10 +2066,10 @@ export const MachinePage: React.FC = () => {
                             )}
                           </td>
                         )}
-                        <td className="py-4 px-4 text-center font-bold text-cyan-300 font-mono">
+                        <td className="py-4 px-2 w-20 text-center font-bold text-cyan-300 font-mono whitespace-nowrap">
                           {stats.pmCount} งาน
                         </td>
-                        <td className="py-4 px-4 text-center font-mono font-bold">
+                        <td className="py-4 px-2 w-24 text-center font-mono font-bold whitespace-nowrap">
                           {stats.monthlyBdCount > 0 ? (
                             <span className="text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded border border-rose-500/20">
                               {stats.monthlyBdCount} ครั้ง
@@ -2078,7 +2078,7 @@ export const MachinePage: React.FC = () => {
                             <span className="text-slate-400">0</span>
                           )}
                         </td>
-                        <td className="py-4 px-4 text-center">
+                        <td className="py-4 px-3 w-36 text-center whitespace-nowrap">
                           {stats.status === 'ปกติ' ? (
                             <span className="inline-flex items-center gap-1.5 bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs px-2.5 py-1 rounded-full font-medium">
                               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -2091,7 +2091,7 @@ export const MachinePage: React.FC = () => {
                             </span>
                           )}
                         </td>
-                        <td className="py-4 px-4 text-center">
+                        <td className="py-4 px-2 w-28 text-center whitespace-nowrap">
                           <div className="flex items-center justify-center gap-1.5">
                             <button
                               id={`btn-edit-${m.id}`}
