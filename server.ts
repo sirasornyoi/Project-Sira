@@ -433,23 +433,22 @@ async function startServer() {
   // API Route: LINE Messaging API Push Proxy (Replaces discontinued LINE Notify)
   app.post("/api/line-notify", async (req, res) => {
     try {
-      const { message, token, to, targetId: bodyTargetId } = req.body;
+      const { message, to, targetId: bodyTargetId } = req.body;
       
-      // Use the user-submitted token or the server-side environment variables
-      const channelAccessToken = token || process.env.LINE_CHANNEL_ACCESS_TOKEN || process.env.LINE_NOTIFY_TOKEN;
-      const targetId = to || bodyTargetId || process.env.LINE_TARGET_ID;
+      const channelAccessToken = process.env.LINE_CHANNEL_ACCESS_TOKEN;
+      const targetId = to || bodyTargetId;
       
       if (!channelAccessToken) {
         return res.status(400).json({ 
           success: false, 
-          message: "ไม่พบ LINE Channel Access Token กรุณาเปิดใช้งานและตั้งค่าในโมดูลตั้งค่า หรือกำหนด LINE_CHANNEL_ACCESS_TOKEN" 
+          message: "ยังไม่ได้ตั้งค่า LINE_CHANNEL_ACCESS_TOKEN ฝั่ง server" 
         });
       }
 
       if (!targetId) {
         return res.status(400).json({ 
           success: false, 
-          message: "ไม่พบ LINE Target ID (User ID / Group ID) กรุณากำหนด LINE_TARGET_ID หรือส่งฟิลด์ to ใน payload" 
+          message: "กรุณาระบุ Target ID ในเมนูตั้งค่า > LINE" 
         });
       }
 

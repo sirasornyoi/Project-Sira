@@ -215,7 +215,6 @@ export interface SystemSettings {
   workingHoursPerDay: number; // working hours per day, defaults to 8 (480 mins)
   stdMttr: Record<string, number>; // machine ID prefix or type -> standard MTTR (mins)
   lineNotifyEnabled?: boolean;
-  lineNotifyToken?: string;
   lineTargetId?: string;
   lineAutoEvents?: {
     breakdown?: boolean;

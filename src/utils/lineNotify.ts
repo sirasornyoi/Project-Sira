@@ -4,15 +4,14 @@ import { getTodayDateString } from './pmAlerts';
 /**
  * Send a notification to LINE via our server-side proxy
  */
-export async function sendLineNotification(message: string, token?: string, to?: string): Promise<{ success: boolean; message?: string }> {
+export async function sendLineNotification(message: string, to?: string): Promise<{ success: boolean; message?: string }> {
   try {
-    const activeToken = token || getSavedToken();
     const activeTarget = to || getSavedTargetId();
     const isEnabled = isNotificationEnabled();
 
-    // If explicit token isn't provided, and notifications aren't enabled or token is missing, skip silently
-    if (!token && (!isEnabled || !activeToken)) {
-      return { success: false, message: "ระบบแจ้งเตือน LINE ไม่ได้เปิดใช้งานหรือไม่มี Token ในระบบ" };
+    // If explicit to is not provided, and notifications aren't enabled, skip
+    if (!to && !isEnabled) {
+      return { success: false, message: "ระบบแจ้งเตือน LINE ไม่ได้เปิดใช้งาน" };
     }
 
     const response = await fetch("/api/line-notify", {
@@ -21,7 +20,7 @@ export async function sendLineNotification(message: string, token?: string, to?:
         "Content-Type": "application/json",
         "Accept": "application/json",
       },
-      body: JSON.stringify({ message, token: activeToken, to: activeTarget }),
+      body: JSON.stringify({ message, to: activeTarget }),
     });
 
     const contentType = response.headers.get("content-type");
@@ -39,20 +38,6 @@ export async function sendLineNotification(message: string, token?: string, to?:
     console.error("Error sending LINE notification:", error);
     return { success: false, message: (error as Error).message };
   }
-}
-
-// Local helper to read from localSettings if stored in localStorage
-function getSavedToken(): string {
-  try {
-    const stored = localStorage.getItem('maint_settings');
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      return parsed.lineNotifyToken || "";
-    }
-  } catch (e) {
-    console.error(e);
-  }
-  return "";
 }
 
 function getSavedTargetId(): string {
@@ -158,13 +143,12 @@ ${lines}
 export async function sendMorningSummary(
   pmItemsToday: PMScheduleItem[], 
   machines: Machine[], 
-  token?: string, 
   to?: string
 ): Promise<{ success: boolean; message?: string }> {
   const message = buildMorningSummaryMessage(pmItemsToday, machines);
   if (!message) {
     return { success: false, message: "ไม่มีงาน PM ที่ต้องปฏิบัติการในวันนี้" };
   }
-  return sendLineNotification(message, token, to);
+  return sendLineNotification(message, to);
 }
 

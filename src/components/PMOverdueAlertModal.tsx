@@ -62,8 +62,8 @@ export const PMOverdueAlertModal: React.FC<PMOverdueAlertModalProps> = ({
       return;
     }
 
-    if (!settings.lineNotifyEnabled || !settings.lineNotifyToken) {
-      setLineStatusMessage('⚠️ กรุณาเปิดใช้งาน LINE Notify และระบุ Token ในหน้าต่างตั้งค่า (ไอคอนฟันเฟือง)');
+    if (!settings.lineNotifyEnabled) {
+      setLineStatusMessage('⚠️ กรุณาเปิดใช้งาน LINE ในหน้าต่างตั้งค่า (ไอคอนฟันเฟือง)');
       setTimeout(() => setLineStatusMessage(null), 5000);
       return;
     }
@@ -73,7 +73,7 @@ export const PMOverdueAlertModal: React.FC<PMOverdueAlertModalProps> = ({
 
     try {
       const msg = formatOverduePMLineMessage(overdueJobs, machines, pmPlans, todayStr);
-      const res = await sendLineNotification(msg, settings.lineNotifyToken, settings.lineTargetId);
+      const res = await sendLineNotification(msg, settings.lineTargetId);
 
       if (res.success) {
         setLineStatusMessage('✅ ส่งการแจ้งเตือนงาน PM เลยกำหนดเข้า LINE เรียบร้อยแล้ว!');

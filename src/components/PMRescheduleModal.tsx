@@ -101,7 +101,7 @@ export const PMRescheduleModal: React.FC<PMRescheduleModalProps> = ({ job, onClo
     setSchedules(prev => prev.map(s => (s.id === job.id ? updatedJob : s)));
 
     // Send LINE Notify if requested
-    if (sendLineAlert && settings.lineNotifyEnabled && settings.lineNotifyToken) {
+    if (sendLineAlert && settings.lineNotifyEnabled) {
       try {
         const lineMsg = `\n🔄 [แจ้งเตือนการเลื่อนแผน PM]\n` +
           `⚙️ เครื่องจักร: [${job.machineId}] ${machineObj?.name || ''}\n` +
@@ -114,7 +114,7 @@ export const PMRescheduleModal: React.FC<PMRescheduleModalProps> = ({ job, onClo
           `------------------------------------\n` +
           `ระบบลงบันทึกประวัติการเลื่อนแผนเรียบร้อยแล้ว`;
 
-        await sendLineNotification(lineMsg, settings.lineNotifyToken, settings.lineTargetId);
+        await sendLineNotification(lineMsg, settings.lineTargetId);
       } catch (err) {
         console.error('Failed to send LINE notification for reschedule:', err);
       }

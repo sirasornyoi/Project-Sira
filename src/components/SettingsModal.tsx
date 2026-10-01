@@ -22,7 +22,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
 
   // LINE Notify state
   const [lineEnabled, setLineEnabled] = useState<boolean>(settings.lineNotifyEnabled || false);
-  const [lineToken, setLineToken] = useState<string>(settings.lineNotifyToken || '');
   const [lineTargetId, setLineTargetId] = useState<string>(settings.lineTargetId || '');
   const [autoEvents, setAutoEvents] = useState({
     breakdown: settings.lineAutoEvents?.breakdown !== false,
@@ -331,7 +330,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
     setSettings(prev => ({
       ...prev,
       lineNotifyEnabled: lineEnabled,
-      lineNotifyToken: lineToken,
       lineTargetId: lineTargetId,
       lineAutoEvents: autoEvents
     }));
@@ -340,15 +338,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
 
   // Test LINE Notify call
   const handleTestLineNotify = async () => {
-    if (!lineToken.trim()) {
-      setTestStatus({ type: 'error', msg: 'กรุณาระบุ LINE Channel Access Token ก่อนทำการทดสอบ' });
+    if (!lineTargetId.trim()) {
+      setTestStatus({ type: 'error', msg: 'กรุณาระบุ Target ID ก่อนทำการทดสอบ' });
       return;
     }
     setIsTesting(true);
     setTestStatus({ type: 'idle', msg: '' });
     
     try {
-      const res = await sendLineNotification(testMessage, lineToken, lineTargetId);
+      const res = await sendLineNotification(testMessage, lineTargetId);
       if (res.success) {
         setTestStatus({ type: 'success', msg: 'ส่งข้อความแจ้งเตือนทดสอบสำเร็จ! โปรดตรวจสอบใน LINE หรือกลุ่ม LINE ของคุณ' });
       } else {
@@ -806,30 +804,21 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                     </label>
                   </div>
 
-                  {/* Token & Target ID inputs */}
+                  {/* Target ID input */}
                   {lineEnabled && (
                     <div className="space-y-3 animate-in fade-in duration-200">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div>
-                          <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">LINE Channel Access Token</label>
-                          <input
-                            type="password"
-                            placeholder="วาง Channel Access Token ของคุณ..."
-                            value={lineToken}
-                            onChange={(e) => setLineToken(e.target.value)}
-                            className="w-full bg-white dark:bg-slate-950 border border-border dark:border-slate-700 rounded-lg p-2.5 text-xs text-fg dark:text-slate-200 font-mono focus:outline-none focus:border-cyan-500"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">LINE Target ID (Group ID / User ID)</label>
-                          <input
-                            type="text"
-                            placeholder="เช่น C12345... หรือ U12345..."
-                            value={lineTargetId}
-                            onChange={(e) => setLineTargetId(e.target.value)}
-                            className="w-full bg-white dark:bg-slate-950 border border-border dark:border-slate-700 rounded-lg p-2.5 text-xs text-fg dark:text-slate-200 font-mono focus:outline-none focus:border-cyan-500"
-                          />
-                        </div>
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">LINE Target ID (Group ID / User ID)</label>
+                        <input
+                          type="text"
+                          placeholder="เช่น C12345... หรือ U12345..."
+                          value={lineTargetId}
+                          onChange={(e) => setLineTargetId(e.target.value)}
+                          className="w-full bg-white dark:bg-slate-950 border border-border dark:border-slate-700 rounded-lg p-2.5 text-xs text-fg dark:text-slate-200 font-mono focus:outline-none focus:border-cyan-500"
+                        />
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1">
+                          * Token ตั้งค่าใน environment ของ server
+                        </p>
                       </div>
 
                       {/* Auto-Push Events Selector */}
@@ -888,7 +877,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                       <div className="bg-white dark:bg-slate-950/40 p-3 rounded-lg border border-border dark:border-slate-800 space-y-1 text-slate-600 dark:text-slate-400 font-sans text-[10px] leading-relaxed">
                         <p className="font-bold text-slate-800 dark:text-slate-300">💡 การเชื่อมต่อ LINE Messaging API:</p>
                         <ul className="list-disc pl-4 space-y-0.5">
-                          <li>ใช้ Channel Access Token จาก LINE Developers Console (Messaging API channel)</li>
+                          <li>Token ตั้งค่าใน environment ของ server (LINE_CHANNEL_ACCESS_TOKEN)</li>
                           <li>ระบุ LINE Target ID (ID กลุ่ม หรือ User ID) ที่ต้องการให้บอทส่งข้อความถึง</li>
                           <li>ระบบจะตรวจสอบโควตาข้อความฟรีก่อนส่งทุกครั้ง เพื่อป้องกันข้อความส่วนเกิน</li>
                         </ul>

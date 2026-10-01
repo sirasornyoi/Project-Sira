@@ -184,7 +184,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [settings, setSettings] = useState<SystemSettings>({
     workingHoursPerDay: 8, // 8 hours * 60 = 480 mins
     lineNotifyEnabled: false,
-    lineNotifyToken: '',
     lineTargetId: '',
     lineAutoEvents: {
       breakdown: true,
@@ -593,7 +592,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const res = await sendMorningSummary(
           todayPMs,
           machines,
-          settings.lineNotifyToken,
           settings.lineTargetId
         );
 
@@ -1063,7 +1061,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setSettings({
       workingHoursPerDay: 8,
       lineNotifyEnabled: false,
-      lineNotifyToken: '',
       lineTargetId: '',
       lineAutoEvents: {
         breakdown: true,
