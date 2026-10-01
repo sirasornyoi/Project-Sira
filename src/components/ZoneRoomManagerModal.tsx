@@ -72,17 +72,17 @@ export const ZoneRoomManagerModal: React.FC<ZoneRoomManagerModalProps> = ({
     z.rooms.some(r => r.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
-  // Machine count helpers: match purely on locationZone and locationRoom
+  // Machine count helpers: match on locationZone (or lineGroup fallback) and locationRoom
   const getMachinesInZone = (zoneName: string) => {
     const zLower = zoneName.trim().toLowerCase();
-    return machines.filter(m => (m.locationZone || '').trim().toLowerCase() === zLower);
+    return machines.filter(m => (m.locationZone || m.lineGroup || '').trim().toLowerCase() === zLower);
   };
 
   const getMachinesInRoom = (zoneName: string, roomName: string) => {
     const zLower = zoneName.trim().toLowerCase();
     const rLower = roomName.trim().toLowerCase();
     return machines.filter(m => 
-      (m.locationZone || '').trim().toLowerCase() === zLower &&
+      (m.locationZone || m.lineGroup || '').trim().toLowerCase() === zLower &&
       (m.locationRoom || '').trim().toLowerCase() === rLower
     );
   };

@@ -93,21 +93,31 @@ export const extractDefaultZones = (machinesList: Machine[]): ZoneStructure[] =>
 
 export const mergeZonesWithMachines = (baseZones: ZoneStructure[], machinesList: Machine[]): ZoneStructure[] => {
   const zoneMap = new Map<string, ZoneStructure>();
+  const seenIds = new Set<string>();
   
-  // 1. Existing base zones
+  // 1. Existing base zones (deduplicating by ID and cleaned Thai name)
   (baseZones || []).forEach(z => {
     if (!z || !z.name) return;
-    zoneMap.set(z.name.toLowerCase().trim(), {
-      id: z.id || z.name,
-      name: z.name.trim(),
-      rooms: Array.isArray(z.rooms) ? [...z.rooms] : [],
-      description: z.description
-    });
+    const cleanId = z.id ? z.id.replace(/[\uFFFD]/g, '').trim() : '';
+    if (cleanId && seenIds.has(cleanId)) return;
+    if (cleanId) seenIds.add(cleanId);
+
+    const cleanName = z.name.replace(/[\uFFFD]/g, '').trim();
+    if (!cleanName) return;
+    const key = cleanName.toLowerCase();
+    if (!zoneMap.has(key)) {
+      zoneMap.set(key, {
+        id: cleanId || cleanName,
+        name: cleanName,
+        rooms: Array.isArray(z.rooms) ? [...z.rooms] : [],
+        description: z.description
+      });
+    }
   });
 
   // 2. Add any zones and rooms from machines
   machinesList.forEach(m => {
-    const zName = (m.locationZone || '').trim();
+    const zName = (m.locationZone || m.lineGroup || '').replace(/[\uFFFD]/g, '').trim();
     if (!zName) return;
     const key = zName.toLowerCase();
     if (!zoneMap.has(key)) {
@@ -320,14 +330,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             const cleanZone = (z?: string) => z ? z.replace(/^โรงงาน\s*\d*\s*>\s*/i, '').trim() : z;
             const enriched = serverData.machines.map((m: Machine) => {
               const pre = PRELOADED_MACHINES.find(p => p.id === m.id);
-              if (!pre) return { ...m, locationZone: cleanZone(m.locationZone) };
+              const fallbackZone = cleanZone(m.locationZone || pre?.locationZone || m.lineGroup);
+              if (!pre) return { ...m, locationZone: fallbackZone };
               return {
                 ...m,
                 model: m.model || pre.model,
                 powerVoltage: m.powerVoltage || pre.powerVoltage,
                 installDate: m.installDate || pre.installDate,
                 vendor: m.vendor || pre.vendor,
-                locationZone: cleanZone(m.locationZone || pre.locationZone),
+                locationZone: fallbackZone,
                 locationRoom: m.locationRoom || pre.locationRoom,
                 serialNumber: m.serialNumber || pre.serialNumber,
                 notes: m.notes || pre.notes
@@ -445,14 +456,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               const cleanZone = (z?: string) => z ? z.replace(/^โรงงาน\s*\d*\s*>\s*/i, '').trim() : z;
               currentLoadedMachines = parsed.map((m: Machine) => {
                 const pre = PRELOADED_MACHINES.find(p => p.id === m.id);
-                if (!pre) return { ...m, locationZone: cleanZone(m.locationZone) };
+                const fallbackZone = cleanZone(m.locationZone || pre?.locationZone || m.lineGroup);
+                if (!pre) return { ...m, locationZone: fallbackZone };
                 return {
                   ...m,
                   model: m.model || pre.model,
                   powerVoltage: m.powerVoltage || pre.powerVoltage,
                   installDate: m.installDate || pre.installDate,
                   vendor: m.vendor || pre.vendor,
-                  locationZone: cleanZone(m.locationZone || pre.locationZone),
+                  locationZone: fallbackZone,
                   locationRoom: m.locationRoom || pre.locationRoom,
                   serialNumber: m.serialNumber || pre.serialNumber,
                   notes: m.notes || pre.notes

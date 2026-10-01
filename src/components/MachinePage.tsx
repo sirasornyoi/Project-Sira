@@ -104,13 +104,18 @@ export const MachinePage: React.FC = () => {
   // Available unique zones with counts (including structured zones)
   const availableZones = useMemo(() => {
     const map = new Map<string, number>();
-    // Pre-populate with defined zones
+    const seenZoneIds = new Set<string>();
+    // Pre-populate with defined zones (deduplicating by ID and cleaned name)
     zones.forEach(z => {
-      if (z.name) map.set(z.name, 0);
+      if (!z || !z.name) return;
+      if (z.id && seenZoneIds.has(z.id)) return;
+      if (z.id) seenZoneIds.add(z.id);
+      const cleanName = z.name.replace(/[\uFFFD]/g, '').trim();
+      if (cleanName && !map.has(cleanName)) map.set(cleanName, 0);
     });
-    // Add machine counts
+    // Add machine counts (using locationZone or lineGroup fallback)
     machines.forEach(m => {
-      const z = (m.locationZone || '').trim();
+      const z = (m.locationZone || m.lineGroup || '').replace(/[\uFFFD]/g, '').trim();
       if (z) {
         map.set(z, (map.get(z) || 0) + 1);
       }
@@ -135,7 +140,7 @@ export const MachinePage: React.FC = () => {
     }
 
     machines.forEach(m => {
-      const z = (m.locationZone || '').trim();
+      const z = (m.locationZone || m.lineGroup || '').trim();
       if (selectedZone && z.toLowerCase() !== selectedZone.toLowerCase()) return;
       const r = (m.locationRoom || '').trim();
       if (r) {
@@ -883,8 +888,8 @@ export const MachinePage: React.FC = () => {
               <div className="text-[10px] uppercase font-bold text-sky-800 dark:text-cyan-400 tracking-wider">
                 โซน (Zone)
               </div>
-              <div className="text-sm font-bold text-slate-900 dark:text-cyan-100 truncate mt-0.5" title={m.locationZone}>
-                {m.locationZone || '-'}
+              <div className="text-sm font-bold text-slate-900 dark:text-cyan-100 truncate mt-0.5" title={m.locationZone || m.lineGroup}>
+                {m.locationZone || m.lineGroup || '-'}
               </div>
             </div>
           </div>
@@ -1827,7 +1832,7 @@ export const MachinePage: React.FC = () => {
                                             {showZoneColumn && (
                                               <td className="py-3 px-3">
                                                 <span className="pill-zone text-[11px] px-2 py-0.5 rounded-full border font-medium">
-                                                  {m.locationZone || '-'}
+                                                  {m.locationZone || m.lineGroup || '-'}
                                                 </span>
                                               </td>
                                             )}
@@ -1969,7 +1974,7 @@ export const MachinePage: React.FC = () => {
                         {showZoneColumn && (
                           <td className="py-4 px-3 w-32 whitespace-nowrap text-center">
                             <span className="pill-zone text-xs px-2.5 py-0.5 rounded-full border font-medium truncate max-w-[120px] inline-block">
-                              {m.locationZone || '-'}
+                              {m.locationZone || m.lineGroup || '-'}
                             </span>
                           </td>
                         )}
