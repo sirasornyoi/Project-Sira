@@ -1034,6 +1034,130 @@ export const TimeBreakPage: React.FC = () => {
     }
   };
 
+  // Export Spare Parts & Stock Card to separate Excel (.xlsx)
+  const handleExportStockExcel = () => {
+    try {
+      if (linkedSpareStats.length === 0) {
+        alert('ไม่พบรายการอะไหล่สำหรับส่งออก');
+        return;
+      }
+
+      const wb = XLSX.utils.book_new();
+
+      // Sheet 1: รายการอะไหล่ (Spare Parts Overview)
+      const spareSheetData = linkedSpareStats.map((item, idx) => {
+        const sp = item.spare;
+        const isBelowMin = sp.quantity < sp.minRequired;
+        const hasShortage = item.shortage > 0;
+        let stockStatus = 'พอใช้';
+        if (hasShortage) stockStatus = 'ขาดแคลน (ต้องสั่งซื้อ)';
+        else if (isBelowMin) stockStatus = 'ต่ำกว่าเกณฑ์ Min';
+
+        const machineNames = item.machines.map(mId => {
+          const m = machines.find(mac => mac.id === mId);
+          return m ? `${m.name} (${mId})` : mId;
+        }).join(', ');
+
+        return {
+          'ลำดับ': idx + 1,
+          'รหัสอะไหล่': sp.id,
+          'ชื่ออะไหล่': sp.name,
+          'หมวดหมู่': sp.category || 'ทั่วไป',
+          'ตำแหน่งจัดเก็บ': sp.location || '-',
+          'จำนวนคงเหลือ': sp.quantity,
+          'เกณฑ์ขั้นต่ำ (Min)': sp.minRequired,
+          'หน่วยนับ': sp.unit || 'ชิ้น',
+          'จำนวนเครื่องที่ใช้': item.machineCount,
+          'จำนวนจุดเปลี่ยน': item.itemCount,
+          'เครื่องจักรที่ใช้': machineNames || '-',
+          'ยอดที่ต้องใช้ใน 30 วัน': item.needIn30Days || 0,
+          'ยอดขาดแคลน': item.shortage || 0,
+          'สถานะสต็อก': stockStatus,
+          'ราคาต่อหน่วย (บาท)': sp.costPerUnit || 0,
+          'มูลค่าคงเหลือรวม (บาท)': (sp.quantity * (sp.costPerUnit || 0))
+        };
+      });
+
+      const wsSpares = XLSX.utils.json_to_sheet(spareSheetData);
+      wsSpares['!cols'] = [
+        { wch: 8 }, { wch: 16 }, { wch: 30 }, { wch: 16 },
+        { wch: 18 }, { wch: 14 }, { wch: 16 }, { wch: 10 },
+        { wch: 16 }, { wch: 14 }, { wch: 35 }, { wch: 18 },
+        { wch: 14 }, { wch: 22 }, { wch: 18 }, { wch: 20 }
+      ];
+      XLSX.utils.book_append_sheet(wb, wsSpares, "รายการอะไหล่");
+
+      // Sheet 2: Stock Card (ประวัติเข้า-ออกและการปรับยอด)
+      const movementsData = stockMovements.map((sm, idx) => {
+        const sp = spareParts.find(s => s.id === sm.sparePartId);
+        const m = sm.machineId ? machines.find(mac => mac.id === sm.machineId) : null;
+        let typeName = sm.type as string;
+        if (sm.type === 'IN') typeName = 'รับเข้า (IN)';
+        else if (sm.type === 'OUT') typeName = 'ตัดออก (OUT)';
+        else if (sm.type === 'ADJUST') typeName = 'ปรับยอด (ADJUST)';
+
+        return {
+          'ลำดับ': idx + 1,
+          'วันที่ทำรายการ': sm.date,
+          'รหัสอะไหล่': sm.sparePartId,
+          'ชื่ออะไหล่': sp?.name || sm.sparePartId,
+          'ประเภทรายการ': typeName,
+          'จำนวน': sm.type === 'OUT' ? -Math.abs(sm.quantity) : sm.quantity,
+          'หน่วย': sp?.unit || 'ชิ้น',
+          'คงเหลือหลังทำรายการ': sm.balanceAfter,
+          'ที่มา': sm.source,
+          'รหัสเครื่องจักร': sm.machineId || '-',
+          'ชื่อเครื่องจักร': m?.name || '-',
+          'ช่างผู้ทำรายการ': sm.byTech || '-',
+          'หมายเหตุ': sm.note || '-'
+        };
+      });
+
+      if (movementsData.length > 0) {
+        const wsMovements = XLSX.utils.json_to_sheet(movementsData);
+        wsMovements['!cols'] = [
+          { wch: 8 }, { wch: 14 }, { wch: 16 }, { wch: 28 },
+          { wch: 18 }, { wch: 12 }, { wch: 8 }, { wch: 18 },
+          { wch: 14 }, { wch: 14 }, { wch: 22 }, { wch: 18 },
+          { wch: 35 }
+        ];
+        XLSX.utils.book_append_sheet(wb, wsMovements, "Stock_Card_ประวัติสต็อก");
+      }
+
+      // Sheet 3: รายการสั่งซื้อด่วน (ถ้ามี)
+      if (urgentPurchaseList.length > 0) {
+        const urgentData = urgentPurchaseList.map((item, idx) => ({
+          'ลำดับ': idx + 1,
+          'รหัสอะไหล่': item.spare.id,
+          'ชื่ออะไหล่': item.spare.name,
+          'หมวดหมู่': item.spare.category || '-',
+          'คงเหลือปัจจุบัน': item.spare.quantity,
+          'เกณฑ์ Min': item.spare.minRequired,
+          'ต้องใช้ใน 30 วัน': item.needIn30Days,
+          'ยอดที่ต้องสั่งซื้อ': item.shortage,
+          'หน่วย': item.spare.unit || 'ชิ้น',
+          'ราคาต่อหน่วย': item.spare.costPerUnit || 0,
+          'งบประมาณสั่งซื้อโดยประมาณ': (item.shortage * (item.spare.costPerUnit || 0))
+        }));
+        const wsUrgent = XLSX.utils.json_to_sheet(urgentData);
+        wsUrgent['!cols'] = [
+          { wch: 8 }, { wch: 16 }, { wch: 28 }, { wch: 16 },
+          { wch: 16 }, { wch: 12 }, { wch: 16 }, { wch: 18 },
+          { wch: 8 }, { wch: 14 }, { wch: 22 }
+        ];
+        XLSX.utils.book_append_sheet(wb, wsUrgent, "รายการสั่งซื้อด่วน");
+      }
+
+      const fileName = `SpareParts_Stock_Report_${getTodayDateString()}.xlsx`;
+      XLSX.writeFile(wb, fileName);
+
+      setExportSuccessMsg(`ส่งออกไฟล์รายการอะไหล่ "${fileName}" สำเร็จ (${linkedSpareStats.length} รายการอะไหล่)`);
+      setTimeout(() => setExportSuccessMsg(null), 4000);
+    } catch (err: any) {
+      alert(`เกิดข้อผิดพลาดในการส่งออก Excel รายการอะไหล่: ${err.message || err}`);
+    }
+  };
+
   // Download Sample Template (.xlsx)
   const handleDownloadTemplate = () => {
     const headers = [
@@ -1290,58 +1414,141 @@ export const TimeBreakPage: React.FC = () => {
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-amber-500/10 border border-amber-500/25 rounded-xl text-amber-500 dark:text-amber-400">
-                <Clock className="w-6 h-6" />
+              <div className={`p-2.5 rounded-xl border transition-all ${
+                timeBreakTab === 'parts'
+                  ? 'bg-amber-500/10 border-amber-500/25 text-amber-500 dark:text-amber-400'
+                  : 'bg-cyan-500/10 border-cyan-500/25 text-cyan-600 dark:text-cyan-400'
+              }`}>
+                {timeBreakTab === 'parts' ? <Clock className="w-6 h-6" /> : <Package className="w-6 h-6" />}
               </div>
               <div>
                 <h1 className="text-xl sm:text-2xl font-bold text-fg tracking-tight flex items-center gap-2.5">
-                  เปลี่ยนอะไหล่ Time-Break
-                  <span className="text-xs px-2.5 py-0.5 rounded-full font-bold bg-sky-100 dark:bg-cyan-500/20 text-sky-900 dark:text-cyan-200 border border-sky-300 dark:border-cyan-500/40">
-                    Time-Based Replacement
+                  {timeBreakTab === 'parts' ? 'เปลี่ยนอะไหล่ Time-Break' : 'รายการอะไหล่'}
+                  <span className={`text-xs px-2.5 py-0.5 rounded-full font-bold border transition-all ${
+                    timeBreakTab === 'parts'
+                      ? 'bg-sky-100 dark:bg-cyan-500/20 text-sky-900 dark:text-cyan-200 border-sky-300 dark:border-cyan-500/40'
+                      : 'bg-cyan-100 dark:bg-cyan-500/20 text-cyan-900 dark:text-cyan-200 border-cyan-300 dark:border-cyan-500/40'
+                  }`}>
+                    {timeBreakTab === 'parts' ? 'Time-Based Replacement' : 'Spare Parts & Stock'}
                   </span>
                 </h1>
                 <p className="text-xs sm:text-sm text-slate-700 dark:text-fg-muted mt-0.5 font-medium">
-                  ตารางระบุเครื่องในเดือนปัจจุบัน ครบเวลาเปลี่ยนอะไหล่ และจำนวนรอบการเปลี่ยน (ครั้ง/เวลา)
+                  {timeBreakTab === 'parts'
+                    ? 'ตารางระบุเครื่องในเดือนปัจจุบัน ครบเวลาเปลี่ยนอะไหล่ และจำนวนรอบการเปลี่ยน (ครั้ง/เวลา)'
+                    : 'ภาพรวมสต็อกอะไหล่ที่ผูกกับระบบ Time-Break ยอดคงเหลือ ยอดต้องใช้ใน 30 วัน และประวัติ Stock Card'}
                 </p>
               </div>
             </div>
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">
-            <button
-              id="btn-export-timebreak-excel"
-              onClick={() => handleExportExcel()}
-              className="px-3 py-2 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-cyan-700 dark:text-cyan-300 hover:text-cyan-800 dark:hover:text-fg border border-slate-300 dark:border-slate-700 flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
-              title="ส่งออกข้อมูลอะไหล่ Time-Break ทั้งหมดเป็นไฟล์ Excel (.xlsx)"
-            >
-              <Download className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
-              <span>Export Excel</span>
-            </button>
+            {timeBreakTab === 'parts' ? (
+              <>
+                <button
+                  id="btn-export-timebreak-excel"
+                  onClick={() => handleExportExcel()}
+                  className="px-3 py-2 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-cyan-700 dark:text-cyan-300 hover:text-cyan-800 dark:hover:text-fg border border-slate-300 dark:border-slate-700 flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
+                  title="ส่งออกข้อมูลอะไหล่ Time-Break ทั้งหมดเป็นไฟล์ Excel (.xlsx)"
+                >
+                  <Download className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
+                  <span>Export Excel</span>
+                </button>
 
-            <button
-              id="btn-import-timebreak-excel"
-              onClick={() => {
-                setImportParsedParts([]);
-                setImportError(null);
-                setImportFileName('');
-                setShowImportModal(true);
-              }}
-              className="px-3 py-2 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-emerald-700 dark:text-emerald-300 hover:text-emerald-800 dark:hover:text-fg border border-slate-300 dark:border-slate-700 flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
-              title="นำเข้าข้อมูลอะไหล่ Time-Break จากไฟล์ Excel (.xlsx, .xls, .csv)"
-            >
-              <Upload className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-              <span>Import Excel</span>
-            </button>
+                <button
+                  id="btn-import-timebreak-excel"
+                  onClick={() => {
+                    setImportParsedParts([]);
+                    setImportError(null);
+                    setImportFileName('');
+                    setShowImportModal(true);
+                  }}
+                  className="px-3 py-2 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-emerald-700 dark:text-emerald-300 hover:text-emerald-800 dark:hover:text-fg border border-slate-300 dark:border-slate-700 flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
+                  title="นำเข้าข้อมูลอะไหล่ Time-Break จากไฟล์ Excel (.xlsx, .xls, .csv)"
+                >
+                  <Upload className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  <span>Import Excel</span>
+                </button>
 
-            <button
-              id="btn-add-timebreak-part"
-              onClick={() => handleOpenAddPart()}
-              className="px-3.5 py-2 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-1.5 transition-all shadow-md cursor-pointer"
-            >
-              <Plus className="w-4 h-4" />
-              เพิ่มอะไหล่ Time-Break
-            </button>
+                <button
+                  id="btn-add-timebreak-part"
+                  onClick={() => handleOpenAddPart()}
+                  className="px-3.5 py-2 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-1.5 transition-all shadow-md cursor-pointer"
+                >
+                  <Plus className="w-4 h-4" />
+                  เพิ่มอะไหล่ Time-Break
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  id="btn-export-stock-excel"
+                  onClick={() => handleExportStockExcel()}
+                  className="px-3.5 py-2 text-xs font-semibold rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white flex items-center gap-1.5 transition-all shadow-md cursor-pointer"
+                  title="ส่งออกข้อมูลรายการอะไหล่และ Stock Card แยกต่างหากเป็นไฟล์ Excel (.xlsx)"
+                >
+                  <Download className="w-4 h-4 text-white" />
+                  <span>Export Excel รายการอะไหล่</span>
+                </button>
+
+                {urgentPurchaseList.length > 0 && (
+                  <button
+                    id="btn-copy-urgent-header"
+                    onClick={handleCopyUrgentList}
+                    className="px-3 py-2 text-xs font-semibold rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-700 dark:text-rose-300 border border-rose-300 dark:border-rose-500/40 flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
+                    title="คัดลอกรายการสั่งซื้อด่วน"
+                  >
+                    {copiedUrgentList ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+                    <span>{copiedUrgentList ? 'คัดลอกแล้ว!' : `คัดลอกรายการสั่งซื้อด่วน (${urgentPurchaseList.length})`}</span>
+                  </button>
+                )}
+              </>
+            )}
           </div>
+        </div>
+
+        {/* TAB NAVIGATION: เอาไว้ด้านบน - แยกกันระหว่างเปลี่ยนอะไหล่ Time-Break และ รายการอะไหล่ */}
+        <div className="max-w-7xl mx-auto flex items-center gap-2 pt-3 mt-3 border-t border-border/60 dark:border-slate-800/80">
+          <button
+            id="tab-tb-parts"
+            onClick={() => setTimeBreakTab('parts')}
+            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
+              timeBreakTab === 'parts'
+                ? 'bg-amber-500 text-slate-950 shadow-md font-black'
+                : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700'
+            }`}
+          >
+            <Clock className="w-4 h-4" />
+            <span>เปลี่ยนอะไหล่ Time-Break</span>
+            <span className={`text-[11px] px-2 py-0.5 rounded-full font-bold ${
+              timeBreakTab === 'parts' ? 'bg-slate-950/20 text-slate-950' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
+            }`}>
+              {timeBreakParts.length}
+            </span>
+          </button>
+
+          <button
+            id="tab-tb-stock"
+            onClick={() => setTimeBreakTab('stock')}
+            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
+              timeBreakTab === 'stock'
+                ? 'bg-cyan-600 text-white shadow-md font-black'
+                : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700'
+            }`}
+          >
+            <Package className="w-4 h-4" />
+            <span>รายการอะไหล่</span>
+            {monthKpis.shortagePartsCount > 0 ? (
+              <span className="text-[11px] px-2 py-0.5 rounded-full font-black bg-rose-500 text-white animate-pulse">
+                ขาด {monthKpis.shortagePartsCount}
+              </span>
+            ) : (
+              <span className={`text-[11px] px-2 py-0.5 rounded-full font-bold ${
+                timeBreakTab === 'stock' ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
+              }`}>
+                {linkedSpareStats.length} อะไหล่
+              </span>
+            )}
+          </button>
         </div>
       </div>
 
@@ -1362,51 +1569,6 @@ export const TimeBreakPage: React.FC = () => {
               </button>
             </div>
           )}
-
-          {/* TAB NAVIGATION: รายการเปลี่ยนอะไหล่ | Stock */}
-          <div className="flex items-center gap-2 border-b border-border dark:border-slate-800 pb-3">
-            <button
-              id="tab-tb-parts"
-              onClick={() => setTimeBreakTab('parts')}
-              className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
-                timeBreakTab === 'parts'
-                  ? 'bg-amber-500 text-slate-950 shadow-md font-black'
-                  : 'bg-surface hover:bg-slate-100 dark:bg-slate-900/80 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 border border-border dark:border-slate-800'
-              }`}
-            >
-              <Clock className="w-4 h-4" />
-              <span>รายการเปลี่ยนอะไหล่</span>
-              <span className={`text-[11px] px-2 py-0.5 rounded-full font-bold ${
-                timeBreakTab === 'parts' ? 'bg-slate-950/20 text-slate-950' : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
-              }`}>
-                {timeBreakParts.length}
-              </span>
-            </button>
-
-            <button
-              id="tab-tb-stock"
-              onClick={() => setTimeBreakTab('stock')}
-              className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
-                timeBreakTab === 'stock'
-                  ? 'bg-cyan-600 text-white shadow-md font-black'
-                  : 'bg-surface hover:bg-slate-100 dark:bg-slate-900/80 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 border border-border dark:border-slate-800'
-              }`}
-            >
-              <Package className="w-4 h-4" />
-              <span>Stock & สต็อกการ์ด</span>
-              {monthKpis.shortagePartsCount > 0 ? (
-                <span className="text-[11px] px-2 py-0.5 rounded-full font-black bg-rose-500 text-white animate-pulse">
-                  ขาด {monthKpis.shortagePartsCount}
-                </span>
-              ) : (
-                <span className={`text-[11px] px-2 py-0.5 rounded-full font-bold ${
-                  timeBreakTab === 'stock' ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
-                }`}>
-                  {linkedSpareStats.length} อะไหล่
-                </span>
-              )}
-            </button>
-          </div>
 
           {timeBreakTab === 'parts' && (
             <>
@@ -2247,24 +2409,24 @@ export const TimeBreakPage: React.FC = () => {
                 </div>
               )}
 
-              {/* a) ภาพรวม: ตารางเฉพาะ SparePart ที่ถูกผูกกับ Time-Break */}
+              {/* a) รายการอะไหล่: ตารางเฉพาะ SparePart ที่ถูกผูกกับ Time-Break */}
               <div className="bg-surface dark:bg-slate-900/90 border border-border dark:border-slate-800/80 rounded-2xl shadow-sm overflow-hidden">
                 {/* Header with Search */}
                 <div className="p-4 sm:p-5 border-b border-border dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
                     <h3 className="text-base font-bold text-slate-950 dark:text-white flex items-center gap-2">
                       <Package className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />
-                      <span>ภาพรวมสต็อกอะไหล่ Time-Break</span>
+                      <span>รายการอะไหล่ (สต็อกคงเหลือที่ผูกกับ Time-Break)</span>
                       <span className="text-xs px-2 py-0.5 rounded-full font-bold bg-cyan-100 dark:bg-cyan-950/80 text-cyan-800 dark:text-cyan-300 border border-cyan-300 dark:border-cyan-800">
                         ผูกทั้งหมด {linkedSpareStats.length} รายการ
                       </span>
                     </h3>
                     <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
-                      แสดงเฉพาะรายการอะไหล่ในคลังที่ถูกผูกกับระบบเปลี่ยนรอบเวลา (Time-Break) พร้อมคำนวณยอดที่ต้องใช้ใน 30 วัน
+                      แสดงรายการอะไหล่ในคลังที่ถูกผูกกับระบบเปลี่ยนรอบเวลา (Time-Break) พร้อมยอดคงเหลือ และคำนวณยอดที่ต้องใช้ใน 30 วัน
                     </p>
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <div className="relative w-full sm:w-64">
                       <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                       <input
@@ -2275,6 +2437,14 @@ export const TimeBreakPage: React.FC = () => {
                         className="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 dark:bg-slate-800/70 border border-slate-300 dark:border-slate-700 rounded-xl text-fg focus:outline-none focus:ring-2 focus:ring-cyan-500"
                       />
                     </div>
+                    <button
+                      onClick={() => handleExportStockExcel()}
+                      className="px-3 py-1.5 text-xs font-semibold rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-cyan-700 dark:text-cyan-300 border border-slate-300 dark:border-slate-700 flex items-center gap-1.5 transition-all shadow-xs cursor-pointer shrink-0"
+                      title="ส่งออกข้อมูลรายการอะไหล่และ Stock Card เป็นไฟล์ Excel (.xlsx)"
+                    >
+                      <Download className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
+                      <span>Export Excel</span>
+                    </button>
                   </div>
                 </div>
 
@@ -2382,7 +2552,7 @@ export const TimeBreakPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* c) Stock Card: ตารางประวัติการเคลื่อนไหวสต็อก */}
+              {/* b) Stock Card: ตารางประวัติการเคลื่อนไหวสต็อก */}
               <div className="bg-surface dark:bg-slate-900/90 border border-border dark:border-slate-800/80 rounded-2xl shadow-sm overflow-hidden">
                 {/* Header with Filters */}
                 <div className="p-4 sm:p-5 border-b border-border dark:border-slate-800 space-y-3">
