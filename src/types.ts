@@ -238,6 +238,21 @@ export interface SparePart {
   specifications?: string; // ข้อมูลทางเทคนิค/รายละเอียดเพิ่มเติม
 }
 
+export interface StockMovement {
+  id: string;
+  sparePartId: string;
+  date: string; /* YYYY-MM-DD */
+  createdAt: string; /* ISO */
+  type: 'IN' | 'OUT' | 'ADJUST';
+  quantity: number; /* ค่าบวกเสมอ */
+  balanceAfter: number;
+  source: 'TimeBreak' | 'Inventory' | 'Repair' | 'PM' | 'Manual';
+  refId?: string; /* timeBreakPart.id หรือ history.id */
+  machineId?: string;
+  byTech?: string;
+  note?: string;
+}
+
 export interface TimeBreakHistoryRecord {
   id: string;
   replacedDate: string; // วันที่เปลี่ยนจริง YYYY-MM-DD

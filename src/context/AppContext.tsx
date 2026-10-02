@@ -3,7 +3,7 @@ import {
   Machine, PMPlan, PMScheduleItem, OperationScheduleItem, 
   RepairLog, ImprovementProject, SystemSettings, ScheduleItem,
   SparePart, TimeBreakPartItem, ZoneStructure,
-  WhyWhyAnalysis, PlannedProductionTime
+  WhyWhyAnalysis, PlannedProductionTime, StockMovement
 } from '../types';
 import { 
   PRELOADED_MACHINES, PRELOADED_TECHNICIANS, PRELOADED_PM_PLANS, 
@@ -36,6 +36,21 @@ interface AppContextType {
   setSpareParts: React.Dispatch<React.SetStateAction<SparePart[]>>;
   timeBreakParts: TimeBreakPartItem[];
   setTimeBreakParts: React.Dispatch<React.SetStateAction<TimeBreakPartItem[]>>;
+  stockMovements: StockMovement[];
+  setStockMovements: React.Dispatch<React.SetStateAction<StockMovement[]>>;
+  recordStockChange: (
+    sparePartId: string,
+    delta: number,
+    meta: {
+      type: 'IN' | 'OUT' | 'ADJUST';
+      source: 'TimeBreak' | 'Inventory' | 'Repair' | 'PM' | 'Manual';
+      date?: string;
+      refId?: string;
+      machineId?: string;
+      byTech?: string;
+      note?: string;
+    }
+  ) => void;
   plannedProductionTimes: PlannedProductionTime[];
   setPlannedProductionTimes: React.Dispatch<React.SetStateAction<PlannedProductionTime[]>>;
   zones: ZoneStructure[];
@@ -177,6 +192,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [improvements, setImprovements] = useState<ImprovementProject[]>([]);
   const [spareParts, setSpareParts] = useState<SparePart[]>([]);
   const [timeBreakParts, setTimeBreakParts] = useState<TimeBreakPartItem[]>([]);
+  const [stockMovements, setStockMovements] = useState<StockMovement[]>([]);
   const [plannedProductionTimes, setPlannedProductionTimes] = useState<PlannedProductionTime[]>([]);
   const [zones, setZones] = useState<ZoneStructure[]>([]);
   const [whyWhyDrafts, setWhyWhyDrafts] = useState<WhyWhyAnalysis[]>(() => {
@@ -237,6 +253,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     improvements: ImprovementProject[];
     spareParts: SparePart[];
     timeBreakParts: TimeBreakPartItem[];
+    stockMovements: StockMovement[];
     plannedProductionTimes: PlannedProductionTime[];
     settings: SystemSettings;
     zones: ZoneStructure[];
@@ -251,6 +268,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     'improvements',
     'spareParts',
     'timeBreakParts',
+    'stockMovements',
     'plannedProductionTimes',
     'whyWhyDrafts'
   ] as const;
@@ -298,14 +316,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const currentStateRef = useRef({
     machines, technicians, technicianShifts, pmPlans, pmMachineIds, schedules,
-    repairs, improvements, spareParts, timeBreakParts, plannedProductionTimes, settings, zones, whyWhyDrafts
+    repairs, improvements, spareParts, timeBreakParts, stockMovements, plannedProductionTimes, settings, zones, whyWhyDrafts
   });
 
   // Always keep currentStateRef up-to-date with the latest state values
   useEffect(() => {
     currentStateRef.current = {
       machines, technicians, technicianShifts, pmPlans, pmMachineIds, schedules,
-      repairs, improvements, spareParts, timeBreakParts, plannedProductionTimes, settings, zones, whyWhyDrafts
+      repairs, improvements, spareParts, timeBreakParts, stockMovements, plannedProductionTimes, settings, zones, whyWhyDrafts
     };
   });
 
@@ -384,6 +402,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             setSpareParts(dedupSpareParts);
             const dedupTimeBreak = deduplicateById(serverData.timeBreakParts || PRELOADED_TIME_BREAK_PARTS);
             setTimeBreakParts(dedupTimeBreak);
+            const dedupStockMovements = deduplicateById(serverData.stockMovements || []);
+            setStockMovements(dedupStockMovements);
             const dedupProdTimes = deduplicateById(serverData.plannedProductionTimes || []);
             setPlannedProductionTimes(dedupProdTimes);
 
@@ -418,6 +438,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               improvements: dedupImprovements,
               spareParts: dedupSpareParts,
               timeBreakParts: dedupTimeBreak,
+              stockMovements: dedupStockMovements,
               plannedProductionTimes: dedupProdTimes,
               settings: resolvedSettings,
               zones: resolvedZones,
@@ -445,6 +466,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const storedSettings = localStorage.getItem('maint_settings');
         const storedSpareParts = localStorage.getItem('maint_spare_parts');
         const storedTimeBreakParts = localStorage.getItem('maint_time_break_parts');
+        const storedStockMovements = localStorage.getItem('maint_stock_movements');
         const storedPlannedProdTimes = localStorage.getItem('maint_planned_production_times');
         const storedZones = localStorage.getItem('maint_zones');
 
@@ -510,6 +532,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setSpareParts(finalSpareParts);
         const finalTimeBreak = deduplicateById(safeJsonParse(storedTimeBreakParts, PRELOADED_TIME_BREAK_PARTS));
         setTimeBreakParts(finalTimeBreak);
+        const finalStockMovements = deduplicateById(safeJsonParse(storedStockMovements, []));
+        setStockMovements(finalStockMovements);
         const finalProdTimes = deduplicateById(safeJsonParse(storedPlannedProdTimes, []));
         setPlannedProductionTimes(finalProdTimes);
 
@@ -558,6 +582,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           improvements: finalImprovements,
           spareParts: finalSpareParts,
           timeBreakParts: finalTimeBreak,
+          stockMovements: finalStockMovements,
           plannedProductionTimes: finalProdTimes,
           settings: finalSettings,
           zones: finalZones,
@@ -640,6 +665,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       localStorage.setItem('maint_improvements', JSON.stringify(improvements));
       localStorage.setItem('maint_spare_parts', JSON.stringify(spareParts));
       localStorage.setItem('maint_time_break_parts', JSON.stringify(timeBreakParts));
+      localStorage.setItem('maint_stock_movements', JSON.stringify(stockMovements));
       localStorage.setItem('maint_planned_production_times', JSON.stringify(plannedProductionTimes));
       localStorage.setItem('maint_settings', JSON.stringify(settings));
       localStorage.setItem('maint_zones', JSON.stringify(zones));
@@ -650,7 +676,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, [
     machines, technicians, technicianShifts, pmPlans, pmMachineIds, schedules,
-    repairs, improvements, spareParts, timeBreakParts, plannedProductionTimes, settings, zones, whyWhyDrafts, isLoaded
+    repairs, improvements, spareParts, timeBreakParts, stockMovements, plannedProductionTimes, settings, zones, whyWhyDrafts, isLoaded
   ]);
 
   const saveToServer = useCallback(async () => {
@@ -797,7 +823,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return () => clearTimeout(timerId);
   }, [
     machines, technicians, technicianShifts, pmPlans, pmMachineIds, schedules,
-    repairs, improvements, spareParts, timeBreakParts, plannedProductionTimes, settings, zones, whyWhyDrafts, isLoaded, saveToServer
+    repairs, improvements, spareParts, timeBreakParts, stockMovements, plannedProductionTimes, settings, zones, whyWhyDrafts, isLoaded, saveToServer
   ]);
 
   // Polling for updates from other clients
@@ -843,6 +869,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               improvements: setImprovements,
               spareParts: setSpareParts,
               timeBreakParts: setTimeBreakParts,
+              stockMovements: setStockMovements,
               plannedProductionTimes: setPlannedProductionTimes,
               whyWhyDrafts: setWhyWhyDrafts,
             };
@@ -1061,6 +1088,56 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }));
   };
 
+  const recordStockChange = useCallback((
+    sparePartId: string,
+    delta: number,
+    meta: {
+      type: 'IN' | 'OUT' | 'ADJUST';
+      source: 'TimeBreak' | 'Inventory' | 'Repair' | 'PM' | 'Manual';
+      date?: string;
+      refId?: string;
+      machineId?: string;
+      byTech?: string;
+      note?: string;
+    }
+  ) => {
+    const today = getTodayDateString();
+    const dateStr = meta.date || today;
+
+    setSpareParts(prevParts => {
+      const target = prevParts.find(p => p.id === sparePartId);
+      if (!target) return prevParts;
+
+      const newQty = Math.max(0, target.quantity + delta);
+
+      const newMovement: StockMovement = {
+        id: `sm-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+        sparePartId,
+        date: dateStr,
+        createdAt: new Date().toISOString(),
+        type: meta.type,
+        quantity: Math.abs(delta),
+        balanceAfter: newQty,
+        source: meta.source,
+        refId: meta.refId,
+        machineId: meta.machineId,
+        byTech: meta.byTech,
+        note: meta.note
+      };
+
+      setStockMovements(prevMovements => [newMovement, ...prevMovements]);
+
+      return prevParts.map(p => {
+        if (p.id !== sparePartId) return p;
+        return {
+          ...p,
+          quantity: newQty,
+          ...(delta > 0 && meta.type === 'IN' ? { lastRestockedDate: dateStr } : {})
+        };
+      });
+    });
+  }, []);
+
   const resetToDefaults = () => {
     setMachines(PRELOADED_MACHINES);
     setTechnicians(PRELOADED_TECHNICIANS);
@@ -1070,6 +1147,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setRepairs(PRELOADED_REPAIRS);
     setImprovements(PRELOADED_IMPROVEMENTS);
     setTimeBreakParts(PRELOADED_TIME_BREAK_PARTS);
+    setStockMovements([]);
     const defZones = extractDefaultZones(PRELOADED_MACHINES);
     setZones(defZones);
     setSettings({
@@ -1114,6 +1192,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setSpareParts(PRELOADED_SPARE_PARTS);
     localStorage.setItem('maint_spare_parts', JSON.stringify(PRELOADED_SPARE_PARTS));
     localStorage.setItem('maint_time_break_parts', JSON.stringify(PRELOADED_TIME_BREAK_PARTS));
+    localStorage.removeItem('maint_stock_movements');
     setPlannedProductionTimes([]);
     localStorage.removeItem('maint_planned_production_times');
     localStorage.setItem('maint_zones', JSON.stringify(defZones));
@@ -1136,6 +1215,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       improvements,
       spareParts,
       timeBreakParts,
+      stockMovements,
       plannedProductionTimes,
       settings,
       zones,
@@ -1157,6 +1237,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (dataObj.improvements) setImprovements(dataObj.improvements);
       if (dataObj.spareParts) setSpareParts(dataObj.spareParts);
       if (dataObj.timeBreakParts) setTimeBreakParts(dataObj.timeBreakParts);
+      if (dataObj.stockMovements && Array.isArray(dataObj.stockMovements)) setStockMovements(dataObj.stockMovements);
       if (dataObj.plannedProductionTimes && Array.isArray(dataObj.plannedProductionTimes)) {
         setPlannedProductionTimes(dataObj.plannedProductionTimes);
       }
@@ -1184,6 +1265,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       settings, setSettings,
       spareParts, setSpareParts,
       timeBreakParts, setTimeBreakParts,
+      stockMovements, setStockMovements,
+      recordStockChange,
       plannedProductionTimes, setPlannedProductionTimes,
       zones, setZones,
       whyWhyDrafts, setWhyWhyDrafts,

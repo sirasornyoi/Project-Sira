@@ -9,10 +9,10 @@ import {
   ArrowRight, ShieldAlert, Edit2, Trash2, CheckCircle2, 
   X, History, Cpu, FileSpreadsheet, Sparkles, ClipboardCheck,
   FolderOpen, Folder, Copy, Check, Boxes, Download, Upload, FileUp, FileCheck,
-  Package, AlertCircle
+  Package, AlertCircle, ArrowUpDown, ArrowDownRight, ArrowUpRight, ShoppingCart, SlidersHorizontal
 } from 'lucide-react';
 export const TimeBreakPage: React.FC = () => {
-  const { machines, spareParts, setSpareParts, timeBreakParts, setTimeBreakParts, technicians } = useApp();
+  const { machines, spareParts, setSpareParts, timeBreakParts, setTimeBreakParts, technicians, stockMovements, recordStockChange } = useApp();
 
   // Month filter for current month table
   const currentYearMonth = '2026-09';
@@ -76,6 +76,40 @@ export const TimeBreakPage: React.FC = () => {
     });
   };
 
+  // Tab navigation: 'parts' (รายการเปลี่ยนอะไหล่) | 'stock' (Stock)
+  const [timeBreakTab, setTimeBreakTab] = useState<'parts' | 'stock'>('parts');
+
+  // Stock Quick Adjustment Modal states (Section 6.b)
+  const [quickAdjustPart, setQuickAdjustPart] = useState<SparePart | null>(null);
+  const [quickAdjustType, setQuickAdjustType] = useState<'IN' | 'ADJUST'>('IN');
+  const [quickAdjustMode, setQuickAdjustMode] = useState<'add' | 'set'>('add'); // 'add' (+/-) vs 'set' (exact new balance)
+  const [quickAdjustQty, setQuickAdjustQty] = useState<number>(1);
+  const [quickAdjustNewBalance, setQuickAdjustNewBalance] = useState<number>(0);
+  const [quickAdjustTech, setQuickAdjustTech] = useState<string>(technicians[0] || 'ช่าง 1');
+  const [quickAdjustDate, setQuickAdjustDate] = useState<string>(getTodayDateString());
+  const [quickAdjustNote, setQuickAdjustNote] = useState<string>('');
+
+  // Stock Card filter & search state (Section 6.c)
+  const [stockCardPartFilter, setStockCardPartFilter] = useState<string>('all');
+  const [stockCardTypeFilter, setStockCardTypeFilter] = useState<'all' | 'IN' | 'OUT' | 'ADJUST'>('all');
+  const [stockCardSearch, setStockCardSearch] = useState<string>('');
+  const [stockOverviewSearch, setStockOverviewSearch] = useState<string>('');
+
+  // Copy urgent list feedback
+  const [copiedUrgentList, setCopiedUrgentList] = useState<boolean>(false);
+
+  // Check if due within 30 days (or overdue)
+  const isDueWithin30Days = (nextDueDate: string): boolean => {
+    if (!nextDueDate) return false;
+    const target = new Date();
+    target.setDate(target.getDate() + 30);
+    const y = target.getFullYear();
+    const m = String(target.getMonth() + 1).padStart(2, '0');
+    const d = String(target.getDate()).padStart(2, '0');
+    const limitDate = `${y}-${m}-${d}`;
+    return nextDueDate <= limitDate;
+  };
+
   // Helper to find linked SparePart from warehouse inventory
   const getLinkedSpare = (part: TimeBreakPartItem): SparePart | undefined => {
     if (part.sparePartId) {
@@ -86,6 +120,176 @@ export const TimeBreakPage: React.FC = () => {
     }
     return undefined;
   };
+
+  // Section 6.a: Aggregated overview of spare parts linked to Time-Break
+  const linkedSpareStats = useMemo(() => {
+    const map = new Map<string, {
+      spare: SparePart;
+      timeBreakItems: TimeBreakPartItem[];
+      machineIds: Set<string>;
+      needIn30Days: number;
+    }>();
+
+    timeBreakParts.forEach(tb => {
+      const sp = getLinkedSpare(tb);
+      if (!sp) return;
+
+      if (!map.has(sp.id)) {
+        map.set(sp.id, {
+          spare: sp,
+          timeBreakItems: [],
+          machineIds: new Set<string>(),
+          needIn30Days: 0
+        });
+      }
+
+      const entry = map.get(sp.id)!;
+      entry.timeBreakItems.push(tb);
+      if (tb.machineId) entry.machineIds.add(tb.machineId);
+
+      const qty = tb.qtyPerReplace && tb.qtyPerReplace > 0 ? tb.qtyPerReplace : 1;
+      if (isDueWithin30Days(tb.nextDueDate)) {
+        entry.needIn30Days += qty;
+      }
+    });
+
+    return Array.from(map.values()).map(item => {
+      const freshSpare = spareParts.find(s => s.id === item.spare.id) || item.spare;
+      const shortage = Math.max(0, item.needIn30Days - freshSpare.quantity);
+      return {
+        spare: freshSpare,
+        machineCount: item.machineIds.size,
+        itemCount: item.timeBreakItems.length,
+        timeBreakItems: item.timeBreakItems,
+        needIn30Days: item.needIn30Days,
+        shortage
+      };
+    }).sort((a, b) => {
+      if (b.shortage !== a.shortage) return b.shortage - a.shortage;
+      return a.spare.id.localeCompare(b.spare.id);
+    });
+  }, [timeBreakParts, spareParts]);
+
+  // Section 6.d: Urgent Purchase items (stock < minRequired OR shortage > 0)
+  const urgentPurchaseList = useMemo(() => {
+    return linkedSpareStats.filter(item => item.spare.quantity < item.spare.minRequired || item.shortage > 0);
+  }, [linkedSpareStats]);
+
+  const handleCopyUrgentList = () => {
+    if (urgentPurchaseList.length === 0) return;
+    const today = getTodayDateString();
+    const lines = [
+      `📋 รายการอะไหล่ Time-Break ที่ต้องสั่งซื้อด่วน (ณ วันที่ ${today})`,
+      `--------------------------------------------------`,
+      ...urgentPurchaseList.map((item, idx) => {
+        const sp = item.spare;
+        const reasons: string[] = [];
+        if (sp.quantity < sp.minRequired) {
+          reasons.push(`ต่ำกว่าเกณฑ์ Min (${sp.quantity}/${sp.minRequired} ${sp.unit})`);
+        }
+        if (item.shortage > 0) {
+          reasons.push(`ขาดสำหรับรอบ 30 วัน ${item.shortage} ${sp.unit} (ต้องใช้ ${item.needIn30Days} ${sp.unit})`);
+        }
+        return `${idx + 1}. [${sp.id}] ${sp.name} | คงเหลือ: ${sp.quantity} ${sp.unit} | Min: ${sp.minRequired} | ต้องใช้ 30 วัน: ${item.needIn30Days} ${sp.unit} | ขาด: ${item.shortage} ${sp.unit} (${reasons.join(', ')})`;
+      }),
+      `--------------------------------------------------`,
+      `รวมรายการที่ต้องจัดซื้อ: ${urgentPurchaseList.length} รายการ`
+    ];
+    navigator.clipboard.writeText(lines.join('\n'));
+    setCopiedUrgentList(true);
+    setTimeout(() => setCopiedUrgentList(false), 3000);
+  };
+
+  // Section 6.b: Quick adjustment handlers
+  const handleOpenQuickAdjust = (part: SparePart, defaultType: 'IN' | 'ADJUST' = 'IN') => {
+    setQuickAdjustPart(part);
+    setQuickAdjustType(defaultType);
+    setQuickAdjustMode('add');
+    setQuickAdjustQty(1);
+    setQuickAdjustNewBalance(part.quantity);
+    setQuickAdjustTech(technicians[0] || 'ช่าง 1');
+    setQuickAdjustDate(getTodayDateString());
+    setQuickAdjustNote('');
+  };
+
+  const handleConfirmQuickAdjust = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!quickAdjustPart) return;
+
+    if (quickAdjustType === 'IN') {
+      const qty = Math.max(1, Number(quickAdjustQty) || 1);
+      recordStockChange(quickAdjustPart.id, qty, {
+        type: 'IN',
+        source: 'TimeBreak',
+        date: quickAdjustDate,
+        byTech: quickAdjustTech,
+        note: quickAdjustNote.trim() || undefined
+      });
+      setCopyFeedbackMsg(`รับเข้าอะไหล่ [${quickAdjustPart.id}] ${quickAdjustPart.name} จำนวน +${qty} ${quickAdjustPart.unit} เรียบร้อยแล้ว`);
+    } else {
+      let delta = 0;
+      if (quickAdjustMode === 'set') {
+        const target = Math.max(0, Number(quickAdjustNewBalance) || 0);
+        delta = target - quickAdjustPart.quantity;
+      } else {
+        delta = Number(quickAdjustQty) || 0;
+      }
+
+      recordStockChange(quickAdjustPart.id, delta, {
+        type: 'ADJUST',
+        source: 'TimeBreak',
+        date: quickAdjustDate,
+        byTech: quickAdjustTech,
+        note: quickAdjustNote.trim() || undefined
+      });
+      setCopyFeedbackMsg(`ปรับยอดสต็อกอะไหล่ [${quickAdjustPart.id}] ${quickAdjustPart.name} (${delta >= 0 ? '+' : ''}${delta} ${quickAdjustPart.unit}) เรียบร้อยแล้ว`);
+    }
+
+    setTimeout(() => setCopyFeedbackMsg(null), 4000);
+    setQuickAdjustPart(null);
+  };
+
+  // Section 6.c: Filtered stock card movements
+  const filteredStockMovements = useMemo(() => {
+    return stockMovements
+      .filter(sm => {
+        if (stockCardPartFilter !== 'all' && sm.sparePartId !== stockCardPartFilter) {
+          return false;
+        }
+        if (stockCardTypeFilter !== 'all' && sm.type !== stockCardTypeFilter) {
+          return false;
+        }
+        if (stockCardSearch.trim()) {
+          const q = stockCardSearch.trim().toLowerCase();
+          const targetSpare = spareParts.find(s => s.id === sm.sparePartId);
+          const matchCode = (sm.sparePartId || '').toLowerCase().includes(q);
+          const matchName = (targetSpare?.name || '').toLowerCase().includes(q);
+          const matchTech = (sm.byTech || '').toLowerCase().includes(q);
+          const matchMach = (sm.machineId || '').toLowerCase().includes(q);
+          const matchNote = (sm.note || '').toLowerCase().includes(q);
+          const matchSource = (sm.source || '').toLowerCase().includes(q);
+          if (!matchCode && !matchName && !matchTech && !matchMach && !matchNote && !matchSource) {
+            return false;
+          }
+        }
+        return true;
+      })
+      .sort((a, b) => {
+        const dateComp = (b.date || '').localeCompare(a.date || '');
+        if (dateComp !== 0) return dateComp;
+        return (b.createdAt || '').localeCompare(a.createdAt || '');
+      });
+  }, [stockMovements, stockCardPartFilter, stockCardTypeFilter, stockCardSearch, spareParts]);
+
+  const filteredLinkedSpareStats = useMemo(() => {
+    if (!stockOverviewSearch.trim()) return linkedSpareStats;
+    const q = stockOverviewSearch.trim().toLowerCase();
+    return linkedSpareStats.filter(item => {
+      return item.spare.id.toLowerCase().includes(q) ||
+        item.spare.name.toLowerCase().includes(q) ||
+        (item.spare.category || '').toLowerCase().includes(q);
+    });
+  }, [linkedSpareStats, stockOverviewSearch]);
 
   // Sorted spare parts prioritizing parts registered to currently selected machine
   const sortedSpareParts = useMemo(() => {
@@ -622,6 +826,7 @@ export const TimeBreakPage: React.FC = () => {
 
     // Prepare stock deduction & used parts record
     let usedPartsRecord: { partId: string; quantity: number; pricePerUnit: number; totalCost: number }[] | undefined = undefined;
+    const historyRecordId = `h-${Date.now()}`;
 
     if (replaceDeductStock && linked) {
       const deductQty = Math.max(1, replaceQty);
@@ -633,20 +838,18 @@ export const TimeBreakPage: React.FC = () => {
         totalCost: deductQty * unitPrice
       }];
 
-      // Deduct from inventory (preserve lastRestockedDate)
-      setSpareParts(prev => prev.map(sp => {
-        if (sp.id === linked.id) {
-          return {
-            ...sp,
-            quantity: Math.max(0, sp.quantity - deductQty)
-          };
-        }
-        return sp;
-      }));
+      recordStockChange(linked.id, -deductQty, {
+        type: 'OUT',
+        source: 'TimeBreak',
+        refId: historyRecordId,
+        machineId: replacingPart.machineId,
+        byTech: replacementTech,
+        date: replacementDate
+      });
     }
 
     const historyRecord: TimeBreakHistoryRecord = {
-      id: `h-${Date.now()}`,
+      id: historyRecordId,
       replacedDate: replacementDate,
       cycleNumber: nextCycleNumber,
       technician: replacementTech,
@@ -1159,7 +1362,54 @@ export const TimeBreakPage: React.FC = () => {
               </button>
             </div>
           )}
-          
+
+          {/* TAB NAVIGATION: รายการเปลี่ยนอะไหล่ | Stock */}
+          <div className="flex items-center gap-2 border-b border-border dark:border-slate-800 pb-3">
+            <button
+              id="tab-tb-parts"
+              onClick={() => setTimeBreakTab('parts')}
+              className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
+                timeBreakTab === 'parts'
+                  ? 'bg-amber-500 text-slate-950 shadow-md font-black'
+                  : 'bg-surface hover:bg-slate-100 dark:bg-slate-900/80 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 border border-border dark:border-slate-800'
+              }`}
+            >
+              <Clock className="w-4 h-4" />
+              <span>รายการเปลี่ยนอะไหล่</span>
+              <span className={`text-[11px] px-2 py-0.5 rounded-full font-bold ${
+                timeBreakTab === 'parts' ? 'bg-slate-950/20 text-slate-950' : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+              }`}>
+                {timeBreakParts.length}
+              </span>
+            </button>
+
+            <button
+              id="tab-tb-stock"
+              onClick={() => setTimeBreakTab('stock')}
+              className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
+                timeBreakTab === 'stock'
+                  ? 'bg-cyan-600 text-white shadow-md font-black'
+                  : 'bg-surface hover:bg-slate-100 dark:bg-slate-900/80 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 border border-border dark:border-slate-800'
+              }`}
+            >
+              <Package className="w-4 h-4" />
+              <span>Stock & สต็อกการ์ด</span>
+              {monthKpis.shortagePartsCount > 0 ? (
+                <span className="text-[11px] px-2 py-0.5 rounded-full font-black bg-rose-500 text-white animate-pulse">
+                  ขาด {monthKpis.shortagePartsCount}
+                </span>
+              ) : (
+                <span className={`text-[11px] px-2 py-0.5 rounded-full font-bold ${
+                  timeBreakTab === 'stock' ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                }`}>
+                  {linkedSpareStats.length} อะไหล่
+                </span>
+              )}
+            </button>
+          </div>
+
+          {timeBreakTab === 'parts' && (
+            <>
           {/* 2. STATS & MONTH SUMMARY CARDS */}
           <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
             <div className="p-4 rounded-xl bg-surface dark:bg-slate-900/90 border border-border dark:border-slate-800/80 flex items-center justify-between">
@@ -1913,6 +2163,383 @@ export const TimeBreakPage: React.FC = () => {
               </table>
             </div>
           </div>
+            </>
+          )}
+
+          {timeBreakTab === 'stock' && (
+            <div className="space-y-6 animate-in fade-in duration-150">
+              {/* d) การ์ดแจ้งเตือน "รายการที่ต้องสั่งซื้อด่วน" */}
+              {urgentPurchaseList.length > 0 && (
+                <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-rose-500/10 via-amber-500/10 to-transparent border border-rose-500/30 shadow-sm space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2.5 bg-rose-500/20 text-rose-600 dark:text-rose-400 rounded-xl border border-rose-500/30 shrink-0">
+                        <AlertTriangle className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white flex items-center gap-2 flex-wrap">
+                          <span>รายการอะไหล่ Time-Break ที่ต้องสั่งซื้อด่วน</span>
+                          <span className="px-2 py-0.5 rounded-full text-xs font-black bg-rose-500 text-white">
+                            {urgentPurchaseList.length} รายการ
+                          </span>
+                        </h3>
+                        <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
+                          พบอะไหล่ที่คงเหลือต่ำกว่าเกณฑ์ Min หรือยอดคงเหลือไม่พอกับรอบเปลี่ยนอะไหล่ภายใน 30 วันข้างหน้า
+                        </p>
+                      </div>
+                    </div>
+
+                    <button
+                      id="btn-copy-urgent-tb-stock"
+                      onClick={handleCopyUrgentList}
+                      className="px-3.5 py-2 text-xs font-bold rounded-xl bg-rose-600 hover:bg-rose-500 text-white flex items-center gap-1.5 transition-all shadow-md cursor-pointer shrink-0 self-start sm:self-auto"
+                      title="คัดลอกรายการสั่งซื้อสำหรับส่งให้แผนกจัดซื้อ"
+                    >
+                      {copiedUrgentList ? (
+                        <>
+                          <Check className="w-4 h-4 text-white" />
+                          <span>คัดลอกรายการแล้ว!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-4 h-4" />
+                          <span>คัดลอกรายการสำหรับส่งจัดซื้อ</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+
+                  {/* Quick list of urgent items */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5 pt-1">
+                    {urgentPurchaseList.map(item => (
+                      <div
+                        key={item.spare.id}
+                        className="p-3 rounded-xl bg-surface/90 dark:bg-slate-900/90 border border-rose-500/20 flex items-center justify-between gap-3 shadow-xs"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="font-mono text-xs font-bold text-rose-700 dark:text-rose-400">
+                              {item.spare.id}
+                            </span>
+                            <span className="text-xs font-bold text-slate-900 dark:text-white truncate" title={item.spare.name}>
+                              {item.spare.name}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 mt-1 text-[11px] text-slate-600 dark:text-slate-400 flex-wrap">
+                            <span>คงเหลือ: <strong className={item.spare.quantity < item.spare.minRequired ? 'text-rose-600 dark:text-rose-400 font-bold' : 'text-slate-800 dark:text-slate-200'}>{item.spare.quantity}</strong>/{item.spare.minRequired} {item.spare.unit}</span>
+                            {item.shortage > 0 && (
+                              <span className="px-1.5 py-0.2 rounded font-bold bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 border border-rose-300 dark:border-rose-800">
+                                ขาด {item.shortage} {item.spare.unit}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => handleOpenQuickAdjust(item.spare, 'IN')}
+                          className="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white shrink-0 cursor-pointer shadow-xs"
+                          title="รับเข้าสต็อกด่วน"
+                        >
+                          + รับเข้า
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* a) ภาพรวม: ตารางเฉพาะ SparePart ที่ถูกผูกกับ Time-Break */}
+              <div className="bg-surface dark:bg-slate-900/90 border border-border dark:border-slate-800/80 rounded-2xl shadow-sm overflow-hidden">
+                {/* Header with Search */}
+                <div className="p-4 sm:p-5 border-b border-border dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <h3 className="text-base font-bold text-slate-950 dark:text-white flex items-center gap-2">
+                      <Package className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />
+                      <span>ภาพรวมสต็อกอะไหล่ Time-Break</span>
+                      <span className="text-xs px-2 py-0.5 rounded-full font-bold bg-cyan-100 dark:bg-cyan-950/80 text-cyan-800 dark:text-cyan-300 border border-cyan-300 dark:border-cyan-800">
+                        ผูกทั้งหมด {linkedSpareStats.length} รายการ
+                      </span>
+                    </h3>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
+                      แสดงเฉพาะรายการอะไหล่ในคลังที่ถูกผูกกับระบบเปลี่ยนรอบเวลา (Time-Break) พร้อมคำนวณยอดที่ต้องใช้ใน 30 วัน
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <div className="relative w-full sm:w-64">
+                      <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                      <input
+                        type="text"
+                        value={stockOverviewSearch}
+                        onChange={e => setStockOverviewSearch(e.target.value)}
+                        placeholder="ค้นหารหัส, ชื่ออะไหล่..."
+                        className="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 dark:bg-slate-800/70 border border-slate-300 dark:border-slate-700 rounded-xl text-fg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Table */}
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs text-slate-700 dark:text-slate-300">
+                    <thead className="bg-slate-100/80 dark:bg-slate-800/60 text-slate-900 dark:text-slate-100 font-bold border-b border-border dark:border-slate-800">
+                      <tr>
+                        <th className="py-3 px-3.5">รหัสอะไหล่</th>
+                        <th className="py-3 px-3.5">ชื่ออะไหล่</th>
+                        <th className="py-3 px-3.5 text-center">คงเหลือ</th>
+                        <th className="py-3 px-3.5 text-center">Min</th>
+                        <th className="py-3 px-3.5">ใช้ใน</th>
+                        <th className="py-3 px-3.5 text-center">ต้องใช้ใน 30 วัน</th>
+                        <th className="py-3 px-3.5 text-center">ขาด</th>
+                        <th className="py-3 px-3.5 text-right">จัดการ</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border/60 dark:divide-slate-800/60">
+                      {filteredLinkedSpareStats.length === 0 ? (
+                        <tr>
+                          <td colSpan={8} className="py-8 text-center text-slate-500">
+                            {stockOverviewSearch ? 'ไม่พบอะไหล่ตามคำค้นหา' : 'ยังไม่มีอะไหล่ Time-Break ที่ผูกกับคลังอะไหล่ (เลือกผูกอะไหล่ในคลังตอนเพิ่ม/แก้ไขอะไหล่)'}
+                          </td>
+                        </tr>
+                      ) : (
+                        filteredLinkedSpareStats.map(item => {
+                          const sp = item.spare;
+                          const isBelowMin = sp.quantity < sp.minRequired;
+                          const hasShortage = item.shortage > 0;
+                          return (
+                            <tr key={sp.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                              <td className="py-3 px-3.5 font-mono font-bold text-cyan-700 dark:text-cyan-400 whitespace-nowrap">
+                                {sp.id}
+                              </td>
+                              <td className="py-3 px-3.5">
+                                <div className="font-bold text-slate-900 dark:text-slate-100">{sp.name}</div>
+                                <div className="text-[11px] text-slate-500">{sp.category || 'ทั่วไป'} | {sp.location || '-'}</div>
+                              </td>
+                              <td className="py-3 px-3.5 text-center whitespace-nowrap">
+                                <span className={`inline-block px-2.5 py-0.5 rounded-full font-bold text-xs ${
+                                  isBelowMin
+                                    ? 'bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 border border-rose-300 dark:border-rose-800'
+                                    : 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300'
+                                }`}>
+                                  {sp.quantity} {sp.unit}
+                                </span>
+                              </td>
+                              <td className="py-3 px-3.5 text-center font-medium whitespace-nowrap">
+                                {sp.minRequired} {sp.unit}
+                              </td>
+                              <td className="py-3 px-3.5 whitespace-nowrap">
+                                <span className="font-semibold text-slate-800 dark:text-slate-200">
+                                  {item.machineCount} เครื่อง
+                                </span>
+                                <span className="text-slate-500 text-[11px] ml-1">
+                                  ({item.itemCount} จุดเปลี่ยน)
+                                </span>
+                              </td>
+                              <td className="py-3 px-3.5 text-center font-semibold whitespace-nowrap">
+                                {item.needIn30Days > 0 ? (
+                                  <span className="text-amber-700 dark:text-amber-300 font-bold">
+                                    {item.needIn30Days} {sp.unit}
+                                  </span>
+                                ) : (
+                                  <span className="text-slate-400">-</span>
+                                )}
+                              </td>
+                              <td className="py-3 px-3.5 text-center whitespace-nowrap">
+                                {hasShortage ? (
+                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-black bg-rose-600 text-white animate-pulse">
+                                    <AlertTriangle className="w-3 h-3" />
+                                    ขาด {item.shortage} {sp.unit}
+                                  </span>
+                                ) : (
+                                  <span className="text-emerald-600 dark:text-emerald-400 font-bold text-xs">
+                                    พอใช้ ✓
+                                  </span>
+                                )}
+                              </td>
+                              <td className="py-3 px-3.5 text-right whitespace-nowrap">
+                                <div className="inline-flex items-center gap-1.5">
+                                  <button
+                                    onClick={() => handleOpenQuickAdjust(sp, 'IN')}
+                                    className="px-2.5 py-1 text-xs font-bold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white transition-all shadow-xs cursor-pointer"
+                                    title="รับเข้าอะไหล่"
+                                  >
+                                    + รับเข้า
+                                  </button>
+                                  <button
+                                    onClick={() => handleOpenQuickAdjust(sp, 'ADJUST')}
+                                    className="px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 transition-all cursor-pointer"
+                                    title="ปรับยอดสต็อก"
+                                  >
+                                    ปรับยอด
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* c) Stock Card: ตารางประวัติการเคลื่อนไหวสต็อก */}
+              <div className="bg-surface dark:bg-slate-900/90 border border-border dark:border-slate-800/80 rounded-2xl shadow-sm overflow-hidden">
+                {/* Header with Filters */}
+                <div className="p-4 sm:p-5 border-b border-border dark:border-slate-800 space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                      <h3 className="text-base font-bold text-slate-950 dark:text-white flex items-center gap-2">
+                        <History className="w-5 h-5 text-indigo-500" />
+                        <span>Stock Card (ประวัติเข้า-ออกและการปรับยอด)</span>
+                        <span className="text-xs px-2 py-0.5 rounded-full font-bold bg-indigo-100 dark:bg-indigo-950 text-indigo-800 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-800">
+                          {filteredStockMovements.length} รายการ
+                        </span>
+                      </h3>
+                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
+                        บันทึกการตัดสต็อกอัตโนมัติจากการเปลี่ยนอะไหล่ Time-Break, การรับเข้า, และการปรับยอดสต็อก
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {/* Filter by Part */}
+                      <select
+                        value={stockCardPartFilter}
+                        onChange={e => setStockCardPartFilter(e.target.value)}
+                        className="text-xs bg-slate-50 dark:bg-slate-800/70 border border-slate-300 dark:border-slate-700 rounded-xl px-2.5 py-1.5 text-fg focus:outline-none focus:ring-2 focus:ring-cyan-500 cursor-pointer max-w-[200px]"
+                      >
+                        <option value="all">อะไหล่ทั้งหมด ({linkedSpareStats.length})</option>
+                        {linkedSpareStats.map(item => (
+                          <option key={item.spare.id} value={item.spare.id}>
+                            {item.spare.id}: {item.spare.name}
+                          </option>
+                        ))}
+                      </select>
+
+                      {/* Filter by Type */}
+                      <select
+                        value={stockCardTypeFilter}
+                        onChange={e => setStockCardTypeFilter(e.target.value as any)}
+                        className="text-xs bg-slate-50 dark:bg-slate-800/70 border border-slate-300 dark:border-slate-700 rounded-xl px-2.5 py-1.5 text-fg focus:outline-none focus:ring-2 focus:ring-cyan-500 cursor-pointer"
+                      >
+                        <option value="all">ประเภททั้งหมด</option>
+                        <option value="IN">รับเข้า (IN)</option>
+                        <option value="OUT">ตัดออก/เบิก (OUT)</option>
+                        <option value="ADJUST">ปรับยอด (ADJUST)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Search row */}
+                  <div className="relative">
+                    <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                    <input
+                      type="text"
+                      value={stockCardSearch}
+                      onChange={e => setStockCardSearch(e.target.value)}
+                      placeholder="ค้นหาตามรหัสอะไหล่, ชื่อ, เครื่องจักร, ช่างผู้ทำรายการ, หรือหมายเหตุ..."
+                      className="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 dark:bg-slate-800/70 border border-slate-300 dark:border-slate-700 rounded-xl text-fg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    />
+                  </div>
+                </div>
+
+                {/* Table */}
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs text-slate-700 dark:text-slate-300">
+                    <thead className="bg-slate-100/80 dark:bg-slate-800/60 text-slate-900 dark:text-slate-100 font-bold border-b border-border dark:border-slate-800">
+                      <tr>
+                        <th className="py-3 px-3.5 whitespace-nowrap">วันที่</th>
+                        <th className="py-3 px-3.5 whitespace-nowrap">รหัสอะไหล่</th>
+                        <th className="py-3 px-3.5 whitespace-nowrap">ชื่ออะไหล่</th>
+                        <th className="py-3 px-3.5 text-center whitespace-nowrap">ประเภท</th>
+                        <th className="py-3 px-3.5 text-center whitespace-nowrap">จำนวน</th>
+                        <th className="py-3 px-3.5 text-center whitespace-nowrap">คงเหลือหลังทำรายการ</th>
+                        <th className="py-3 px-3.5 whitespace-nowrap">ที่มา</th>
+                        <th className="py-3 px-3.5 whitespace-nowrap">เครื่องจักร</th>
+                        <th className="py-3 px-3.5 whitespace-nowrap">ช่างผู้ทำรายการ</th>
+                        <th className="py-3 px-3.5">หมายเหตุ</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border/60 dark:divide-slate-800/60">
+                      {filteredStockMovements.length === 0 ? (
+                        <tr>
+                          <td colSpan={10} className="py-10 text-center text-slate-500 space-y-1">
+                            <Boxes className="w-8 h-8 mx-auto text-slate-400 mb-1" />
+                            <div>ยังไม่มีประวัติการเคลื่อนไหวสต็อก</div>
+                            <div className="text-[11px] text-slate-400">
+                              เมื่อมีการตัดสต็อกจากการเปลี่ยนอะไหล่ Time-Break หรือรับเข้า/ปรับยอด ประวัติจะแสดงที่นี่
+                            </div>
+                          </td>
+                        </tr>
+                      ) : (
+                        filteredStockMovements.map(sm => {
+                          const targetSpare = spareParts.find(s => s.id === sm.sparePartId);
+                          return (
+                            <tr key={sm.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                              <td className="py-2.5 px-3.5 whitespace-nowrap font-medium">
+                                {sm.date}
+                              </td>
+                              <td className="py-2.5 px-3.5 font-mono font-bold text-cyan-700 dark:text-cyan-400 whitespace-nowrap">
+                                {sm.sparePartId}
+                              </td>
+                              <td className="py-2.5 px-3.5 font-medium text-slate-900 dark:text-slate-100 whitespace-nowrap">
+                                {targetSpare?.name || sm.sparePartId}
+                              </td>
+                              <td className="py-2.5 px-3.5 text-center whitespace-nowrap">
+                                {sm.type === 'IN' && (
+                                  <span className="px-2 py-0.5 rounded-full font-bold text-[11px] bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
+                                    IN (รับเข้า)
+                                  </span>
+                                )}
+                                {sm.type === 'OUT' && (
+                                  <span className="px-2 py-0.5 rounded-full font-bold text-[11px] bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-300 border border-rose-300 dark:border-rose-800">
+                                    OUT (ตัดออก)
+                                  </span>
+                                )}
+                                {sm.type === 'ADJUST' && (
+                                  <span className="px-2 py-0.5 rounded-full font-bold text-[11px] bg-sky-100 dark:bg-sky-950 text-sky-800 dark:text-sky-300 border border-sky-300 dark:border-sky-800">
+                                    ADJUST (ปรับยอด)
+                                  </span>
+                                )}
+                              </td>
+                              <td className="py-2.5 px-3.5 text-center font-bold whitespace-nowrap">
+                                {sm.type === 'IN' && (
+                                  <span className="text-emerald-600 dark:text-emerald-400">+{sm.quantity}</span>
+                                )}
+                                {sm.type === 'OUT' && (
+                                  <span className="text-rose-600 dark:text-rose-400">-{sm.quantity}</span>
+                                )}
+                                {sm.type === 'ADJUST' && (
+                                  <span className="text-sky-600 dark:text-sky-400">{sm.quantity}</span>
+                                )}
+                                <span className="text-slate-400 font-normal ml-1">{targetSpare?.unit || 'ชิ้น'}</span>
+                              </td>
+                              <td className="py-2.5 px-3.5 text-center font-mono font-bold whitespace-nowrap text-slate-900 dark:text-slate-100">
+                                {sm.balanceAfter} <span className="text-slate-400 font-normal text-[11px]">{targetSpare?.unit || 'ชิ้น'}</span>
+                              </td>
+                              <td className="py-2.5 px-3.5 whitespace-nowrap">
+                                <span className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                                  {sm.source}
+                                </span>
+                              </td>
+                              <td className="py-2.5 px-3.5 font-mono text-slate-600 dark:text-slate-300 whitespace-nowrap">
+                                {sm.machineId || '-'}
+                              </td>
+                              <td className="py-2.5 px-3.5 text-slate-700 dark:text-slate-300 whitespace-nowrap">
+                                {sm.byTech || '-'}
+                              </td>
+                              <td className="py-2.5 px-3.5 text-slate-500 text-[11px] max-w-xs truncate" title={sm.note}>
+                                {sm.note || '-'}
+                              </td>
+                            </tr>
+                          );
+                        })
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
       {/* 5. MODAL: รายละเอียดและระบุ PART ของตัวเครื่อง (เมื่อกดไปที่ตัวเครื่อง) */}
@@ -3104,6 +3731,250 @@ export const TimeBreakPage: React.FC = () => {
                 ยืนยันคัดลอก
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* b) Quick modal: รับเข้า / ปรับยอดสต็อกอะไหล่ */}
+      {quickAdjustPart && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-bg/80 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-surface dark:bg-[#0f172a] border border-border dark:border-slate-700 rounded-2xl w-full max-w-lg flex flex-col shadow-2xl overflow-hidden">
+            {/* Modal Header */}
+            <div className="p-4 sm:p-5 border-b border-border dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-900">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 bg-cyan-500/10 border border-cyan-500/30 rounded-lg text-cyan-600 dark:text-cyan-400">
+                  <Package className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-fg">
+                    {quickAdjustType === 'IN' ? 'รับเข้าอะไหล่สต็อก' : 'ปรับยอดคงเหลือในคลัง'}
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    [{quickAdjustPart.id}] {quickAdjustPart.name}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setQuickAdjustPart(null)}
+                className="p-1.5 text-slate-400 hover:text-fg rounded-lg transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Form */}
+            <form onSubmit={handleConfirmQuickAdjust} className="p-4 sm:p-6 space-y-4">
+              {/* Current status banner */}
+              <div className="p-3 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 flex items-center justify-between text-xs">
+                <div>
+                  <span className="text-slate-500">คงเหลือปัจจุบัน:</span>{' '}
+                  <strong className="text-slate-900 dark:text-white text-sm font-bold">
+                    {quickAdjustPart.quantity} {quickAdjustPart.unit}
+                  </strong>
+                </div>
+                <div>
+                  <span className="text-slate-500">Min:</span>{' '}
+                  <strong className="text-slate-700 dark:text-slate-300">
+                    {quickAdjustPart.minRequired} {quickAdjustPart.unit}
+                  </strong>
+                </div>
+              </div>
+
+              {/* Operation Type Switcher */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                  ประเภทรายการ
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setQuickAdjustType('IN')}
+                    className={`py-2 px-3 text-xs font-bold rounded-xl border transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                      quickAdjustType === 'IN'
+                        ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
+                        : 'bg-slate-50 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300'
+                    }`}
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>รับเข้าสต็อก (+IN)</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setQuickAdjustType('ADJUST')}
+                    className={`py-2 px-3 text-xs font-bold rounded-xl border transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                      quickAdjustType === 'ADJUST'
+                        ? 'bg-sky-600 text-white border-sky-600 shadow-sm'
+                        : 'bg-slate-50 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300'
+                    }`}
+                  >
+                    <SlidersHorizontal className="w-4 h-4" />
+                    <span>ปรับยอดสต็อก (ADJUST)</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* IN mode input */}
+              {quickAdjustType === 'IN' && (
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                    จำนวนที่รับเข้า ({quickAdjustPart.unit}) <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={quickAdjustQty}
+                    onChange={e => setQuickAdjustQty(Math.max(1, parseInt(e.target.value) || 1))}
+                    required
+                    className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-fg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                  <p className="text-[11px] text-emerald-600 dark:text-emerald-400 mt-1 font-semibold">
+                    → ยอดคงเหลือหลังรับเข้าจะเป็น: {quickAdjustPart.quantity + (Number(quickAdjustQty) || 0)} {quickAdjustPart.unit}
+                  </p>
+                </div>
+              )}
+
+              {/* ADJUST mode input */}
+              {quickAdjustType === 'ADJUST' && (
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                      วิธีกำหนดยอดปรับ
+                    </label>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <label className={`flex items-center gap-2 p-2.5 rounded-xl border cursor-pointer ${
+                        quickAdjustMode === 'set'
+                          ? 'border-sky-500 bg-sky-500/10 font-bold text-sky-800 dark:text-sky-300'
+                          : 'border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400'
+                      }`}>
+                        <input
+                          type="radio"
+                          name="adjMode"
+                          checked={quickAdjustMode === 'set'}
+                          onChange={() => setQuickAdjustMode('set')}
+                          className="cursor-pointer"
+                        />
+                        <span>ระบุยอดคงเหลือใหม่</span>
+                      </label>
+                      <label className={`flex items-center gap-2 p-2.5 rounded-xl border cursor-pointer ${
+                        quickAdjustMode === 'add'
+                          ? 'border-sky-500 bg-sky-500/10 font-bold text-sky-800 dark:text-sky-300'
+                          : 'border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400'
+                      }`}>
+                        <input
+                          type="radio"
+                          name="adjMode"
+                          checked={quickAdjustMode === 'add'}
+                          onChange={() => setQuickAdjustMode('add')}
+                          className="cursor-pointer"
+                        />
+                        <span>เพิ่ม / ลด (+ / -)</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  {quickAdjustMode === 'set' ? (
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                        ยอดคงเหลือใหม่ที่ถูกต้อง ({quickAdjustPart.unit}) <span className="text-rose-500">*</span>
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={quickAdjustNewBalance}
+                        onChange={e => setQuickAdjustNewBalance(Math.max(0, parseInt(e.target.value) || 0))}
+                        required
+                        className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-fg focus:outline-none focus:ring-2 focus:ring-sky-500"
+                      />
+                      <p className="text-[11px] text-sky-600 dark:text-sky-400 mt-1 font-semibold">
+                        → ผลต่างจากการปรับ: {quickAdjustNewBalance - quickAdjustPart.quantity >= 0 ? '+' : ''}
+                        {quickAdjustNewBalance - quickAdjustPart.quantity} {quickAdjustPart.unit}
+                      </p>
+                    </div>
+                  ) : (
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                        จำนวนที่ต้องการปรับเพิ่ม/ลด (+/-) ({quickAdjustPart.unit}) <span className="text-rose-500">*</span>
+                      </label>
+                      <input
+                        type="number"
+                        value={quickAdjustQty}
+                        onChange={e => setQuickAdjustQty(parseInt(e.target.value) || 0)}
+                        required
+                        className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-fg focus:outline-none focus:ring-2 focus:ring-sky-500"
+                      />
+                      <p className="text-[11px] text-sky-600 dark:text-sky-400 mt-1 font-semibold">
+                        → ยอดคงเหลือใหม่จะเป็น: {Math.max(0, quickAdjustPart.quantity + (Number(quickAdjustQty) || 0))} {quickAdjustPart.unit}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Date & Tech */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                    วันที่ทำรายการ
+                  </label>
+                  <input
+                    type="date"
+                    value={quickAdjustDate}
+                    onChange={e => setQuickAdjustDate(e.target.value)}
+                    className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-fg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                    ช่างผู้ทำรายการ
+                  </label>
+                  <select
+                    value={quickAdjustTech}
+                    onChange={e => setQuickAdjustTech(e.target.value)}
+                    className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-fg focus:outline-none focus:ring-2 focus:ring-cyan-500 cursor-pointer"
+                  >
+                    {technicians.map(t => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Note */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                  หมายเหตุ / เหตุผลการทำรายการ
+                </label>
+                <input
+                  type="text"
+                  value={quickAdjustNote}
+                  onChange={e => setQuickAdjustNote(e.target.value)}
+                  placeholder="เช่น รับเข้าจาก PO#2026-09, ตรวจนับสต็อกประจำเดือน"
+                  className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-fg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                />
+              </div>
+
+              {/* Modal Actions */}
+              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-border dark:border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setQuickAdjustPart(null)}
+                  className="px-4 py-2 text-xs font-bold rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
+                >
+                  ยกเลิก
+                </button>
+                <button
+                  type="submit"
+                  className={`px-5 py-2 text-xs font-bold rounded-xl text-white shadow-md transition-all cursor-pointer ${
+                    quickAdjustType === 'IN'
+                      ? 'bg-emerald-600 hover:bg-emerald-500'
+                      : 'bg-sky-600 hover:bg-sky-500'
+                  }`}
+                >
+                  บันทึกรายการ
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

@@ -27,6 +27,7 @@ const ARRAY_COLLECTIONS = [
   "improvements",
   "spareParts",
   "timeBreakParts",
+  "stockMovements",
   "plannedProductionTimes",
   "whyWhyDrafts"
 ] as const;
@@ -44,6 +45,7 @@ interface AppData {
   improvements: any[];
   spareParts: any[];
   timeBreakParts: any[];
+  stockMovements: any[];
   plannedProductionTimes: any[];
   whyWhyDrafts: any[];
   technicians: string[];
@@ -61,6 +63,7 @@ let inMemoryData: AppData = {
   improvements: [],
   spareParts: [],
   timeBreakParts: [],
+  stockMovements: [],
   plannedProductionTimes: [],
   whyWhyDrafts: [],
   technicians: [],

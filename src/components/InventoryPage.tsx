@@ -11,7 +11,7 @@ import * as XLSX from 'xlsx';
 import { getTodayDateString } from '../utils/pmAlerts';
 
 export const InventoryPage: React.FC = () => {
-  const { spareParts, setSpareParts, machines } = useApp();
+  const { spareParts, setSpareParts, machines, recordStockChange } = useApp();
 
   // Selection state for spare parts (bulk operations)
   const [selectedPartIds, setSelectedPartIds] = useState<string[]>([]);
@@ -519,23 +519,13 @@ export const InventoryPage: React.FC = () => {
 
     const factor = adjustmentType === 'IN' ? 1 : -1;
     const change = adjustmentQty * factor;
-    const nextQty = Math.max(0, selectedPart.quantity + change);
 
-    const updatedParts = spareParts.map(p => {
-      if (p.id === selectedPart.id) {
-        return {
-          ...p,
-          quantity: nextQty,
-          lastRestockedDate: adjustmentType === 'IN' ? getTodayDateString() : p.lastRestockedDate,
-          specifications: adjustmentNote.trim() 
-            ? `${p.specifications || ''}\n[ปรับสต็อก ${adjustmentType} ${adjustmentQty} ${p.unit} - ${getTodayDateString()}: ${adjustmentNote}]`.trim()
-            : p.specifications
-        };
-      }
-      return p;
+    recordStockChange(selectedPart.id, change, {
+      type: adjustmentType === 'IN' ? 'IN' : 'OUT',
+      source: 'Inventory',
+      note: adjustmentNote.trim() || undefined
     });
 
-    setSpareParts(updatedParts);
     setShowStockModal(false);
     setSelectedPart(null);
   };
