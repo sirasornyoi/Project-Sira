@@ -48,8 +48,8 @@ export const PMHistoryPage: React.FC = () => {
   const [formDate, setFormDate] = useState('2026-06-10');
   const [formTechnician, setFormTechnician] = useState(technicians[0] || 'ช่าง 1');
   const [formTechnicians, setFormTechnicians] = useState<string[]>([]);
-  const [formDuration, setFormDuration] = useState<number>(30); // Std duration
-  const [formActualDuration, setFormActualDuration] = useState<number>(35); // Actual spent
+  const [formDuration, setFormDuration] = useState<number>(0); // Std duration
+  const [formActualDuration, setFormActualDuration] = useState<number>(0); // Actual spent
   const [formOvertimeReason, setFormOvertimeReason] = useState<string>(''); // Reason why PM took longer than standard
   const [formStatus, setFormStatus] = useState<'รอดำเนินการ' | 'กำลังทำ' | 'เสร็จสิ้น'>('เสร็จสิ้น');
 
@@ -126,12 +126,13 @@ export const PMHistoryPage: React.FC = () => {
     const relatedPlans = pmPlans.filter(p => p.machineId === mId);
     if (relatedPlans.length > 0) {
       setFormPlan(relatedPlans[0].id);
-      setFormDuration(relatedPlans[0].ttm || 30);
-      setFormActualDuration(relatedPlans[0].ttm || 30);
+      const planTtm = relatedPlans[0].ttm && relatedPlans[0].ttm > 0 ? relatedPlans[0].ttm : 0;
+      setFormDuration(planTtm);
+      setFormActualDuration(planTtm);
     } else {
       setFormPlan('');
-      setFormDuration(30);
-      setFormActualDuration(30);
+      setFormDuration(0);
+      setFormActualDuration(0);
     }
   };
 
@@ -140,8 +141,9 @@ export const PMHistoryPage: React.FC = () => {
     setFormPlan(planId);
     const selectedPlan = pmPlans.find(p => p.id === planId);
     if (selectedPlan) {
-      setFormDuration(selectedPlan.ttm || 30);
-      setFormActualDuration(selectedPlan.ttm || 30);
+      const planTtm = selectedPlan.ttm && selectedPlan.ttm > 0 ? selectedPlan.ttm : 0;
+      setFormDuration(planTtm);
+      setFormActualDuration(planTtm);
     }
   };
 
@@ -596,8 +598,12 @@ export const PMHistoryPage: React.FC = () => {
               const relativePlan = pmPlans[0];
               if (relativePlan) {
                 setFormMachine(relativePlan.machineId);
-                setFormDuration(relativePlan.ttm || 30);
-                setFormActualDuration(relativePlan.ttm || 30);
+                const planTtm = relativePlan.ttm && relativePlan.ttm > 0 ? relativePlan.ttm : 0;
+                setFormDuration(planTtm);
+                setFormActualDuration(planTtm);
+              } else {
+                setFormDuration(0);
+                setFormActualDuration(0);
               }
               setFormTechnicians([technicians[0] || 'ช่าง 1']);
               setFormStatus('เสร็จสิ้น');

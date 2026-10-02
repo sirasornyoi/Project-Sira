@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { RepairLog, Machine, PMScheduleItem } from '../types';
-import { getActualMinutes, getPlannedMinutes, getPmVariance } from '../utils/pmTime';
+import { getActualMinutes, getPlannedMinutes, getPmVariance, formatPmMinutes } from '../utils/pmTime';
 import { 
   BarChart as RechartsBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer
 } from 'recharts';
@@ -488,9 +488,14 @@ export const PresentationPage: React.FC = () => {
             ) : (
               completedPMs.map(pm => {
                 const plan = getLinkedPlan(pm as PMScheduleItem);
-                const planStd = plan ? plan.ttm : 45;
+                const effectivePm = {
+                  ...pm,
+                  duration: (pm.duration && pm.duration > 0) ? pm.duration : (plan?.ttm && plan.ttm > 0 ? plan.ttm : 0)
+                };
+                const planned = getPlannedMinutes(effectivePm);
                 const actual = getActualMinutes(pm);
-                const isDelayed = actual !== null && actual > planStd;
+                const variance = getPmVariance(effectivePm);
+                const isDelayed = variance !== null && variance.diffMins > 0;
                 const delayKey = pm.id;
                 const currentData = pmDelayDetails[delayKey] || { reason: '', why1: '', why2: '', why3: '', why4: '', why5: '', countermeasure: '' };
 
@@ -537,23 +542,23 @@ export const PresentationPage: React.FC = () => {
                           </div>
                           <div className="text-center px-2.5 py-2 bg-slate-900/60 rounded-lg border border-slate-800 min-w-[95px] duration-target-pill">
                             <div className="text-[9px] text-slate-500 font-black leading-none mb-1.5 uppercase tracking-wide">มาตรฐานแผน</div>
-                            <div className="font-mono text-sm text-slate-300 font-black leading-none">{planStd} น.</div>
+                            <div className="font-mono text-sm text-slate-300 font-black leading-none">{formatPmMinutes(planned)}</div>
                           </div>
                         </div>
                         
                         <div className={`px-2.5 py-1.5 rounded-lg text-xs font-black flex items-center gap-1 border ${
-                          actual === null
+                          variance === null
                             ? 'bg-slate-500/10 text-slate-400 border-slate-500/20'
                             : isDelayed 
                               ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' 
                               : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
                         }`}>
-                          {actual === null ? (
-                            <span>ไม่ได้ระบุเวลาจริง</span>
+                          {variance === null ? (
+                            <span>{planned === null ? 'ไม่ได้ระบุเวลามาตรฐาน' : 'ไม่ได้ระบุเวลาจริง'}</span>
                           ) : isDelayed ? (
                             <>
                               <AlertTriangle size={13} />
-                              <span>ช้ากว่าแผน +{actual - planStd}m</span>
+                              <span>ช้ากว่าแผน +{variance.diffMins}m</span>
                             </>
                           ) : (
                             <>

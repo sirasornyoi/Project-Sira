@@ -1189,51 +1189,43 @@ export const RepairPage: React.FC = () => {
                         </div>
                       </td>
                       <td className="py-4 px-3 text-center">
-                        <div className="flex flex-col items-center gap-1.5">
-                          {(() => {
-                            const whyWhy = r.whyWhy;
-                            const hasDirectWhyWhy = Boolean(whyWhy && whyWhy.branches && whyWhy.branches.length > 0);
-                            const hasLegacy = Boolean(r.why1 || r.why2 || r.why3 || r.why4 || r.why5);
-                            const analysis = whyWhy || (hasLegacy ? migrateLegacyWhyToTree(r) : null);
-                            const stats = analysis ? getWhyWhyAnalysisStats(analysis) : null;
-                            const hasRoot = stats ? stats.rootCauseCount > 0 : false;
+                        {(() => {
+                          const whyWhy = r.whyWhy;
+                          const hasDirectWhyWhy = Boolean(whyWhy && whyWhy.branches && whyWhy.branches.length > 0);
+                          const hasLegacy = Boolean(r.why1 || r.why2 || r.why3 || r.why4 || r.why5);
+                          const hasWhyWhy = hasDirectWhyWhy || hasLegacy;
+                          const analysis = whyWhy || (hasLegacy ? migrateLegacyWhyToTree(r) : null);
+                          const stats = analysis ? getWhyWhyAnalysisStats(analysis) : null;
+                          const hasRoot = stats ? stats.rootCauseCount > 0 : false;
 
-                            if (hasRoot) {
-                              return (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 whitespace-nowrap">
-                                  <CheckCircle2 size={10} />
-                                  <span>พบรากเหง้าแล้ว</span>
-                                </span>
-                              );
-                            }
-                            if (hasDirectWhyWhy || hasLegacy) {
-                              return (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-cyan-100 text-cyan-800 dark:bg-cyan-950/60 dark:text-cyan-300 border border-cyan-300 dark:border-cyan-800 whitespace-nowrap">
-                                  <GitFork size={10} />
-                                  <span>มีผัง Why-Why</span>
-                                </span>
-                              );
-                            }
+                          if (hasWhyWhy) {
                             return (
-                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9.5px] font-medium bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border border-slate-200 dark:border-slate-700 whitespace-nowrap">
-                                <span>ยังไม่มีผัง</span>
-                              </span>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setFocusedWhyWhyRepairId(r.id);
+                                  setActiveSubTab('whywhy');
+                                }}
+                                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold border transition cursor-pointer whitespace-nowrap shadow-2xs ${
+                                  hasRoot
+                                    ? 'bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800'
+                                    : 'bg-cyan-50 hover:bg-cyan-100 dark:bg-cyan-950/40 dark:hover:bg-cyan-900/60 text-cyan-700 dark:text-cyan-300 border-cyan-300 dark:border-cyan-800'
+                                }`}
+                                title="เปิดดู/แก้ไขผัง Why-Why ในแท็บผัง Why-Why"
+                              >
+                                {hasRoot ? <CheckCircle2 size={12} /> : <GitFork size={12} />}
+                                <span>ผัง WHY-WHY</span>
+                              </button>
                             );
-                          })()}
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setFocusedWhyWhyRepairId(r.id);
-                              setActiveSubTab('whywhy');
-                            }}
-                            className="inline-flex items-center gap-1 px-2 py-0.5 bg-cyan-50 hover:bg-cyan-100 dark:bg-cyan-950/40 dark:hover:bg-cyan-900/60 text-cyan-700 dark:text-cyan-300 rounded text-[10px] font-bold border border-cyan-200 dark:border-cyan-800 transition cursor-pointer whitespace-nowrap"
-                            title="เปิดดู/แก้ไขผัง Why-Why ในแท็บผัง Why-Why"
-                          >
-                            <GitFork size={10} />
-                            <span>ดู/แก้ Why-Why</span>
-                          </button>
-                        </div>
+                          }
+
+                          return (
+                            <span className="text-xs text-slate-400 dark:text-slate-500 font-medium">
+                              ไม่มีผัง
+                            </span>
+                          );
+                        })()}
                       </td>
                       <td className="py-4 px-3 text-right font-mono font-semibold text-cyan-700 dark:text-cyan-400 whitespace-nowrap">
                         {((r.usedParts?.reduce((sum, item) => sum + (Number(item.totalCost) || 0), 0) ?? 0) + (Number(r.otherCost) || 0)).toLocaleString()} ฿

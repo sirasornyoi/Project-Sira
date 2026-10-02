@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { getTodayDateString } from '../utils/pmAlerts';
 import { calculateMachineKpi, calculateMultiMachineKpi, isMachineDown } from '../utils/pmKpi';
-import { getActualMinutes, getPlannedMinutes, getPmVariance, getShiftHours } from '../utils/pmTime';
+import { getActualMinutes, getPlannedMinutes, getPmVariance, getShiftHours, formatPmMinutes } from '../utils/pmTime';
 import { PMScheduleItem } from '../types';
 
 export const DashboardPage: React.FC = () => {
@@ -110,18 +110,23 @@ export const DashboardPage: React.FC = () => {
     }));
 
   // CHART 2: TTM จริง vs Std.TTM
-  const ttmSummaryData = machines.slice(0, 8).map(m => {
-    const linkedPlans = pmPlans.filter(p => p.machineId === m.id);
-    const stdTtmSum = linkedPlans.reduce((sum, p) => sum + p.ttm, 0);
-    const completedPmRuns = schedules.filter(s => s.type === 'PM' && s.machineId === m.id && s.status === 'เสร็จสิ้น' && s.date.startsWith(selectedMonth));
-    const realTtmSum = completedPmRuns.reduce((sum, r) => sum + r.duration, 0);
+  const ttmSummaryData = machines
+    .map(m => {
+      const linkedPlans = pmPlans.filter(p => p.machineId === m.id);
+      const stdTtmSum = linkedPlans.reduce((sum, p) => sum + (p.ttm && p.ttm > 0 ? p.ttm : 0), 0);
+      const completedPmRuns = schedules.filter(
+        s => s.type === 'PM' && s.machineId === m.id && s.status === 'เสร็จสิ้น' && s.date && s.date.startsWith(selectedMonth)
+      );
+      const realTtmSum = completedPmRuns.reduce((sum, r) => sum + (getActualMinutes(r) || 0), 0);
 
-    return {
-      machineId: m.id,
-      "TTM จริง (นาที)": realTtmSum || Math.floor(Math.random() * 25 + 10),
-      "Std.TTM (นาที)": stdTtmSum || 45
-    };
-  });
+      return {
+        machineId: m.id,
+        "TTM จริง (นาที)": realTtmSum,
+        "Std.TTM (นาที)": stdTtmSum
+      };
+    })
+    .filter(item => item["TTM จริง (นาที)"] > 0 || item["Std.TTM (นาที)"] > 0)
+    .slice(0, 10);
 
   // CHART 4: Stacked utilization hours per technician (Using real technicians!)
   const technicianMinsSummary = technicians.map(tech => {
@@ -887,7 +892,7 @@ export const DashboardPage: React.FC = () => {
                             </td>
                             <td className="py-2.5 px-3 font-mono font-bold text-slate-200">{pm.machineId}</td>
                             <td className="py-2.5 px-3 text-slate-300 font-medium">{pm.technician}</td>
-                            <td className="py-2.5 px-3 font-mono text-cyan-400">{linkedPlan?.ttm || 45} นาที</td>
+                            <td className="py-2.5 px-3 font-mono text-cyan-400">{formatPmMinutes(linkedPlan?.ttm)}</td>
                             <td className="py-2.5 px-3 text-center">
                               <span className="px-2 py-0.5 bg-yellow-500/15 text-yellow-500 border border-yellow-500/20 rounded-full font-bold animate-pulse text-[10px] flex items-center justify-center gap-1 w-max mx-auto">
                                 <span className="h-1.5 w-1.5 bg-yellow-400 rounded-full animate-ping"></span>
@@ -1511,22 +1516,28 @@ export const DashboardPage: React.FC = () => {
                 วิเคราะห์เวลาตอบสนองซ่อมบำรุงแผนตามมาตรฐาน (PM TTM vs Std.TTM)
               </h3>
               <div className="flex-1 w-full animate-in fade-in duration-200">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={ttmSummaryData}
-                    margin={{ top: 10, right: 10, left: -20, bottom: 5 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-                    <XAxis dataKey="machineId" stroke="#94a3b8" tick={{ fontSize: 9 }} />
-                    <YAxis stroke="#94a3b8" tick={{ fontSize: 9 }} />
-                    <Tooltip 
-                      contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', borderRadius: '8px', color: '#f8fafc', fontSize: '11px' }} 
-                    />
-                    <Legend wrapperStyle={{ fontSize: '9px' }} />
-                    <Bar dataKey="TTM จริง (นาที)" fill="#10b981" radius={[3, 3, 0, 0]} />
-                    <Bar dataKey="Std.TTM (นาที)" fill="#3b82f6" radius={[3, 3, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
+                {ttmSummaryData.length === 0 ? (
+                  <div className="h-full flex items-center justify-center text-slate-400 text-xs font-medium">
+                    ยังไม่มีข้อมูลเวลา PM เดือนนี้
+                  </div>
+                ) : (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={ttmSummaryData}
+                      margin={{ top: 10, right: 10, left: -20, bottom: 5 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                      <XAxis dataKey="machineId" stroke="#94a3b8" tick={{ fontSize: 9 }} />
+                      <YAxis stroke="#94a3b8" tick={{ fontSize: 9 }} />
+                      <Tooltip 
+                        contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', borderRadius: '8px', color: '#f8fafc', fontSize: '11px' }} 
+                      />
+                      <Legend wrapperStyle={{ fontSize: '9px' }} />
+                      <Bar dataKey="TTM จริง (นาที)" fill="#10b981" radius={[3, 3, 0, 0]} />
+                      <Bar dataKey="Std.TTM (นาที)" fill="#3b82f6" radius={[3, 3, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                )}
               </div>
             </div>
 
