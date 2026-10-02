@@ -1796,7 +1796,7 @@ export const TimeBreakPage: React.FC = () => {
       {/* 5. MODAL: รายละเอียดและระบุ PART ของตัวเครื่อง (เมื่อกดไปที่ตัวเครื่อง) */}
       {selectedMachineId && activeMachine && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-bg/80 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-surface dark:bg-[#0f172a] border border-border dark:border-slate-700 rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+          <div className="bg-surface dark:bg-[#0f172a] border border-border dark:border-slate-700 rounded-2xl w-full max-w-5xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
             
             {/* Modal Header */}
             <div className="p-4 sm:p-5 border-b border-border dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-900">
@@ -1911,70 +1911,32 @@ export const TimeBreakPage: React.FC = () => {
                     return (
                       <div 
                         key={part.id} 
-                        className="bg-surface dark:bg-slate-950/80 border border-border dark:border-slate-800 rounded-xl p-4 transition-all hover:border-slate-300 dark:hover:border-slate-700 shadow-sm"
+                        className="bg-surface dark:bg-slate-950/80 border border-border dark:border-slate-800 rounded-xl p-4 sm:p-5 transition-all hover:border-slate-300 dark:hover:border-slate-700 shadow-xs space-y-3.5"
                       >
-                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-                          
-                          {/* Part Name & Component details */}
-                          <div className="space-y-1 flex-1">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <span className="text-base font-bold text-fg tracking-tight">
-                                {part.partName}
+                        {/* 1. Header Row: Part Name, Code, Status & Action Buttons spanning full width */}
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/60 dark:border-slate-800/80 pb-3">
+                          {/* Part Name & Badges */}
+                          <div className="flex items-center gap-2 flex-wrap flex-1 min-w-0 pr-2">
+                            <span className="text-base sm:text-lg font-bold text-fg tracking-tight">
+                              {part.partName}
+                            </span>
+                            {part.partCode && (
+                              <span className="text-xs px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-cyan-800 dark:text-cyan-400 font-mono font-bold border border-slate-200 dark:border-transparent">
+                                {part.partCode}
                               </span>
-                              {part.partCode && (
-                                <span className="text-xs px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-cyan-800 dark:text-cyan-400 font-mono border border-slate-200 dark:border-transparent">
-                                  {part.partCode}
-                                </span>
-                              )}
-                              <span className={`text-xs px-2.5 py-0.5 rounded-full font-medium ${statusInfo.badgeBg}`}>
-                                {statusInfo.label}
-                              </span>
-                            </div>
-
-                            {/* ส่วนไหนที่ต้องเปลี่ยน */}
-                            <div className="flex items-center gap-1.5 text-xs text-cyan-800 dark:text-cyan-300">
-                              <span className="text-fg-muted dark:text-slate-400">ส่วนที่ต้องเปลี่ยนในเครื่อง:</span>
-                              <span className="font-semibold bg-cyan-50 dark:bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-200 dark:border-cyan-800/40">
-                                🔧 {part.componentLocation}
-                              </span>
-                            </div>
-
-                            {part.notes && (
-                              <p className="text-xs text-fg-muted dark:text-slate-400 italic">
-                                หมายเหตุ: {part.notes}
-                              </p>
                             )}
+                            <span className={`text-xs px-2.5 py-0.5 rounded-full font-bold ${statusInfo.badgeBg}`}>
+                              {statusInfo.label}
+                            </span>
                           </div>
 
-                          {/* Quick Metrics: Start, Interval, Next Due */}
-                          <div className="grid grid-cols-3 gap-2 text-center bg-slate-50 dark:bg-slate-900/90 p-2.5 rounded-lg border border-border dark:border-slate-800 shrink-0">
-                            <div>
-                              <span className="text-[10px] text-fg-muted dark:text-slate-400 block">วันเริ่มเปลี่ยน</span>
-                              <span className="text-xs font-semibold text-fg dark:text-slate-200">
-                                {formatThaiDate(part.startDate)}
-                              </span>
-                            </div>
-                            <div className="border-x border-border dark:border-slate-800 px-2">
-                              <span className="text-[10px] text-fg-muted dark:text-slate-400 block">รอบการเปลี่ยน</span>
-                              <span className="text-xs font-semibold text-amber-600 dark:text-amber-300">
-                                ทุก {part.intervalValue} {part.intervalUnit}
-                              </span>
-                            </div>
-                            <div>
-                              <span className="text-[10px] text-fg-muted dark:text-slate-400 block">วันครบกำหนดถัดไป</span>
-                              <span className={`text-xs font-bold ${statusInfo.color}`}>
-                                {formatThaiDate(part.nextDueDate)}
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* Actions */}
-                          <div className="flex items-center gap-2 justify-end shrink-0 flex-wrap">
+                          {/* Action Buttons aligned to top right */}
+                          <div className="flex items-center gap-2 shrink-0 flex-wrap sm:justify-end">
                             {activeMachineSiblings.length > 1 && (
                               <button
                                 type="button"
                                 onClick={() => handleCopyPartToSiblings(part)}
-                                className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-cyan-800 dark:text-cyan-300 hover:text-cyan-900 dark:hover:text-cyan-200 border border-slate-300 dark:border-slate-700 rounded-lg text-xs font-medium transition-all flex items-center gap-1"
+                                className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-750 text-cyan-800 dark:text-cyan-300 hover:text-cyan-900 dark:hover:text-cyan-200 border border-slate-300 dark:border-slate-700 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
                                 title={`คัดลอกรายการนี้ไปยังเครื่องชื่อ "${activeMachine.name}" อีก ${activeMachineSiblings.length - 1} เครื่อง`}
                               >
                                 <Copy className="w-3.5 h-3.5" />
@@ -1984,16 +1946,16 @@ export const TimeBreakPage: React.FC = () => {
                             <button
                               id={`btn-replace-part-${part.id}`}
                               onClick={() => handleOpenReplaceModal(part)}
-                              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold transition-all shadow flex items-center gap-1.5"
+                              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
                               title="บันทึกว่าเปลี่ยนอะไหล่รอบนี้แล้ว"
                             >
                               <CheckCircle2 className="w-3.5 h-3.5" />
-                              บันทึกเปลี่ยนอะไหล่
+                              <span>บันทึกเปลี่ยนอะไหล่</span>
                             </button>
                             <button
                               id={`btn-edit-part-${part.id}`}
                               onClick={() => handleOpenEditPart(part)}
-                              className="p-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-fg rounded-lg transition-colors border border-slate-200 dark:border-transparent"
+                              className="p-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-fg rounded-lg transition-colors border border-slate-200 dark:border-slate-700 cursor-pointer"
                               title="แก้ไขข้อมูลอะไหล่"
                             >
                               <Edit2 className="w-3.5 h-3.5" />
@@ -2001,7 +1963,7 @@ export const TimeBreakPage: React.FC = () => {
                             <button
                               id={`btn-delete-part-${part.id}`}
                               onClick={() => handleDeletePart(part.id)}
-                              className="p-1.5 bg-slate-100 hover:bg-red-100 dark:bg-slate-800 dark:hover:bg-red-900/60 text-slate-700 dark:text-slate-300 hover:text-red-700 dark:hover:text-red-300 rounded-lg transition-colors border border-slate-200 dark:border-transparent"
+                              className="p-1.5 bg-slate-100 hover:bg-rose-100 dark:bg-slate-800 dark:hover:bg-rose-950/60 text-slate-700 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-400 rounded-lg transition-colors border border-slate-200 dark:border-slate-700 cursor-pointer"
                               title="ลบอะไหล่นี้"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -2009,12 +1971,59 @@ export const TimeBreakPage: React.FC = () => {
                           </div>
                         </div>
 
-                        {/* History row if cycles exists */}
-                        <div className="mt-3 pt-2.5 border-t border-border dark:border-slate-800/80 flex items-center justify-between text-xs text-fg-muted dark:text-slate-400 flex-wrap gap-2">
+                        {/* 2. Content Grid: Component & Notes (Left) vs Maintenance Schedule (Right) utilizing full width */}
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-4 items-stretch">
+                          {/* Left: Component Location & Notes */}
+                          <div className="lg:col-span-6 flex flex-col justify-between gap-2.5 bg-slate-50/80 dark:bg-slate-900/60 p-3.5 rounded-xl border border-border/80 dark:border-slate-800/80">
+                            <div className="space-y-1.5">
+                              <div className="text-[10.5px] font-bold text-fg-muted dark:text-slate-400 uppercase tracking-wider">
+                                ส่วนที่ต้องเปลี่ยนในเครื่อง
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="font-semibold text-xs sm:text-sm text-cyan-800 dark:text-cyan-300 bg-cyan-50 dark:bg-cyan-950/70 px-2.5 py-1 rounded-lg border border-cyan-200 dark:border-cyan-800/50 flex items-center gap-1.5">
+                                  <Wrench className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400 shrink-0" />
+                                  <span>{part.componentLocation || 'ชุดขับเคลื่อน/ชิ้นส่วนทั่วไป'}</span>
+                                </span>
+                              </div>
+                            </div>
+
+                            {part.notes && (
+                              <div className="pt-2 border-t border-border/60 dark:border-slate-800/60 text-xs text-fg-muted dark:text-slate-400 leading-relaxed">
+                                <span className="font-bold text-slate-700 dark:text-slate-300">หมายเหตุ: </span>
+                                <span>{part.notes}</span>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Right: Time-Break Metrics Schedule */}
+                          <div className="lg:col-span-6 grid grid-cols-3 gap-2 text-center bg-slate-50 dark:bg-slate-900/90 p-3 rounded-xl border border-border dark:border-slate-800 items-center">
+                            <div className="space-y-1">
+                              <span className="text-[10.5px] font-medium text-fg-muted dark:text-slate-400 block">วันเริ่มเปลี่ยน</span>
+                              <span className="text-xs sm:text-sm font-bold font-mono text-fg dark:text-slate-200 block">
+                                {formatThaiDate(part.startDate)}
+                              </span>
+                            </div>
+                            <div className="space-y-1 border-x border-border dark:border-slate-800 px-2">
+                              <span className="text-[10.5px] font-medium text-fg-muted dark:text-slate-400 block">รอบการเปลี่ยน</span>
+                              <span className="text-xs sm:text-sm font-bold text-amber-600 dark:text-amber-400 block">
+                                ทุก {part.intervalValue} {part.intervalUnit}
+                              </span>
+                            </div>
+                            <div className="space-y-1">
+                              <span className="text-[10.5px] font-medium text-fg-muted dark:text-slate-400 block">วันครบกำหนดถัดไป</span>
+                              <span className={`text-xs sm:text-sm font-black font-mono block ${statusInfo.color}`}>
+                                {formatThaiDate(part.nextDueDate)}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* 3. Footer: Cycle Count & Change History */}
+                        <div className="pt-2.5 border-t border-border dark:border-slate-800/80 flex items-center justify-between text-xs text-fg-muted dark:text-slate-400 flex-wrap gap-2">
                           <div className="flex items-center gap-2">
                             <span className="font-semibold text-emerald-600 dark:text-emerald-400">รอบที่เปลี่ยนไปแล้ว: {part.cycleCount || 0} รอบ</span>
                             {part.lastReplacedDate && (
-                              <span>(เปลี่ยนล่าสุด: {formatThaiDate(part.lastReplacedDate)})</span>
+                              <span className="text-slate-500 dark:text-slate-400">(เปลี่ยนล่าสุด: {formatThaiDate(part.lastReplacedDate)})</span>
                             )}
                           </div>
                           {part.history && part.history.length > 0 && (
