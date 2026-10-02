@@ -1,17 +1,18 @@
 import React, { useState, useMemo } from 'react';
 import * as XLSX from 'xlsx';
 import { useApp } from '../context/AppContext';
-import { TimeBreakPartItem, TimeBreakHistoryRecord, Machine } from '../types';
+import { TimeBreakPartItem, TimeBreakHistoryRecord, Machine, SparePart } from '../types';
 import { getTodayDateString } from '../utils/pmAlerts';
 import { 
   Clock, Plus, Search, Filter, AlertTriangle, CheckCircle, 
   Calendar, Wrench, RefreshCw, ChevronRight, ChevronDown, ChevronUp, Layers, Tag, 
   ArrowRight, ShieldAlert, Edit2, Trash2, CheckCircle2, 
   X, History, Cpu, FileSpreadsheet, Sparkles, ClipboardCheck,
-  FolderOpen, Folder, Copy, Check, Boxes, Download, Upload, FileUp, FileCheck
+  FolderOpen, Folder, Copy, Check, Boxes, Download, Upload, FileUp, FileCheck,
+  Package, AlertCircle
 } from 'lucide-react';
 export const TimeBreakPage: React.FC = () => {
-  const { machines, spareParts, timeBreakParts, setTimeBreakParts, technicians } = useApp();
+  const { machines, spareParts, setSpareParts, timeBreakParts, setTimeBreakParts, technicians } = useApp();
 
   // Month filter for current month table
   const currentYearMonth = '2026-09';
@@ -44,11 +45,15 @@ export const TimeBreakPage: React.FC = () => {
   const [replacementDate, setReplacementDate] = useState('2026-09-09');
   const [replacementTech, setReplacementTech] = useState(technicians[0] || 'ช่าง 1');
   const [replacementNote, setReplacementNote] = useState('');
+  const [replaceQty, setReplaceQty] = useState<number>(1);
+  const [replaceDeductStock, setReplaceDeductStock] = useState<boolean>(true);
 
   // Add/Edit Part Form state
   const [formMachineId, setFormMachineId] = useState(machines[0]?.id || 'RIM01');
   const [formPartName, setFormPartName] = useState('');
   const [formPartCode, setFormPartCode] = useState('');
+  const [formSparePartId, setFormSparePartId] = useState<string>('');
+  const [formQtyPerReplace, setFormQtyPerReplace] = useState<number>(1);
   const [formComponentLocation, setFormComponentLocation] = useState('');
   const [formStartDate, setFormStartDate] = useState('2026-09-01');
   const [formIntervalValue, setFormIntervalValue] = useState<number>(1);
@@ -59,6 +64,38 @@ export const TimeBreakPage: React.FC = () => {
   const [formApplyToAllInGroup, setFormApplyToAllInGroup] = useState<boolean>(false);
   const [partToDelete, setPartToDelete] = useState<string | null>(null);
   const [partToCopy, setPartToCopy] = useState<{ part: TimeBreakPartItem; siblings: Machine[] } | null>(null);
+
+  // Expanded history for part cards
+  const [expandedHistoryPartIds, setExpandedHistoryPartIds] = useState<Set<string>>(new Set());
+  const toggleHistoryExpand = (partId: string) => {
+    setExpandedHistoryPartIds(prev => {
+      const next = new Set(prev);
+      if (next.has(partId)) next.delete(partId);
+      else next.add(partId);
+      return next;
+    });
+  };
+
+  // Helper to find linked SparePart from warehouse inventory
+  const getLinkedSpare = (part: TimeBreakPartItem): SparePart | undefined => {
+    if (part.sparePartId) {
+      return spareParts.find(sp => sp.id === part.sparePartId);
+    }
+    if (part.partCode) {
+      return spareParts.find(sp => sp.id === part.partCode);
+    }
+    return undefined;
+  };
+
+  // Sorted spare parts prioritizing parts registered to currently selected machine
+  const sortedSpareParts = useMemo(() => {
+    return [...spareParts].sort((a, b) => {
+      const aMatch = a.machineIds && a.machineIds.includes(formMachineId) ? 1 : 0;
+      const bMatch = b.machineIds && b.machineIds.includes(formMachineId) ? 1 : 0;
+      if (aMatch !== bMatch) return bMatch - aMatch;
+      return a.id.localeCompare(b.id);
+    });
+  }, [spareParts, formMachineId]);
 
   // Calculate next due date helper
   const calculateDueDate = (start: string, val: number, unit: string): string => {
@@ -348,6 +385,8 @@ export const TimeBreakPage: React.FC = () => {
           machineId: sm.id,
           partName: part.partName,
           partCode: part.partCode,
+          sparePartId: part.sparePartId,
+          qtyPerReplace: part.qtyPerReplace || 1,
           componentLocation: part.componentLocation,
           startDate: part.startDate,
           intervalValue: part.intervalValue,
@@ -379,6 +418,12 @@ export const TimeBreakPage: React.FC = () => {
     let overduePartsCount = 0;
     let dueThisMonthPartsCount = 0;
     let totalCompletedCycles = 0;
+    let shortagePartsCount = 0;
+
+    const today = getTodayDateString();
+    const now = new Date(today);
+    const future30 = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+    const future30Str = future30.toISOString().slice(0, 10);
 
     machineSummaries.forEach(m => {
       if (m.parts.length > 0) totalMachinesWithParts++;
@@ -389,14 +434,27 @@ export const TimeBreakPage: React.FC = () => {
       });
     });
 
+    timeBreakParts.forEach(p => {
+      // Due or near due: overdue, due within 30 days, or due this selected month
+      const isDue = p.nextDueDate <= today || p.nextDueDate <= future30Str || p.nextDueDate.slice(0, 7) === selectedMonth;
+      if (isDue) {
+        const linked = getLinkedSpare(p);
+        const reqQty = p.qtyPerReplace && p.qtyPerReplace > 0 ? p.qtyPerReplace : 1;
+        if (linked && linked.quantity < reqQty) {
+          shortagePartsCount++;
+        }
+      }
+    });
+
     return {
       totalMachinesWithParts,
       totalParts,
       overduePartsCount,
       dueThisMonthPartsCount,
-      totalCompletedCycles
+      totalCompletedCycles,
+      shortagePartsCount
     };
-  }, [machineSummaries, timeBreakParts]);
+  }, [machineSummaries, timeBreakParts, selectedMonth, spareParts]);
 
   // Open add part modal
   const handleOpenAddPart = (targetMachineId?: string) => {
@@ -404,8 +462,10 @@ export const TimeBreakPage: React.FC = () => {
     setFormMachineId(targetMachineId || selectedMachineId || machines[0]?.id || 'RIM01');
     setFormPartName('');
     setFormPartCode('');
+    setFormSparePartId('');
+    setFormQtyPerReplace(1);
     setFormComponentLocation('');
-    setFormStartDate('2026-09-01');
+    setFormStartDate(getTodayDateString());
     setFormIntervalValue(1);
     setFormIntervalUnit('เดือน');
     setFormCost(0);
@@ -421,6 +481,8 @@ export const TimeBreakPage: React.FC = () => {
     setFormMachineId(part.machineId);
     setFormPartName(part.partName);
     setFormPartCode(part.partCode || '');
+    setFormSparePartId(part.sparePartId || (part.partCode && spareParts.some(s => s.id === part.partCode) ? part.partCode : ''));
+    setFormQtyPerReplace(part.qtyPerReplace || 1);
     setFormComponentLocation(part.componentLocation);
     setFormStartDate(part.startDate);
     setFormIntervalValue(part.intervalValue);
@@ -452,6 +514,7 @@ export const TimeBreakPage: React.FC = () => {
     }
 
     const calculatedNextDue = calculateDueDate(formStartDate, formIntervalValue, formIntervalUnit);
+    const validatedQty = Number(formQtyPerReplace) > 0 ? Number(formQtyPerReplace) : 1;
 
     if (editingPart) {
       // Update existing part
@@ -462,6 +525,8 @@ export const TimeBreakPage: React.FC = () => {
             machineId: formMachineId,
             partName: formPartName.trim(),
             partCode: formPartCode.trim() || undefined,
+            sparePartId: formSparePartId.trim() || undefined,
+            qtyPerReplace: validatedQty,
             componentLocation: formComponentLocation.trim(),
             startDate: formStartDate,
             intervalValue: Number(formIntervalValue),
@@ -481,6 +546,8 @@ export const TimeBreakPage: React.FC = () => {
         machineId: formMachineId,
         partName: formPartName.trim(),
         partCode: formPartCode.trim() || undefined,
+        sparePartId: formSparePartId.trim() || undefined,
+        qtyPerReplace: validatedQty,
         componentLocation: formComponentLocation.trim(),
         startDate: formStartDate,
         intervalValue: Number(formIntervalValue),
@@ -534,9 +601,15 @@ export const TimeBreakPage: React.FC = () => {
   // Open replacement modal
   const handleOpenReplaceModal = (part: TimeBreakPartItem) => {
     setReplacingPart(part);
-    setReplacementDate('2026-09-09');
+    const today = getTodayDateString();
+    setReplacementDate(today);
     setReplacementTech(part.assignedTechnician || technicians[0] || 'ช่าง 1');
     setReplacementNote('');
+
+    const linked = getLinkedSpare(part);
+    const defaultQty = part.qtyPerReplace && part.qtyPerReplace > 0 ? part.qtyPerReplace : 1;
+    setReplaceQty(defaultQty);
+    setReplaceDeductStock(Boolean(linked));
   };
 
   // Save completed replacement
@@ -545,13 +618,40 @@ export const TimeBreakPage: React.FC = () => {
 
     const nextCycleNumber = (replacingPart.cycleCount || 0) + 1;
     const nextDue = calculateDueDate(replacementDate, replacingPart.intervalValue, replacingPart.intervalUnit);
+    const linked = getLinkedSpare(replacingPart);
+
+    // Prepare stock deduction & used parts record
+    let usedPartsRecord: { partId: string; quantity: number; pricePerUnit: number; totalCost: number }[] | undefined = undefined;
+
+    if (replaceDeductStock && linked) {
+      const deductQty = Math.max(1, replaceQty);
+      const unitPrice = linked.pricePerUnit || replacingPart.costPerUnit || 0;
+      usedPartsRecord = [{
+        partId: linked.id,
+        quantity: deductQty,
+        pricePerUnit: unitPrice,
+        totalCost: deductQty * unitPrice
+      }];
+
+      // Deduct from inventory (preserve lastRestockedDate)
+      setSpareParts(prev => prev.map(sp => {
+        if (sp.id === linked.id) {
+          return {
+            ...sp,
+            quantity: Math.max(0, sp.quantity - deductQty)
+          };
+        }
+        return sp;
+      }));
+    }
 
     const historyRecord: TimeBreakHistoryRecord = {
       id: `h-${Date.now()}`,
       replacedDate: replacementDate,
       cycleNumber: nextCycleNumber,
       technician: replacementTech,
-      note: replacementNote.trim() || `เปลี่ยนตามรอบที่ ${nextCycleNumber} สำเร็จ`
+      note: replacementNote.trim() || `เปลี่ยนตามรอบที่ ${nextCycleNumber} สำเร็จ`,
+      ...(usedPartsRecord ? { usedParts: usedPartsRecord } : {})
     };
 
     setTimeBreakParts(prev => prev.map(p => {
@@ -624,6 +724,7 @@ export const TimeBreakPage: React.FC = () => {
       const partsData = partsToExport.map((p, idx) => {
         const m = machines.find(item => item.id === p.machineId);
         const status = getPartStatus(p.nextDueDate);
+        const linked = getLinkedSpare(p);
         return {
           'ลำดับ': idx + 1,
           'รหัสเครื่องจักร': p.machineId,
@@ -631,6 +732,9 @@ export const TimeBreakPage: React.FC = () => {
           'ไลน์ผลิต': m?.lineGroup || '-',
           'ชื่ออะไหล่ Time-Break': p.partName,
           'รหัสอะไหล่': p.partCode || '-',
+          'รหัสคลังที่ผูก': p.sparePartId || linked?.id || '-',
+          'จำนวนต่อครั้ง': p.qtyPerReplace || 1,
+          'คงเหลือในคลัง': linked ? `${linked.quantity} ${linked.unit}` : '-',
           'ส่วนที่ต้องเปลี่ยน': p.componentLocation,
           'วันเริ่มรอบล่าสุด': p.startDate,
           'รอบความถี่': p.intervalValue,
@@ -669,6 +773,9 @@ export const TimeBreakPage: React.FC = () => {
         const m = machines.find(item => item.id === p.machineId);
         if (p.history && p.history.length > 0) {
           p.history.forEach(h => {
+            const usedQty = h.usedParts && h.usedParts.length > 0
+              ? h.usedParts.reduce((sum, u) => sum + u.quantity, 0)
+              : 0;
             historyData.push({
               'รหัสเครื่อง': p.machineId,
               'ชื่อเครื่องจักร': m?.name || p.machineId,
@@ -677,6 +784,7 @@ export const TimeBreakPage: React.FC = () => {
               'รอบที่': h.cycleNumber,
               'วันที่เปลี่ยนจริง': h.replacedDate,
               'ช่างผู้เปลี่ยน': h.technician,
+              'จำนวนที่ตัดสต็อก': usedQty,
               'บันทึกรายละเอียด': h.note || '-'
             });
           });
@@ -688,7 +796,8 @@ export const TimeBreakPage: React.FC = () => {
       const wsParts = XLSX.utils.json_to_sheet(partsData);
       wsParts['!cols'] = [
         { wch: 8 }, { wch: 16 }, { wch: 25 }, { wch: 15 },
-        { wch: 30 }, { wch: 16 }, { wch: 24 }, { wch: 16 },
+        { wch: 30 }, { wch: 16 }, { wch: 16 }, { wch: 14 }, { wch: 16 },
+        { wch: 24 }, { wch: 16 },
         { wch: 12 }, { wch: 12 }, { wch: 16 }, { wch: 16 },
         { wch: 16 }, { wch: 16 }, { wch: 16 }, { wch: 24 }, { wch: 28 }
       ];
@@ -706,7 +815,7 @@ export const TimeBreakPage: React.FC = () => {
         const wsHistory = XLSX.utils.json_to_sheet(historyData);
         wsHistory['!cols'] = [
           { wch: 14 }, { wch: 25 }, { wch: 28 }, { wch: 22 },
-          { wch: 10 }, { wch: 16 }, { wch: 16 }, { wch: 35 }
+          { wch: 10 }, { wch: 16 }, { wch: 16 }, { wch: 16 }, { wch: 35 }
         ];
         XLSX.utils.book_append_sheet(wb, wsHistory, "Change_History");
       }
@@ -1052,7 +1161,7 @@ export const TimeBreakPage: React.FC = () => {
           )}
           
           {/* 2. STATS & MONTH SUMMARY CARDS */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
             <div className="p-4 rounded-xl bg-surface dark:bg-slate-900/90 border border-border dark:border-slate-800/80 flex items-center justify-between">
               <div>
                 <span className="text-xs text-slate-800 dark:text-slate-200 block mb-1 font-bold">เครื่องที่มีระบบ Time-Break</span>
@@ -1092,7 +1201,20 @@ export const TimeBreakPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="p-4 rounded-xl bg-surface dark:bg-slate-900/90 border border-border dark:border-slate-800/80 flex items-center justify-between">
+            <div className="p-4 rounded-xl bg-surface dark:bg-slate-900/90 border border-rose-300 dark:border-rose-900/50 flex items-center justify-between col-span-2 sm:col-span-1">
+              <div>
+                <span className="text-xs text-rose-800 dark:text-rose-300 block mb-1 font-bold">รอบใกล้ถึง แต่สต็อกไม่พอ</span>
+                <div className="text-2xl font-black text-rose-700 dark:text-rose-400 tracking-tight">
+                  {monthKpis.shortagePartsCount} <span className="text-xs text-rose-800/90 dark:text-rose-300/80 font-medium">รายการ</span>
+                </div>
+                <span className="text-[11px] text-rose-800 dark:text-rose-300/90 font-bold">ต้องสั่งซื้ออะไหล่เติมคลัง</span>
+              </div>
+              <div className="w-10 h-10 rounded-lg bg-rose-500/15 border border-rose-500/30 flex items-center justify-center text-rose-600 dark:text-rose-400">
+                <Package className="w-5 h-5" />
+              </div>
+            </div>
+
+            <div className="p-4 rounded-xl bg-surface dark:bg-slate-900/90 border border-border dark:border-slate-800/80 flex items-center justify-between col-span-2 sm:col-span-1">
               <div>
                 <span className="text-xs text-slate-800 dark:text-slate-200 block mb-1 font-bold">จำนวนรอบที่เปลี่ยนแล้วสะสม</span>
                 <div className="text-2xl font-black text-emerald-700 dark:text-emerald-400 tracking-tight">
@@ -1908,6 +2030,11 @@ export const TimeBreakPage: React.FC = () => {
                 <div className="space-y-3">
                   {activeMachineParts.map((part) => {
                     const statusInfo = getPartStatus(part.nextDueDate);
+                    const linked = getLinkedSpare(part);
+                    const neededQty = part.qtyPerReplace && part.qtyPerReplace > 0 ? part.qtyPerReplace : 1;
+                    const isShortage = linked ? linked.quantity < neededQty : false;
+                    const isLowStock = linked ? linked.quantity <= linked.minRequired : false;
+
                     return (
                       <div 
                         key={part.id} 
@@ -1928,6 +2055,24 @@ export const TimeBreakPage: React.FC = () => {
                             <span className={`text-xs px-2.5 py-0.5 rounded-full font-bold ${statusInfo.badgeBg}`}>
                               {statusInfo.label}
                             </span>
+                            {linked && (
+                              <span
+                                className={`text-xs px-2.5 py-0.5 rounded-full font-bold inline-flex items-center gap-1 ${
+                                  isShortage
+                                    ? 'bg-red-500/20 text-red-700 dark:text-red-300 border border-red-500/40'
+                                    : isLowStock
+                                      ? 'bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/40'
+                                      : 'bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-500/40'
+                                }`}
+                                title={`อะไหล่ในคลัง: ${linked.id} - ${linked.name}`}
+                              >
+                                <Package className="w-3 h-3" />
+                                <span>คงเหลือ {linked.quantity}/min {linked.minRequired} {linked.unit}</span>
+                                {neededQty > 1 && (
+                                  <span className="opacity-80 font-normal">({neededQty}/รอบ)</span>
+                                )}
+                              </span>
+                            )}
                           </div>
 
                           {/* Action Buttons aligned to top right */}
@@ -2019,16 +2164,66 @@ export const TimeBreakPage: React.FC = () => {
                         </div>
 
                         {/* 3. Footer: Cycle Count & Change History */}
-                        <div className="pt-2.5 border-t border-border dark:border-slate-800/80 flex items-center justify-between text-xs text-fg-muted dark:text-slate-400 flex-wrap gap-2">
-                          <div className="flex items-center gap-2">
-                            <span className="font-semibold text-emerald-600 dark:text-emerald-400">รอบที่เปลี่ยนไปแล้ว: {part.cycleCount || 0} รอบ</span>
-                            {part.lastReplacedDate && (
-                              <span className="text-slate-500 dark:text-slate-400">(เปลี่ยนล่าสุด: {formatThaiDate(part.lastReplacedDate)})</span>
+                        <div className="pt-2.5 border-t border-border dark:border-slate-800/80 flex flex-col gap-2">
+                          <div className="flex items-center justify-between text-xs text-fg-muted dark:text-slate-400 flex-wrap gap-2">
+                            <div className="flex items-center gap-2">
+                              <span className="font-semibold text-emerald-600 dark:text-emerald-400">รอบที่เปลี่ยนไปแล้ว: {part.cycleCount || 0} รอบ</span>
+                              {part.lastReplacedDate && (
+                                <span className="text-slate-500 dark:text-slate-400">(เปลี่ยนล่าสุด: {formatThaiDate(part.lastReplacedDate)})</span>
+                              )}
+                            </div>
+                            {part.history && part.history.length > 0 && (
+                              <button
+                                type="button"
+                                onClick={() => toggleHistoryExpand(part.id)}
+                                className="text-[11px] text-cyan-600 dark:text-cyan-400 hover:text-cyan-700 dark:hover:text-cyan-300 font-semibold flex items-center gap-1 cursor-pointer transition-colors"
+                              >
+                                <History className="w-3.5 h-3.5" />
+                                <span>มีบันทึกประวัติการเปลี่ยน {part.history.length} ครั้ง</span>
+                                {expandedHistoryPartIds.has(part.id) ? (
+                                  <ChevronUp className="w-3.5 h-3.5" />
+                                ) : (
+                                  <ChevronDown className="w-3.5 h-3.5" />
+                                )}
+                              </button>
                             )}
                           </div>
-                          {part.history && part.history.length > 0 && (
-                            <div className="text-[11px] text-cyan-600 dark:text-cyan-400 font-medium">
-                              มีบันทึกประวัติการเปลี่ยน {part.history.length} ครั้ง
+
+                          {/* Expanded History List */}
+                          {expandedHistoryPartIds.has(part.id) && part.history && part.history.length > 0 && (
+                            <div className="mt-2 pt-2.5 border-t border-dashed border-border/70 dark:border-slate-800 space-y-1.5 animate-in fade-in duration-200">
+                              <div className="text-[11px] font-bold text-fg-muted dark:text-slate-400 flex items-center gap-1.5">
+                                <History className="w-3 h-3 text-cyan-500" />
+                                <span>ประวัติรอบการเปลี่ยนอะไหล่:</span>
+                              </div>
+                              <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                                {part.history.map((h) => {
+                                  const totalCut = h.usedParts && h.usedParts.length > 0
+                                    ? h.usedParts.reduce((sum, u) => sum + u.quantity, 0)
+                                    : 0;
+                                  return (
+                                    <div 
+                                      key={h.id} 
+                                      className="p-2 rounded-lg bg-slate-50 dark:bg-slate-900/80 border border-border/60 dark:border-slate-800 text-xs flex items-center justify-between flex-wrap gap-2"
+                                    >
+                                      <div className="flex items-center gap-2 flex-wrap">
+                                        <span className="font-bold text-fg">รอบที่ {h.cycleNumber}</span>
+                                        <span className="font-mono text-fg-muted dark:text-slate-400">({formatThaiDate(h.replacedDate)})</span>
+                                        <span className="text-slate-700 dark:text-slate-300 font-medium">ช่าง: {h.technician}</span>
+                                        {h.note && (
+                                          <span className="text-fg-muted dark:text-slate-400 text-[11px]">• {h.note}</span>
+                                        )}
+                                      </div>
+                                      {totalCut > 0 && (
+                                        <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 border border-cyan-500/30 flex items-center gap-1 shrink-0">
+                                          <Package className="w-2.5 h-2.5" />
+                                          ตัดสต็อก {totalCut} {linked?.unit || 'ชิ้น'}
+                                        </span>
+                                      )}
+                                    </div>
+                                  );
+                                })}
+                              </div>
                             </div>
                           )}
                         </div>
@@ -2103,20 +2298,59 @@ export const TimeBreakPage: React.FC = () => {
                 </select>
               </div>
 
-              {/* 2. ชื่ออะไหล่ */}
+              {/* 2. ผูกกับอะไหล่ในคลัง (เชื่อมสต็อก) */}
               <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="block text-xs font-semibold text-fg dark:text-slate-300">
-                    ชื่ออะไหล่ / รหัสอะไหล่ <span className="text-red-500">*</span>
-                  </label>
-                  {spareParts.length > 0 && (
-                    <span className="text-[11px] text-cyan-600 dark:text-cyan-400 font-medium">
-                      หรือเลือกจากคลังอะไหล่ ({spareParts.length} รายการ)
+                <label className="block text-xs font-semibold text-fg dark:text-slate-300 mb-1.5 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <Package className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
+                    <span>ผูกกับอะไหล่ในคลัง (ตัดสต็อกอัตโนมัติเมื่อเปลี่ยน)</span>
+                  </span>
+                  {formSparePartId && (
+                    <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-bold">
+                      ✓ ผูกสต็อกแล้ว
                     </span>
                   )}
-                </div>
+                </label>
+                <select
+                  id="form-select-linked-spare"
+                  value={formSparePartId}
+                  onChange={(e) => {
+                    const selectedId = e.target.value;
+                    setFormSparePartId(selectedId);
+                    if (selectedId) {
+                      const sp = spareParts.find(s => s.id === selectedId);
+                      if (sp) {
+                        setFormPartName(sp.name);
+                        setFormPartCode(sp.id);
+                        if (sp.pricePerUnit) setFormCost(sp.pricePerUnit);
+                      }
+                    }
+                  }}
+                  className="w-full bg-surface dark:bg-slate-950 border border-border dark:border-slate-800 rounded-lg px-3 py-2 text-xs text-fg focus:outline-none focus:border-cyan-500 cursor-pointer"
+                >
+                  <option value="" className="bg-surface dark:bg-slate-900 text-fg">— ไม่ผูกสต็อก —</option>
+                  {sortedSpareParts.map(sp => {
+                    const isDirectMatch = sp.machineIds && sp.machineIds.includes(formMachineId);
+                    return (
+                      <option key={sp.id} value={sp.id} className="bg-surface dark:bg-slate-900 text-fg">
+                        {isDirectMatch ? '★ ' : ''}{sp.id}: {sp.name} (คงเหลือ {sp.quantity} {sp.unit}{isDirectMatch ? ` • เครื่อง ${formMachineId}` : ''})
+                      </option>
+                    );
+                  })}
+                </select>
+                <span className="text-[10.5px] text-fg-muted dark:text-slate-400 mt-1 block">
+                  {formSparePartId 
+                    ? `ระบบจะแสดงคงเหลือในคลังและตัดสต็อกให้อัตโนมัติเมื่อกดยืนยันการเปลี่ยน` 
+                    : `หากผูกกับคลัง ระบบจะแสดงสต็อกคงเหลือ และตัดสต็อกอัตโนมัติเมื่อเปลี่ยนอะไหล่`}
+                </span>
+              </div>
 
-                <div className="space-y-2">
+              {/* 3. ชื่ออะไหล่ และ รหัสอะไหล่ */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-semibold text-fg dark:text-slate-300 mb-1.5">
+                    ชื่ออะไหล่ <span className="text-red-500">*</span>
+                  </label>
                   <input
                     id="form-part-name-input"
                     type="text"
@@ -2125,43 +2359,52 @@ export const TimeBreakPage: React.FC = () => {
                     onChange={(e) => setFormPartName(e.target.value)}
                     className="w-full bg-surface dark:bg-slate-950 border border-border dark:border-slate-800 rounded-lg px-3 py-2 text-xs text-fg placeholder-slate-400 focus:outline-none focus:border-cyan-500"
                   />
-
-                  {/* Preset quick selection from spare parts inventory */}
-                  {spareParts.length > 0 && (
-                    <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-[11px] text-fg-muted dark:text-slate-400">
-                      <span className="shrink-0 text-slate-500">เลือกด่วน:</span>
-                      {spareParts.slice(0, 4).map(sp => (
-                        <button
-                          key={sp.id}
-                          type="button"
-                          onClick={() => {
-                            setFormPartName(sp.name);
-                            setFormPartCode(sp.id);
-                            if (sp.pricePerUnit) setFormCost(sp.pricePerUnit);
-                          }}
-                          className="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-fg shrink-0 border border-slate-200 dark:border-slate-700/60 transition-colors"
-                        >
-                          {sp.id}: {sp.name}
-                        </button>
-                      ))}
-                    </div>
-                  )}
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-fg dark:text-slate-300 mb-1.5">
+                    รหัสอะไหล่
+                  </label>
+                  <input
+                    id="form-part-code-input"
+                    type="text"
+                    placeholder="เช่น SP-01"
+                    value={formPartCode}
+                    onChange={(e) => setFormPartCode(e.target.value)}
+                    className="w-full bg-surface dark:bg-slate-950 border border-border dark:border-slate-800 rounded-lg px-3 py-2 text-xs text-fg placeholder-slate-400 focus:outline-none focus:border-cyan-500"
+                  />
                 </div>
               </div>
 
-              {/* 3. ส่วนไหนที่ต้องเปลี่ยน (Component Location) */}
+              {/* 4. ส่วนไหนที่ต้องเปลี่ยน & จำนวนใช้ต่อครั้ง */}
               <div>
-                <label className="block text-xs font-semibold text-fg dark:text-slate-300 mb-1.5">
-                  ส่วนไหนของเครื่องที่ต้องเปลี่ยน (ตำแหน่ง / Component) <span className="text-red-500">*</span>
-                </label>
-                <input
-                  id="form-component-location-input"
-                  type="text"
-                  placeholder="เช่น ชุดเพลาขับมอเตอร์หลัก, โซ่ลำเลียงท้ายไลน์, กระบอกลมตัดฟิล์ม, ซีลฝาถัง"
-                  value={formComponentLocation}
-                  onChange={(e) => setFormComponentLocation(e.target.value)}
-                  className="w-full bg-surface dark:bg-slate-950 border border-border dark:border-slate-800 rounded-lg px-3 py-2 text-xs text-fg placeholder-slate-400 focus:outline-none focus:border-cyan-500"
-                />
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="sm:col-span-2">
+                    <label className="block text-xs font-semibold text-fg dark:text-slate-300 mb-1.5">
+                      ส่วนไหนของเครื่องที่ต้องเปลี่ยน (ตำแหน่ง / Component) <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      id="form-component-location-input"
+                      type="text"
+                      placeholder="เช่น ชุดเพลาขับมอเตอร์หลัก, โซ่ลำเลียงท้ายไลน์, กระบอกลมตัดฟิล์ม, ซีลฝาถัง"
+                      value={formComponentLocation}
+                      onChange={(e) => setFormComponentLocation(e.target.value)}
+                      className="w-full bg-surface dark:bg-slate-950 border border-border dark:border-slate-800 rounded-lg px-3 py-2 text-xs text-fg placeholder-slate-400 focus:outline-none focus:border-cyan-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-fg dark:text-slate-300 mb-1.5">
+                      จำนวนใช้ต่อครั้ง <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      id="form-qty-per-replace-input"
+                      type="number"
+                      min="1"
+                      value={formQtyPerReplace}
+                      onChange={(e) => setFormQtyPerReplace(Math.max(1, parseInt(e.target.value, 10) || 1))}
+                      className="w-full bg-surface dark:bg-slate-950 border border-border dark:border-slate-800 rounded-lg px-3 py-2 text-xs text-fg font-bold text-center focus:outline-none focus:border-cyan-500"
+                    />
+                  </div>
+                </div>
 
                 {/* Location suggestions */}
                 <div className="flex items-center gap-1.5 flex-wrap mt-1.5 text-[10px]">
@@ -2437,6 +2680,90 @@ export const TimeBreakPage: React.FC = () => {
                 />
               </div>
 
+              {/* Linked Spare Stock & Deduction Section */}
+              {(() => {
+                const linked = getLinkedSpare(replacingPart);
+                if (linked) {
+                  const isStockInsufficient = replaceDeductStock && linked.quantity < replaceQty;
+                  const unitPrice = linked.pricePerUnit || replacingPart.costPerUnit || 0;
+                  const totalValue = replaceQty * unitPrice;
+                  const remainingAfter = Math.max(0, linked.quantity - (replaceDeductStock ? replaceQty : 0));
+
+                  return (
+                    <div className="p-3.5 bg-cyan-50/60 dark:bg-cyan-950/20 border border-cyan-200 dark:border-cyan-500/30 rounded-xl space-y-3">
+                      <div className="flex items-center justify-between flex-wrap gap-1">
+                        <div className="text-xs font-bold text-cyan-800 dark:text-cyan-300 flex items-center gap-1.5">
+                          <Package className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
+                          <span>ผูกกับคลังอะไหล่: {linked.id} - {linked.name}</span>
+                        </div>
+                        <span className="text-[11px] font-semibold text-fg-muted dark:text-slate-400">
+                          คงเหลือปัจจุบัน: <span className="font-bold text-fg">{linked.quantity}</span> {linked.unit}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-1 border-t border-cyan-200/60 dark:border-cyan-800/40 flex-wrap gap-2">
+                        <label className="flex items-center gap-2 cursor-pointer select-none">
+                          <input
+                            type="checkbox"
+                            checked={replaceDeductStock}
+                            onChange={(e) => setReplaceDeductStock(e.target.checked)}
+                            className="w-4 h-4 rounded text-cyan-600 focus:ring-cyan-500 bg-surface dark:bg-slate-900 border-border dark:border-slate-700 cursor-pointer"
+                          />
+                          <span className="text-xs font-semibold text-fg dark:text-slate-200">
+                            ตัดสต็อกจากคลังอัตโนมัติ
+                          </span>
+                        </label>
+
+                        {replaceDeductStock && (
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs text-fg-muted dark:text-slate-400">จำนวนที่ตัด:</span>
+                            <input
+                              type="number"
+                              min="1"
+                              value={replaceQty}
+                              onChange={(e) => setReplaceQty(Math.max(1, parseInt(e.target.value, 10) || 1))}
+                              className="w-20 bg-surface dark:bg-slate-900 border border-border dark:border-slate-700 rounded-lg px-2 py-1 text-xs text-fg font-bold text-center focus:outline-none focus:border-cyan-500"
+                            />
+                            <span className="text-xs text-fg-muted dark:text-slate-400">{linked.unit}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {replaceDeductStock && (
+                        <div className="pt-2 border-t border-cyan-200/60 dark:border-cyan-800/40 flex items-center justify-between text-xs text-fg-muted dark:text-slate-300 flex-wrap gap-2">
+                          <div>
+                            คงเหลือหลังตัด: <span className="font-bold text-fg">{remainingAfter}</span> {linked.unit}
+                          </div>
+                          {unitPrice > 0 && (
+                            <div>
+                              มูลค่าที่ใช้: <span className="font-bold text-cyan-700 dark:text-cyan-300">{totalValue.toLocaleString()} บาท</span>
+                              <span className="text-[10px] opacity-75"> ({replaceQty} × {unitPrice.toLocaleString()} ฿)</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Stock Shortage Warning */}
+                      {isStockInsufficient && (
+                        <div className="p-2.5 rounded-lg bg-red-500/15 border border-red-500/30 text-red-700 dark:text-red-300 text-xs flex items-center gap-2 font-medium">
+                          <AlertTriangle className="w-4 h-4 shrink-0 text-red-600 dark:text-red-400" />
+                          <span>
+                            สต็อกไม่พอ! ต้องการ {replaceQty} {linked.unit} แต่ในคลังมีเพียง {linked.quantity} {linked.unit} (กรุณาปรับลดจำนวน หรือเอาติ๊กตัดสต็อกออกหากซื้อเข้ามาใช้ตรง)
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  );
+                } else {
+                  return (
+                    <div className="p-2.5 rounded-lg bg-slate-100 dark:bg-slate-950 border border-border dark:border-slate-800 text-[11px] text-fg-muted dark:text-slate-400 flex items-center gap-1.5">
+                      <AlertCircle className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                      <span>ยังไม่ได้ผูกกับคลังอะไหล่ — ไม่ตัดสต็อก (สามารถผูกคลังได้จากปุ่มแก้ไขอะไหล่)</span>
+                    </div>
+                  );
+                }
+              })()}
+
               <div className="p-3 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-500/30 rounded-xl text-xs space-y-1">
                 <div className="font-semibold text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5" />
@@ -2459,15 +2786,26 @@ export const TimeBreakPage: React.FC = () => {
               >
                 ยกเลิก
               </button>
-              <button
-                id="btn-confirm-replace-part"
-                type="button"
-                onClick={handleConfirmReplacement}
-                className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold transition-all shadow-md flex items-center gap-1.5 cursor-pointer"
-              >
-                <CheckCircle className="w-4 h-4" />
-                <span>ยืนยันเปลี่ยนอะไหล่รอบนี้</span>
-              </button>
+              {(() => {
+                const linked = getLinkedSpare(replacingPart);
+                const isStockInsufficient = Boolean(replaceDeductStock && linked && linked.quantity < replaceQty);
+                return (
+                  <button
+                    id="btn-confirm-replace-part"
+                    type="button"
+                    disabled={isStockInsufficient}
+                    onClick={handleConfirmReplacement}
+                    className={`px-5 py-2 rounded-lg text-xs font-semibold transition-all shadow-md flex items-center gap-1.5 ${
+                      isStockInsufficient
+                        ? 'bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-500 cursor-not-allowed border border-slate-300 dark:border-slate-700'
+                        : 'bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer'
+                    }`}
+                  >
+                    <CheckCircle className="w-4 h-4" />
+                    <span>ยืนยันเปลี่ยนอะไหล่รอบนี้</span>
+                  </button>
+                );
+              })()}
             </div>
           </div>
         </div>

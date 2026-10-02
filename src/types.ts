@@ -244,6 +244,7 @@ export interface TimeBreakHistoryRecord {
   cycleNumber: number; // รอบที่เปลี่ยน เช่น รอบที่ 1, 2, 3...
   technician: string; // ช่างผู้เปลี่ยน
   note?: string; // รายละเอียดการเปลี่ยน/สภาพอะไหล่เดิม
+  usedParts?: { partId: string; quantity: number; pricePerUnit: number; totalCost: number }[];
 }
 
 export interface TimeBreakPartItem {
@@ -262,6 +263,8 @@ export interface TimeBreakPartItem {
   costPerUnit?: number; // ราคาต่อหน่วย
   assignedTechnician?: string; // ช่างผู้รับผิดชอบ
   history?: TimeBreakHistoryRecord[]; // ประวัติรอบการเปลี่ยนที่ผ่านมา
+  sparePartId?: string; // รหัสอะไหล่ในคลัง SparePart.id
+  qtyPerReplace?: number; // จำนวนที่ใช้ต่อการเปลี่ยน 1 ครั้ง (default 1)
 }
 
 export interface ZoneStructure {
