@@ -156,13 +156,16 @@ export const TimeBreakPage: React.FC = () => {
     return Array.from(map.values()).map(item => {
       const freshSpare = spareParts.find(s => s.id === item.spare.id) || item.spare;
       const shortage = Math.max(0, item.needIn30Days - freshSpare.quantity);
+      const suggestedOrder = Math.max(0, item.needIn30Days + freshSpare.minRequired - freshSpare.quantity);
       return {
         spare: freshSpare,
         machineCount: item.machineIds.size,
         itemCount: item.timeBreakItems.length,
         timeBreakItems: item.timeBreakItems,
+        machines: Array.from(item.machineIds),
         needIn30Days: item.needIn30Days,
-        shortage
+        shortage,
+        suggestedOrder
       };
     }).sort((a, b) => {
       if (b.shortage !== a.shortage) return b.shortage - a.shortage;
@@ -170,34 +173,45 @@ export const TimeBreakPage: React.FC = () => {
     });
   }, [timeBreakParts, spareParts]);
 
-  // Section 6.d: Urgent Purchase items (stock < minRequired OR shortage > 0)
+  // Section 6.d: Urgent Purchase items (stock <= minRequired OR shortage > 0)
   const urgentPurchaseList = useMemo(() => {
-    return linkedSpareStats.filter(item => item.spare.quantity < item.spare.minRequired || item.shortage > 0);
+    return linkedSpareStats.filter(item => item.spare.quantity <= item.spare.minRequired || item.shortage > 0);
   }, [linkedSpareStats]);
 
   const handleCopyUrgentList = () => {
     if (urgentPurchaseList.length === 0) return;
     const today = getTodayDateString();
+    const totalEstimatedCost = urgentPurchaseList.reduce((sum, item) => sum + (item.suggestedOrder * (item.spare.pricePerUnit || 0)), 0);
+
     const lines = [
       `📋 รายการอะไหล่ Time-Break ที่ต้องสั่งซื้อด่วน (ณ วันที่ ${today})`,
       `--------------------------------------------------`,
       ...urgentPurchaseList.map((item, idx) => {
         const sp = item.spare;
         const reasons: string[] = [];
-        if (sp.quantity < sp.minRequired) {
-          reasons.push(`ต่ำกว่าเกณฑ์ Min (${sp.quantity}/${sp.minRequired} ${sp.unit})`);
+        if (sp.quantity <= sp.minRequired) {
+          reasons.push(`ถึง/ต่ำกว่าเกณฑ์ Min (${sp.quantity}/${sp.minRequired} ${sp.unit})`);
         }
         if (item.shortage > 0) {
           reasons.push(`ขาดสำหรับรอบ 30 วัน ${item.shortage} ${sp.unit} (ต้องใช้ ${item.needIn30Days} ${sp.unit})`);
         }
-        return `${idx + 1}. [${sp.id}] ${sp.name} | คงเหลือ: ${sp.quantity} ${sp.unit} | Min: ${sp.minRequired} | ต้องใช้ 30 วัน: ${item.needIn30Days} ${sp.unit} | ขาด: ${item.shortage} ${sp.unit} (${reasons.join(', ')})`;
+        const itemVal = item.suggestedOrder * (sp.pricePerUnit || 0);
+        return `${idx + 1}. [${sp.id}] ${sp.name} | คงเหลือ: ${sp.quantity}/${sp.minRequired} ${sp.unit} | ขาด: ${item.shortage} ${sp.unit} | แนะนำสั่ง: ${item.suggestedOrder} ${sp.unit} | มูลค่า: ${itemVal.toLocaleString()} บาท (${reasons.join(', ')})`;
       }),
       `--------------------------------------------------`,
-      `รวมรายการที่ต้องจัดซื้อ: ${urgentPurchaseList.length} รายการ`
+      `รวมรายการที่ต้องจัดซื้อ: ${urgentPurchaseList.length} รายการ | รวมมูลค่าสั่งซื้อโดยประมาณ: ${totalEstimatedCost.toLocaleString()} บาท`
     ];
     navigator.clipboard.writeText(lines.join('\n'));
     setCopiedUrgentList(true);
     setTimeout(() => setCopiedUrgentList(false), 3000);
+  };
+
+  const handleViewStockCard = (partId: string) => {
+    setStockCardPartFilter(partId);
+    const el = document.getElementById('tb-stock-card-section');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   };
 
   // Section 6.b: Quick adjustment handlers
@@ -1047,7 +1061,7 @@ export const TimeBreakPage: React.FC = () => {
       // Sheet 1: รายการอะไหล่ (Spare Parts Overview)
       const spareSheetData = linkedSpareStats.map((item, idx) => {
         const sp = item.spare;
-        const isBelowMin = sp.quantity < sp.minRequired;
+        const isBelowMin = sp.quantity <= sp.minRequired;
         const hasShortage = item.shortage > 0;
         let stockStatus = 'พอใช้';
         if (hasShortage) stockStatus = 'ขาดแคลน (ต้องสั่งซื้อ)';
@@ -1072,9 +1086,10 @@ export const TimeBreakPage: React.FC = () => {
           'เครื่องจักรที่ใช้': machineNames || '-',
           'ยอดที่ต้องใช้ใน 30 วัน': item.needIn30Days || 0,
           'ยอดขาดแคลน': item.shortage || 0,
+          'แนะนำสั่ง': item.suggestedOrder || 0,
           'สถานะสต็อก': stockStatus,
-          'ราคาต่อหน่วย (บาท)': sp.costPerUnit || 0,
-          'มูลค่าคงเหลือรวม (บาท)': (sp.quantity * (sp.costPerUnit || 0))
+          'ราคาต่อหน่วย (บาท)': sp.pricePerUnit || 0,
+          'มูลค่าคงเหลือรวม (บาท)': (sp.quantity * (sp.pricePerUnit || 0))
         };
       });
 
@@ -1083,7 +1098,7 @@ export const TimeBreakPage: React.FC = () => {
         { wch: 8 }, { wch: 16 }, { wch: 30 }, { wch: 16 },
         { wch: 18 }, { wch: 14 }, { wch: 16 }, { wch: 10 },
         { wch: 16 }, { wch: 14 }, { wch: 35 }, { wch: 18 },
-        { wch: 14 }, { wch: 22 }, { wch: 18 }, { wch: 20 }
+        { wch: 14 }, { wch: 14 }, { wch: 22 }, { wch: 18 }, { wch: 20 }
       ];
       XLSX.utils.book_append_sheet(wb, wsSpares, "รายการอะไหล่");
 
@@ -1096,13 +1111,20 @@ export const TimeBreakPage: React.FC = () => {
         else if (sm.type === 'OUT') typeName = 'ตัดออก (OUT)';
         else if (sm.type === 'ADJUST') typeName = 'ปรับยอด (ADJUST)';
 
+        let displayQty: number = sm.quantity;
+        if (sm.type === 'OUT') {
+          displayQty = -Math.abs(sm.quantity);
+        } else if (sm.type === 'ADJUST') {
+          displayQty = sm.delta !== undefined ? sm.delta : sm.quantity;
+        }
+
         return {
           'ลำดับ': idx + 1,
           'วันที่ทำรายการ': sm.date,
           'รหัสอะไหล่': sm.sparePartId,
           'ชื่ออะไหล่': sp?.name || sm.sparePartId,
           'ประเภทรายการ': typeName,
-          'จำนวน': sm.type === 'OUT' ? -Math.abs(sm.quantity) : sm.quantity,
+          'จำนวน': displayQty,
           'หน่วย': sp?.unit || 'ชิ้น',
           'คงเหลือหลังทำรายการ': sm.balanceAfter,
           'ที่มา': sm.source,
@@ -1126,24 +1148,29 @@ export const TimeBreakPage: React.FC = () => {
 
       // Sheet 3: รายการสั่งซื้อด่วน (ถ้ามี)
       if (urgentPurchaseList.length > 0) {
-        const urgentData = urgentPurchaseList.map((item, idx) => ({
-          'ลำดับ': idx + 1,
-          'รหัสอะไหล่': item.spare.id,
-          'ชื่ออะไหล่': item.spare.name,
-          'หมวดหมู่': item.spare.category || '-',
-          'คงเหลือปัจจุบัน': item.spare.quantity,
-          'เกณฑ์ Min': item.spare.minRequired,
-          'ต้องใช้ใน 30 วัน': item.needIn30Days,
-          'ยอดที่ต้องสั่งซื้อ': item.shortage,
-          'หน่วย': item.spare.unit || 'ชิ้น',
-          'ราคาต่อหน่วย': item.spare.costPerUnit || 0,
-          'งบประมาณสั่งซื้อโดยประมาณ': (item.shortage * (item.spare.costPerUnit || 0))
-        }));
+        const urgentData = urgentPurchaseList.map((item, idx) => {
+          const price = item.spare.pricePerUnit || 0;
+          const orderQty = item.suggestedOrder;
+          return {
+            'ลำดับ': idx + 1,
+            'รหัสอะไหล่': item.spare.id,
+            'ชื่ออะไหล่': item.spare.name,
+            'หมวดหมู่': item.spare.category || '-',
+            'คงเหลือปัจจุบัน': item.spare.quantity,
+            'เกณฑ์ Min': item.spare.minRequired,
+            'ต้องใช้ใน 30 วัน': item.needIn30Days,
+            'ยอดขาดแคลน': item.shortage,
+            'แนะนำสั่ง': orderQty,
+            'หน่วย': item.spare.unit || 'ชิ้น',
+            'ราคาต่อหน่วย (บาท)': price,
+            'มูลค่า (บาท)': orderQty * price
+          };
+        });
         const wsUrgent = XLSX.utils.json_to_sheet(urgentData);
         wsUrgent['!cols'] = [
           { wch: 8 }, { wch: 16 }, { wch: 28 }, { wch: 16 },
-          { wch: 16 }, { wch: 12 }, { wch: 16 }, { wch: 18 },
-          { wch: 8 }, { wch: 14 }, { wch: 22 }
+          { wch: 16 }, { wch: 12 }, { wch: 16 }, { wch: 14 },
+          { wch: 14 }, { wch: 8 }, { wch: 16 }, { wch: 18 }
         ];
         XLSX.utils.book_append_sheet(wb, wsUrgent, "รายการสั่งซื้อด่วน");
       }
@@ -1479,29 +1506,15 @@ export const TimeBreakPage: React.FC = () => {
                 </button>
               </>
             ) : (
-              <>
-                <button
-                  id="btn-export-stock-excel"
-                  onClick={() => handleExportStockExcel()}
-                  className="px-3.5 py-2 text-xs font-semibold rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white flex items-center gap-1.5 transition-all shadow-md cursor-pointer"
-                  title="ส่งออกข้อมูลรายการอะไหล่และ Stock Card แยกต่างหากเป็นไฟล์ Excel (.xlsx)"
-                >
-                  <Download className="w-4 h-4 text-white" />
-                  <span>Export Excel รายการอะไหล่</span>
-                </button>
-
-                {urgentPurchaseList.length > 0 && (
-                  <button
-                    id="btn-copy-urgent-header"
-                    onClick={handleCopyUrgentList}
-                    className="px-3 py-2 text-xs font-semibold rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-700 dark:text-rose-300 border border-rose-300 dark:border-rose-500/40 flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
-                    title="คัดลอกรายการสั่งซื้อด่วน"
-                  >
-                    {copiedUrgentList ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
-                    <span>{copiedUrgentList ? 'คัดลอกแล้ว!' : `คัดลอกรายการสั่งซื้อด่วน (${urgentPurchaseList.length})`}</span>
-                  </button>
-                )}
-              </>
+              <button
+                id="btn-export-stock-excel"
+                onClick={() => handleExportStockExcel()}
+                className="px-3.5 py-2 text-xs font-semibold rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white flex items-center gap-1.5 transition-all shadow-md cursor-pointer"
+                title="ส่งออกข้อมูลรายการอะไหล่และ Stock Card แยกต่างหากเป็นไฟล์ Excel (.xlsx)"
+              >
+                <Download className="w-4 h-4 text-white" />
+                <span>Export Excel รายการอะไหล่</span>
+              </button>
             )}
           </div>
         </div>
@@ -2373,38 +2386,60 @@ export const TimeBreakPage: React.FC = () => {
 
                   {/* Quick list of urgent items */}
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5 pt-1">
-                    {urgentPurchaseList.map(item => (
-                      <div
-                        key={item.spare.id}
-                        className="p-3 rounded-xl bg-surface/90 dark:bg-slate-900/90 border border-rose-500/20 flex items-center justify-between gap-3 shadow-xs"
-                      >
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-1.5 flex-wrap">
-                            <span className="font-mono text-xs font-bold text-rose-700 dark:text-rose-400">
-                              {item.spare.id}
-                            </span>
-                            <span className="text-xs font-bold text-slate-900 dark:text-white truncate" title={item.spare.name}>
-                              {item.spare.name}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2 mt-1 text-[11px] text-slate-600 dark:text-slate-400 flex-wrap">
-                            <span>คงเหลือ: <strong className={item.spare.quantity < item.spare.minRequired ? 'text-rose-600 dark:text-rose-400 font-bold' : 'text-slate-800 dark:text-slate-200'}>{item.spare.quantity}</strong>/{item.spare.minRequired} {item.spare.unit}</span>
-                            {item.shortage > 0 && (
-                              <span className="px-1.5 py-0.2 rounded font-bold bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 border border-rose-300 dark:border-rose-800">
-                                ขาด {item.shortage} {item.spare.unit}
+                    {urgentPurchaseList.map(item => {
+                      const itemVal = item.suggestedOrder * (item.spare.pricePerUnit || 0);
+                      return (
+                        <div
+                          key={item.spare.id}
+                          className="p-3 rounded-xl bg-surface/90 dark:bg-slate-900/90 border border-rose-500/20 flex flex-col justify-between gap-2 shadow-xs"
+                        >
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className="font-mono text-xs font-bold text-rose-700 dark:text-rose-400">
+                                {item.spare.id}
                               </span>
-                            )}
+                              <span className="text-xs font-bold text-slate-900 dark:text-white truncate" title={item.spare.name}>
+                                {item.spare.name}
+                              </span>
+                            </div>
+                            <div className="grid grid-cols-2 gap-x-2 gap-y-1 mt-2 text-[11px] text-slate-600 dark:text-slate-400">
+                              <div>
+                                คงเหลือ: <strong className={item.spare.quantity <= item.spare.minRequired ? 'text-rose-600 dark:text-rose-400 font-bold' : 'text-slate-800 dark:text-slate-200'}>{item.spare.quantity}</strong>/{item.spare.minRequired} {item.spare.unit}
+                              </div>
+                              <div>
+                                {item.shortage > 0 ? (
+                                  <span className="text-rose-600 dark:text-rose-400 font-bold">
+                                    ขาด {item.shortage} {item.spare.unit}
+                                  </span>
+                                ) : (
+                                  <span className="text-emerald-600 dark:text-emerald-400 font-medium">พอใช้ 30 วัน</span>
+                                )}
+                              </div>
+                              <div className="text-amber-700 dark:text-amber-300 font-bold">
+                                แนะนำสั่ง: {item.suggestedOrder} {item.spare.unit}
+                              </div>
+                              <div className="font-mono text-slate-900 dark:text-slate-100 font-bold">
+                                มูลค่า: {itemVal.toLocaleString()} บ.
+                              </div>
+                            </div>
                           </div>
                         </div>
-                        <button
-                          onClick={() => handleOpenQuickAdjust(item.spare, 'IN')}
-                          className="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white shrink-0 cursor-pointer shadow-xs"
-                          title="รับเข้าสต็อกด่วน"
-                        >
-                          + รับเข้า
-                        </button>
-                      </div>
-                    ))}
+                      );
+                    })}
+                  </div>
+
+                  {/* Summary Footer */}
+                  <div className="pt-2.5 mt-1 border-t border-rose-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 text-xs">
+                    <span className="text-slate-600 dark:text-slate-400 font-medium">
+                      รวมรายการอะไหล่ที่ต้องสั่งซื้อทั้งหมด {urgentPurchaseList.length} รายการ
+                    </span>
+                    <span className="text-rose-700 dark:text-rose-300 font-bold flex items-center gap-1.5">
+                      <span>รวมมูลค่าสั่งซื้อโดยประมาณ:</span>
+                      <strong className="font-mono text-sm font-black text-rose-600 dark:text-rose-400">
+                        {urgentPurchaseList.reduce((sum, item) => sum + (item.suggestedOrder * (item.spare.pricePerUnit || 0)), 0).toLocaleString()}
+                      </strong>
+                      <span>บาท</span>
+                    </span>
                   </div>
                 </div>
               )}
@@ -2426,7 +2461,7 @@ export const TimeBreakPage: React.FC = () => {
                     </p>
                   </div>
 
-                  <div className="flex items-center gap-2 flex-wrap">
+                  <div className="flex items-center gap-2">
                     <div className="relative w-full sm:w-64">
                       <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                       <input
@@ -2437,14 +2472,6 @@ export const TimeBreakPage: React.FC = () => {
                         className="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 dark:bg-slate-800/70 border border-slate-300 dark:border-slate-700 rounded-xl text-fg focus:outline-none focus:ring-2 focus:ring-cyan-500"
                       />
                     </div>
-                    <button
-                      onClick={() => handleExportStockExcel()}
-                      className="px-3 py-1.5 text-xs font-semibold rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-cyan-700 dark:text-cyan-300 border border-slate-300 dark:border-slate-700 flex items-center gap-1.5 transition-all shadow-xs cursor-pointer shrink-0"
-                      title="ส่งออกข้อมูลรายการอะไหล่และ Stock Card เป็นไฟล์ Excel (.xlsx)"
-                    >
-                      <Download className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
-                      <span>Export Excel</span>
-                    </button>
                   </div>
                 </div>
 
@@ -2473,7 +2500,7 @@ export const TimeBreakPage: React.FC = () => {
                       ) : (
                         filteredLinkedSpareStats.map(item => {
                           const sp = item.spare;
-                          const isBelowMin = sp.quantity < sp.minRequired;
+                          const isBelowMin = sp.quantity <= sp.minRequired;
                           const hasShortage = item.shortage > 0;
                           return (
                             <tr key={sp.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
@@ -2541,6 +2568,14 @@ export const TimeBreakPage: React.FC = () => {
                                   >
                                     ปรับยอด
                                   </button>
+                                  <button
+                                    onClick={() => handleViewStockCard(sp.id)}
+                                    className="px-2.5 py-1 text-xs font-bold rounded-lg bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 transition-all cursor-pointer flex items-center gap-1"
+                                    title="ดูประวัติ Stock Card ของอะไหล่นี้"
+                                  >
+                                    <History className="w-3.5 h-3.5" />
+                                    <span>Stock Card</span>
+                                  </button>
                                 </div>
                               </td>
                             </tr>
@@ -2553,7 +2588,7 @@ export const TimeBreakPage: React.FC = () => {
               </div>
 
               {/* b) Stock Card: ตารางประวัติการเคลื่อนไหวสต็อก */}
-              <div className="bg-surface dark:bg-slate-900/90 border border-border dark:border-slate-800/80 rounded-2xl shadow-sm overflow-hidden">
+              <div id="tb-stock-card-section" className="bg-surface dark:bg-slate-900/90 border border-border dark:border-slate-800/80 rounded-2xl shadow-sm overflow-hidden scroll-mt-24">
                 {/* Header with Filters */}
                 <div className="p-4 sm:p-5 border-b border-border dark:border-slate-800 space-y-3">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -2567,6 +2602,9 @@ export const TimeBreakPage: React.FC = () => {
                       </h3>
                       <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
                         บันทึกการตัดสต็อกอัตโนมัติจากการเปลี่ยนอะไหล่ Time-Break, การรับเข้า, และการปรับยอดสต็อก
+                      </p>
+                      <p className="text-[11px] text-amber-600 dark:text-amber-400 mt-1 font-medium">
+                        * การใช้อะไหล่จาก Repair/PM ยังไม่ถูกบันทึกใน Stock Card
                       </p>
                     </div>
 
@@ -2679,7 +2717,9 @@ export const TimeBreakPage: React.FC = () => {
                                   <span className="text-rose-600 dark:text-rose-400">-{sm.quantity}</span>
                                 )}
                                 {sm.type === 'ADJUST' && (
-                                  <span className="text-sky-600 dark:text-sky-400">{sm.quantity}</span>
+                                  <span className={sm.delta !== undefined ? (sm.delta >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400") : "text-sky-600 dark:text-sky-400"}>
+                                    {sm.delta !== undefined ? (sm.delta >= 0 ? `+${sm.delta}` : sm.delta) : sm.quantity}
+                                  </span>
                                 )}
                                 <span className="text-slate-400 font-normal ml-1">{targetSpare?.unit || 'ชิ้น'}</span>
                               </td>

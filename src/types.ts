@@ -245,6 +245,7 @@ export interface StockMovement {
   createdAt: string; /* ISO */
   type: 'IN' | 'OUT' | 'ADJUST';
   quantity: number; /* ค่าบวกเสมอ */
+  delta?: number; /* ค่า delta (+/-) ที่ถูกนำไปคำนวณจริง */
   balanceAfter: number;
   source: 'TimeBreak' | 'Inventory' | 'Repair' | 'PM' | 'Manual';
   refId?: string; /* timeBreakPart.id หรือ history.id */

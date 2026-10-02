@@ -1101,22 +1101,30 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       note?: string;
     }
   ) => {
+    if (delta === 0) return;
+
     const today = getTodayDateString();
     const dateStr = meta.date || today;
+    const movementId = `sm-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+    const createdAtIso = new Date().toISOString();
 
     setSpareParts(prevParts => {
       const target = prevParts.find(p => p.id === sparePartId);
       if (!target) return prevParts;
 
       const newQty = Math.max(0, target.quantity + delta);
+      const appliedDelta = newQty - target.quantity;
+
+      if (appliedDelta === 0) return prevParts;
 
       const newMovement: StockMovement = {
-        id: `sm-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+        id: movementId,
         sparePartId,
         date: dateStr,
-        createdAt: new Date().toISOString(),
+        createdAt: createdAtIso,
         type: meta.type,
-        quantity: Math.abs(delta),
+        quantity: Math.abs(appliedDelta),
+        delta: appliedDelta,
         balanceAfter: newQty,
         source: meta.source,
         refId: meta.refId,
@@ -1125,14 +1133,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         note: meta.note
       };
 
-      setStockMovements(prevMovements => [newMovement, ...prevMovements]);
+      setStockMovements(prev => prev.some(m => m.id === movementId) ? prev : [newMovement, ...prev]);
 
       return prevParts.map(p => {
         if (p.id !== sparePartId) return p;
         return {
           ...p,
           quantity: newQty,
-          ...(delta > 0 && meta.type === 'IN' ? { lastRestockedDate: dateStr } : {})
+          ...(appliedDelta > 0 && meta.type === 'IN' ? { lastRestockedDate: dateStr } : {})
         };
       });
     });
