@@ -113,9 +113,9 @@ export const MachinePage: React.FC = () => {
       const cleanName = z.name.replace(/[\uFFFD]/g, '').trim();
       if (cleanName && !map.has(cleanName)) map.set(cleanName, 0);
     });
-    // Add machine counts (using locationZone or lineGroup fallback)
+    // Add machine counts (using locationZone only, across all rooms)
     machines.forEach(m => {
-      const z = (m.locationZone || m.lineGroup || '').replace(/[\uFFFD]/g, '').trim();
+      const z = (m.locationZone || '').replace(/[\uFFFD]/g, '').trim();
       if (z) {
         map.set(z, (map.get(z) || 0) + 1);
       }
@@ -123,25 +123,41 @@ export const MachinePage: React.FC = () => {
     return Array.from(map.entries()).sort((a, b) => a[0].localeCompare(b[0], 'th'));
   }, [machines, zones]);
 
+  // Unassigned zone count
+  const unassignedZoneCount = useMemo(() => {
+    return machines.filter(m => !(m.locationZone || '').trim()).length;
+  }, [machines]);
+
+  // Total machines in currently selected zone (or all)
+  const zoneMachineTotal = useMemo(() => {
+    if (!selectedZone) return machines.length;
+    if (selectedZone === '__unassigned__') return unassignedZoneCount;
+    return machines.filter(m => (m.locationZone || '').trim().toLowerCase() === selectedZone.trim().toLowerCase()).length;
+  }, [machines, selectedZone, unassignedZoneCount]);
+
   // Available unique rooms with counts (filtered by selectedZone if chosen)
   const availableRooms = useMemo(() => {
     const map = new Map<string, number>();
-    if (selectedZone) {
+    if (selectedZone && selectedZone !== '__unassigned__') {
       const zObj = zones.find(
         z => z.name.toLowerCase().trim() === selectedZone.toLowerCase().trim()
       );
       (zObj?.rooms || []).forEach(r => {
         if (r) map.set(r, 0);
       });
-    } else {
+    } else if (!selectedZone) {
       zones.flatMap(z => z.rooms || []).forEach(r => {
         if (r) map.set(r, 0);
       });
     }
 
     machines.forEach(m => {
-      const z = (m.locationZone || m.lineGroup || '').trim();
-      if (selectedZone && z.toLowerCase() !== selectedZone.toLowerCase()) return;
+      const z = (m.locationZone || '').trim();
+      if (selectedZone === '__unassigned__') {
+        if (z) return;
+      } else if (selectedZone && z.toLowerCase() !== selectedZone.toLowerCase()) {
+        return;
+      }
       const r = (m.locationRoom || '').trim();
       if (r) {
         map.set(r, (map.get(r) || 0) + 1);
@@ -152,8 +168,10 @@ export const MachinePage: React.FC = () => {
 
   const filteredMachines = useMemo(() => {
     return machines.filter(m => {
-      const zoneVal = (m.locationZone || m.lineGroup || '').trim();
-      if (selectedZone && zoneVal.toLowerCase() !== selectedZone.trim().toLowerCase()) {
+      const zoneVal = (m.locationZone || '').trim();
+      if (selectedZone === '__unassigned__') {
+        if (zoneVal) return false;
+      } else if (selectedZone && zoneVal.toLowerCase() !== selectedZone.trim().toLowerCase()) {
         return false;
       }
       const roomVal = (m.locationRoom || '').trim();
@@ -199,8 +217,8 @@ export const MachinePage: React.FC = () => {
           m.powerVoltage || '-',
           m.installDate || '-',
           m.vendor || '-',
-          m.locationZone || (m.lineGroup ? `โซน ${m.lineGroup}` : '-'),
-          m.locationRoom || '-',
+          m.locationZone || 'ยังไม่ระบุ',
+          m.locationRoom || 'ยังไม่ระบุ',
           m.serialNumber || '-',
           m.notes || '-'
         ])
@@ -888,8 +906,8 @@ export const MachinePage: React.FC = () => {
               <div className="text-[10px] uppercase font-bold text-sky-800 dark:text-cyan-400 tracking-wider">
                 โซน (Zone)
               </div>
-              <div className="text-sm font-bold text-slate-900 dark:text-cyan-100 truncate mt-0.5" title={m.locationZone || m.lineGroup}>
-                {m.locationZone || m.lineGroup || '-'}
+              <div className="text-sm font-bold text-slate-900 dark:text-cyan-100 truncate mt-0.5" title={m.locationZone || 'ยังไม่ระบุ'}>
+                {m.locationZone || 'ยังไม่ระบุ'}
               </div>
             </div>
           </div>
@@ -903,8 +921,8 @@ export const MachinePage: React.FC = () => {
               <div className="text-[10px] uppercase font-bold text-emerald-800 dark:text-emerald-400 tracking-wider">
                 ห้องที่ติดตั้ง (Room)
               </div>
-              <div className="text-sm font-bold text-slate-900 dark:text-emerald-100 truncate mt-0.5" title={m.locationRoom}>
-                {m.locationRoom || '-'}
+              <div className="text-sm font-bold text-slate-900 dark:text-emerald-100 truncate mt-0.5" title={m.locationRoom || 'ยังไม่ระบุ'}>
+                {m.locationRoom || 'ยังไม่ระบุ'}
               </div>
             </div>
           </div>
@@ -1400,7 +1418,7 @@ export const MachinePage: React.FC = () => {
                 className="w-full bg-transparent text-fg dark:text-slate-200 text-xs font-semibold focus:outline-none cursor-pointer truncate"
               >
                 <option value="" className="bg-surface dark:bg-slate-900 text-fg dark:text-slate-300">
-                  ทุกห้อง ({availableRooms.reduce((acc, [, c]) => acc + c, 0)} เครื่อง)
+                  ทุกห้อง ({zoneMachineTotal} เครื่อง)
                 </option>
                 {availableRooms.map(([room, count]) => (
                   <option key={room} value={room} className="bg-surface dark:bg-slate-900 text-fg dark:text-slate-200">
@@ -1514,6 +1532,36 @@ export const MachinePage: React.FC = () => {
                 </button>
               );
             })}
+
+            {/* Unassigned Zone button */}
+            {unassignedZoneCount > 0 && (
+              <button
+                type="button"
+                id="btn-zone-chip-unassigned"
+                onClick={() => {
+                  if (selectedZone === '__unassigned__') {
+                    setSelectedZone('');
+                    setSelectedRoom('');
+                  } else {
+                    setSelectedZone('__unassigned__');
+                    setSelectedRoom('');
+                  }
+                }}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer flex items-center gap-1.5 shadow-2xs ${
+                  selectedZone === '__unassigned__'
+                    ? 'bg-amber-500 text-slate-900 shadow-xs'
+                    : 'bg-white dark:bg-slate-900/80 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700'
+                }`}
+                title="แสดงเครื่องจักรที่ยังไม่ระบุโซน"
+              >
+                <span>ยังไม่ระบุ</span>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono font-bold ${
+                  selectedZone === '__unassigned__' ? 'bg-amber-950/20 text-slate-900' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
+                }`}>
+                  {unassignedZoneCount}
+                </span>
+              </button>
+            )}
           </div>
 
           {/* View mode & expand controls */}
@@ -1662,7 +1710,7 @@ export const MachinePage: React.FC = () => {
                               <span 
                                 key={m.id}
                                 className="font-mono text-xs px-2 py-0.5 bg-slate-100 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700 text-cyan-900 dark:text-cyan-300 font-bold rounded whitespace-nowrap"
-                                title={`เครื่องที่ ${mIdx + 1}: ${m.id} | Model: ${m.model || '-'} | ห้อง: ${m.locationRoom || '-'}`}
+                                title={`เครื่องที่ ${mIdx + 1}: ${m.id} | Model: ${m.model || '-'} | ห้อง: ${m.locationRoom || 'ยังไม่ระบุ'}`}
                               >
                                 #{mIdx + 1}: {m.id}
                               </span>
@@ -1674,8 +1722,8 @@ export const MachinePage: React.FC = () => {
                         {showZoneColumn && (
                           <td className="py-4 px-3 w-32 whitespace-nowrap text-center">
                             <div className="flex flex-wrap gap-1 justify-center">
-                              {Array.from(new Set(group.machines.map(m => m.locationZone || m.lineGroup).filter(Boolean))).length > 0 ? (
-                                Array.from(new Set(group.machines.map(m => m.locationZone || m.lineGroup).filter(Boolean))).map((zone, zIdx) => (
+                              {Array.from(new Set(group.machines.map(m => m.locationZone?.trim()).filter(Boolean))).length > 0 ? (
+                                Array.from(new Set(group.machines.map(m => m.locationZone?.trim()).filter(Boolean))).map((zone, zIdx) => (
                                   <span 
                                     key={zIdx}
                                     className="pill-zone text-[11px] px-2.5 py-0.5 rounded-full border truncate max-w-[120px]"
@@ -1684,7 +1732,7 @@ export const MachinePage: React.FC = () => {
                                   </span>
                                 ))
                               ) : (
-                                <span className="text-slate-500 text-xs">-</span>
+                                <span className="text-slate-400 text-xs">ยังไม่ระบุ</span>
                               )}
                             </div>
                           </td>
@@ -1694,8 +1742,8 @@ export const MachinePage: React.FC = () => {
                         {showRoomColumn && (
                           <td className="py-4 px-3 w-28 whitespace-nowrap text-center">
                             <div className="flex flex-wrap gap-1 justify-center">
-                              {Array.from(new Set(group.machines.map(m => m.locationRoom).filter(Boolean))).length > 0 ? (
-                                Array.from(new Set(group.machines.map(m => m.locationRoom).filter(Boolean))).map((room, rIdx) => (
+                              {Array.from(new Set(group.machines.map(m => m.locationRoom?.trim()).filter(Boolean))).length > 0 ? (
+                                Array.from(new Set(group.machines.map(m => m.locationRoom?.trim()).filter(Boolean))).map((room, rIdx) => (
                                   <span 
                                     key={rIdx}
                                     className="pill-room text-[11px] px-2.5 py-0.5 rounded-md border truncate max-w-[100px]"
@@ -1704,7 +1752,7 @@ export const MachinePage: React.FC = () => {
                                   </span>
                                 ))
                               ) : (
-                                <span className="text-slate-500 text-xs">-</span>
+                                <span className="text-slate-400 text-xs">ยังไม่ระบุ</span>
                               )}
                             </div>
                           </td>
@@ -1789,7 +1837,7 @@ export const MachinePage: React.FC = () => {
                                       const stats = getMachineStats(m.id);
                                       const isDetailExpanded = expandedMachineId === m.id;
                                       const unitNumber = mIndex + 1;
-                                      const unitLocation = [m.locationZone, m.locationRoom].filter(Boolean).join(' > ') || m.lineGroup;
+                                      const unitLocation = [m.locationZone, m.locationRoom].filter(Boolean).join(' > ') || 'ยังไม่ระบุ';
 
                                       return (
                                         <React.Fragment key={m.id}>
@@ -1832,7 +1880,7 @@ export const MachinePage: React.FC = () => {
                                             {showZoneColumn && (
                                               <td className="py-3 px-3">
                                                 <span className="pill-zone text-[11px] px-2 py-0.5 rounded-full border font-medium">
-                                                  {m.locationZone || m.lineGroup || '-'}
+                                                  {m.locationZone || 'ยังไม่ระบุ'}
                                                 </span>
                                               </td>
                                             )}
@@ -1948,7 +1996,7 @@ export const MachinePage: React.FC = () => {
                 filteredMachines.map((m, index) => {
                   const stats = getMachineStats(m.id);
                   const isExpanded = expandedMachineId === m.id;
-                  const fullLocation = [m.locationZone, m.locationRoom].filter(Boolean).join(' > ') || m.lineGroup;
+                  const fullLocation = [m.locationZone, m.locationRoom].filter(Boolean).join(' > ') || 'ยังไม่ระบุ';
 
                   return (
                     <React.Fragment key={m.id}>
@@ -1974,7 +2022,7 @@ export const MachinePage: React.FC = () => {
                         {showZoneColumn && (
                           <td className="py-4 px-3 w-32 whitespace-nowrap text-center">
                             <span className="pill-zone text-xs px-2.5 py-0.5 rounded-full border font-medium truncate max-w-[120px] inline-block">
-                              {m.locationZone || m.lineGroup || '-'}
+                              {m.locationZone || 'ยังไม่ระบุ'}
                             </span>
                           </td>
                         )}
@@ -1984,7 +2032,7 @@ export const MachinePage: React.FC = () => {
                           <td className="py-4 px-3 w-28 whitespace-nowrap text-center">
                             <div className="flex items-center justify-center gap-1.5">
                               <span className="pill-room text-xs px-2.5 py-0.5 rounded-md border font-medium truncate max-w-[100px] inline-block">
-                                {m.locationRoom || '-'}
+                                {m.locationRoom || 'ยังไม่ระบุ'}
                               </span>
                             </div>
                             {m.powerVoltage && (

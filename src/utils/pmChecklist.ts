@@ -46,6 +46,23 @@ export function resetPlanChecklist(plan: PMPlan): PMPlan {
   };
 }
 
+/**
+ * Returns the latest (max) date string among completed PM schedule items for a plan,
+ * or '' if none.
+ */
+export function latestCompletedDate(planId: string, schedules: any[]): string {
+  if (!planId || !Array.isArray(schedules)) return '';
+  let maxDate = '';
+  for (const s of schedules) {
+    if (s && s.type === 'PM' && s.pmPlanId === planId && s.status === 'เสร็จสิ้น' && s.date) {
+      if (!maxDate || s.date > maxDate) {
+        maxDate = s.date;
+      }
+    }
+  }
+  return maxDate;
+}
+
 export interface RecordPmRoundParams {
   plan: PMPlan;
   date: string;
@@ -108,7 +125,7 @@ export function recordPmRound({
       const newSchedules = schedules.map(s => s.id === existingDoneWithChecklist.id ? updatedJob : s);
       const updatedPlan: PMPlan = {
         ...resetPlanChecklist(plan),
-        lastCheckedDate: date
+        lastCheckedDate: latestCompletedDate(plan.id, newSchedules)
       };
       return {
         schedules: newSchedules,
@@ -134,11 +151,11 @@ export function recordPmRound({
       ...(actualDuration !== undefined && actualDuration > 0 ? { actualDuration } : {})
     };
     const { job: completedJob, plan: resetPlan } = completePmJob(jobToComplete, plan);
+    const newSchedules = schedules.map(s => s.id === pendingJob.id ? completedJob : s);
     const updatedPlan: PMPlan = {
       ...(resetPlan || resetPlanChecklist(plan)),
-      lastCheckedDate: date
+      lastCheckedDate: latestCompletedDate(plan.id, newSchedules)
     };
-    const newSchedules = schedules.map(s => s.id === pendingJob.id ? completedJob : s);
     return {
       schedules: newSchedules,
       plan: updatedPlan,
@@ -164,13 +181,14 @@ export function recordPmRound({
     checklistResult: snapshotChecklist(plan)
   };
 
+  const newSchedules = [...schedules, newJob];
   const updatedPlan: PMPlan = {
     ...resetPlanChecklist(plan),
-    lastCheckedDate: date
+    lastCheckedDate: latestCompletedDate(plan.id, newSchedules)
   };
 
   return {
-    schedules: [...schedules, newJob],
+    schedules: newSchedules,
     plan: updatedPlan,
     job: newJob
   };

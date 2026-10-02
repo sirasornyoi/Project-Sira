@@ -578,193 +578,193 @@
       "id": "BCF01",
       "name": "BLAST CHILLER & FREEZER",
       "lineGroup": "FREEZER",
-      "locationZone": "FREEZER"
+      "locationZone": ""
     },
     {
       "id": "BCF02",
       "name": "BLAST CHILLER & FREEZER",
       "lineGroup": "FREEZER",
-      "locationZone": "FREEZER"
+      "locationZone": ""
     },
     {
       "id": "BCF03",
       "name": "BLAST CHILLER & FREEZER",
       "lineGroup": "FREEZER",
-      "locationZone": "FREEZER"
+      "locationZone": ""
     },
     {
       "id": "BCF04",
       "name": "BLAST CHILLER & FREEZER",
       "lineGroup": "FREEZER",
-      "locationZone": "FREEZER"
+      "locationZone": ""
     },
     {
       "id": "BCF05",
       "name": "BLAST CHILLER & FREEZER",
       "lineGroup": "FREEZER",
-      "locationZone": "FREEZER"
+      "locationZone": ""
     },
     {
       "id": "BCF06",
       "name": "BLAST CHILLER & FREEZER",
       "lineGroup": "FREEZER",
-      "locationZone": "FREEZER"
+      "locationZone": ""
     },
     {
       "id": "BCH01",
       "name": "BLAST CHILLER",
       "lineGroup": "FREEZER",
-      "locationZone": "FREEZER"
+      "locationZone": ""
     },
     {
       "id": "CDU01",
       "name": "CONDENSING UNIT",
       "lineGroup": "UTILITY",
-      "locationZone": "UTILITY"
+      "locationZone": ""
     },
     {
       "id": "CDU02",
       "name": "CONDENSING UNIT",
       "lineGroup": "UTILITY",
-      "locationZone": "UTILITY"
+      "locationZone": ""
     },
     {
       "id": "CDU03",
       "name": "CONDENSING UNIT",
       "lineGroup": "UTILITY",
-      "locationZone": "UTILITY"
+      "locationZone": ""
     },
     {
       "id": "CDU04",
       "name": "CONDENSING UNIT",
       "lineGroup": "UTILITY",
-      "locationZone": "UTILITY"
+      "locationZone": ""
     },
     {
       "id": "CDU05",
       "name": "CONDENSING UNIT",
       "lineGroup": "UTILITY",
-      "locationZone": "UTILITY"
+      "locationZone": ""
     },
     {
       "id": "CDU06",
       "name": "CONDENSING UNIT",
       "lineGroup": "UTILITY",
-      "locationZone": "UTILITY"
+      "locationZone": ""
     },
     {
       "id": "TLP01",
       "name": "THERMAL LABEL PRINTER",
       "lineGroup": "PRINTER",
-      "locationZone": "PRINTER"
+      "locationZone": ""
     },
     {
       "id": "TLP02",
       "name": "THERMAL LABEL PRINTER",
       "lineGroup": "PRINTER",
-      "locationZone": "PRINTER"
+      "locationZone": ""
     },
     {
       "id": "TLP03",
       "name": "THERMAL LABEL PRINTER",
       "lineGroup": "PRINTER",
-      "locationZone": "PRINTER"
+      "locationZone": ""
     },
     {
       "id": "TLP04",
       "name": "THERMAL LABEL PRINTER",
       "lineGroup": "PRINTER",
-      "locationZone": "PRINTER"
+      "locationZone": ""
     },
     {
       "id": "TLP05",
       "name": "THERMAL LABEL PRINTER",
       "lineGroup": "PRINTER",
-      "locationZone": "PRINTER"
+      "locationZone": ""
     },
     {
       "id": "TLP06",
       "name": "THERMAL LABEL PRINTER",
       "lineGroup": "PRINTER",
-      "locationZone": "PRINTER"
+      "locationZone": ""
     },
     {
       "id": "TLP07",
       "name": "THERMAL LABEL PRINTER",
       "lineGroup": "PRINTER",
-      "locationZone": "PRINTER"
+      "locationZone": ""
     },
     {
       "id": "TLP08",
       "name": "THERMAL LABEL PRINTER",
       "lineGroup": "PRINTER",
-      "locationZone": "PRINTER"
+      "locationZone": ""
     },
     {
       "id": "TLP09",
       "name": "THERMAL LABEL PRINTER",
       "lineGroup": "PRINTER",
-      "locationZone": "PRINTER"
+      "locationZone": ""
     },
     {
       "id": "TLP10",
       "name": "THERMAL LABEL PRINTER",
       "lineGroup": "PRINTER",
-      "locationZone": "PRINTER"
+      "locationZone": ""
     },
     {
       "id": "TLP11",
       "name": "THERMAL LABEL PRINTER",
       "lineGroup": "PRINTER",
-      "locationZone": "PRINTER"
+      "locationZone": ""
     },
     {
       "id": "TLP12",
       "name": "THERMAL LABEL PRINTER",
       "lineGroup": "PRINTER",
-      "locationZone": "PRINTER"
+      "locationZone": ""
     },
     {
       "id": "TLP13",
       "name": "THERMAL LABEL PRINTER",
       "lineGroup": "PRINTER",
-      "locationZone": "PRINTER"
+      "locationZone": ""
     },
     {
       "id": "TLP14",
       "name": "THERMAL LABEL PRINTER",
       "lineGroup": "PRINTER",
-      "locationZone": "PRINTER"
+      "locationZone": ""
     },
     {
       "id": "TLP15",
       "name": "THERMAL LABEL PRINTER",
       "lineGroup": "PRINTER",
-      "locationZone": "PRINTER"
+      "locationZone": ""
     },
     {
       "id": "INK01",
       "name": "INK JET",
       "lineGroup": "PRINTER",
-      "locationZone": "PRINTER"
+      "locationZone": ""
     },
     {
       "id": "INK02",
       "name": "INK JET",
       "lineGroup": "PRINTER",
-      "locationZone": "PRINTER"
+      "locationZone": ""
     },
     {
       "id": "INK03",
       "name": "INK JET",
       "lineGroup": "PRINTER",
-      "locationZone": "PRINTER"
+      "locationZone": ""
     },
     {
       "id": "INK04",
       "name": "INK JET",
       "lineGroup": "PRINTER",
-      "locationZone": "PRINTER"
+      "locationZone": ""
     },
     {
       "id": "STK01",
@@ -781,79 +781,79 @@
       "id": "STK02",
       "name": "เครื่องติดสติกเกอร์อัตโนมัติ",
       "lineGroup": "STICKER",
-      "locationZone": "STICKER"
+      "locationZone": ""
     },
     {
       "id": "STK03",
       "name": "เครื่องติดสติกเกอร์อัตโนมัติ",
       "lineGroup": "STICKER",
-      "locationZone": "STICKER"
+      "locationZone": ""
     },
     {
       "id": "STK04",
       "name": "เครื่องติดสติกเกอร์อัตโนมัติ ซูซิโรล",
       "lineGroup": "STICKER",
-      "locationZone": "STICKER"
+      "locationZone": ""
     },
     {
       "id": "STK05",
       "name": "เครื่องติดสติกเกอร์อัตโนมัติ โอนิกิริ",
       "lineGroup": "STICKER",
-      "locationZone": "STICKER"
+      "locationZone": ""
     },
     {
       "id": "STK06",
       "name": "เครื่องติดสติกเกอร์อัตโนมัติ โอนิกิริ แบบใหม่",
       "lineGroup": "STICKER",
-      "locationZone": "STICKER"
+      "locationZone": ""
     },
     {
       "id": "STK07",
       "name": "เครื่องติดสติกเกอร์อัตโนมัติ",
       "lineGroup": "STICKER",
-      "locationZone": "STICKER"
+      "locationZone": ""
     },
     {
       "id": "OFR01",
       "name": "ONIGIRI FORMING ROBOT",
       "lineGroup": "ROBOT",
-      "locationZone": "ROBOT"
+      "locationZone": ""
     },
     {
       "id": "ONR01",
       "name": "Onigiri Robot",
       "lineGroup": "ROBOT",
-      "locationZone": "ROBOT"
+      "locationZone": ""
     },
     {
       "id": "ORS01",
       "name": "Onigiri Robot (Supply unit)",
       "lineGroup": "ROBOT",
-      "locationZone": "ROBOT"
+      "locationZone": ""
     },
     {
       "id": "ARB01",
       "name": "Automatic Rice Ball Wrapping Machine",
       "lineGroup": "ROBOT",
-      "locationZone": "ROBOT"
+      "locationZone": ""
     },
     {
       "id": "WPM01",
       "name": "WRAPPING MACHINE (โอนิกิริ)",
       "lineGroup": "PACKING",
-      "locationZone": "PACKING"
+      "locationZone": ""
     },
     {
       "id": "FOM01",
       "name": "FORMING",
       "lineGroup": "ROBOT",
-      "locationZone": "ROBOT"
+      "locationZone": ""
     },
     {
       "id": "SRM01",
       "name": "STICKY RICE FORMING MACHINE",
       "lineGroup": "ROBOT",
-      "locationZone": "ROBOT"
+      "locationZone": ""
     },
     {
       "id": "GKT01",
@@ -869,19 +869,19 @@
       "id": "MIV01",
       "name": "MIXER VERTICAL",
       "lineGroup": "MIXER",
-      "locationZone": "MIXER"
+      "locationZone": ""
     },
     {
       "id": "MIV02",
       "name": "MIXER VERTICAL",
       "lineGroup": "MIXER",
-      "locationZone": "MIXER"
+      "locationZone": ""
     },
     {
       "id": "MIV03",
       "name": "MIXER VERTICAL",
       "lineGroup": "MIXER",
-      "locationZone": "MIXER"
+      "locationZone": ""
     },
     {
       "id": "MIX01",
@@ -894,199 +894,199 @@
       "id": "UFL01",
       "name": "UNIFILLER",
       "lineGroup": "FILLER",
-      "locationZone": "FILLER"
+      "locationZone": ""
     },
     {
       "id": "UFL02",
       "name": "UNIFILLER",
       "lineGroup": "FILLER",
-      "locationZone": "FILLER"
+      "locationZone": ""
     },
     {
       "id": "RJT01",
       "name": "REJECTOR",
       "lineGroup": "REJECTOR",
-      "locationZone": "REJECTOR"
+      "locationZone": ""
     },
     {
       "id": "RJT02",
       "name": "REJECTOR",
       "lineGroup": "REJECTOR",
-      "locationZone": "REJECTOR"
+      "locationZone": ""
     },
     {
       "id": "RJT03",
       "name": "REJECTOR",
       "lineGroup": "REJECTOR",
-      "locationZone": "REJECTOR"
+      "locationZone": ""
     },
     {
       "id": "RJT04",
       "name": "REJECTOR",
       "lineGroup": "REJECTOR",
-      "locationZone": "REJECTOR"
+      "locationZone": ""
     },
     {
       "id": "RJT05",
       "name": "REJECTOR",
       "lineGroup": "REJECTOR",
-      "locationZone": "REJECTOR"
+      "locationZone": ""
     },
     {
       "id": "RJT06",
       "name": "REJECTOR",
       "lineGroup": "REJECTOR",
-      "locationZone": "REJECTOR"
+      "locationZone": ""
     },
     {
       "id": "RJT07",
       "name": "REJECTOR berger",
       "lineGroup": "REJECTOR",
-      "locationZone": "REJECTOR"
+      "locationZone": ""
     },
     {
       "id": "RJT08",
       "name": "REJECTOR",
       "lineGroup": "REJECTOR",
-      "locationZone": "REJECTOR"
+      "locationZone": ""
     },
     {
       "id": "STN01",
       "name": "SHRINK TUNNEL",
       "lineGroup": "UTILITY",
-      "locationZone": "UTILITY"
+      "locationZone": ""
     },
     {
       "id": "STN02",
       "name": "SHRINK TUNNEL",
       "lineGroup": "UTILITY",
-      "locationZone": "UTILITY"
+      "locationZone": ""
     },
     {
       "id": "PAC01",
       "name": "PACKING MACHINE",
       "lineGroup": "PACKING",
-      "locationZone": "PACKING"
+      "locationZone": ""
     },
     {
       "id": "PAC02",
       "name": "PACKING MACHINE",
       "lineGroup": "PACKING",
-      "locationZone": "PACKING"
+      "locationZone": ""
     },
     {
       "id": "LSE01",
       "name": "L SEAL",
       "lineGroup": "PACKING",
-      "locationZone": "PACKING"
+      "locationZone": ""
     },
     {
       "id": "CLM01",
       "name": "เครื่องปิดฝาข้าวถ้วย",
       "lineGroup": "PACKING",
-      "locationZone": "PACKING"
+      "locationZone": ""
     },
     {
       "id": "SEH01",
       "name": "เครื่องชีลแนวนอน",
       "lineGroup": "PACKING",
-      "locationZone": "PACKING"
+      "locationZone": ""
     },
     {
       "id": "CUC01",
       "name": "CUTTING CONVEYOR",
       "lineGroup": "CONVEYOR",
-      "locationZone": "CONVEYOR"
+      "locationZone": ""
     },
     {
       "id": "RST01",
       "name": "ROLL SUSHI TRANSFER MACHINE",
       "lineGroup": "ROBOT",
-      "locationZone": "ROBOT"
+      "locationZone": ""
     },
     {
       "id": "RSW01",
       "name": "ROLL SUSHI WRAPPING MACHINE",
       "lineGroup": "ROBOT",
-      "locationZone": "ROBOT"
+      "locationZone": ""
     },
     {
       "id": "CUF01",
       "name": "เครื่องตัดแคริฟอเนีย โรล",
       "lineGroup": "ROBOT",
-      "locationZone": "ROBOT"
+      "locationZone": ""
     },
     {
       "id": "RPT01",
       "name": "RICE PORTION",
       "lineGroup": "ROBOT",
-      "locationZone": "ROBOT"
+      "locationZone": ""
     },
     {
       "id": "RPT02",
       "name": "RICE PORTION",
       "lineGroup": "ROBOT",
-      "locationZone": "ROBOT"
+      "locationZone": ""
     },
     {
       "id": "WDV01",
       "name": "Weighing Device",
       "lineGroup": "QC",
-      "locationZone": "QC"
+      "locationZone": ""
     },
     {
       "id": "WDR01",
       "name": "Weighing Device (Reject)",
       "lineGroup": "QC",
-      "locationZone": "QC"
+      "locationZone": ""
     },
     {
       "id": "TTB01",
       "name": "Turn Table",
       "lineGroup": "CONVEYOR",
-      "locationZone": "CONVEYOR"
+      "locationZone": ""
     },
     {
       "id": "TTB02",
       "name": "Turn Table",
       "lineGroup": "CONVEYOR",
-      "locationZone": "CONVEYOR"
+      "locationZone": ""
     },
     {
       "id": "TTB03",
       "name": "Turn Table",
       "lineGroup": "CONVEYOR",
-      "locationZone": "CONVEYOR"
+      "locationZone": ""
     },
     {
       "id": "TTB04",
       "name": "Turn Table",
       "lineGroup": "CONVEYOR",
-      "locationZone": "CONVEYOR"
+      "locationZone": ""
     },
     {
       "id": "TTB05",
       "name": "Turn Table",
       "lineGroup": "CONVEYOR",
-      "locationZone": "CONVEYOR"
+      "locationZone": ""
     },
     {
       "id": "FDJ01",
       "name": "เครื่องซักรองเท้า",
       "lineGroup": "UTILITY",
-      "locationZone": "UTILITY"
+      "locationZone": ""
     },
     {
       "id": "FMC01",
       "name": "FORMING CONVEYOR",
       "lineGroup": "CONVEYOR",
-      "locationZone": "CONVEYOR"
+      "locationZone": ""
     },
     {
       "id": "FMC02",
       "name": "FORMING CONVEYOR",
       "lineGroup": "CONVEYOR",
-      "locationZone": "CONVEYOR"
+      "locationZone": ""
     }
   ],
   "pmPlans": [
@@ -1110,7 +1110,9 @@
         },
         {
           "title": "ตรวจสอบระบบขับเคลื่อนและเฟืองเกียร์",
-          "stdTime": 20
+          "stdTime": 20,
+          "done": true,
+          "result": "ปกติ"
         }
       ],
       "spareParts": "น้ำมันหล่อลื่นเกรดอาหาร NSF-H1",
@@ -2257,10 +2259,45 @@
     }
   ],
   "plannedProductionTimes": [],
-  "whyWhyDrafts": [],
+  "whyWhyDrafts": [
+    {
+      "id": "ww-1790913546122-c5exp",
+      "phenomenon": "",
+      "occurrenceType": "first",
+      "relatedRepairIds": [],
+      "branches": [
+        {
+          "id": "br-1790913546122-2pxbe",
+          "axis": "occurrence",
+          "root": {
+            "id": "node-1790913546122-b9e46",
+            "description": "",
+            "children": [],
+            "changePointOk": true,
+            "judgement": "PENDING",
+            "isRootCause": false
+          },
+          "reverseLogicCheck": "",
+          "roots": [
+            {
+              "id": "node-1790913546122-b9e46",
+              "description": "",
+              "children": [],
+              "changePointOk": true,
+              "judgement": "PENDING",
+              "isRootCause": false
+            }
+          ]
+        }
+      ],
+      "analyzedBy": "ช่างมัน",
+      "updatedAt": "2026-10-02T04:00:42.962Z"
+    }
+  ],
   "technicians": [
     "ช่างมัน"
   ],
+  "technicianShifts": {},
   "pmMachineIds": [
     "RIM01",
     "RIM02",
@@ -2482,61 +2519,6 @@
         "ห้องมัดสายรัดบรรจุภัณฑ์ 5",
         "ห้องมัดสายรัดบรรจุภัณฑ์ 6"
       ]
-    },
-    {
-      "id": "CONVEYOR",
-      "name": "CONVEYOR",
-      "rooms": []
-    },
-    {
-      "id": "FILLER",
-      "name": "FILLER",
-      "rooms": []
-    },
-    {
-      "id": "FREEZER",
-      "name": "FREEZER",
-      "rooms": []
-    },
-    {
-      "id": "MIXER",
-      "name": "MIXER",
-      "rooms": []
-    },
-    {
-      "id": "PACKING",
-      "name": "PACKING",
-      "rooms": []
-    },
-    {
-      "id": "PRINTER",
-      "name": "PRINTER",
-      "rooms": []
-    },
-    {
-      "id": "QC",
-      "name": "QC",
-      "rooms": []
-    },
-    {
-      "id": "REJECTOR",
-      "name": "REJECTOR",
-      "rooms": []
-    },
-    {
-      "id": "ROBOT",
-      "name": "ROBOT",
-      "rooms": []
-    },
-    {
-      "id": "STICKER",
-      "name": "STICKER",
-      "rooms": []
-    },
-    {
-      "id": "UTILITY",
-      "name": "UTILITY",
-      "rooms": []
     }
   ],
   "settings": {
@@ -2562,6 +2544,5 @@
       "RJT": 30,
       "PAC": 60
     }
-  },
-  "technicianShifts": {}
+  }
 }

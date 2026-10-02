@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { PMPlan, Machine, PMScheduleItem, PMStep } from '../types';
 import { useApp } from '../context/AppContext';
 import { exportPMReportToExcel } from '../utils/pmExcelUtils';
+import { latestCompletedDate } from '../utils/pmChecklist';
 import { 
   X, Download, Calendar, User, Clock, CheckCircle2, 
   AlertTriangle, Wrench, ShieldCheck, History, 
@@ -33,7 +34,7 @@ export const PMRoundHistoryModal: React.FC<PMRoundHistoryModalProps> = ({
   machine,
   onClose
 }) => {
-  const { schedules, setSchedules, setPmPlans, repairs, technicians } = useApp();
+  const { schedules, setSchedules, setPmPlans, repairs, technicians, spareParts, setSpareParts } = useApp();
 
   // Edit mode states
   const [isEditing, setIsEditing] = useState<boolean>(false);
@@ -151,25 +152,37 @@ export const PMRoundHistoryModal: React.FC<PMRoundHistoryModalProps> = ({
       }
     };
 
-    setSchedules(prev => prev.map(s => s.id === updatedJob.id ? updatedJob : s));
+    const nextSchedules = schedules.map(s => s.id === updatedJob.id ? updatedJob : s);
+    setSchedules(nextSchedules);
 
-    const otherJobs = roundJobs.filter(j => j.id !== updatedJob.id);
-    const allDates = [editDate, ...otherJobs.map(j => j.date)].sort().reverse();
-    if (allDates[0] === editDate) {
-      setPmPlans(prev => prev.map(p => p.id === plan.id ? { ...p, lastCheckedDate: editDate } : p));
-    }
+    const newLastChecked = latestCompletedDate(plan.id, nextSchedules);
+    setPmPlans(prev => prev.map(p => p.id === plan.id ? { ...p, lastCheckedDate: newLastChecked } : p));
 
     setIsEditing(false);
   };
 
   const handleDeleteJob = (job: PMScheduleItem) => {
-    setSchedules(prev => prev.filter(s => s.id !== job.id));
+    if (job && job.usedParts && job.usedParts.length > 0) {
+      let tempSpareParts = [...spareParts];
+      for (const op of job.usedParts) {
+        tempSpareParts = tempSpareParts.map(sp => {
+          if (sp.id === op.partId) {
+            return { ...sp, quantity: sp.quantity + op.quantity };
+          }
+          return sp;
+        });
+      }
+      setSpareParts(tempSpareParts);
+    }
 
-    const remaining = roundJobs.filter(j => j.id !== job.id);
-    const nextLatest = remaining[0]?.date || '';
-    setPmPlans(prev => prev.map(p => p.id === plan.id ? { ...p, lastCheckedDate: nextLatest } : p));
+    const nextSchedules = schedules.filter(s => s.id !== job.id);
+    setSchedules(nextSchedules);
+
+    const newLastChecked = latestCompletedDate(plan.id, nextSchedules);
+    setPmPlans(prev => prev.map(p => p.id === plan.id ? { ...p, lastCheckedDate: newLastChecked } : p));
 
     setDeleteConfirmJob(null);
+    const remaining = roundJobs.filter(j => j.id !== job.id);
     if (activeJob?.id === job.id) {
       setSelectedJobId(remaining[0]?.id || null);
     }

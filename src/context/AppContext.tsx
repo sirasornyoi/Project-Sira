@@ -71,7 +71,7 @@ export const deduplicateById = <T extends { id?: string | number }>(items: T[]):
 export const extractDefaultZones = (machinesList: Machine[]): ZoneStructure[] => {
   const zoneMap = new Map<string, Set<string>>();
   machinesList.forEach(m => {
-    const z = (m.locationZone || m.lineGroup || '').trim();
+    const z = (m.locationZone || '').trim();
     if (!z) return;
     if (!zoneMap.has(z)) {
       zoneMap.set(z, new Set<string>());
@@ -117,7 +117,7 @@ export const mergeZonesWithMachines = (baseZones: ZoneStructure[], machinesList:
 
   // 2. Add any zones and rooms from machines
   machinesList.forEach(m => {
-    const zName = (m.locationZone || m.lineGroup || '').replace(/[\uFFFD]/g, '').trim();
+    const zName = (m.locationZone || '').replace(/[\uFFFD]/g, '').trim();
     if (!zName) return;
     const key = zName.toLowerCase();
     if (!zoneMap.has(key)) {
@@ -330,16 +330,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             const cleanZone = (z?: string) => z ? z.replace(/^โรงงาน\s*\d*\s*>\s*/i, '').trim() : z;
             const enriched = serverData.machines.map((m: Machine) => {
               const pre = PRELOADED_MACHINES.find(p => p.id === m.id);
-              const fallbackZone = cleanZone(m.locationZone || pre?.locationZone || m.lineGroup);
-              if (!pre) return { ...m, locationZone: fallbackZone };
+              const rawZone = m.locationZone !== undefined ? m.locationZone : pre?.locationZone;
+              const cleanedZone = cleanZone(rawZone);
+              if (!pre) return { ...m, locationZone: cleanedZone };
               return {
                 ...m,
                 model: m.model || pre.model,
                 powerVoltage: m.powerVoltage || pre.powerVoltage,
                 installDate: m.installDate || pre.installDate,
                 vendor: m.vendor || pre.vendor,
-                locationZone: fallbackZone,
-                locationRoom: m.locationRoom || pre.locationRoom,
+                locationZone: cleanedZone,
+                locationRoom: m.locationRoom !== undefined ? m.locationRoom : pre.locationRoom,
                 serialNumber: m.serialNumber || pre.serialNumber,
                 notes: m.notes || pre.notes
               };
@@ -456,16 +457,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               const cleanZone = (z?: string) => z ? z.replace(/^โรงงาน\s*\d*\s*>\s*/i, '').trim() : z;
               currentLoadedMachines = parsed.map((m: Machine) => {
                 const pre = PRELOADED_MACHINES.find(p => p.id === m.id);
-                const fallbackZone = cleanZone(m.locationZone || pre?.locationZone || m.lineGroup);
-                if (!pre) return { ...m, locationZone: fallbackZone };
+                const rawZone = m.locationZone !== undefined ? m.locationZone : pre?.locationZone;
+                const cleanedZone = cleanZone(rawZone);
+                if (!pre) return { ...m, locationZone: cleanedZone };
                 return {
                   ...m,
                   model: m.model || pre.model,
                   powerVoltage: m.powerVoltage || pre.powerVoltage,
                   installDate: m.installDate || pre.installDate,
                   vendor: m.vendor || pre.vendor,
-                  locationZone: fallbackZone,
-                  locationRoom: m.locationRoom || pre.locationRoom,
+                  locationZone: cleanedZone,
+                  locationRoom: m.locationRoom !== undefined ? m.locationRoom : pre.locationRoom,
                   serialNumber: m.serialNumber || pre.serialNumber,
                   notes: m.notes || pre.notes
                 };
@@ -1051,7 +1053,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }));
     // Update machines in that zone & room
     setMachines(prev => prev.map(m => {
-      const mZone = (m.locationZone || m.lineGroup || '').trim().toLowerCase();
+      const mZone = (m.locationZone || '').trim().toLowerCase();
       if (mZone === trimmedZ && (m.locationRoom || '').trim().toLowerCase() === trimmedOld) {
         return { ...m, locationRoom: trimmedNew };
       }

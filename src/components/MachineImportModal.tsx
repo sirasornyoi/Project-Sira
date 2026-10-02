@@ -418,8 +418,8 @@ export const MachineImportModal: React.FC<MachineImportModalProps> = ({
                           <td className="py-2 px-3 font-medium text-slate-800 dark:text-slate-200">{m.name}</td>
                           <td className="py-2 px-3 text-slate-600 dark:text-slate-400">{m.model || '-'}</td>
                           <td className="py-2 px-3 text-amber-700 dark:text-amber-400 font-mono text-[11px] font-medium">{m.powerVoltage || '-'}</td>
-                          <td className="py-2 px-3 text-slate-700 dark:text-slate-300">{m.locationZone || m.lineGroup || '-'}</td>
-                          <td className="py-2 px-3 text-cyan-700 dark:text-cyan-300 font-medium">{m.locationRoom || '-'}</td>
+                          <td className="py-2 px-3 text-slate-700 dark:text-slate-300">{m.locationZone || 'ยังไม่ระบุ'}</td>
+                          <td className="py-2 px-3 text-cyan-700 dark:text-cyan-300 font-medium">{m.locationRoom || 'ยังไม่ระบุ'}</td>
                           <td className="py-2 px-3 font-mono text-[11px] text-slate-600 dark:text-slate-400">{m.serialNumber || '-'}</td>
                         </tr>
                       );
