@@ -13,11 +13,25 @@ interface SparePartImportModalProps {
   onClose: () => void;
 }
 
+export interface PreviewSparePartItem extends SparePart {
+  hasField: {
+    name: boolean;
+    category: boolean;
+    quantity: boolean;
+    minRequired: boolean;
+    unit: boolean;
+    location: boolean;
+    pricePerUnit: boolean;
+    specifications: boolean;
+    machineIds: boolean;
+  };
+}
+
 export const SparePartImportModal: React.FC<SparePartImportModalProps> = ({
   isOpen,
   onClose
 }) => {
-  const { spareParts, setSpareParts } = useApp();
+  const { spareParts, setSpareParts, recordStockChange } = useApp();
 
   const [excelData, setExcelData] = useState<any[]>([]);
   const [excelHeaders, setExcelHeaders] = useState<string[]>([]);
@@ -35,7 +49,9 @@ export const SparePartImportModal: React.FC<SparePartImportModalProps> = ({
   });
   const [importMode, setImportMode] = useState<'OVERWRITE_DUPLICATES' | 'SKIP_DUPLICATES' | 'REPLACE_ALL'>('OVERWRITE_DUPLICATES');
   const [fileName, setFileName] = useState('');
-  const [importPreview, setImportPreview] = useState<SparePart[]>([]);
+  const [importPreview, setImportPreview] = useState<PreviewSparePartItem[]>([]);
+  const [skippedNoIdCount, setSkippedNoIdCount] = useState<number>(0);
+  const [duplicateInFileCount, setDuplicateInFileCount] = useState<number>(0);
 
   // Alert & Confirmation Dialog
   const [dialog, setDialog] = useState<{
@@ -81,54 +97,95 @@ export const SparePartImportModal: React.FC<SparePartImportModalProps> = ({
   useEffect(() => {
     if (excelData.length === 0) {
       setImportPreview([]);
+      setSkippedNoIdCount(0);
+      setDuplicateInFileCount(0);
       return;
     }
 
-    const previewItems: SparePart[] = excelData.map((row, index) => {
-      const getVal = (field: string) => {
-        const mappedCol = columnMap[field];
-        return mappedCol ? row[mappedCol] : undefined;
-      };
+    const getRawVal = (row: any, field: string): string | undefined => {
+      const mappedCol = columnMap[field];
+      if (!mappedCol) return undefined;
+      const val = row[mappedCol];
+      if (val === undefined || val === null) return undefined;
+      const s = String(val).trim();
+      return s === '' ? undefined : s;
+    };
 
-      let idStr = String(getVal('id') || '').trim();
-      if (!idStr) {
-        idStr = `SP-IMP-${index + 1}`;
+    const parseNum = (val: string | undefined): number | undefined => {
+      if (val === undefined) return undefined;
+      const clean = val.replace(/,/g, '').replace(/\s+/g, '');
+      const n = parseFloat(clean);
+      return isNaN(n) ? undefined : n;
+    };
+
+    let noIdCount = 0;
+    let dupInFileCount = 0;
+    const parsedMap = new Map<string, PreviewSparePartItem>();
+
+    excelData.forEach(row => {
+      const rawId = getRawVal(row, 'id');
+      // แถวไม่มีรหัส → ข้าม (เลิกสร้าง SP-IMP-n)
+      if (!rawId) {
+        noIdCount++;
+        return;
       }
 
-      const nameStr = String(getVal('name') || '').trim() || `อะไหล่นำเข้าแถวที่ ${index + 2}`;
-      const catStr = String(getVal('category') || 'ระบบเครื่องกล').trim();
-      const qtyNum = parseInt(getVal('quantity')) || 0;
-      const minNum = parseInt(getVal('minRequired')) || 1;
-      const uStr = String(getVal('unit') || 'ชิ้น').trim();
-      const locStr = String(getVal('location') || 'ตู้คลังสำรอง').trim();
-      const prcNum = parseFloat(getVal('pricePerUnit')) || 0;
-      const specsStr = String(getVal('specifications') || '').trim();
-      
-      const mFieldVal = getVal('machineIds');
+      const idUpper = rawId.toUpperCase();
+      // รหัสซ้ำในไฟล์ → ใช้แถวล่างสุด และแจ้งจำนวนซ้ำ
+      if (parsedMap.has(idUpper)) {
+        dupInFileCount++;
+      }
+
+      const rawName = getRawVal(row, 'name');
+      const rawCat = getRawVal(row, 'category');
+      const rawUnit = getRawVal(row, 'unit');
+      const rawLoc = getRawVal(row, 'location');
+      const rawSpecs = getRawVal(row, 'specifications');
+      const rawMach = getRawVal(row, 'machineIds');
+
+      const parsedQty = parseNum(getRawVal(row, 'quantity'));
+      const parsedMin = parseNum(getRawVal(row, 'minRequired'));
+      const parsedPrice = parseNum(getRawVal(row, 'pricePerUnit'));
+
       let mIdsArray: string[] = [];
-      if (mFieldVal) {
-        mIdsArray = String(mFieldVal)
+      if (rawMach) {
+        mIdsArray = rawMach
           .split(/[,;\s\n]+/)
           .map(s => s.trim())
           .filter(s => s.length > 0);
       }
 
-      return {
-        id: idStr.toUpperCase(),
-        name: nameStr,
-        category: catStr,
+      const previewItem: PreviewSparePartItem = {
+        id: idUpper,
+        name: rawName || '',
+        category: rawCat || '',
+        quantity: parsedQty !== undefined ? parsedQty : 0,
+        minRequired: parsedMin !== undefined ? parsedMin : 0,
+        unit: rawUnit || '',
+        location: rawLoc || '',
+        pricePerUnit: parsedPrice !== undefined ? parsedPrice : 0,
+        specifications: rawSpecs || '',
         machineIds: mIdsArray,
-        quantity: qtyNum,
-        minRequired: minNum,
-        unit: uStr,
-        location: locStr,
-        pricePerUnit: prcNum,
         lastRestockedDate: getTodayDateString(),
-        specifications: specsStr
+        hasField: {
+          name: rawName !== undefined,
+          category: rawCat !== undefined,
+          quantity: parsedQty !== undefined,
+          minRequired: parsedMin !== undefined,
+          unit: rawUnit !== undefined,
+          location: rawLoc !== undefined,
+          pricePerUnit: parsedPrice !== undefined,
+          specifications: rawSpecs !== undefined,
+          machineIds: rawMach !== undefined
+        }
       };
+
+      parsedMap.set(idUpper, previewItem);
     });
 
-    setImportPreview(previewItems);
+    setSkippedNoIdCount(noIdCount);
+    setDuplicateInFileCount(dupInFileCount);
+    setImportPreview(Array.from(parsedMap.values()));
   }, [excelData, columnMap]);
 
   // Excel Upload Handler
@@ -170,36 +227,35 @@ export const SparePartImportModal: React.FC<SparePartImportModalProps> = ({
 
         headers.forEach((h: string) => {
           const hLower = h.toLowerCase().trim();
-          
-          if (hLower.includes('price') || hLower.includes('ราคา') || hLower.includes('ต้นทุน') || hLower.includes('บาท') || hLower.includes('฿')) {
-            map.pricePerUnit = h;
-          }
-          else if (hLower.includes('sku') || hLower.includes('code') || hLower.includes('รหัส') || hLower.includes('idอะไหล่')) {
+
+          // quantity: ห้าม map คอลัมน์ที่มีคำ 'สถานะ','มูลค่า','รวม','ต้องใช้','ขาด','จำนวนเครื่อง','จำนวนจุด','ต่อครั้ง'
+          const invalidQtyKeywords = ['สถานะ', 'มูลค่า', 'รวม', 'ต้องใช้', 'ขาด', 'จำนวนเครื่อง', 'จำนวนจุด', 'ต่อครั้ง', 'ราคา', 'บาท', 'ต้นทุน'];
+          const isInvalidQty = invalidQtyKeywords.some(bad => hLower.includes(bad));
+
+          // pricePerUnit: ห้าม map คอลัมน์ที่มี 'มูลค่า' หรือ 'รวม'
+          const isInvalidPrice = ['มูลค่า', 'รวม'].some(bad => hLower.includes(bad));
+
+          // Auto-map: first-match ต่อ field (เลิกทับด้วยคอลัมน์หลัง)
+          if (!map.id && (hLower.includes('sku') || hLower.includes('code') || hLower.includes('รหัสอะไหล่') || (hLower.includes('รหัส') && !hLower.includes('เครื่อง')) || hLower === 'id')) {
             map.id = h;
-          }
-          else if ((hLower.includes('qty') || hLower.includes('quantity') || hLower.includes('จำนวน') || hLower.includes('คงเหลือ') || hLower.includes('สต็อก') || hLower.includes('สตอก')) && !hLower.includes('ราคา') && !hLower.includes('บาท') && !hLower.includes('ต้นทุน')) {
-            map.quantity = h;
-          }
-          else if (hLower.includes('min') || hLower.includes('ขั้นต่ำ') || hLower.includes('แจ้งเตือน') || hLower.includes('เตือน')) {
-            map.minRequired = h;
-          }
-          else if (hLower.includes('unit') || hLower.includes('หน่วย')) {
-            map.unit = h;
-          }
-          else if (hLower.includes('category') || hLower.includes('หมวด')) {
+          } else if (!map.name && (hLower.includes('ชื่ออะไหล่') || (hLower.includes('ชื่อ') && !hLower.includes('เครื่อง')) || hLower.includes('รายการอะไหล่') || hLower === 'รายการ')) {
+            map.name = h;
+          } else if (!map.category && (hLower.includes('category') || hLower.includes('หมวด'))) {
             map.category = h;
-          }
-          else if (hLower.includes('location') || hLower.includes('ตำแหน่ง') || hLower.includes('ตู้') || hLower.includes('ชั้น') || hLower.includes('เก็บ')) {
+          } else if (!map.quantity && !isInvalidQty && (hLower.includes('จำนวนคงเหลือ') || hLower.includes('คงเหลือ') || hLower.includes('qty') || hLower.includes('quantity') || hLower.includes('สต็อก') || hLower.includes('สตอก') || hLower === 'จำนวน')) {
+            map.quantity = h;
+          } else if (!map.minRequired && (hLower.includes('min') || hLower.includes('ขั้นต่ำ') || hLower.includes('เกณฑ์') || hLower.includes('แจ้งเตือน') || hLower.includes('เตือน'))) {
+            map.minRequired = h;
+          } else if (!map.unit && (hLower.includes('unit') || hLower.includes('หน่วย'))) {
+            map.unit = h;
+          } else if (!map.location && (hLower.includes('location') || hLower.includes('ตำแหน่ง') || hLower.includes('ตู้') || hLower.includes('ชั้น') || hLower.includes('จัดเก็บ'))) {
             map.location = h;
-          }
-          else if (hLower.includes('spec') || hLower.includes('สเปค') || hLower.includes('รายละเอียด') || hLower.includes('เทคนิค') || hLower.includes('หมายเหตุ')) {
+          } else if (!map.pricePerUnit && !isInvalidPrice && (hLower.includes('price') || hLower.includes('ราคา') || hLower.includes('ต้นทุน') || hLower.includes('บาท') || hLower.includes('฿'))) {
+            map.pricePerUnit = h;
+          } else if (!map.specifications && (hLower.includes('spec') || hLower.includes('สเปค') || hLower.includes('รายละเอียด') || hLower.includes('เทคนิค') || hLower.includes('ข้อมูลทางเทคนิค') || hLower.includes('หมายเหตุ'))) {
             map.specifications = h;
-          }
-          else if (hLower.includes('machine') || hLower.includes('เครื่อง') || hLower.includes('จักร')) {
+          } else if (!map.machineIds && (hLower.includes('เครื่องจักรที่ใช้') || (hLower.includes('เครื่อง') && !hLower.includes('จำนวนเครื่อง')) || hLower.includes('machine'))) {
             map.machineIds = h;
-          }
-          else if (hLower.includes('name') || hLower.includes('ชื่อ') || hLower.includes('รายการ') || hLower.includes('อะไหล่')) {
-            if (!map.name) map.name = h;
           }
         });
 
@@ -265,54 +321,155 @@ export const SparePartImportModal: React.FC<SparePartImportModalProps> = ({
     }
 
     const executeImport = () => {
-      let mergedList = [...spareParts];
+      let mergedList: SparePart[] = [...spareParts];
       let addedCount = 0;
       let updatedCount = 0;
       let skippedCount = 0;
 
+      const stockChangesToApply: {
+        id: string;
+        delta: number;
+        type: 'IN' | 'ADJUST';
+      }[] = [];
+
+      const fileNote = `นำเข้า Excel: ${fileName || 'รายการอะไหล่'}`;
+
       if (importMode === 'REPLACE_ALL') {
-        mergedList = importPreview;
+        mergedList = importPreview.map(newItem => {
+          const existing = spareParts.find(sp => sp.id.toUpperCase() === newItem.id.toUpperCase());
+          const isNew = !existing;
+          const oldQty = existing ? existing.quantity : 0;
+
+          if (newItem.hasField.quantity) {
+            const delta = newItem.quantity - oldQty;
+            if (delta !== 0) {
+              stockChangesToApply.push({
+                id: newItem.id,
+                delta,
+                type: isNew ? 'IN' : 'ADJUST'
+              });
+            }
+          }
+
+          return {
+            id: newItem.id,
+            name: newItem.hasField.name ? newItem.name : (existing?.name || `อะไหล่ ${newItem.id}`),
+            category: newItem.hasField.category ? newItem.category : (existing?.category || 'ระบบเครื่องกล'),
+            quantity: oldQty,
+            minRequired: newItem.hasField.minRequired ? newItem.minRequired : (existing?.minRequired ?? 1),
+            unit: newItem.hasField.unit ? newItem.unit : (existing?.unit || 'ชิ้น'),
+            location: newItem.hasField.location ? newItem.location : (existing?.location || 'ตู้คลังสำรอง'),
+            pricePerUnit: newItem.hasField.pricePerUnit ? newItem.pricePerUnit : (existing?.pricePerUnit || 0),
+            specifications: newItem.hasField.specifications ? newItem.specifications : (existing?.specifications || ''),
+            machineIds: newItem.hasField.machineIds ? newItem.machineIds : (existing?.machineIds || []),
+            lastRestockedDate: existing?.lastRestockedDate || getTodayDateString()
+          };
+        });
         addedCount = importPreview.length;
       } else if (importMode === 'SKIP_DUPLICATES') {
-        // เพิ่มเฉพาะตัวไม่ซ้ำ (ข้ามตัวที่ซ้ำ)
         importPreview.forEach(newItem => {
           const exists = mergedList.some(existing => existing.id.toUpperCase() === newItem.id.toUpperCase());
           if (exists) {
             skippedCount++;
           } else {
-            mergedList.push(newItem);
+            if (newItem.hasField.quantity) {
+              const delta = newItem.quantity;
+              if (delta !== 0) {
+                stockChangesToApply.push({
+                  id: newItem.id,
+                  delta,
+                  type: 'IN'
+                });
+              }
+            }
+
+            const freshItem: SparePart = {
+              id: newItem.id,
+              name: newItem.hasField.name ? newItem.name : `อะไหล่ ${newItem.id}`,
+              category: newItem.hasField.category ? newItem.category : 'ระบบเครื่องกล',
+              quantity: 0,
+              minRequired: newItem.hasField.minRequired ? newItem.minRequired : 1,
+              unit: newItem.hasField.unit ? newItem.unit : 'ชิ้น',
+              location: newItem.hasField.location ? newItem.location : 'ตู้คลังสำรอง',
+              pricePerUnit: newItem.hasField.pricePerUnit ? newItem.pricePerUnit : 0,
+              specifications: newItem.hasField.specifications ? newItem.specifications : '',
+              machineIds: newItem.hasField.machineIds ? newItem.machineIds : [],
+              lastRestockedDate: getTodayDateString()
+            };
+            mergedList.push(freshItem);
             addedCount++;
           }
         });
       } else {
-        // OVERWRITE_DUPLICATES: เอาตัวซ้ำทับ (อัปเดตเดิม + เพิ่มตัวใหม่)
+        // OVERWRITE_DUPLICATES
         importPreview.forEach(newItem => {
           const existingIdx = mergedList.findIndex(existing => existing.id.toUpperCase() === newItem.id.toUpperCase());
           if (existingIdx >= 0) {
+            const existing = mergedList[existingIdx];
+            if (newItem.hasField.quantity) {
+              const delta = newItem.quantity - existing.quantity;
+              if (delta !== 0) {
+                stockChangesToApply.push({
+                  id: newItem.id,
+                  delta,
+                  type: 'ADJUST'
+                });
+              }
+            }
+
             mergedList[existingIdx] = {
-              ...mergedList[existingIdx],
-              name: newItem.name || mergedList[existingIdx].name,
-              category: newItem.category || mergedList[existingIdx].category,
-              quantity: newItem.quantity,
-              minRequired: newItem.minRequired ?? mergedList[existingIdx].minRequired,
-              unit: newItem.unit || mergedList[existingIdx].unit,
-              location: newItem.location || mergedList[existingIdx].location,
-              pricePerUnit: newItem.pricePerUnit || mergedList[existingIdx].pricePerUnit,
-              specifications: newItem.specifications 
-                ? `${mergedList[existingIdx].specifications || ''}\n[อัปเดตจากไฟล์: ${newItem.specifications}]`.trim()
-                : mergedList[existingIdx].specifications,
-              machineIds: newItem.machineIds.length > 0 ? newItem.machineIds : mergedList[existingIdx].machineIds,
-              lastRestockedDate: getTodayDateString()
+              ...existing,
+              name: newItem.hasField.name ? newItem.name : existing.name,
+              category: newItem.hasField.category ? newItem.category : existing.category,
+              quantity: existing.quantity,
+              minRequired: newItem.hasField.minRequired ? newItem.minRequired : existing.minRequired,
+              unit: newItem.hasField.unit ? newItem.unit : existing.unit,
+              location: newItem.hasField.location ? newItem.location : existing.location,
+              pricePerUnit: newItem.hasField.pricePerUnit ? newItem.pricePerUnit : existing.pricePerUnit,
+              specifications: newItem.hasField.specifications ? newItem.specifications : existing.specifications,
+              machineIds: newItem.hasField.machineIds ? newItem.machineIds : existing.machineIds
             };
             updatedCount++;
           } else {
-            mergedList.push(newItem);
+            if (newItem.hasField.quantity) {
+              const delta = newItem.quantity;
+              if (delta !== 0) {
+                stockChangesToApply.push({
+                  id: newItem.id,
+                  delta,
+                  type: 'IN'
+                });
+              }
+            }
+
+            const freshItem: SparePart = {
+              id: newItem.id,
+              name: newItem.hasField.name ? newItem.name : `อะไหล่ ${newItem.id}`,
+              category: newItem.hasField.category ? newItem.category : 'ระบบเครื่องกล',
+              quantity: 0,
+              minRequired: newItem.hasField.minRequired ? newItem.minRequired : 1,
+              unit: newItem.hasField.unit ? newItem.unit : 'ชิ้น',
+              location: newItem.hasField.location ? newItem.location : 'ตู้คลังสำรอง',
+              pricePerUnit: newItem.hasField.pricePerUnit ? newItem.pricePerUnit : 0,
+              specifications: newItem.hasField.specifications ? newItem.specifications : '',
+              machineIds: newItem.hasField.machineIds ? newItem.machineIds : [],
+              lastRestockedDate: getTodayDateString()
+            };
+            mergedList.push(freshItem);
             addedCount++;
           }
         });
       }
 
       setSpareParts(mergedList);
+
+      stockChangesToApply.forEach(sc => {
+        recordStockChange(sc.id, sc.delta, {
+          type: sc.type,
+          source: 'Inventory',
+          note: fileNote
+        });
+      });
 
       let successDetail = '';
       if (importMode === 'REPLACE_ALL') {
@@ -321,6 +478,13 @@ export const SparePartImportModal: React.FC<SparePartImportModalProps> = ({
         successDetail = `เพิ่มอะไหล่ใหม่สำเร็จ ${addedCount} รายการ (ข้ามรายการที่รหัสซ้ำ ${skippedCount} รายการ)`;
       } else {
         successDetail = `อัปเดตเขียนทับรายการเดิม ${updatedCount} รายการ และเพิ่มรายการใหม่ ${addedCount} รายการ สำเร็จ`;
+      }
+
+      if (skippedNoIdCount > 0) {
+        successDetail += ` (ข้าม ${skippedNoIdCount} แถวที่ไม่มีรหัสอะไหล่)`;
+      }
+      if (duplicateInFileCount > 0) {
+        successDetail += ` (พบรหัสซ้ำในไฟล์ ${duplicateInFileCount} รายการ โดยใช้ข้อมูลแถวล่างสุด)`;
       }
 
       showAlert('นำเข้าข้อมูลสำเร็จ', successDetail, 'success');
@@ -584,6 +748,22 @@ export const SparePartImportModal: React.FC<SparePartImportModalProps> = ({
                             </span>
                           </>
                         )}
+                        {skippedNoIdCount > 0 && (
+                          <>
+                            <span className="text-slate-600">•</span>
+                            <span className="text-rose-400 font-medium bg-rose-500/10 px-1.5 py-0.5 rounded border border-rose-500/20">
+                              ข้าม {skippedNoIdCount} รายการ (ไม่มีรหัสอะไหล่)
+                            </span>
+                          </>
+                        )}
+                        {duplicateInFileCount > 0 && (
+                          <>
+                            <span className="text-slate-600">•</span>
+                            <span className="text-amber-400 font-medium bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">
+                              รหัสซ้ำในไฟล์ {duplicateInFileCount} รายการ (ใช้แถวล่างสุด)
+                            </span>
+                          </>
+                        )}
                         <span className="text-slate-600">•</span>
                         <span>มูลค่ารวม <b className="text-emerald-400 font-mono">{(importPreview.reduce((s, p) => s + (p.quantity * p.pricePerUnit), 0)).toLocaleString()} บาท</b></span>
                       </div>
@@ -695,6 +875,15 @@ export const SparePartImportModal: React.FC<SparePartImportModalProps> = ({
                 </div>
               );
             })()}
+
+            {excelData.length > 0 && importPreview.length === 0 && (
+              <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex items-center gap-2">
+                <AlertCircle size={18} className="shrink-0" />
+                <span>
+                  ไม่พบรหัสอะไหล่ในแถวข้อมูลใดๆ {skippedNoIdCount > 0 ? `(ข้ามไปทั้งหมด ${skippedNoIdCount} แถวที่ไม่มีรหัส)` : ''} โปรดตรวจสอบการเลือกคอลัมน์ "รหัสอะไหล่ (SKU)" ด้านบน
+                </span>
+              </div>
+            )}
 
           </div>
 

@@ -37,7 +37,8 @@ export const TimeBreakPage: React.FC = () => {
 
   // Excel Import states
   const [showImportModal, setShowImportModal] = useState(false);
-  const [importParsedParts, setImportParsedParts] = useState<TimeBreakPartItem[]>([]);
+  const [importParsedParts, setImportParsedParts] = useState<(TimeBreakPartItem & { hasCycleCountInFile?: boolean })[]>([]);
+  const [importSkippedRows, setImportSkippedRows] = useState<{ excelRow: number; reason: string }[]>([]);
   const [importMode, setImportMode] = useState<'append' | 'replace'>('append');
   const [importError, setImportError] = useState<string | null>(null);
   const [importFileName, setImportFileName] = useState<string>('');
@@ -893,7 +894,7 @@ export const TimeBreakPage: React.FC = () => {
 
   // Safe Date string parser from Excel
   const parseAnyDateToIso = (val: any): string => {
-    if (!val) return '2026-09-01';
+    if (!val) return '';
     if (val instanceof Date) {
       if (!isNaN(val.getTime())) {
         const y = val.getFullYear();
@@ -912,6 +913,7 @@ export const TimeBreakPage: React.FC = () => {
       }
     }
     const str = String(val).trim();
+    if (!str) return '';
     if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
     if (/^\d{4}\/\d{2}\/\d{2}$/.test(str)) return str.replace(/\//g, '-');
     if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(str)) {
@@ -925,7 +927,7 @@ export const TimeBreakPage: React.FC = () => {
       const day = String(d.getDate()).padStart(2, '0');
       return `${y}-${m}-${day}`;
     }
-    return '2026-09-01';
+    return '';
   };
 
   // Export Time-Break data to Excel (.xlsx)
@@ -1195,6 +1197,8 @@ export const TimeBreakPage: React.FC = () => {
       'ชื่ออะไหล่*',
       'ส่วนที่ต้องเปลี่ยน*',
       'รหัสอะไหล่',
+      'รหัสคลังที่ผูก',
+      'จำนวนต่อครั้ง',
       'วันเริ่มรอบล่าสุด (YYYY-MM-DD)*',
       'ความถี่รอบ (ตัวเลข)*',
       'หน่วยความถี่ (วัน/สัปดาห์/เดือน/ปี/รอบ)*',
@@ -1211,6 +1215,8 @@ export const TimeBreakPage: React.FC = () => {
         'สายพานไทม์มิ่ง HTD 8M-1200',
         'ชุดขับแกนกวนผสมหลัก',
         'BLT-8M-1200',
+        '',
+        1,
         '2026-06-01',
         3,
         'เดือน',
@@ -1225,6 +1231,8 @@ export const TimeBreakPage: React.FC = () => {
         'ตลับลูกปืนเม็ดกลม 6205-2RS',
         'เพลาขับมอเตอร์ผสม',
         'BRG-6205-2RS',
+        '',
+        1,
         '2026-03-15',
         6,
         'เดือน',
@@ -1239,6 +1247,8 @@ export const TimeBreakPage: React.FC = () => {
         'ซีลยางขอบฝา Chamber ยางซิลิโคน',
         'ขอบฝาปิดแท่นสุญญากาศ',
         'SEAL-SIL-5M',
+        '',
+        1,
         '2026-08-10',
         1,
         'เดือน',
@@ -1253,6 +1263,8 @@ export const TimeBreakPage: React.FC = () => {
         'ใบมีดตัดซองฟิล์มสแตนเลส (Heated Blade)',
         'ชุดฮีตเตอร์ตัดท้ายซอง',
         'BLD-FFS-300',
+        '',
+        1,
         '2026-07-01',
         2,
         'เดือน',
@@ -1267,8 +1279,9 @@ export const TimeBreakPage: React.FC = () => {
     const ws = XLSX.utils.aoa_to_sheet([headers, ...sampleRows]);
     ws['!cols'] = [
       { wch: 18 }, { wch: 30 }, { wch: 25 }, { wch: 16 },
-      { wch: 24 }, { wch: 16 }, { wch: 20 }, { wch: 22 },
-      { wch: 18 }, { wch: 18 }, { wch: 16 }, { wch: 28 }
+      { wch: 16 }, { wch: 14 }, { wch: 24 }, { wch: 16 },
+      { wch: 20 }, { wch: 22 }, { wch: 18 }, { wch: 18 },
+      { wch: 16 }, { wch: 28 }
     ];
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "TimeBreak_Template");
@@ -1281,6 +1294,7 @@ export const TimeBreakPage: React.FC = () => {
     if (!file) return;
     setImportFileName(file.name);
     setImportError(null);
+    setImportSkippedRows([]);
 
     const reader = new FileReader();
     reader.onload = (evt) => {
@@ -1298,67 +1312,167 @@ export const TimeBreakPage: React.FC = () => {
 
         const headers = (data[0] as any[]).map(h => String(h || '').trim());
         const colMap = {
+          partCode: -1,
+          sparePartId: -1,
+          qtyPerReplace: -1,
+          intervalUnit: -1,
+          costPerUnit: -1,
+          startDate: -1,
+          nextDueDate: -1,
+          cycleCount: -1,
+          intervalValue: -1,
           machineId: -1,
           partName: -1,
           componentLocation: -1,
-          partCode: -1,
-          startDate: -1,
-          intervalValue: -1,
-          intervalUnit: -1,
-          nextDueDate: -1,
-          cycleCount: -1,
           assignedTechnician: -1,
-          costPerUnit: -1,
           notes: -1
         };
 
         headers.forEach((h, idx) => {
-          const hl = h.toLowerCase();
-          if (hl.includes('รหัสเครื่อง') || hl.includes('machine id') || hl.includes('machineid') || hl.includes('รหัสเครื่องจักร') || hl.includes('เครื่อง')) {
-            if (colMap.machineId === -1) colMap.machineId = idx;
-          } else if (hl.includes('ชื่ออะไหล่') || hl.includes('part name') || hl.includes('partname') || hl.includes('รายการอะไหล่') || hl.includes('อะไหล่')) {
-            if (colMap.partName === -1) colMap.partName = idx;
-          } else if (hl.includes('ส่วนที่') || hl.includes('ตำแหน่ง') || hl.includes('component') || hl.includes('location')) {
-            if (colMap.componentLocation === -1) colMap.componentLocation = idx;
-          } else if (hl.includes('รหัสอะไหล่') || hl.includes('part code') || hl.includes('partcode') || hl.includes('spare code')) {
-            if (colMap.partCode === -1) colMap.partCode = idx;
-          } else if (hl.includes('วันเริ่ม') || hl.includes('start date') || hl.includes('startdate')) {
-            if (colMap.startDate === -1) colMap.startDate = idx;
-          } else if (hl.includes('ความถี่') || hl.includes('interval') || hl.includes('รอบความถี่') || hl.includes('ระยะรอบ')) {
-            if (colMap.intervalValue === -1) colMap.intervalValue = idx;
-          } else if (hl.includes('หน่วย') || hl.includes('unit')) {
-            if (colMap.intervalUnit === -1) colMap.intervalUnit = idx;
-          } else if (hl.includes('วันครบ') || hl.includes('due date') || hl.includes('duedate') || hl.includes('กำหนดเปลี่ยน')) {
-            if (colMap.nextDueDate === -1) colMap.nextDueDate = idx;
-          } else if (hl.includes('รอบที่ผ่านมา') || hl.includes('cycle') || hl.includes('จำนวนรอบ')) {
-            if (colMap.cycleCount === -1) colMap.cycleCount = idx;
-          } else if (hl.includes('ช่าง') || hl.includes('technician') || hl.includes('tech')) {
-            if (colMap.assignedTechnician === -1) colMap.assignedTechnician = idx;
-          } else if (hl.includes('ราคา') || hl.includes('cost') || hl.includes('price')) {
-            if (colMap.costPerUnit === -1) colMap.costPerUnit = idx;
-          } else if (hl.includes('หมายเหตุ') || hl.includes('note') || hl.includes('remark')) {
-            if (colMap.notes === -1) colMap.notes = idx;
+          const hl = h.toLowerCase().trim();
+
+          // ไม่ map คอลัมน์ที่ไม่เกี่ยว (ลำดับ, ชื่อเครื่องจักร, ไลน์ผลิต, คงเหลือในคลัง, สถานะ, วันที่เปลี่ยนล่าสุด)
+          if (
+            hl.includes('ลำดับ') ||
+            hl.includes('ชื่อเครื่องจักร') ||
+            hl.includes('ไลน์ผลิต') ||
+            hl.includes('คงเหลือในคลัง') ||
+            hl.includes('สถานะ') ||
+            hl.includes('วันที่เปลี่ยนล่าสุด')
+          ) {
+            return;
+          }
+
+          // Auto-map ใหม่: ทุก field ใช้ first-match (ไม่ทับเมื่อ set แล้ว) และเช็คแบบเจาะจงก่อนกว้าง ตามลำดับนี้:
+          // 1. รหัสอะไหล่/part code → partCode
+          if (colMap.partCode === -1 && (hl.includes('รหัสอะไหล่') || hl.includes('part code') || hl.includes('partcode') || hl.includes('spare code'))) {
+            colMap.partCode = idx;
+            return;
+          }
+          // 2. รหัสคลัง → sparePartId
+          if (colMap.sparePartId === -1 && (hl.includes('รหัสคลัง') || hl.includes('sparepartid') || hl.includes('spare part id'))) {
+            colMap.sparePartId = idx;
+            return;
+          }
+          // 3. จำนวนต่อครั้ง → qtyPerReplace
+          if (colMap.qtyPerReplace === -1 && (hl.includes('จำนวนต่อครั้ง') || hl.includes('qtyperreplace') || hl.includes('qty per replace'))) {
+            colMap.qtyPerReplace = idx;
+            return;
+          }
+          // 4. หน่วยความถี่ → intervalUnit
+          if (colMap.intervalUnit === -1 && (hl.includes('หน่วยความถี่') || hl.includes('intervalunit') || hl.includes('interval unit') || (hl.includes('หน่วย') && !hl.includes('ราคาต่อหน่วย')))) {
+            colMap.intervalUnit = idx;
+            return;
+          }
+          // 5. ราคา/cost/price → costPerUnit
+          if (colMap.costPerUnit === -1 && (hl.includes('ราคา') || hl.includes('cost') || hl.includes('price'))) {
+            colMap.costPerUnit = idx;
+            return;
+          }
+          // 6. วันเริ่ม → startDate
+          if (colMap.startDate === -1 && (hl.includes('วันเริ่ม') || hl.includes('start date') || hl.includes('startdate'))) {
+            colMap.startDate = idx;
+            return;
+          }
+          // 7. วันครบ/due → nextDueDate
+          if (colMap.nextDueDate === -1 && (hl.includes('วันครบ') || hl.includes('due date') || hl.includes('duedate') || hl.includes('กำหนดเปลี่ยน') || hl.includes('due'))) {
+            colMap.nextDueDate = idx;
+            return;
+          }
+          // 8. จำนวนรอบ/รอบที่ผ่านมา/รอบที่เปลี่ยน/cycle → cycleCount
+          if (colMap.cycleCount === -1 && (hl.includes('จำนวนรอบ') || hl.includes('รอบที่ผ่านมา') || hl.includes('รอบที่เปลี่ยน') || hl.includes('cycle'))) {
+            colMap.cycleCount = idx;
+            return;
+          }
+          // 9. ความถี่/รอบความถี่/interval → intervalValue
+          if (colMap.intervalValue === -1 && (hl.includes('รอบความถี่') || hl.includes('ความถี่') || hl.includes('interval') || hl.includes('ระยะรอบ'))) {
+            colMap.intervalValue = idx;
+            return;
+          }
+          // 10. รหัสเครื่อง/machine id → machineId
+          if (colMap.machineId === -1 && (hl.includes('รหัสเครื่อง') || hl.includes('machine id') || hl.includes('machineid'))) {
+            colMap.machineId = idx;
+            return;
+          }
+          // 11. ชื่ออะไหล่/part name → partName
+          if (colMap.partName === -1 && (hl.includes('ชื่ออะไหล่') || hl.includes('part name') || hl.includes('partname'))) {
+            colMap.partName = idx;
+            return;
+          }
+          // 12. ส่วนที่/component → componentLocation
+          if (colMap.componentLocation === -1 && (hl.includes('ส่วนที่') || hl.includes('component') || hl.includes('location'))) {
+            colMap.componentLocation = idx;
+            return;
+          }
+          // 13. ช่าง → assignedTechnician
+          if (colMap.assignedTechnician === -1 && (hl.includes('ช่าง') || hl.includes('technician') || hl.includes('tech'))) {
+            colMap.assignedTechnician = idx;
+            return;
+          }
+          // 14. หมายเหตุ/note → notes
+          if (colMap.notes === -1 && (hl.includes('หมายเหตุ') || hl.includes('note') || hl.includes('remark'))) {
+            colMap.notes = idx;
+            return;
           }
         });
 
-        if (colMap.machineId === -1 && headers.length > 0) colMap.machineId = 0;
-        if (colMap.partName === -1 && headers.length > 1) colMap.partName = 1;
-        if (colMap.componentLocation === -1 && headers.length > 2) colMap.componentLocation = 2;
-
-        const parsed: TimeBreakPartItem[] = [];
+        const parsed: (TimeBreakPartItem & { hasCycleCountInFile?: boolean })[] = [];
+        const skipped: { excelRow: number; reason: string }[] = [];
         const rows = data.slice(1);
 
         rows.forEach((row, rIdx) => {
-          if (!row || row.length === 0) return;
-          const mId = String(row[colMap.machineId] || '').trim();
-          const pName = String(row[colMap.partName] || '').trim();
-          if (!mId && !pName) return;
+          const excelRow = rIdx + 2;
+          if (!row || row.length === 0 || row.every((c: any) => c === undefined || c === null || String(c).trim() === '')) {
+            return;
+          }
+
+          const mId = colMap.machineId >= 0 ? String(row[colMap.machineId] || '').trim() : '';
+          const pName = colMap.partName >= 0 ? String(row[colMap.partName] || '').trim() : '';
+
+          if (!mId) {
+            skipped.push({ excelRow, reason: 'ไม่มีรหัสเครื่องจักร' });
+            return;
+          }
+
+          const targetMachine = machines.find(m => m.id.toLowerCase() === mId.toLowerCase());
+          if (!targetMachine) {
+            skipped.push({ excelRow, reason: `รหัสเครื่องจักร "${mId}" ไม่มีในระบบ` });
+            return;
+          }
+
+          if (!pName) {
+            skipped.push({ excelRow, reason: 'ไม่มีชื่ออะไหล่' });
+            return;
+          }
 
           const compLoc = colMap.componentLocation >= 0 ? String(row[colMap.componentLocation] || '').trim() : 'ทั่วไป';
           const pCode = colMap.partCode >= 0 ? String(row[colMap.partCode] || '').trim() : '';
 
-          const startDt = colMap.startDate >= 0 ? parseAnyDateToIso(row[colMap.startDate]) : '2026-09-01';
-          const intVal = colMap.intervalValue >= 0 ? Number(row[colMap.intervalValue]) || 1 : 1;
+          // sparePartId: ใช้เฉพาะเมื่อมีใน spareParts
+          let sparePartIdVal: string | undefined = undefined;
+          if (colMap.sparePartId >= 0) {
+            const rawSpId = String(row[colMap.sparePartId] || '').trim();
+            if (rawSpId && rawSpId !== '-') {
+              const matchedSpare = spareParts.find(s => s.id.toLowerCase() === rawSpId.toLowerCase());
+              if (matchedSpare) {
+                sparePartIdVal = matchedSpare.id;
+              }
+            }
+          }
+
+          // qtyPerReplace: default 1
+          let qtyPerReplaceVal = 1;
+          if (colMap.qtyPerReplace >= 0) {
+            const rawQty = String(row[colMap.qtyPerReplace] || '').replace(/,/g, '').trim();
+            const n = parseFloat(rawQty);
+            if (!isNaN(n) && n > 0) qtyPerReplaceVal = n;
+          }
+
+          // startDate: ว่าง → วันนี้
+          const parsedStartDt = colMap.startDate >= 0 ? parseAnyDateToIso(row[colMap.startDate]) : '';
+          const startDt = parsedStartDt || getTodayDateString();
+
+          const intVal = colMap.intervalValue >= 0 ? (Number(String(row[colMap.intervalValue] || '').replace(/,/g, '')) || 1) : 1;
           const intUnitRaw = colMap.intervalUnit >= 0 ? String(row[colMap.intervalUnit] || '').trim() : 'เดือน';
           let intUnit: 'วัน' | 'เดือน' | 'ปี' | 'สัปดาห์' | 'รอบ' = 'เดือน';
           if (intUnitRaw.includes('วัน') || intUnitRaw.toLowerCase().includes('day')) intUnit = 'วัน';
@@ -1367,21 +1481,33 @@ export const TimeBreakPage: React.FC = () => {
           else if (intUnitRaw.includes('รอบ') || intUnitRaw.toLowerCase().includes('cycle') || intUnitRaw.toLowerCase().includes('round')) intUnit = 'รอบ';
           else intUnit = 'เดือน';
 
+          // nextDueDate: ว่าง → calculateDueDate; ลบเงื่อนไข nextDue === '2026-09-01'
           let nextDue = colMap.nextDueDate >= 0 ? parseAnyDateToIso(row[colMap.nextDueDate]) : '';
-          if (!nextDue || nextDue === '2026-09-01') {
+          if (!nextDue) {
             nextDue = calculateDueDate(startDt, intVal, intUnit);
           }
 
-          const cycles = colMap.cycleCount >= 0 ? Number(row[colMap.cycleCount]) || 0 : 0;
+          let hasCycleCountInFile = false;
+          let cycles = 0;
+          if (colMap.cycleCount >= 0) {
+            const rawCycle = row[colMap.cycleCount];
+            if (rawCycle !== undefined && rawCycle !== null && String(rawCycle).trim() !== '') {
+              hasCycleCountInFile = true;
+              cycles = Number(String(rawCycle).replace(/,/g, '')) || 0;
+            }
+          }
+
           const tech = colMap.assignedTechnician >= 0 ? String(row[colMap.assignedTechnician] || '').trim() : (technicians[0] || 'ช่าง 1');
-          const cost = colMap.costPerUnit >= 0 ? Number(row[colMap.costPerUnit]) || 0 : 0;
+          const cost = colMap.costPerUnit >= 0 ? (Number(String(row[colMap.costPerUnit] || '').replace(/,/g, '')) || 0) : 0;
           const notes = colMap.notes >= 0 ? String(row[colMap.notes] || '').trim() : '';
 
           parsed.push({
             id: `tb-${Date.now()}-${rIdx}-${Math.random().toString(36).substring(2, 6)}`,
-            machineId: mId || 'RIM01',
-            partName: pName || 'อะไหล่ Time-Break',
+            machineId: targetMachine.id,
+            partName: pName,
             partCode: pCode || undefined,
+            sparePartId: sparePartIdVal,
+            qtyPerReplace: qtyPerReplaceVal,
             componentLocation: compLoc || 'ทั่วไป',
             startDate: startDt,
             intervalValue: intVal,
@@ -1391,16 +1517,18 @@ export const TimeBreakPage: React.FC = () => {
             assignedTechnician: tech || undefined,
             costPerUnit: cost,
             notes: notes || undefined,
-            history: []
+            history: [],
+            hasCycleCountInFile
           });
         });
 
-        if (parsed.length === 0) {
+        if (parsed.length === 0 && skipped.length === 0) {
           setImportError('ไม่พบข้อมูลรายการอะไหล่ในไฟล์ กรุณาตรวจสอบข้อมูล');
           return;
         }
 
         setImportParsedParts(parsed);
+        setImportSkippedRows(skipped);
       } catch (err: any) {
         setImportError(`เกิดข้อผิดพลาดในการประมวลผลไฟล์: ${err.message || err}`);
       }
@@ -1413,16 +1541,63 @@ export const TimeBreakPage: React.FC = () => {
     if (importParsedParts.length === 0) return;
 
     if (importMode === 'append') {
-      setTimeBreakParts(prev => [...importParsedParts, ...prev]);
-      setCopyFeedbackMsg(`นำเข้าข้อมูลอะไหล่ Time-Break สำเร็จ ${importParsedParts.length} รายการ (เพิ่มต่อท้ายเดิม)`);
+      const makeKey = (mId: string, pName: string, compLoc: string) =>
+        `${(mId || '').trim().toLowerCase()}:::${(pName || '').trim().toLowerCase()}:::${(compLoc || '').trim().toLowerCase()}`;
+
+      let addedCount = 0;
+      let updatedCount = 0;
+      const updatedParts = [...timeBreakParts];
+
+      importParsedParts.forEach(newItem => {
+        const itemKey = makeKey(newItem.machineId, newItem.partName, newItem.componentLocation);
+        const existingIdx = updatedParts.findIndex(p =>
+          makeKey(p.machineId, p.partName, p.componentLocation) === itemKey
+        );
+
+        if (existingIdx >= 0) {
+          const existing = updatedParts[existingIdx];
+          updatedParts[existingIdx] = {
+            ...existing,
+            partCode: newItem.partCode !== undefined ? newItem.partCode : existing.partCode,
+            sparePartId: newItem.sparePartId !== undefined ? newItem.sparePartId : existing.sparePartId,
+            qtyPerReplace: newItem.qtyPerReplace !== undefined ? newItem.qtyPerReplace : existing.qtyPerReplace,
+            startDate: newItem.startDate || existing.startDate,
+            intervalValue: newItem.intervalValue,
+            intervalUnit: newItem.intervalUnit,
+            nextDueDate: newItem.nextDueDate || existing.nextDueDate,
+            assignedTechnician: newItem.assignedTechnician !== undefined ? newItem.assignedTechnician : existing.assignedTechnician,
+            costPerUnit: newItem.costPerUnit !== undefined ? newItem.costPerUnit : existing.costPerUnit,
+            notes: newItem.notes !== undefined ? newItem.notes : existing.notes,
+            cycleCount: newItem.hasCycleCountInFile ? newItem.cycleCount : existing.cycleCount,
+            id: existing.id,
+            history: existing.history,
+            lastReplacedDate: existing.lastReplacedDate
+          };
+          updatedCount++;
+        } else {
+          const { hasCycleCountInFile, ...cleanItem } = newItem;
+          updatedParts.push(cleanItem);
+          addedCount++;
+        }
+      });
+
+      setTimeBreakParts(updatedParts);
+      const skippedCount = importSkippedRows.length;
+      setCopyFeedbackMsg(`นำเข้าข้อมูลอะไหล่ Time-Break สำเร็จ: เพิ่มใหม่ ${addedCount} รายการ, อัปเดต ${updatedCount} รายการ${skippedCount > 0 ? `, ข้าม ${skippedCount} รายการ` : ''}`);
     } else {
-      setTimeBreakParts(importParsedParts);
-      setCopyFeedbackMsg(`นำเข้าข้อมูลอะไหล่ Time-Break สำเร็จ ${importParsedParts.length} รายการ (แทนที่ข้อมูลเดิมทั้งหมด)`);
+      const cleanParts = importParsedParts.map(p => {
+        const { hasCycleCountInFile, ...cleanItem } = p;
+        return cleanItem;
+      });
+      setTimeBreakParts(cleanParts);
+      const skippedCount = importSkippedRows.length;
+      setCopyFeedbackMsg(`นำเข้าข้อมูลอะไหล่ Time-Break สำเร็จ ${cleanParts.length} รายการ (แทนที่ข้อมูลเดิมทั้งหมด)${skippedCount > 0 ? `, ข้าม ${skippedCount} รายการ` : ''}`);
     }
 
     setTimeout(() => setCopyFeedbackMsg(null), 4000);
     setShowImportModal(false);
     setImportParsedParts([]);
+    setImportSkippedRows([]);
     setImportFileName('');
   };
 
@@ -3767,87 +3942,129 @@ export const TimeBreakPage: React.FC = () => {
               )}
 
               {/* Step 3: Preview Data & Import Mode */}
-              {importParsedParts.length > 0 && (
+              {(importParsedParts.length > 0 || importSkippedRows.length > 0) && (
                 <div className="space-y-4">
-                  {/* Mode Selector */}
-                  <div className="p-3.5 bg-slate-50 dark:bg-slate-950 border border-border dark:border-slate-800 rounded-xl space-y-2">
-                    <span className="font-semibold text-fg dark:text-slate-200 block">รูปแบบการนำเข้า:</span>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      <label className={`p-3 rounded-lg border cursor-pointer transition-all flex items-start gap-2.5 ${
-                        importMode === 'append'
-                          ? 'bg-cyan-50 dark:bg-cyan-950/40 border-cyan-300 dark:border-cyan-500/50 text-fg'
-                          : 'bg-surface dark:bg-slate-900 border-border dark:border-slate-800 text-fg-muted dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700'
-                      }`}>
-                        <input
-                          type="radio"
-                          name="importMode"
-                          checked={importMode === 'append'}
-                          onChange={() => setImportMode('append')}
-                          className="mt-0.5 text-cyan-600"
-                        />
-                        <div>
-                          <span className="font-bold text-cyan-800 dark:text-cyan-300 block">เพิ่มต่อท้าย (Append)</span>
-                          <span className="text-[11px] text-fg-muted dark:text-slate-400">เก็บรายการอะไหล่เดิมไว้ทั้งหมด และเพิ่มรายการใหม่จากไฟล์นี้เข้าไป</span>
-                        </div>
-                      </label>
-
-                      <label className={`p-3 rounded-lg border cursor-pointer transition-all flex items-start gap-2.5 ${
-                        importMode === 'replace'
-                          ? 'bg-red-50 dark:bg-red-950/40 border-red-300 dark:border-red-500/50 text-fg'
-                          : 'bg-surface dark:bg-slate-900 border-border dark:border-slate-800 text-fg-muted dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700'
-                      }`}>
-                        <input
-                          type="radio"
-                          name="importMode"
-                          checked={importMode === 'replace'}
-                          onChange={() => setImportMode('replace')}
-                          className="mt-0.5 text-red-600"
-                        />
-                        <div>
-                          <span className="font-bold text-red-700 dark:text-red-300 block">แทนที่ทั้งหมด (Replace All)</span>
-                          <span className="text-[11px] text-fg-muted dark:text-slate-400">ล้างรายการ Time-Break เดิมและใช้รายการใหม่จากไฟล์นี้ทั้งหมด</span>
-                        </div>
-                      </label>
+                  {/* Status Summary Banner */}
+                  <div className="p-3 bg-slate-50 dark:bg-slate-900 border border-border dark:border-slate-800 rounded-xl flex items-center justify-between flex-wrap gap-2 text-xs">
+                    <span className="font-semibold text-fg dark:text-slate-200">
+                      สรุปผลการอ่านไฟล์:
+                    </span>
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <span className="text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1 font-mono">
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        นำเข้าได้ {importParsedParts.length} รายการ
+                      </span>
+                      {importSkippedRows.length > 0 && (
+                        <span className="text-amber-600 dark:text-amber-400 font-bold flex items-center gap-1 font-mono">
+                          <AlertTriangle className="w-3.5 h-3.5" />
+                          ข้าม {importSkippedRows.length} รายการ
+                        </span>
+                      )}
                     </div>
                   </div>
 
-                  {/* Preview Table */}
-                  <div className="border border-border dark:border-slate-800 rounded-xl overflow-hidden bg-surface dark:bg-slate-950/60">
-                    <div className="p-3 bg-slate-50 dark:bg-slate-900 border-b border-border dark:border-slate-800 flex items-center justify-between">
-                      <span className="font-semibold text-fg dark:text-slate-300">
-                        ตัวอย่างข้อมูลที่จะนำเข้า (แสดง {Math.min(5, importParsedParts.length)} จาก {importParsedParts.length} รายการ):
-                      </span>
-                      <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-mono font-semibold">
-                        พร้อมนำเข้า {importParsedParts.length} รายการ
-                      </span>
+                  {/* Skipped Rows List */}
+                  {importSkippedRows.length > 0 && (
+                    <div className="p-3 bg-amber-500/10 border border-amber-500/25 rounded-xl text-xs space-y-1.5 max-h-32 overflow-y-auto">
+                      <div className="font-bold text-amber-700 dark:text-amber-300 flex items-center gap-1.5">
+                        <AlertCircle className="w-3.5 h-3.5" />
+                        <span>รายการที่ถูกข้าม ({importSkippedRows.length} แถว):</span>
+                      </div>
+                      <ul className="list-disc list-inside text-[11px] text-amber-800 dark:text-amber-200 space-y-0.5">
+                        {importSkippedRows.map((sr, idx) => (
+                          <li key={idx}>
+                            แถวที่ {sr.excelRow}: {sr.reason}
+                          </li>
+                        ))}
+                      </ul>
                     </div>
-                    <div className="overflow-x-auto max-h-48">
-                      <table className="w-full text-left border-collapse text-[11px]">
-                        <thead>
-                          <tr className="bg-slate-100 dark:bg-slate-900/80 text-fg-muted dark:text-slate-400 border-b border-border dark:border-slate-800">
-                            <th className="py-2 px-3">เครื่อง</th>
-                            <th className="py-2 px-3">ชื่ออะไหล่</th>
-                            <th className="py-2 px-3">ส่วนที่เปลี่ยน</th>
-                            <th className="py-2 px-3">ความถี่</th>
-                            <th className="py-2 px-3">วันครบกำหนด</th>
-                            <th className="py-2 px-3">ช่าง</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-border dark:divide-slate-800/60 text-fg dark:text-slate-300">
-                          {importParsedParts.slice(0, 5).map((p, i) => (
-                            <tr key={i} className="hover:bg-slate-50 dark:hover:bg-slate-900/40">
-                              <td className="py-2 px-3 font-mono text-cyan-700 dark:text-cyan-300 font-bold">{p.machineId}</td>
-                              <td className="py-2 px-3 font-medium text-fg">{p.partName}</td>
-                              <td className="py-2 px-3 text-fg-muted dark:text-slate-400">{p.componentLocation}</td>
-                              <td className="py-2 px-3">ทุก {p.intervalValue} {p.intervalUnit}</td>
-                              <td className="py-2 px-3 font-mono text-amber-700 dark:text-amber-300 font-semibold">{p.nextDueDate}</td>
-                              <td className="py-2 px-3 text-fg-muted dark:text-slate-400">{p.assignedTechnician || '-'}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
+                  )}
+
+                  {importParsedParts.length > 0 && (
+                    <>
+                      {/* Mode Selector */}
+                      <div className="p-3.5 bg-slate-50 dark:bg-slate-950 border border-border dark:border-slate-800 rounded-xl space-y-2">
+                        <span className="font-semibold text-fg dark:text-slate-200 block">รูปแบบการนำเข้า:</span>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          <label className={`p-3 rounded-lg border cursor-pointer transition-all flex items-start gap-2.5 ${
+                            importMode === 'append'
+                              ? 'bg-cyan-50 dark:bg-cyan-950/40 border-cyan-300 dark:border-cyan-500/50 text-fg'
+                              : 'bg-surface dark:bg-slate-900 border-border dark:border-slate-800 text-fg-muted dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700'
+                          }`}>
+                            <input
+                              type="radio"
+                              name="importMode"
+                              checked={importMode === 'append'}
+                              onChange={() => setImportMode('append')}
+                              className="mt-0.5 text-cyan-600"
+                            />
+                            <div>
+                              <span className="font-bold text-cyan-800 dark:text-cyan-300 block">เพิ่ม/อัปเดต</span>
+                              <span className="text-[11px] text-fg-muted dark:text-slate-400">
+                                อัปเดตข้อมูลอะไหล่เดิม (จับคู่จาก เครื่อง + ชื่ออะไหล่ + ส่วนที่เปลี่ยน) และเพิ่มรายการใหม่เข้าไป
+                              </span>
+                            </div>
+                          </label>
+
+                          <label className={`p-3 rounded-lg border cursor-pointer transition-all flex items-start gap-2.5 ${
+                            importMode === 'replace'
+                              ? 'bg-red-50 dark:bg-red-950/40 border-red-300 dark:border-red-500/50 text-fg'
+                              : 'bg-surface dark:bg-slate-900 border-border dark:border-slate-800 text-fg-muted dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700'
+                          }`}>
+                            <input
+                              type="radio"
+                              name="importMode"
+                              checked={importMode === 'replace'}
+                              onChange={() => setImportMode('replace')}
+                              className="mt-0.5 text-red-600"
+                            />
+                            <div>
+                              <span className="font-bold text-red-700 dark:text-red-300 block">แทนที่ทั้งหมด (Replace All)</span>
+                              <span className="text-[11px] text-fg-muted dark:text-slate-400">ล้างรายการ Time-Break เดิมและใช้รายการใหม่จากไฟล์นี้ทั้งหมด</span>
+                            </div>
+                          </label>
+                        </div>
+                      </div>
+
+                      {/* Preview Table */}
+                      <div className="border border-border dark:border-slate-800 rounded-xl overflow-hidden bg-surface dark:bg-slate-950/60">
+                        <div className="p-3 bg-slate-50 dark:bg-slate-900 border-b border-border dark:border-slate-800 flex items-center justify-between">
+                          <span className="font-semibold text-fg dark:text-slate-300">
+                            ตัวอย่างข้อมูลที่จะนำเข้า (แสดง {Math.min(5, importParsedParts.length)} จาก {importParsedParts.length} รายการ):
+                          </span>
+                          <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-mono font-semibold">
+                            พร้อมนำเข้า {importParsedParts.length} รายการ
+                          </span>
+                        </div>
+                        <div className="overflow-x-auto max-h-48">
+                          <table className="w-full text-left border-collapse text-[11px]">
+                            <thead>
+                              <tr className="bg-slate-100 dark:bg-slate-900/80 text-fg-muted dark:text-slate-400 border-b border-border dark:border-slate-800">
+                                <th className="py-2 px-3">เครื่อง</th>
+                                <th className="py-2 px-3">ชื่ออะไหล่</th>
+                                <th className="py-2 px-3">ส่วนที่เปลี่ยน</th>
+                                <th className="py-2 px-3">ความถี่</th>
+                                <th className="py-2 px-3">วันครบกำหนด</th>
+                                <th className="py-2 px-3">ช่าง</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-border dark:divide-slate-800/60 text-fg dark:text-slate-300">
+                              {importParsedParts.slice(0, 5).map((p, i) => (
+                                <tr key={i} className="hover:bg-slate-50 dark:hover:bg-slate-900/40">
+                                  <td className="py-2 px-3 font-mono text-cyan-700 dark:text-cyan-300 font-bold">{p.machineId}</td>
+                                  <td className="py-2 px-3 font-medium text-fg">{p.partName}</td>
+                                  <td className="py-2 px-3 text-fg-muted dark:text-slate-400">{p.componentLocation}</td>
+                                  <td className="py-2 px-3">ทุก {p.intervalValue} {p.intervalUnit}</td>
+                                  <td className="py-2 px-3 font-mono text-amber-700 dark:text-amber-300 font-semibold">{p.nextDueDate}</td>
+                                  <td className="py-2 px-3 text-fg-muted dark:text-slate-400">{p.assignedTechnician || '-'}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
               )}
             </div>
@@ -3859,6 +4076,7 @@ export const TimeBreakPage: React.FC = () => {
                 onClick={() => {
                   setShowImportModal(false);
                   setImportParsedParts([]);
+                  setImportSkippedRows([]);
                   setImportError(null);
                   setImportFileName('');
                 }}
@@ -3879,7 +4097,9 @@ export const TimeBreakPage: React.FC = () => {
                 }`}
               >
                 <CheckCircle2 className="w-4 h-4" />
-                <span>ยืนยันนำเข้า ({importParsedParts.length} รายการ)</span>
+                <span>
+                  {importMode === 'append' ? 'ยืนยันนำเข้า: เพิ่ม/อัปเดต' : 'ยืนยันนำเข้า: แทนที่ทั้งหมด'} ({importParsedParts.length} รายการ)
+                </span>
               </button>
             </div>
           </div>
