@@ -34,7 +34,7 @@ export const PMRoundHistoryModal: React.FC<PMRoundHistoryModalProps> = ({
   machine,
   onClose
 }) => {
-  const { schedules, setSchedules, setPmPlans, repairs, technicians, spareParts, setSpareParts } = useApp();
+  const { schedules, setSchedules, setPmPlans, repairs, technicians, spareParts, setSpareParts, recordStockChange } = useApp();
 
   // Edit mode states
   const [isEditing, setIsEditing] = useState<boolean>(false);
@@ -163,16 +163,17 @@ export const PMRoundHistoryModal: React.FC<PMRoundHistoryModalProps> = ({
 
   const handleDeleteJob = (job: PMScheduleItem) => {
     if (job && job.usedParts && job.usedParts.length > 0) {
-      let tempSpareParts = [...spareParts];
       for (const op of job.usedParts) {
-        tempSpareParts = tempSpareParts.map(sp => {
-          if (sp.id === op.partId) {
-            return { ...sp, quantity: sp.quantity + op.quantity };
-          }
-          return sp;
+        recordStockChange(op.partId, op.quantity, {
+          type: 'ADJUST',
+          source: 'PM',
+          refId: job.id,
+          machineId: job.machineId,
+          byTech: job.technician,
+          date: job.date,
+          note: 'คืนสต็อกจากการลบใบงาน'
         });
       }
-      setSpareParts(tempSpareParts);
     }
 
     const nextSchedules = schedules.filter(s => s.id !== job.id);

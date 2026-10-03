@@ -19,7 +19,7 @@ import { completePmJob } from '../utils/pmChecklist';
 import { exportPMReportToExcel } from '../utils/pmExcelUtils';
 
 export const PMHistoryPage: React.FC = () => {
-  const { schedules, setSchedules, pmPlans, setPmPlans, machines, technicians, spareParts, setSpareParts, settings } = useApp();
+  const { schedules, setSchedules, pmPlans, setPmPlans, machines, technicians, spareParts, setSpareParts, settings, recordStockChange } = useApp();
   const todayStr = getTodayDateString();
 
   // Search/Filters states
@@ -180,32 +180,53 @@ export const PMHistoryPage: React.FC = () => {
     }
 
     const primaryTech = formTechnicians.length > 0 ? formTechnicians[0] : (formTechnician || 'ช่าง 1');
+    const targetJobId = editingId || `pm-hist-${Date.now()}`;
 
-    // Adjust inventory stock
-    let tempSpareParts = [...spareParts];
+    // Adjust inventory stock via recordStockChange
+    const partIdSet = new Set<string>();
+    const oldPartsMap = new Map<string, number>();
     if (editingId) {
       const oldPm = schedules.find(s => s.id === editingId && s.type === 'PM') as PMScheduleItem | undefined;
       if (oldPm && oldPm.usedParts) {
         for (const op of oldPm.usedParts) {
-          tempSpareParts = tempSpareParts.map(sp => {
-            if (sp.id === op.partId) {
-              return { ...sp, quantity: sp.quantity + op.quantity };
-            }
-            return sp;
+          oldPartsMap.set(op.partId, (oldPartsMap.get(op.partId) || 0) + op.quantity);
+          partIdSet.add(op.partId);
+        }
+      }
+    }
+    const newPartsMap = new Map<string, number>();
+    for (const np of formUsedParts) {
+      newPartsMap.set(np.partId, (newPartsMap.get(np.partId) || 0) + np.quantity);
+      partIdSet.add(np.partId);
+    }
+
+    for (const partId of partIdSet) {
+      const oldQty = oldPartsMap.get(partId) || 0;
+      const newQty = newPartsMap.get(partId) || 0;
+      const net = oldQty - newQty;
+      if (net !== 0) {
+        if (net < 0) {
+          recordStockChange(partId, net, {
+            type: 'OUT',
+            source: 'PM',
+            refId: targetJobId,
+            machineId: formMachine,
+            byTech: primaryTech,
+            date: formDate
+          });
+        } else {
+          recordStockChange(partId, net, {
+            type: 'ADJUST',
+            source: 'PM',
+            refId: targetJobId,
+            machineId: formMachine,
+            byTech: primaryTech,
+            date: formDate,
+            note: 'คืนสต็อกจากการแก้ไขใบงาน'
           });
         }
       }
     }
-    // Deduct new parts
-    for (const np of formUsedParts) {
-      tempSpareParts = tempSpareParts.map(sp => {
-        if (sp.id === np.partId) {
-          return { ...sp, quantity: Math.max(0, sp.quantity - np.quantity) };
-        }
-        return sp;
-      });
-    }
-    setSpareParts(tempSpareParts);
 
     const linkedPlan = pmPlans.find(p => p.id === formPlan);
 
@@ -261,7 +282,7 @@ export const PMHistoryPage: React.FC = () => {
     } else {
       // Add new PM record
       let newPmJob: PMScheduleItem = {
-        id: `pm-hist-${Date.now()}`,
+        id: targetJobId,
         type: 'PM',
         technician: primaryTech,
         technicians: formTechnicians,
@@ -329,17 +350,18 @@ export const PMHistoryPage: React.FC = () => {
 
   const handleDeletePmHistory = (id: string) => {
     const logToDelete = schedules.find(s => s.id === id && s.type === 'PM') as PMScheduleItem | undefined;
-    if (logToDelete && logToDelete.usedParts) {
-      let tempSpareParts = [...spareParts];
+    if (logToDelete && logToDelete.usedParts && logToDelete.usedParts.length > 0) {
       for (const op of logToDelete.usedParts) {
-        tempSpareParts = tempSpareParts.map(sp => {
-          if (sp.id === op.partId) {
-            return { ...sp, quantity: sp.quantity + op.quantity };
-          }
-          return sp;
+        recordStockChange(op.partId, op.quantity, {
+          type: 'ADJUST',
+          source: 'PM',
+          refId: logToDelete.id,
+          machineId: logToDelete.machineId,
+          byTech: logToDelete.technician,
+          date: logToDelete.date,
+          note: 'คืนสต็อกจากการลบใบงาน'
         });
       }
-      setSpareParts(tempSpareParts);
     }
     setSchedules(prev => prev.filter(s => s.id !== id));
     setDeleteConfirmId(null);

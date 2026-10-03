@@ -281,7 +281,8 @@ export const TimeBreakPage: React.FC = () => {
           const matchTech = (sm.byTech || '').toLowerCase().includes(q);
           const matchMach = (sm.machineId || '').toLowerCase().includes(q);
           const matchNote = (sm.note || '').toLowerCase().includes(q);
-          const matchSource = (sm.source || '').toLowerCase().includes(q);
+          const sourceLabel = sm.source === 'Repair' ? 'ใบซ่อม' : sm.source === 'PM' ? 'PM' : (sm.source || '');
+          const matchSource = (sm.source || '').toLowerCase().includes(q) || sourceLabel.toLowerCase().includes(q);
           if (!matchCode && !matchName && !matchTech && !matchMach && !matchNote && !matchSource) {
             return false;
           }
@@ -1127,7 +1128,7 @@ export const TimeBreakPage: React.FC = () => {
           'จำนวน': displayQty,
           'หน่วย': sp?.unit || 'ชิ้น',
           'คงเหลือหลังทำรายการ': sm.balanceAfter,
-          'ที่มา': sm.source,
+          'ที่มา': sm.source === 'Repair' ? 'ใบซ่อม' : sm.source === 'PM' ? 'PM' : sm.source,
           'รหัสเครื่องจักร': sm.machineId || '-',
           'ชื่อเครื่องจักร': m?.name || '-',
           'ช่างผู้ทำรายการ': sm.byTech || '-',
@@ -2603,9 +2604,6 @@ export const TimeBreakPage: React.FC = () => {
                       <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
                         บันทึกการตัดสต็อกอัตโนมัติจากการเปลี่ยนอะไหล่ Time-Break, การรับเข้า, และการปรับยอดสต็อก
                       </p>
-                      <p className="text-[11px] text-amber-600 dark:text-amber-400 mt-1 font-medium">
-                        * การใช้อะไหล่จาก Repair/PM ยังไม่ถูกบันทึกใน Stock Card
-                      </p>
                     </div>
 
                     <div className="flex items-center gap-2 flex-wrap">
@@ -2728,7 +2726,7 @@ export const TimeBreakPage: React.FC = () => {
                               </td>
                               <td className="py-2.5 px-3.5 whitespace-nowrap">
                                 <span className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
-                                  {sm.source}
+                                  {sm.source === 'Repair' ? 'ใบซ่อม' : sm.source === 'PM' ? 'PM' : sm.source}
                                 </span>
                               </td>
                               <td className="py-2.5 px-3.5 font-mono text-slate-600 dark:text-slate-300 whitespace-nowrap">

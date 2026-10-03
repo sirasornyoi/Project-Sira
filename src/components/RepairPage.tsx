@@ -19,7 +19,7 @@ import * as XLSX from 'xlsx';
 import { getTodayDateString, getNowLocalDateTimeString } from '../utils/pmAlerts';
 
 export const RepairPage: React.FC = () => {
-  const { repairs, setRepairs, machines, technicians, spareParts, setSpareParts, settings } = useApp();
+  const { repairs, setRepairs, machines, technicians, spareParts, setSpareParts, settings, recordStockChange } = useApp();
 
   // Segmented sub-tab: 'bd' (Breakdown & History) | 'whywhy' (Why-Why Diagram Tree)
   const [activeSubTab, setActiveSubTab] = useState<'bd' | 'whywhy'>('bd');
@@ -215,32 +215,54 @@ export const RepairPage: React.FC = () => {
     }
 
     const primaryTech = formTechnicians[0] || formTechnician || 'ช่าง 1';
+    const targetRepairId = editingId || `rep-${Date.now()}`;
+    const repairDate = (formBreakdown || '').split('T')[0] || getTodayDateString();
 
-    // Adjust inventory stock
-    let tempSpareParts = [...spareParts];
+    // Adjust inventory stock via recordStockChange
+    const partIdSet = new Set<string>();
+    const oldPartsMap = new Map<string, number>();
     if (editingId) {
       const oldRepair = repairs.find(r => r.id === editingId);
       if (oldRepair && oldRepair.usedParts) {
         for (const op of oldRepair.usedParts) {
-          tempSpareParts = tempSpareParts.map(sp => {
-            if (sp.id === op.partId) {
-              return { ...sp, quantity: sp.quantity + op.quantity };
-            }
-            return sp;
+          oldPartsMap.set(op.partId, (oldPartsMap.get(op.partId) || 0) + op.quantity);
+          partIdSet.add(op.partId);
+        }
+      }
+    }
+    const newPartsMap = new Map<string, number>();
+    for (const np of formUsedParts) {
+      newPartsMap.set(np.partId, (newPartsMap.get(np.partId) || 0) + np.quantity);
+      partIdSet.add(np.partId);
+    }
+
+    for (const partId of partIdSet) {
+      const oldQty = oldPartsMap.get(partId) || 0;
+      const newQty = newPartsMap.get(partId) || 0;
+      const net = oldQty - newQty;
+      if (net !== 0) {
+        if (net < 0) {
+          recordStockChange(partId, net, {
+            type: 'OUT',
+            source: 'Repair',
+            refId: targetRepairId,
+            machineId: formMachine,
+            byTech: primaryTech,
+            date: repairDate
+          });
+        } else {
+          recordStockChange(partId, net, {
+            type: 'ADJUST',
+            source: 'Repair',
+            refId: targetRepairId,
+            machineId: formMachine,
+            byTech: primaryTech,
+            date: repairDate,
+            note: 'คืนสต็อกจากการแก้ไขใบงาน'
           });
         }
       }
     }
-    // Deduct new parts
-    for (const np of formUsedParts) {
-      tempSpareParts = tempSpareParts.map(sp => {
-        if (sp.id === np.partId) {
-          return { ...sp, quantity: Math.max(0, sp.quantity - np.quantity) };
-        }
-        return sp;
-      });
-    }
-    setSpareParts(tempSpareParts);
 
     if (editingId) {
       const oldRepair = repairs.find(r => r.id === editingId);
@@ -308,7 +330,7 @@ export const RepairPage: React.FC = () => {
       const finalWhy5 = legacyWhys ? legacyWhys.why5 : why5.trim();
 
       const newLog: RepairLog = {
-        id: `rep-${Date.now()}`,
+        id: targetRepairId,
         type: 'Repair',
         technician: primaryTech,
         technicians: formTechnicians,
@@ -2453,17 +2475,18 @@ export const RepairPage: React.FC = () => {
                 id="btn-confirm-delete-action"
                 onClick={() => {
                   const logToDelete = repairs.find(r => r.id === deleteConfirmId);
-                  if (logToDelete && logToDelete.usedParts) {
-                    let tempSpareParts = [...spareParts];
+                  if (logToDelete && logToDelete.usedParts && logToDelete.usedParts.length > 0) {
                     for (const op of logToDelete.usedParts) {
-                      tempSpareParts = tempSpareParts.map(sp => {
-                        if (sp.id === op.partId) {
-                          return { ...sp, quantity: sp.quantity + op.quantity };
-                        }
-                        return sp;
+                      recordStockChange(op.partId, op.quantity, {
+                        type: 'ADJUST',
+                        source: 'Repair',
+                        refId: logToDelete.id,
+                        machineId: logToDelete.machineId,
+                        byTech: logToDelete.technician,
+                        date: logToDelete.date,
+                        note: 'คืนสต็อกจากการลบใบงาน'
                       });
                     }
-                    setSpareParts(tempSpareParts);
                   }
                   setRepairs(prev => prev.filter(r => r.id !== deleteConfirmId));
                   setDeleteConfirmId(null);
