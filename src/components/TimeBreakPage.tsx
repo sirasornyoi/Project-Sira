@@ -3,6 +3,7 @@ import * as XLSX from 'xlsx';
 import { useApp } from '../context/AppContext';
 import { TimeBreakPartItem, TimeBreakHistoryRecord, Machine, SparePart } from '../types';
 import { getTodayDateString } from '../utils/pmAlerts';
+import { SparePartImportModal } from './SparePartImportModal';
 import { 
   Clock, Plus, Search, Filter, AlertTriangle, CheckCircle, 
   Calendar, Wrench, RefreshCw, ChevronRight, ChevronDown, ChevronUp, Layers, Tag, 
@@ -40,6 +41,7 @@ export const TimeBreakPage: React.FC = () => {
   const [importMode, setImportMode] = useState<'append' | 'replace'>('append');
   const [importError, setImportError] = useState<string | null>(null);
   const [importFileName, setImportFileName] = useState<string>('');
+  const [showSparePartImportModal, setShowSparePartImportModal] = useState(false);
 
   // Replacement modal form fields
   const [replacementDate, setReplacementDate] = useState('2026-09-09');
@@ -1479,7 +1481,7 @@ export const TimeBreakPage: React.FC = () => {
                   title="ส่งออกข้อมูลอะไหล่ Time-Break ทั้งหมดเป็นไฟล์ Excel (.xlsx)"
                 >
                   <Download className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
-                  <span>Export Excel</span>
+                  <span>Export Excel อะไหล่ Time-Break</span>
                 </button>
 
                 <button
@@ -1491,10 +1493,10 @@ export const TimeBreakPage: React.FC = () => {
                     setShowImportModal(true);
                   }}
                   className="px-3 py-2 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-emerald-700 dark:text-emerald-300 hover:text-emerald-800 dark:hover:text-fg border border-slate-300 dark:border-slate-700 flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
-                  title="นำเข้าข้อมูลอะไหล่ Time-Break จากไฟล์ Excel (.xlsx, .xls, .csv)"
+                  title="นำเข้าข้อมูลเฉพาะอะไหล่รอบเปลี่ยน Time-Break (ไม่เกี่ยวข้องกับรายการคลังอะไหล่สำรอง)"
                 >
                   <Upload className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                  <span>Import Excel</span>
+                  <span>Import อะไหล่ Time-Break</span>
                 </button>
 
                 <button
@@ -1507,15 +1509,27 @@ export const TimeBreakPage: React.FC = () => {
                 </button>
               </>
             ) : (
-              <button
-                id="btn-export-stock-excel"
-                onClick={() => handleExportStockExcel()}
-                className="px-3.5 py-2 text-xs font-semibold rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white flex items-center gap-1.5 transition-all shadow-md cursor-pointer"
-                title="ส่งออกข้อมูลรายการอะไหล่และ Stock Card แยกต่างหากเป็นไฟล์ Excel (.xlsx)"
-              >
-                <Download className="w-4 h-4 text-white" />
-                <span>Export Excel รายการอะไหล่</span>
-              </button>
+              <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  id="btn-export-stock-excel"
+                  onClick={() => handleExportStockExcel()}
+                  className="px-3 py-2 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-cyan-700 dark:text-cyan-300 hover:text-cyan-800 dark:hover:text-fg border border-slate-300 dark:border-slate-700 flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
+                  title="ส่งออกข้อมูลรายการอะไหล่และ Stock Card แยกต่างหากเป็นไฟล์ Excel (.xlsx)"
+                >
+                  <Download className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
+                  <span>Export Excel รายการอะไหล่</span>
+                </button>
+
+                <button
+                  id="btn-import-spareparts-excel"
+                  onClick={() => setShowSparePartImportModal(true)}
+                  className="px-3 py-2 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-emerald-700 dark:text-emerald-300 hover:text-emerald-800 dark:hover:text-fg border border-slate-300 dark:border-slate-700 flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
+                  title="นำเข้ารายการอะไหล่และสต็อกคลังสำรอง (เลือกว่าจะเอาตัวซ้ำทับ หรือเพิ่มเฉพาะตัวไม่ซ้ำ - ไม่เกี่ยวกับ Time-Break)"
+                >
+                  <Upload className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  <span>Import รายการอะไหล่</span>
+                </button>
+              </div>
             )}
           </div>
         </div>
@@ -3659,9 +3673,12 @@ export const TimeBreakPage: React.FC = () => {
                 <div>
                   <h3 className="text-base font-bold text-fg flex items-center gap-2">
                     นำเข้าข้อมูลอะไหล่ Time-Break จาก Excel
+                    <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-500/10 text-amber-500 border border-amber-500/30">
+                      เฉพาะ Time-Break
+                    </span>
                   </h3>
                   <p className="text-xs text-fg-muted dark:text-slate-400">
-                    รองรับไฟล์นามสกุล .xlsx, .xls, .csv พร้อมระบบจับคู่คอลัมน์อัตโนมัติ
+                    นำเข้าเฉพาะรอบเปลี่ยนอะไหล่ตามระยะเวลาของเครื่องจักร (ไม่เกี่ยวข้องกับรายการคลังอะไหล่สำรอง)
                   </p>
                 </div>
               </div>
@@ -3868,6 +3885,12 @@ export const TimeBreakPage: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* 6.b SPARE PARTS IMPORT MODAL (แยกต่างหากจาก Time-Break สำหรับแท็บรายการอะไหล่) */}
+      <SparePartImportModal
+        isOpen={showSparePartImportModal}
+        onClose={() => setShowSparePartImportModal(false)}
+      />
 
       {/* CONFIRMATION MODAL FOR DELETING TIME BREAK PART */}
       {partToDelete && (
